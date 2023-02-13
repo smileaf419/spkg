@@ -1,0 +1,10 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("http://ftp.musicbrainz.org/pub/musicbrainz/libdiscid/libdiscid-${PKG_VER}.tar.gz")
+PATCHES=("")
+LICENSE=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

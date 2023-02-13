@@ -1,0 +1,30 @@
+HOMEPAGE="https://savannah.gnu.org/projects/patch/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/patch/patch-${PKG_VER}.tar.xz")
+PATCHES=(
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-fix-test-suite.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-fix-error-handling-with-git-style-patches.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-CVE-2018-6951.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-allow-input-files-to-be-missing-for-ed-style-patches.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-CVE-2018-1000156.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-CVE-2018-6952.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-Do-not-crash-when-RLIMIT_NOFILE-is-set-to-RLIM_INFINITY.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-CVE-2018-1000156-fix1.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-CVE-2018-1000156-fix2.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-CVE-2019-13636.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-CVE-2019-13638.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-Avoid-invalid-memory-access-in-context-format-diffs.patch"
+)
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/patch/patch-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS="sys-apps/attr"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+bootstrap() {
+	./configure --prefix=/usr   \
+				--host=$HOST_TGT \
+				--build=$(build-aux/config.guess)
+	compile_default && install_default
+}

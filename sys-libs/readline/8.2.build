@@ -1,0 +1,27 @@
+HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz.sig")
+LICENSE=""
+DEPS="sys-libs/ncurses"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -i '/MV.*old/d' Makefile.in
+	sed -i '/{OLDSUFF}/c:' support/shlib-install
+
+	configure_default --with-curses
+}
+
+src_compile() {
+	make SHLIB_LIBS="-lncursesw"
+}
+
+src_test() { :; }
+
+src_install() {
+	make SHLIB_LIBS="-lncursesw" DESTDIR="${D}" install
+	install -v -m644 doc/*.{ps,pdf,html,dvi} "${D}"/usr/share/doc/readline-${PKG_VER}
+}

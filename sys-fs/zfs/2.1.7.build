@@ -1,0 +1,45 @@
+HOMEPAGE="https://github.com/openzfs/zfs"
+DESCRIPTION="ZFS Userland tools & Kernel Module"
+SRC_URI=("https://github.com/openzfs/zfs/releases/download/zfs-${PKG_VER}/zfs-${PKG_VER}.tar.gz")
+PATCHES=("")
+LICENSE="BSD-2 CDDL MIT"
+DEPS="dev-libs/libaio dev-libs/openssl net-libs/libtirpc sys-fs/eudev sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+MODULE=kernel
+
+src_configure() {
+	append-flags -fno-tree-vectorize
+	sh autogen.sh
+	./configure --prefix=/usr \
+				--bindir=/bin \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--sbindir=/sbin \
+				--enable-shared \
+				--enable-sysvinit \
+				--with-config=all \
+				--disable-static \
+				--with-linux=/usr/src/linux
+}
+
+src_compile() {
+	# doesn't seem to like multi-job builds.
+	make
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	# Add missing logging functions.
+	cat >> ${D}/etc/zfs/zfs-functions << "EOF"
+# Add Missing Functions
+# FIXME: should try and conform them to the standard scripts.
+#        This looks ugly! :(
+log_begin_msg() { echo -n "${1}: "; }
+log_end_msg() { [ $1 == 0 ] && echo "Ok!" || echo "Failed!"; }
+EOF
+}

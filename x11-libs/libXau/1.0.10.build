@@ -1,0 +1,16 @@
+HOMEPAGE="https://wiki.x.org/wiki/"
+DESCRIPTION="X Authorization routines"
+SRC_URI=("https://www.x.org/pub/individual/lib/libXau-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="x11-base/xorg-proto"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static
+}

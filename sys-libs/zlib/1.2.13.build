@@ -1,0 +1,19 @@
+HOMEPAGE="https://zlib.net/"
+DESCRIPTION="Standard (de)compression library"
+SRC_URI="https://zlib.net/zlib-${PKG_VER}.tar.xz"
+LICENSE="ZLIB"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--enable-shared
+}
+
+src_install() {
+	install_default
+
+	rm -f "${D}"/usr/lib/libz.a
+}

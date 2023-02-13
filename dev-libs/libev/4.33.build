@@ -1,0 +1,11 @@
+HOMEPAGE="http://software.schmorp.de/pkg/libev.html"
+DESCRIPTION="A high-performance event loop/event model with lots of features."
+SRC_URI=("http://dist.schmorp.de/libev/libev-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("http://dist.schmorp.de/libev/libev-${PKG_VER}.tar.gz.sig")
+LICENSE="GPL"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

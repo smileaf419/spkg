@@ -1,0 +1,15 @@
+HOMEPAGE="https://metacpan.org/dist/JSON"
+DESCRIPTION="JSON (JavaScript Object Notation) encoder/decoder"
+SRC_URI="https://www.cpan.org/authors/id/I/IS/ISHIGAKI/JSON-${PKG_VER}.tar.gz"
+LICENSE="Artistic GPL-1+"
+DEPS=""
+BDEPS=""
+RDEPS="dev-lang/perl"
+SLOT=0
+B=JSON-$PKG_VER
+MODULE=perl
+TEST=test
+
+src_configure() {
+	perl Makefile.PL
+}

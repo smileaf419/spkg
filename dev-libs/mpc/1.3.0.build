@@ -1,0 +1,19 @@
+HOMEPAGE="http://www.multiprecision.org/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/mpc/mpc-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/mpc/mpc-${PKG_VER}.tar.gz.sig")
+LICENSE=""
+DEPS="dev-libs/gmp dev-libs/mpfr"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_compile() {
+	compile_default
+	make html
+}
+
+src_install() {
+	install_default
+	make DESTDIR="${D}" install-html
+}

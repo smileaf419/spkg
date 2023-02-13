@@ -1,0 +1,17 @@
+HOMEPAGE="https://alsa-project.org/wiki/Main_Page"
+DESCRIPTION="Alsa meta package"
+SRC_URI=""
+LICENSE="GPLv2 LGPLv2.1"
+DEPS=""
+BDEPS=""
+RDEPS="media-libs/alsa-lib media-plugins/alsa-plugins media-sound/alsa-tools media-sound/alsa-utils"
+SLOT=0
+B=""
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() { :; }

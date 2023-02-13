@@ -1,0 +1,9 @@
+HOMEPAGE="https://www.gnu.org/software/gzip/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/gzip/gzip-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gzip/gzip-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0

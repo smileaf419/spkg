@@ -1,0 +1,9 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/libunistring/libunistring-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/libunistring/libunistring-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0

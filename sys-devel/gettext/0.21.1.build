@@ -1,0 +1,21 @@
+HOMEPAGE="https://www.gnu.org/software/gettext/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/gettext/gettext-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gettext/gettext-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS="app-arch/xz-utils dev-libs/icu dev-libs/libunistring dev-libs/libxml2 sys-apps/acl sys-apps/attr sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() {
+	test_default VERBOSE=1
+	inform " !! 4 tests are known to fail"
+	inform "msgcat-17 msgfilter-sr-latin-1 msgmerge-11 xgettext-python-1"
+}
+
+src_install() {
+	install_default
+
+	chmod -v 0755 "${D}"/usr/lib/preloadable_libintl.so
+}

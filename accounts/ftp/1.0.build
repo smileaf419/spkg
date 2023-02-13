@@ -1,0 +1,25 @@
+HOMEPAGE=""
+DESCRIPTION="FTP User and Group"
+SRC_URI=""
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=""
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	addGroup ftp -g 45
+	addUser ftp \
+		-c 'ftp' \
+		-d /dev/null  \
+		-g ftp \
+		-s /bin/false     \
+		-u 45
+}

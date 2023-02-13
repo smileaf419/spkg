@@ -1,0 +1,36 @@
+HOMEPAGE="https://plex.tv/"
+DESCRIPTION=""
+#https://plex.tv/downloads/latest/5?channel=0&build=linux-x86_64&distro=debian&X-Plex-Token=xxxxxxxxxxxxxxxxxxxx
+H=02189b09f
+SRC_URI="https://downloads.plex.tv/plex-media-server-new/${PKG_VER}-${H}/debian/plexmediaserver_${PKG_VER}-${H}_amd64.deb"
+LICENSE="Plex"
+DEPS=""
+BDEPS=""
+RDEPS="accounts/plex"
+SLOT=0
+B=""
+
+src_unpack() {
+	ar x $DISTFILES/${SRC_FILE##*/}
+}
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	cd $D
+	unpack $BUILD_PATH/data.tar.xz
+	mkdir -p ${D}/etc/default
+	mkdir -p ${D}/etc/rc.d/init.d
+	mkdir -p ${D}/etc/rc.d/rc{0,1,2,3,4,5,6}.d
+	mv ${D}/usr/lib/plexmediaserver/lib/plexmediaserver.default \
+		${D}/etc/default
+	mv ${D}/usr/lib/plexmediaserver/lib/plexmediaserver.init \
+		${D}/etc/rc.d/init.d/plexmediaserver
+	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc0.d/K40plexmediaserver 
+	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc6.d/K40plexmediaserver 
+	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc3.d/S40plexmediaserver 
+}

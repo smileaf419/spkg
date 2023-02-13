@@ -1,0 +1,700 @@
+stripPackage() {
+	cd "${D}"
+	echo "Stripping..."
+	for s in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*"  ); do
+		strip --strip-unneeded "$s" 2> /dev/null && echo " -- $s"
+	done
+}
+
+archivePackage() {
+	# Package it up
+	if [[ $BUILD_PACKAGE == "yes" && ARCHIVE_INSTALL != 1 && $MODE != "bootstrap" ]]; then
+		echo -n "Packaging up..."
+		mkdir -p "${PKG_ARCHIVE_DIR}/${PKG_CAT}"
+		tar -zcpf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" . && echo " Done"
+	fi
+}
+
+# Find all Binary deps
+getBDeps() {
+	cd "${D}"
+	echo -n "Finding Binary Dependencies..."
+	for dep in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*" -type f ); do
+	    deps=$(ldd $dep 2> /dev/null | sed -e 's,.*=> ,,' -e "s, (.*,," -e "s,\\s*,,")
+#		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
+	    for d in $deps; do
+			# Only add it, if it actually exists.
+	        if [ -e "${d}" ]; then
+				# Don't add anything this package supplies
+				bd=$(readlink -f $d)
+				(grep "$d" "${BUILD_PATH}/CONTENTS" ||
+					echo $d | grep "${D}") > /dev/null 2>&1
+				[[ $? != 0 ]] && echo $bd
+			else
+				# 2 common instances.
+				if [[ $d != "linux-vdso.so.1" && $d != "not found" && $d != "statically linked" ]]; then
+					echo " !! Dependency '$d' Not found!" >&2
+				fi
+			fi
+	    done 
+	done | sort | uniq > "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/BDEPS"
+	echo "Done"
+}
+
+# Populates a /tmp/chart files
+getFullPkgList() {
+	echo > /tmp/chart
+	echo > /tmp/cdeps
+	echo > /tmp/pdeps
+	local tlist=$@
+	local flist=
+	local rlist=
+	for d in $tlist; do
+		getdep $d
+		flist+=" $PKG_CAT/$PKG_NAME"
+	done
+	echo
+}
+
+# Take a list and expand all @sets found within.
+expandSets() {
+	local list=$@
+	if [[ $list =~ (^|[[:space:]])"@" ]]; then
+		>&2 echo " * Found Set .. Expanding"
+		local slist=
+		local tlist=
+		for p in $list; do
+			if [ ${p:0:1} == "@" ]; then
+				if [[ ${p#@} == "world" ]]; then
+					slist="$slist $(cat $PKG_WORLD|tr '\n' ' ')"
+				elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
+					slist="$slist $(cat $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
+				else
+					>&2 echo " * Unknown set: ${p#@}"
+				fi
+			else
+				tlist="$tlist $p"
+			fi
+		done
+		list="$tlist $slist"
+	fi
+	echo $list
+}
+
+buildKernel() {
+	[ ! -e /usr/src/linux ] && die "you should set your /usr/src/linux symlink to a valid kernel source."
+	if [[ ! -e /usr/src/linux/.config && ! -e /proc/config.gz ]]; then
+		echo "Cannot Build kernel without either a /proc/config.gz or a /usr/src/linux/.config"
+		die "Please go to /usr/src/linux and run: make menuconfig"
+	fi
+	if [[ -e /proc/config.gz && ! -e /usr/src/linux/.config ]]; then
+		gzip -cd /proc/config.gz > /usr/src/linux/.config
+		echo " * Using current running kernel's config"
+	fi
+	KERNEL_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
+	echo " * Building Kernel - $KERNEL_VER"
+	
+	cd /usr/src/linux
+	# Set the default init to OpenRC.
+	#sed -i '/CONFIG_DEFAULT_INIT/ s,"","/sbin/openrc-init",' .config
+	
+	echo " * Running: make oldconfig"
+	make oldconfig
+	echo " * Compiling (using: $MAKEOPTS)"
+	make $MAKEOPTS
+	
+	if [[ ! -z $(grep /boot /etc/fstab) && -z $(mount | grep /boot) ]]; then
+		echo " * Mounting /boot"
+		mount /boot
+		BOOT_MOUNTED=1
+	fi
+	echo " * Installing."
+	make install modules_install
+	mv /boot/System.map{,-${KERNEL_VER}}
+	mv /boot/vmlinuz{,-${KERNEL_VER}}
+	
+	echo " * Generating grub config"
+	grub-mkconfig -o /boot/grub/grub.cfg
+	if [[ ! -z $BOOT_MOUNTED ]]; then
+		echo " * Unmounting /boot"
+		umount /boot
+	fi
+}
+
+rebuildModules() {
+	local type=$1
+	case $type in
+		kernel)
+			type=KERNEL_MODULE ;;
+		perl)
+			type=PERL_MODULE ;;
+		python)
+			type=PYTHON_MODULE ;;
+	esac
+	for m in $(find ${PKG_CACHE} -iname $type | sed -e "s,/$type,," -e "s,${PKG_CACHE}/,,")
+	do
+		echo -n "$(getcategory $m)/$(getpkgname $m) "
+	done	
+}
+
+# 1: Package Name
+setupENV() {
+	PKG=$(getpkg ${1%[*})
+	PKG_FLAGS=${1#*[}; PKG_FLAGS=${PKG_FLAGS%]}
+	PKG_BLD=$PKG_DB_DIR/${PKG}.build
+	PKG_CAT=$(getcategory $PKG)
+	PKG_NAME=$(getpkgname $PKG)
+	PKG_VER=$(getpkgver $PKG)
+	PKG_REV=$(getpkgrev $PKG)
+	PKG_VR=$(getpkgvr $PKG)
+	BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
+	# Default archive build directory
+	B="${PKG_NAME}-${PKG_VER}"
+	# Temp install root
+	D="${BUILD_PATH}/troot"
+	O_VER=$(getinstalledversion $PKG_CAT/$PKG_NAME)
+	if [ $VERBOSE -ge 3 ]; then
+		echo "1          : $1"
+		echo "PKG        : $PKG"
+		echo "PKG_BLD    : $PKG_BLD"
+		echo "PKG_CAT    : $PKG_CAT"
+		echo "PKG_NAME   : $PKG_NAME"
+		echo "PKG_VER    : $PKG_VER"
+		echo "PKG_REV    : $PKG_REV"
+		echo "PKG_VR     : $PKG_VR"
+		echo "BUILD_PATH : $BUILD_PATH"
+		echo "B          : $B"
+		echo "O_VER      : $O_VER"
+		echo "PKG_CACHE  : $PKG_CACHE"
+		echo "PKG_FLAGS  : $PKG_FLAGS"
+	fi
+	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR BUILD_PATH B D O_VER
+}
+
+
+installList() {
+	list=($@)
+	length=${#list[@]}
+	for (( l=0; l<${length}; l++ ));
+	do
+		# Current #
+		C=$(( ${l} + 1 ))
+		p=${list[$l]}
+		#TODO add a way to specify a certain version to allow for multiple slots/versions
+		#	  to be installed at the same time.
+		setupENV $p
+	
+		# Uninstall
+		if [[ $MODE == "uninstall" ]]; then
+			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
+			# TODO: Before we do an Uninstall, Check for any Binary Dependency.
+			d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
+	
+			# FIXME: If uninstalling will break packages Check Forced.
+			# Option 1: Uninstall just the requested, breaking other installed packages.
+			# Option 2: Uninstall all packages that would break, and any that would break if they were removed.
+			# Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
+			#			Under any circumstances
+			if [[ $d != *$p && $d != "" && $FORCE == 0 ]]; then
+				echo "Uninstalling will break packages!"
+				echo $d
+			else
+				uninstall "${PKG_CAT}/${PKG_NAME}" $O_VER ""
+			fi
+			
+		# Install
+		else
+			set -o pipefail
+			LOG="${LOGDIR}/$(date +%Y%m%d)-${PKG_NAME}-${PKG_VR}.log"
+			CFG_PROTECT=true
+			
+			echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR} ($C of $length)"
+
+			TIMESTART=$(date "+%s.%N")
+
+			[[ $SILENT_BUILD == "no" ]] && installPackage 2>&1 | tee $LOG || installPackage > $LOG 2>&1
+
+			echo "Completed in $( echo $(date "+%s.%N") - $TIMESTART | bc ) seconds." | tee -a $LOG
+
+			[ -e $LOG.bz2 ] && rm $LOG.bz2
+			bzip2 $LOG 
+			[ $PIPESTATUS -eq 0 ] || die "Error installing package: ${PKG_NAME}-${PKG_VR}"
+		fi
+		echo -n " * Running ldconfig .."
+		ldconfig && echo "done!" || echo "failed!"
+	done
+}
+
+# install doesn't support preserving permissions
+# and ownership, so we need to get them and 
+# explicitly set them.
+sinstall() {
+	# had to break the stat command up into 3 parts
+	# to avoid install from assuming the 3 switches 
+	# were all 1 switch.
+	# Assuming rather than interpretating the command
+	# it directly sent the arguments to install.
+	P=$(stat -c '-m%a' "$1")
+	G=$(stat -c '-g%g' "$1")
+	O=$(stat -c '-o%u' "$1")
+	if [ -d "$1" ]; then
+		install -d $P $O $G "$1" "$2"
+	else
+		install $P $O $G "$1" "$2"
+	fi
+}
+
+fetch_files() {
+	SRC_FILES=($1)
+	echo ${SRC_FILES[@]}
+}
+
+prepare_default() {
+	if [[ ! -z $SRC_URI ]]; then
+		# FIXME: Irritating duplication of code due to the inability to pass arrays.
+		echo "Fetching Files"
+		length=${#SRC_URI[@]}
+		for (( l=0; l<${length}; l++ )); do
+			# Current #
+			C=$((${l}+1))
+			file=${SRC_URI[$l]}
+			if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
+				export SRC_OUTFILE=${file/*=> /}
+				export SRC_FILE=${file/ =>*/}
+				# Once a fetch occurs we don't actually need the old filename.
+				# Rename it so as to avoid confusion later.
+				SRC_URI[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+			else
+				export SRC_FILE=$file
+				export SRC_OUTFILE=${SRC_FILE##*/}
+			fi
+			echo "Fetching ($C of $length) $SRC_FILE"
+			if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
+				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
+			fi
+			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"			
+		done
+		echo "Fetching Patches"
+		length=${#PATCHES[@]}
+		for (( l=0; l<${length}; l++ )); do
+			[[ ${PATCHES[$i]} == "" ]] && break
+			# Current #
+			C=$((${l}+1))
+			file=${PATCHES[$l]}
+			if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
+				export SRC_FILE=${file/ =>*/}
+				export SRC_OUTFILE=${file/*=> /}
+				# Once a fetch occurs we don't actually need the old filename.
+				# Rename it so as to avoid confusion later.
+				PATCHES[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+			else
+				export SRC_FILE=$file
+				export SRC_OUTFILE=${SRC_FILE##*/}
+			fi
+			echo "Fetching ($C of $length) $SRC_FILE as $SRC_OUTFILE"
+			if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
+				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
+			fi
+			echo "Checking sha1 of $SRC_OUTFILE"
+			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"
+		done
+			# Check a sig file if it exists.
+			# FIXME: This code fails if there is no public key installed.
+			# Build files should depend on a public key package.
+#			if [[ $VERIFY_SIG == 1 && $file == *.sig ]]; then
+#				echo -n "Checking Signature: ${DISTFILES}/${SRC_FILE%.*} ..."
+#				gpg --verify "${DISTFILES}/${SRC_FILE}" "${DISTFILES}/${SRC_FILE%.*}" 2>&1 | grep "Good signature" >/dev/null
+#				[ $? == 0 ] && echo "Ok" || die "Failed!"
+#			fi
+#		done
+
+		[[ $FETCH_ONLY == 1 ]] && return
+
+		# We need to downgrade SRC_URI for scripts to access it properly
+		SRC=${SRC_URI[@]}
+		unset SRC_URI
+		export SRC_URI=${SRC[@]}
+		SRC_FILE=${SRC_URI%% *}
+		
+		# We only unpack the first one, anything else will need to be done via the build file.
+		echo "Unpacking ${SRC_FILE##*/}"
+		su -p -c 'src_unpack "${DISTFILES}/${SRC_FILE##*/}"' $BUILD_USER
+		# In most cases archive directories are the name of the archive itself.
+		# This could be a better default for B.
+		if [ ! -d "${BUILD_PATH}/${B}" ]; then
+			echo "Build Directory ($BUILD_PATH/$B) not found! Directory listing of BUILD_PATH:"
+			ls "${BUILD_PATH}"
+			die "exiting.."
+		fi
+		cd "${BUILD_PATH}/${B}"
+	fi
+	if [[ ! -z $PATCHES ]]; then
+		P="${PATCHES[@]}"
+		# Export so we can use it, unset afterwards. Sad we can't export arrays.
+		export P
+		su -p -c 'src_patch "$P"' $BUILD_USER
+		unset P
+	fi
+}
+export -f prepare_default
+
+buildPackage() {
+	BUILD_SEPERATE_DIR=no
+	checkSha1 ${PKG_BLD%/*} $PKG_BLD
+	(
+		set -o pipefail
+		source "${PKG_BLD}"
+		
+		# Export this so packages can override the src_unpack.
+		export LDFLAGS CXXFLAGS CFLAGS
+
+		# Download all files.
+		# If it fails, create it and try again.
+		# Package may have overrode it.	
+		cd "${BUILD_PATH}" > /dev/null 2>&1 || 
+			install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}"
+		chown $BUILD_USER "$BUILD_PATH"
+		src_prepare
+		
+		if [[ $BUILD_SEPERATE_DIR != no ]]; then
+			install -d -o $BUILD_USER build
+			cd build
+		fi
+
+		# When we pass commands to our BUILD_USER these does not get updated
+		# Set it here to avoid permission issues when packages call for
+		# $HOME/.cache for example
+		export USER=$BUILD_USER
+		export LOGNAME=$BUILD_USER
+		export HOME=/tmp
+		if [[ $MODE != "bootstrap" ]]; then
+			echo " * src_configure ($BUILD_USER)"
+			su -p -c 'src_configure' $BUILD_USER || die "Error in src_configure"
+			echo " * src_compile ($BUILD_USER)"
+			su -p -c 'src_compile' $BUILD_USER || die "Error in src_compile"
+			if [ $ENABLE_TESTS == 1 ]; then
+				echo " * src_test ($TEST_USER)"
+				su -p -c 'src_test' $BUILD_USER || die "Error in src_test"
+			fi
+			echo " * src_install"
+			src_install		|| die "Error in src_install"
+			case $MODULE in 
+				kernel)
+					echo > ${BUILD_PATH}/KERNEL_MODULE ;;
+				perl)
+					echo > ${BUILD_PATH}/PERL_MODULE ;;
+				python)
+					echo > ${BUILD_PATH}/PYTHON_MODULE ;;
+			esac
+		else
+			echo " * Bootstrapping"
+			su -p -c 'bootstrap_default' $BUILD_USER || die "Error bootstrapping"
+		fi
+	) || die "Error Building Package."
+}
+
+installPackage() {
+	install -o $BUILD_USER -d "${D}"
+	
+	if [ $ARCHIVE_INSTALL == 1 ]; then
+		cd "${D}"
+		if [ -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]; then
+			tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz"
+		else
+			# If the archive isn't available, it could be due to an upgrade or just got cleaned up at some point.
+			# Just allow it to be rebuilt.
+#			die " * Archive ${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz Does not exist! Cannot install package"
+			buildPackage
+			cd "${D}"
+		fi
+	else
+		buildPackage
+#		if [[ $MODE == "bootstrap" ]]; then
+#			echo -n "Cleaning up..."
+#			rm -rf "${BUILD_PATH}" && echo " Done"
+#			return
+#		fi
+		[[ $FETCH_ONLY == 1 ]] && return
+		cd "${D}"
+	fi
+	
+	# Archive it up before we do any post modifications.
+	archivePackage
+
+	echo " * Removing Libtool Archives (.la)"
+	find "${D}"/usr/lib{,exec} -name \*.la -delete -print 2> /dev/null # 2>&1
+	
+	if [[ $INSTALL_DOCS == 0 ]]; then
+		echo " * Removing Docs"
+		rm -r "${D}"/usr/share/doc > /dev/null 2>&1
+		rmdir "${D}"/usr/{share,} > /dev/null 2>&1
+	fi
+
+	# FIXME: This needs to get a more comprehensive list of locales to save, not ones just based on the current $LANG
+	if [[ -e "${D}/usr/share/locale" ]]; then
+		echo " * Cleaning locales"
+		# Create an Exclude list
+		LIST=$(ls -1 "${D}/usr/share/locale")
+		for l in $LANG ${LANG%.*} ${LANG%_*}; do
+			LIST=$(grep -v $l <<< $LIST)
+		done
+		for l in $LIST; do
+			rm -r "${D}/usr/share/locale/$l"
+		done
+	fi
+		
+	stripPackage
+	
+	# Gather Contents
+	# This is sort of an awkward hack...
+	# If we're bootstrapping we install binutils twice and gcc 3 times!
+	# This causes recording issues. it should be safe to remove them if we're on pass2
+	# Otherwise we're going to add to our CONTENTS
+	if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
+		find . | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+	else
+		find . | sed "s,^\.,," | sort > "${BUILD_PATH}/CONTENTS"
+	fi
+	
+	echo " * Merging into ${ROOT}"
+	# Install New Files
+	local IFS=$'\n'   # Internal Field Sperator
+	CONFIG_PROTECTED=false
+	for file in $(cat "${BUILD_PATH}/CONTENTS"); do
+		# Check for links before anything else
+		# to avoid installing a directory when a link
+		# was expected.
+		if [ -L "${D}/${file}" ]; then
+			# Remove the link before copying. if the link is a directory
+			# we might be copying the directory link into the linked
+			# directory, rather than overriding the link itself.
+			rm "/${file}" > /dev/null 2>&1
+			cp -fd "${D}/${file}" "${file}" && 
+				echo " >> $file -> $(readlink ${file})" || 
+				echo "!>s $file"
+		# Skip installing already installed dirs.
+		# it overrides the user's permission customizations.
+		# 2 schools of thought:
+		#   1) Under most circumstances, dirs are not managed.
+		#   2) Under most circumstances, most dirs are not modified by users.
+		# Packages *can* modify dirs they manage and need
+		# a certain way in post_install
+		elif [[ -d "${D}/${file}" && ! -e "${file}" ]]; then
+			sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
+		else
+			# Check if a file is to be installed in /etc
+			#  If it is, check if the file already exists and
+			#  instead copy it to a backup file.
+			if [[ CFG_PROTECT == true && $file =~ "/etc/" && -e "${file}" ]]; then
+				pfile="${file}.cfg$(date +%s)"
+				sinstall "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!>> $file"
+				CONFIG_PROTECTED=true
+			else
+				sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
+			fi
+		fi
+	done
+
+	# Uninstall Old files
+	uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
+	
+	mkdir -p "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
+	getBDeps
+	mv "${BUILD_PATH}/CONTENTS" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/CONTENTS"
+	if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
+		mv ${BUILD_PATH}/KERNEL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/KERNEL_MODULE
+	elif [ -e ${BUILD_PATH}/PERL_MODULE ]; then
+		mv ${BUILD_PATH}/PERL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PERL_MODULE
+	elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
+		mv ${BUILD_PATH}/PYTHON_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PYTHON_MODULE
+	fi
+
+	(
+		source "${PKG_BLD}"
+		echo " * post_install"
+		post_install || die "Error in post_install"
+
+		if [[ $MODULE == kernel ]]; then
+			K_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
+			KERNEL_VER=$(getMajorVer $K_VER).$(getMinorVer $K_VER).$(getMicroVer $K_VER)
+			echo -n " * Running depmod (${KERNEL_VER}) .. "
+			depmod -a $KERNEL_VER && echo "Ok" || echo "Failed"
+		fi
+	)	
+	
+	# Check if its a system package
+	grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1
+	if [ $? != 0 ]; then
+		# If it didn't find it as a system package, check if its already in the world set.
+		# FIXME: We need a way to check if this is an explicitly requested install.
+		#        Or the result of a dependency.
+		grep "^$PKG_CAT/$PKG_NAME\$" $PKG_WORLD > /dev/null 2>&1
+		# Only add to world requested packages.
+		if [[ $? != 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]]) ]]; then
+			if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
+				echo " * Registering into World."
+				echo "$PKG_CAT/$PKG_NAME" >> $PKG_WORLD
+			fi
+		fi
+	fi
+
+	echo -n "Cleaning up..."
+	rm -rf "${BUILD_PATH}" && echo " Done"
+
+	# TODO: automerge if files were not changed.
+	if [ $CONFIG_PROTECTED == true ]; then
+		echo " * System configuration files were protected!"
+		find /etc/ -iname "*.cfg[0-9]*"
+	fi
+}
+
+# Arguments: Package (category/name) and version to remove.
+#			 if 3rd argument is supplied diff versions and remove the old files.
+uninstall() {
+	PKG=$1
+	PKG_VER=$2
+	O_VER=$3
+	FLIST=""
+	[[ "$O_VER" == "0" ]] && return
+	if [[ "$O_VER" != "" ]]; then
+		# Grep to add the filename before the files as a cheap trick
+		# Sort it by 2nd field, add a space to induce a 2nd field for uniq
+		# grep again for the installed version and remove the file path 
+		# leaving only the installed files that do not exist in the to-be installed version.
+		grep / "${PKG_CACHE}/${PKG}/${O_VER}/CONTENTS" "${BUILD_PATH}/CONTENTS" |sort -t: -k2 | sed 's,:,: ,' | uniq -f1 -u | grep $PKG_CACHE | sed 's,.*: ,,' > /tmp/flist-$PKG_NAME
+		FLIST=$(tac /tmp/flist-$PKG_NAME)
+		rm /tmp/flist-$PKG_NAME
+		echo "Uninstalling $PKG-$O_VER"
+	else
+		FLIST=$(tac ${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS)
+		echo "Uninstalling $PKG-$PKG_VER"
+	fi
+	for file in $FLIST; do
+		if [ -d "${file}" ]; then
+			if [[ $MODE != "bootstrap" ]]; then
+				rmdir "${file}" 2> /dev/null && echo " << $file"
+			else
+				echo "Attempted to remove ${file} While bootstrapping"
+			fi
+		else
+			# Check to see if its a versioned .so file
+			# Links can be made around this and the real file might be 
+			# removed leaving dead links.
+			fd=
+			if [[ $file == *\.so* ]]; then
+				fd=$(checkFileDep $file)
+			else
+				fd=$(checkFileDep $file)
+			fi
+			if [[ -z $fd ]]; then
+				if [[ $MODE != "bootstrap" ]]; then
+					rm "${file}" 2> /dev/null && echo " << $file" || echo " <! $file"
+				else
+					echo "Attempted to remove ${file} While bootstrapping"
+				fi
+			else
+				# This could be a link, we should check if it is, and protect
+				# the main file. otherwise it'll cause errors until the 
+				# dependency is rebuilt.
+				echo " @! $file"
+				echo $file >> /tmp/preserved
+			fi
+		fi
+    done
+	[ "${O_VER}" != "${PKG_VER}" ] && rm -r "${PKG_CACHE}/${PKG}/${O_VER}"
+	if [ "$O_VER" == "" ]; then
+		grep "^$PKG\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1
+		if [ $? == 0 ]; then
+			echo "WARNING: You've removed a package within the system set!"
+			echo "         This may cause undesired consequences!"
+		else
+			grep -E -v "^$PKG\$" $PKG_WORLD > $PKG_WORLD.old
+			mv $PKG_WORLD.old $PKG_WORLD
+		fi
+	fi
+}
+
+# 1: Package of deps to get.
+# 2: if calling itself: the package which called it.
+getdep() {
+	[[ $VERBOSE -ge 1 ]] && echo "Getting deps for $1" || echo -n .
+	
+	setupENV $1
+	
+	checkSha1 ${PKG_BLD%/*} $PKG_BLD
+	#DEPS=$(grep [BR]DEPS $PKG_BLD | sed -e "s,.*[BR]DEPS=\",," -e "s,\".*,," | tr '\n' ' ')
+	(
+		# Reset variables in case they're not defined within the build file.
+		# Is this even necessary within a subshell?
+		UDEPS=
+		BDEPS=
+		RDEPS=
+		DEPS=
+		CDEPS=
+		PDEPS=
+		source "$PKG_BLD"
+		DEPS=("$DEPS $BDEPS $RDEPS $UDEPS")
+
+		for d in ${DEPS[@]}; do
+			# If its already in the list, ignore it and continue.
+			grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
+
+			# If this package has a Circular dependency, check to see if its already installed.
+			# If it is, we don't need to worry about it.
+			# Otherwise, check if its already within our cdeps, if not add it.
+			if [[ $CDEPS != "" ]]; then
+				[[ $(getinstalledversion $PKG_CAT/$PKG_NAME) != 0 ]] && continue
+				grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps > /dev/null
+				[ $? == 0 ] && continue
+				echo $CDEPS | tr ' ' '\n' | sed "s,$, $PKG_CAT/$PKG_NAME,g" >> /tmp/cdeps
+				>&2 echo "$PKG_CAT/$PKG_NAME has CDEPS in $CDEPS"
+				continue
+			fi
+
+			# FIXME: This does not solve the issue!
+			# But it does resolve dependencies
+			# In most cases a circular dependency is only
+			# created when an optional package is
+			# available that just happens to also have an
+			# dependency that is also available when 
+			# installed. Unless explicitly enabled or 
+			# support is requested, simply skipping and 
+			# allowing one to be installed without 
+			# support for the other will work. However 
+			# for support to be enabled the 1st one 
+			# installed will need to be reinstalled after.
+			if [[ $d == $2 ]]; then
+				# If its already installed, don't worry about resolving it twice.
+				[[ $(getinstalledversion $PKG_CAT/$PKG_NAME) != 0 ]] && continue				
+				echo $PKG_CAT/$PKG_NAME $d >> /tmp/cdeps
+				if [[ $VERBOSE -ge 1 ]]; then
+					>&2 echo " !! Detected Circular Dependency!"
+					>&2 echo "If $d fails due to $PKG_CAT/$PKG_NAME Support should be disabled in 1"
+					>&2 echo "And rebuilt without."
+					>&2 echo "Packages with circular dependencies should never explicitly be enabled."
+					>&2 echo "A USE or CDEPS flag should be created!"
+				fi
+				continue
+			fi
+			getdep $d $PKG_CAT/$PKG_NAME
+		done
+		
+		# Add our Post Dependencies here.
+		[[ ! -z $PDEPS ]] && echo $PDEPS|tr ' ' '\n'|sed "s,$, $PKG_CAT/$PKG_NAME,g">/tmp/pdeps
+	)
+	# If we have Circular dependencies add them before the package.
+	if [ -e /tmp/cdeps ]; then
+		grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps |sed 's, .*,,g'>> /tmp/chart
+	fi
+	grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
+	[ $? != 0 ] && echo $PKG_CAT/$PKG_NAME >> /tmp/chart
+	# Add the Circular dependencies again.
+	if [ -e /tmp/cdeps ]; then
+		grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps |sed 's, .*,,g'>> /tmp/chart
+		sed -i "/$PKG_CAT\/$PKG_NAME$/d" /tmp/cdeps
+	fi
+	# Add the Post Depenencies
+	if [[ -e /tmp/pdeps ]]; then
+		grep " $PKG_CAT/$PKG_NAME$" /tmp/pdeps |sed 's, .*,,g'>> /tmp/chart
+	fi	
+}

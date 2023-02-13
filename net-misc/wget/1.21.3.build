@@ -1,0 +1,15 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/wget/wget-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/wget/wget-${PKG_VER}.tar.gz.sig")
+LICENSE=""
+DEPS="dev-libs/libpcre2 dev-libs/libunistring dev-libs/openssl sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr      \
+	            --sysconfdir=/etc  \
+	            --with-ssl=openssl
+}

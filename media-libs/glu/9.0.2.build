@@ -1,0 +1,24 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("ftp://ftp.freedesktop.org/pub/mesa/glu/glu-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS="dev-libs/expat media-libs/mesa x11-libs/libdrm x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfixes x11-libs/libxshmfence x11-libs/libXxf86vm"
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+SLOT=0
+
+src_configure() {
+	configure_default -Dgl_provider=gl
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	rm -vf "${D}"/usr/lib/libGLU.a
+}

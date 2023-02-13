@@ -1,0 +1,6 @@
+d983f5703a5d182e672b9ce5e15d5891f1d1b666  0.15.2.build
+54e6bae308aedab9a78a0349d839c92fc03bd2db  check-0.15.2.tar.gz
+795206756abc02fb5aabf6a116b01b1aac3fe821  0.15.2-r1.build
+54e6bae308aedab9a78a0349d839c92fc03bd2db  check-0.15.2.tar.gz
+a03b4b79b38bdbbc6c8e0f6bce44decf4405e411  check-0.15.2-Fix-pkgconfig-file-s-libdir-value.patch
+ff676cf7ab908c8a0d31e704af0b2b31af28612e  check-0.14.0-r2-disable-automagic-dep.patch

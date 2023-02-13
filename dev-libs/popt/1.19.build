@@ -1,0 +1,8 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="http://ftp.rpm.org/popt/releases/popt-1.x/popt-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0

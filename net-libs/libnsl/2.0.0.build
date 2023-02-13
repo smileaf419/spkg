@@ -1,0 +1,19 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://github.com/thkukuk/libnsl/releases/download/v${PKG_VER}/libnsl-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS="net-libs/libtirpc"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+SLOT=0
+
+src_configure() {
+	configure_default --sysconfdir=/etc
+}
+
+src_test() { :; }

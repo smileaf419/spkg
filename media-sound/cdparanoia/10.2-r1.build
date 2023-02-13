@@ -1,0 +1,31 @@
+HOMEPAGE="https://www.xiph.org/paranoia"
+DESCRIPTION="An Advanced CDDA reader with error correction"
+SRC_URI=("https://downloads.xiph.org/releases/cdparanoia/cdparanoia-III-${PKG_VER}.src.tgz"
+"https://dev.gentoo.org/~pacho/cdparanoia/cdparanoia-3.10.2-patches.tar.xz")
+PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/media-sound/cdparanoia/files/cdparanoia-missing-sys_types_h.patch?id=301f5e6332309bfe2bdc10aea941bbe0bd9a16cb => cdparanoia-missing-sys_types_h.patch")
+LICENSE="GPLv2 LGPLv2.1"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=cdparanoia-III-${PKG_VER}
+
+src_configure() {
+	unpack "$DISTFILES/cdparanoia-3.10.2-patches.tar.xz"
+	spatches patches/*.patch
+
+	./configure --prefix=/usr \
+				--mandir=/usr/share/man
+}
+
+src_compile() {
+	# Parallel building not supported.
+	make -j1
+}
+
+src_test() { :; }
+
+src_install() {
+	make prefix="${D}/usr" install
+	chmod -v 755 "${D}"/usr/lib/libcdda_*.so.0.${PKG_VER}
+}

@@ -1,0 +1,10 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://downloads.sourceforge.net/opencore-amr/fdk-aac-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

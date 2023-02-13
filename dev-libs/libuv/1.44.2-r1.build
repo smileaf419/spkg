@@ -1,0 +1,16 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://dist.libuv.org/dist/v${PKG_VER}/libuv-v${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+unset ACLOCAL
+B=libuv-v${PKG_VER}
+
+src_configure() {
+	sh autogen.sh
+
+	configure_default
+}

@@ -1,0 +1,44 @@
+#!/bin/sh
+LIST=0
+VERSION=0.1
+LOG=
+
+source /etc/spkg.conf
+
+die() { echo "$*" 1>&2 ; exit 77; }
+
+parse_cmdline() {
+	# Referenced mozilla-launcher script.
+	while [[ $# -ne 0 ]] ; do 
+		if [[ $1 == -* ]] ; then 
+			case "${1#-}" in
+				l|-list)
+					LIST=1 
+					shift 1 ;;
+				h|-help)
+					echo "readlatestlog $VERSION by smileaf"
+					echo "Usage: $0 [Arguments] [Log Search]"
+					echo " Options:"
+					echo "  --list, -l      List only"
+					exit $? ;;
+			esac
+		else
+			LOG=$@
+			break
+		fi
+	done
+}
+
+if [ ! -d $LOGDIR ];
+	then mkdir -p "$LOGDIR" || die "Failed to create: LOGDIR: $LOGDIR"; fi
+#test -w $LOGDIR || die "Cannot write to PKG_ARCHIVE_DIR: $LOGDIR"
+
+parse_cmdline $@
+
+cd $LOGDIR
+if [[ $LIST == 1 ]]; then
+	ls -1 *$LOG* |sort -k2 -t- -V -r | uniq -s9
+else
+	bzcat $(ls -1 $LOGDIR/*$LOG* | sort | tail -n1) 2> /dev/null ||
+	  cat $(ls -1 $LOGDIR/*$LOG* | sort | tail -n1) 2> /dev/null
+fi

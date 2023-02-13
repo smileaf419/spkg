@@ -1,0 +1,23 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://downloads.sourceforge.net/lame/lame-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS="sys-libs/ncurses"
+BDEPS=""
+RDEPS="dev-lang/nasm"
+SLOT=0
+
+src_configure() {
+	LDFLAGS+="-ltinfow" ./configure --prefix=/usr \
+				--disable-static \
+				--enable-mp3rtp \
+				--enable-nasm
+}
+
+src_test() {
+	make $MAKEOPTS test
+}
+
+src_install() {
+	make DESTDIR="${D}" pkghtmldir=/usr/share/doc/lame-${PKG_VER} install
+}

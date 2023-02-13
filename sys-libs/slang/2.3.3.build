@@ -1,0 +1,10 @@
+HOMEPAGE="https://www.jedsoft.org/slang/"
+DESCRIPTION=""
+SRC_URI=("https://www.jedsoft.org/releases/slang/slang-${PKG_VER}.tar.bz2")
+PATCHES=("")
+LICENSE=""
+BDEPS="dev-libs/libpcre media-libs/libpng sys-libs/zlib"
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

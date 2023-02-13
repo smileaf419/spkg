@@ -1,0 +1,10 @@
+HOMEPAGE="https://www.videolan.org/developers/libbdplus.html"
+DESCRIPTION="BD+ System Library"
+SRC_URI="https://download.videolan.org/pub/videolan/libbdplus/${PKG_VER}/libbdplus-${PKG_VER}.tar.bz2"
+LICENSE=""
+DEPS="dev-libs/libgcrypt dev-libs/libgpg-error"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

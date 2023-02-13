@@ -1,0 +1,25 @@
+HOMEPAGE=""
+DESCRIPTION="Cups User and Group"
+SRC_URI=""
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=""
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	addGroup lpadmin -g 19
+	addUser lp \
+		-d /var/spool/cups \
+		-u 9 \
+		-s /bin/false \
+		-c "Print Service User" \
+		-g lp
+}

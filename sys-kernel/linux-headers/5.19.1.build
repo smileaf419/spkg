@@ -1,0 +1,26 @@
+HOMEPAGE="https://kernel.org"
+DESCRIPTION="Linux Kernel Headers"
+SRC_URI="https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B="linux-${PKG_VER}"
+
+src_configure() {
+	make mrproper
+}
+
+src_compile() {
+	make headers
+}
+
+src_test() { :; }
+
+src_install() { 
+	find usr/include -type f ! -name '*.h' -delete
+	rm usr/include/Makefile
+	mkdir -v "${D}"/usr
+	cp -rv usr/include "${D}"/usr
+}

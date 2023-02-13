@@ -1,0 +1,17 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS="xfce-base/xfce4-panel x11-libs/libnotify"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+SLOT=0
+
+src_configure() {
+	configure_default --sysconfdir=/etc
+}

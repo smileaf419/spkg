@@ -1,0 +1,31 @@
+HOMEPAGE="https://www.gnu.org/software/inetutils/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/inetutils/inetutils-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/inetutils/inetutils-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS="sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline"
+BDEPS=""
+RDEPS=""
+SLOT=0
+append-ldflags -ltinfow
+
+src_configure() {
+	./configure --prefix=/usr        \
+	            --bindir=/usr/bin    \
+	            --localstatedir=/var \
+	            --disable-logger     \
+	            --disable-whois      \
+	            --disable-rcp        \
+	            --disable-rexec      \
+	            --disable-rlogin     \
+	            --disable-rsh        \
+	            --disable-servers
+}
+
+src_install() {
+	install_default
+
+	mkdir -p "${D}"/usr/sbin
+	mv -v "${D}"/usr/{,s}bin/ifconfig
+}
+

@@ -1,0 +1,25 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("http://0pointer.de/lennart/projects/libcanberra/libcanberra-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/libcanberra-0.30-wayland-1.patch")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+SLOT=0
+
+src_configure() {
+	configure_default --disable-oss
+}
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	install_default docdir=/usr/share/doc/libcanberra-${PKG_VER}
+}

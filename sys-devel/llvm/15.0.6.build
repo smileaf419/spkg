@@ -1,0 +1,52 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/llvm-${PKG_VER}.src.tar.xz"
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-${PKG_VER}.src.tar.xz"
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/compiler-rt-${PKG_VER}.src.tar.xz"
+"https://anduin.linuxfromscratch.org/BLFS/llvm/llvm-cmake-${PKG_VER}.src.tar.xz")
+
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/clang-${PKG_VER}-enable_default_ssp-1.patch")
+LICENSE=""
+DEPS="app-arch/xz-utils app-arch/zstd dev-libs/icu dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
+B=llvm-${PKG_VER}.src
+
+src_unpack() {
+	SRC_URI=($SRC_URI)
+	for f in ${SRC_URI[@]}; do
+		unpack ${DISTFILES}/${f##*/}
+	done
+	CLANG=${SRC_URI[1]##*/}
+	mv -v ${CLANG%.tar*} $B/tools/clang
+	CRT=${SRC_URI[2]##*/}
+	mv -v ${CRT%.tar*} $B/projects/compiler-rt
+	mv -v cmake-${PKG_VER}.src cmake
+}
+
+src_patch() {
+	PATCHES=($1)
+	patch -Np2 -d tools/clang < $DISTFILES/${PATCHES[0]##*/}
+}
+
+src_configure() {
+	# Fix python scripts to use python3
+	grep -rl '#!.*python' | xargs sed -i '1s/python$/python3/'
+
+	CC=gcc CXX=g++                                  \
+	configure_default \
+		  -DLLVM_ENABLE_FFI=ON                      \
+		  -DLLVM_BUILD_LLVM_DYLIB=ON                \
+		  -DLLVM_LINK_LLVM_DYLIB=ON                 \
+		  -DLLVM_ENABLE_RTTI=ON                     \
+		  -DLLVM_TARGETS_TO_BUILD="host;AMDGPU;BPF" \
+		  -DLLVM_BINUTILS_INCDIR=/usr/include       \
+		  -DLLVM_INCLUDE_BENCHMARKS=OFF             \
+		  -DCLANG_DEFAULT_PIE_ON_LINUX=ON           \
+		  -Wno-dev -G Ninja
+}
+
+src_test() { :; }

@@ -1,0 +1,17 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://pagure.io/libaio/archive/libaio-${PKG_VER}/libaio-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -i '/install.*libaio.a/s/^/#/' src/Makefile
+}
+
+src_test() {
+	sed 's/-Werror//' -i harness/Makefile
+	make partcheck
+}

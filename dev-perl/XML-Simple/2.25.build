@@ -1,0 +1,18 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.cpan.org/authors/id/G/GR/GRANTM/XML-Simple-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="dev-perl/XML-Parser dev-lang/perl"
+setBuildENV auto make
+SLOT=0
+MODULE=perl
+
+src_configure() {
+	perl Makefile.PL
+}

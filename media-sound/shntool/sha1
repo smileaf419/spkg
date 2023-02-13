@@ -1,0 +1,6 @@
+b9f42134d6802ba0690405d95258c28d88ddf2db  3.0.10.build
+7a2bc8801e180cf582f0e39775603582e35d50d2  shntool-3.0.10.tar.gz
+69da4157b5287859047f04730c1fe6f718fc4158  shntool-deb-950803.patch
+89a47686fde342249ce932c7dd27f7574aee2590  shntool-no-cdquality-check.patch
+b67398f4e301746bc2e51e46d250e0273573c78a  shntool-large-size.patch
+0a9736dfc5eb933fa690650216ce6efcadfd9b28  shntool-large-times.patch

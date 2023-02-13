@@ -1,0 +1,17 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://github.com/libarchive/libarchive/releases/download/v${PKG_VER}/libarchive-${PKG_VER}.tar.xz"
+PATCHES="https://gitweb.gentoo.org/repo/gentoo.git/plain/app-arch/libarchive/files/libarchive-3.6.1-glibc-2.36.patch"
+LICENSE=""
+DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd dev-libs/icu dev-libs/libxml2 dev-libs/openssl sys-apps/acl sys-apps/attr sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default --without-lzma
+}
+
+src_test() {
+	LC_ALL=C make check
+}

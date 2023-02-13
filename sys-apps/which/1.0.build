@@ -1,0 +1,24 @@
+HOMEPAGE="https://linuxfromscratch.org/blfs/view/svn/general/which.html"
+DESCRIPTION="Shell Script Emulating GNU Which"
+SRC_URI=""
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p "${D}"/usr/bin
+	cat > "${D}"/usr/bin/which << "EOF"
+#!/bin/bash
+type -pa "$@" | head -n 1
+exit ${PIPESTATUS[0]}
+EOF
+	chmod -v 755 "${D}"/usr/bin/which
+}

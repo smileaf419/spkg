@@ -1,0 +1,65 @@
+HOMEPAGE="https://infozip.sourceforge.net/UnZip.html"
+DESCRIPTION="unzipper for pkzip-compressed files"
+SRC_URI=("https://downloads.sourceforge.net/infozip/unzip${PKG_VER/./}.tar.gz")
+PATCHES=(
+"https://www.linuxfromscratch.org/patches/blfs/svn/unzip-6.0-consolidated_fixes-1.patch"
+#"https://gentoo.osuosl.org/distfiles/unzip_6.0-27.debian.tar.xz"
+#"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-fix-false-overlap-detection-on-32bit-systems.patch"
+#"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-format-security.patch"
+#"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-no-exec-stack.patch"
+#"https://we.need.a.good.domain.com/unzip-6.0-use-system-bzip2.patch"
+)
+# system bzip2 patch is the applied patches from the consolidated_fixes patch from LFS, without the failed files.
+LICENSE="Info-ZIP"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=unzip${PKG_VER/./}
+
+src_patch() {
+	PATCHES=($@)
+	unpack ${DISTFILES}/${PATCHES[0]##*/}
+	# Remove debian's branding patch
+	rm $BUILD_PATH/$B/debian/patches/02*
+	PATCHES[0]=$BUILD_PATH/$B/debian/patches
+
+	spatches ${PATCHES[@]}
+}
+
+src_configure() { :; }
+
+src_compile() {
+	# Needed for Clang 16
+	append-flags -std=gnu89
+	# Linux Hosts
+	append-cppflags -DNO_LCHMOD
+	# Bzip2 support
+	append-cppflags -DUSE_BZIP2
+	# Unicode
+	append-cppflags -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE -DUSE_ICONV_MAPPING
+	export CPPFLAGS=${CXXFLAGS}
+
+	sed -i -r \
+		-e '/^CFLAGS/d' \
+		-e '/CFLAGS/s:-O[0-9]?:$(CFLAGS) $(CPPFLAGS):' \
+		-e '/^STRIP/s:=.*:=true:' \
+		-e 's:LF2 = -s:LF2 = :' \
+		-e "/^#L_BZ2/s:^.::" \
+		-e 's:LF = :LF = $(LDFLAGS) :' \
+		-e 's:SL = :SL = $(LDFLAGS) :' \
+		-e 's:FL = :FL = $(LDFLAGS) :' \
+		-e 's:$(AS) :$(AS) $(ASFLAGS) :g' \
+	    unix/Makefile
+
+	rm -r bzip2
+
+	LDFLAGS="$LDFLAGS" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" make $MAKEOPTS -f unix/Makefile generic
+}
+
+src_test() { :; }
+
+src_install() {
+	make prefix=${D}/usr MANDIR=${D}/usr/share/man/man1 \
+		-f unix/Makefile install
+}

@@ -1,0 +1,8 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://downloads.xiph.org/releases/ogg/libogg-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0

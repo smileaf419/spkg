@@ -1,0 +1,24 @@
+HOMEPAGE=""
+DESCRIPTION="SSHD User and Group"
+SRC_URI=""
+LICENSE=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=""
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	addGroup sshd -g 50
+	addUser sshd
+		-c 'SSH' \
+		-d /var/lib/sshd \
+		-g sshd \
+		-s /bin/false \
+		-u 50
+}

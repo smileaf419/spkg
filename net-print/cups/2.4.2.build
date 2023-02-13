@@ -1,0 +1,52 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://github.com/OpenPrinting/cups/releases/download/v${PKG_VER}/cups-${PKG_VER}-source.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS="dev-libs/openssl sys-apps/acl sys-apps/attr sys-apps/dbus sys-libs/libxcrypt sys-libs/zlib"
+BDEPS=""
+RDEPS="accounts/cups"
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+
+# FIXME: This package requires cups-filters to be installed after cups
+# However we have no way currently of added a post-dependency
+
+src_configure() {
+	# if xdg-utils is not installed
+	sed -i 's#@CUPS_HTMLVIEW@#firefox#' desktop/cups.desktop.in
+
+	configure_default --libdir=/usr/lib  \
+            --disable-systemd            \
+            --with-rcdir=/tmp/cupsinit   \
+            --with-system-groups=lpadmin
+}
+
+src_test() {
+	# Requires cups to not be running
+	# And a Graphical environment to be present.
+	LC_ALL=C make -k check
+}
+
+src_install() {
+	install_default
+
+	mkdir ${D}/usr/share/doc
+	ln -svnf ../cups/doc-${PKG_VER} ${D}/usr/share/doc/cups-${PKG_VER}
+
+	# Removes bootscript
+	rm -rf ${D}/tmp
+
+	mkdir -p ${D}/etc/cups
+	echo "ServerName /run/cups/cups.sock" > ${D}/etc/cups/client.conf
+
+	# install-init.d cups
+}
+
+post_install() {
+	gtk-update-icon-cache -qtf /usr/share/icons/hicolor
+}

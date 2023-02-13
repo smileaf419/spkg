@@ -1,0 +1,21 @@
+HOMEPAGE="https://www.gnu.org/software/gawk/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/gawk/gawk-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gawk/gawk-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+BDEPS="dev-libs/gmp dev-libs/mpfr sys-libs/ncurses sys-libs/readline"
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default
+	
+	sed -i 's/extras//' Makefile.in
+}
+
+src_install() {
+	install_default
+
+	mkdir -pv                                   "${D}"/usr/share/doc/gawk-${PKG_VER}
+	cp    -v doc/{awkforai.txt,*.{eps,pdf,jpg}} "${D}"/usr/share/doc/gawk-${PKG_VER}
+}

@@ -1,0 +1,39 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${PKG_VER}.tar.bz2")
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/app-crypt/gnupg/files/gnupg-2.2.40-fix-no-ldap-build.patch")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${PKG_VER}.tar.bz2.sig")
+LICENSE=""
+DEPS="app-arch/bzip2 app-arch/zstd dev-db/sqlite dev-libs/gmp dev-libs/libassuan dev-libs/libffi dev-libs/libgcrypt dev-libs/libgpg-error dev-libs/libksba dev-libs/libtasn1 dev-libs/libunistring dev-libs/npth net-libs/gnutls sys-libs/ncurses sys-libs/readline sys-libs/zlib"
+BDEPS=""
+RDEPS="app-crypt/p11-kit dev-libs/nettle app-crypt/pinentry"
+SLOT=0
+
+src_configure() {
+	configure_default \
+				--localstatedir=/var \
+				--sysconfdir=/etc \
+				--disable-ldap
+}
+
+src_compile() { 
+	compile_default
+
+	makeinfo --html --no-split -o doc/gnupg_nochunks.html doc/gnupg.texi
+	makeinfo --plaintext -o doc/gnupg.txt doc/gnupg.texi
+	make -C doc html
+}
+
+src_test() { :; }
+
+src_install() { 
+	install_default
+
+	install -v -m755 -d ${D}/usr/share/doc/gnupg-${PKG_VER}/html
+	install -v -m644 doc/gnupg_nochunks.html \
+                    "${D}"/usr/share/doc/gnupg-${PKG_VER}/html/gnupg.html 
+	install -v -m644 doc/*.texi doc/gnupg.txt \ 
+                    "${D}"/usr/share/doc/gnupg-${PKG_VER}
+    install -v -m644 doc/gnupg.html/* \
+                    "${D}"/usr/share/doc/gnupg-${PKG_VER}/html
+}

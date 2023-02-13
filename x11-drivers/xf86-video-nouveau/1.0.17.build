@@ -1,0 +1,24 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.x.org/pub/individual/driver/$PKG_NAME-${PKG_VER}.tar.bz2")
+PATCHES=("")
+LICENSE=""
+DEPS="sys-fs/eudev x11-libs/libdrm"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	checkKernelConfig CONFIG_DRM                   1 "Direct Rendering Manager"
+	checkKernelConfig CONFIG_DRM_NOUVEAU           1 "Nouveau (NVIDIA) cards"
+	checkKernelConfig CONFIG_DRM_NOUVEAU_BACKLIGHT 1 "Support for backlight control"
+
+	grep -rl slave | xargs sed -i s/slave/secondary/
+
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static
+}
+
+src_test() { :; }

@@ -1,0 +1,20 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://gitweb.gentoo.org/proj/build-docbook-catalog.git/snapshot/build-docbook-catalog-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="dev-libs/libxml2"
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }

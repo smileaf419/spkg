@@ -1,0 +1,19 @@
+HOMEPAGE="https://wiki.x.org/wiki/"
+DESCRIPTION=""
+SRC_URI=("https://xorg.freedesktop.org/archive/individual/lib/libxcb-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS="x11-libs/libXau x11-libs/libXdmcp"
+BDEPS="x11-base/xcb-proto"
+RDEPS="x11-base/xorg-proto"
+SLOT=0
+
+src_configure() {
+	PYTHON=python3 \
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static \
+				--without-doxygen \
+				--docdir='${datadir}'/doc/libxcb-${PKG_VER}
+}

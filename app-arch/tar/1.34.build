@@ -1,0 +1,26 @@
+HOMEPAGE="https://www.gnu.org/software/tar/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/tar/tar-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/tar/tar-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS="sys-apps/acl sys-apps/attr"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=/usr
+}
+
+src_install() {
+	install_default
+
+	make -C doc install-html docdir="${D}"/usr/share/doc/tar-${PKG_VER}
+}
+
+bootstrap() {
+	./configure --prefix=/usr                     \
+				--host=$HOST_TGT                  \
+				--build=$(build-aux/config.guess)
+	compile_default && install_default
+}

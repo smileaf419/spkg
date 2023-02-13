@@ -1,0 +1,10 @@
+HOMEPAGE="https://tukaani.org/xz"
+DESCRIPTION=""
+SRC_URI=("https://tukaani.org/xz/xz-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://tukaani.org/xz/xz-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=xz-${PKG_VER}

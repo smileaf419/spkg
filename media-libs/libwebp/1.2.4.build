@@ -1,0 +1,10 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS="app-arch/xz-utils app-arch/zstd media-libs/libjpeg-turbo media-libs/libpng media-libs/tiff sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

@@ -1,0 +1,23 @@
+HOMEPAGE="https://wiki.x.org/wiki/"
+DESCRIPTION=""
+SRC_URI=("https://xorg.freedesktop.org/archive/individual/proto/xorgproto-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="x11-misc/util-macros"
+SLOT=0
+B=xorgproto-${PKG_VER}
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default -Dlegacy=true
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	mv -v "${D}"/usr/share/doc/xorgproto{,-${PKG_VER}}
+}

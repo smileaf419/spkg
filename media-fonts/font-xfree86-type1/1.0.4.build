@@ -1,0 +1,22 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.x.org/pub/individual/font/${PKG_NAME}-${PKG_VER}.tar.bz2")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="x11-apps/mkfontscale"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static
+}
+
+src_test() { :; }
+
+post_install() {
+	fc-cache
+}

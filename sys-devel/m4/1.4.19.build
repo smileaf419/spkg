@@ -1,0 +1,17 @@
+HOMEPAGE="https://www.gnu.org/software/m4/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/m4/m4-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/m4/m4-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+bootstrap() {
+	./configure --prefix=/usr   \
+				--host=$HOST_TGT \
+				--build=$(build-aux/config.guess) &&
+	compile_default &&
+	install_default
+}

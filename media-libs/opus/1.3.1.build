@@ -1,0 +1,8 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://archive.mozilla.org/pub/opus/opus-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0

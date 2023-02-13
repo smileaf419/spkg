@@ -1,0 +1,36 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://sourceware.org/ftp/docbook-tools/new-trials/SOURCES/sgml-common-${PKG_VER}.tgz")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/sgml-common-0.6.3-manpage-1.patch")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	mv configure.{in,ac}
+	autoreconf -fiv
+	configure_default --sysconfdir=/etc
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default docdir=/usr/share/doc
+}
+
+post_install() {
+	# Uninstall
+	if [ -e /usr/bin/install-catalog ]; then
+		install-catalog --remove /etc/sgml/sgml-ent.cat \
+			/usr/share/sgml/sgml-iso-entities-8879.1986/catalog
+		install-catalog --remove /etc/sgml/sgml-docbook.cat \
+			/etc/sgml/sgml-ent.cat
+	fi
+
+	install-catalog --add /etc/sgml/sgml-ent.cat \
+		/usr/share/sgml/sgml-iso-entities-8879.1986/catalog
+    install-catalog --add /etc/sgml/sgml-docbook.cat \
+		/etc/sgml/sgml-ent.cat
+}

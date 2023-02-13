@@ -1,0 +1,26 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://downloads.sourceforge.net/project/net-tools/net-tools-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	export BINDIR='/bin' SBINDIR='/bin'
+
+	yes "" | ./configure.sh config.in
+	echo $?
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	rm ${D}/bin/{nis,yp}domainname
+	rm ${D}/bin/{hostname,dnsdomainname,domainname,ifconfig}
+	rm -r ${D}/usr/share/man/man1
+	rm ${D}/usr/share/man/man8/ifconfig.8
+}

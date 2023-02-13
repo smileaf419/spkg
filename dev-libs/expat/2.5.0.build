@@ -1,0 +1,14 @@
+HOMEPAGE="https://libexpat.github.io/"
+DESCRIPTION=""
+SRC_URI="https://prdownloads.sourceforge.net/expat/expat-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_install() {
+	install_default
+
+	install -v -m644 doc/*.{html,css} "${D}"/usr/share/doc/expat-${PKG_VER}
+}

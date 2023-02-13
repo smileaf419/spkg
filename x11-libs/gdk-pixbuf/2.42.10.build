@@ -1,0 +1,20 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://download.gnome.org/sources/gdk-pixbuf/${PKG_VER%.*}/gdk-pixbuf-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/xz-utils app-arch/zstd dev-libs/glib dev-libs/libffi dev-libs/libpcre2 media-libs/libjpeg-turbo media-libs/libpng media-libs/libwebp media-libs/tiff sys-libs/zlib"
+BDEPS="x11-misc/shared-mime-info"
+RDEPS=""
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	# Disable manpages drops docutils dependency.
+	configure_default --wrap-mode=nofallback -Dman=false
+}
+
+post_install() {
+	gdk-pixbuf-query-loaders --update-cache
+}

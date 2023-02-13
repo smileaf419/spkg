@@ -1,0 +1,21 @@
+HOMEPAGE="https://facebook.github.io/zstd/"
+DESCRIPTION=""
+SRC_URI=("https://github.com/facebook/zstd/releases/download/v${PKG_VER}/zstd-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/facebook/zstd/releases/download/v${PKG_VER}/zstd-${PKG_VER}.tar.gz.sig")
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/zstd-${PKG_VER}-upstream_fixes-1.patch")
+LICENSE=""
+DEPS="app-arch/xz-utils sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() {
+	make prefix=/usr
+}
+
+src_install() {
+	make prefix="${D}"/usr install
+	rm -v "${D}"/usr/lib/libzstd.a
+}

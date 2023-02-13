@@ -1,0 +1,12 @@
+HOMEPAGE="https://libcheck.github.io/check"
+DESCRIPTION=""
+SRC_URI=("https://github.com/libcheck/check/releases/download/${PKG_VER}/check-${PKG_VER}.tar.gz")
+PATCHES=("")
+LICENSE=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_install() {
+	make DESTDIR="${D}" docdir="/usr/share/doc/check-${PKG_VER}" install
+}

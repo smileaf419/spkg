@@ -1,0 +1,21 @@
+HOMEPAGE="https://freedesktop.org/wiki/Software/intltool"
+DESCRIPTION=""
+SRC_URI="https://launchpad.net/intltool/trunk/${PKG_VER}/+download/intltool-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="dev-lang/perl"
+SLOT=0
+
+src_configure() {
+	# Fix a warning that is caused by perl-5.22+
+	sed -i 's:\\\${:\\\$\\{:' intltool-update.in
+
+	configure_default
+}
+
+src_install() {
+	install_default
+
+	install -v -Dm644 doc/I18N-HOWTO "${D}"/usr/share/doc/intltool-${PKG_VER}/I18N-HOWTO
+}

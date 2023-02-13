@@ -1,0 +1,27 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="https://www.nvidia.com/download/index.aspx"
+DESCRIPTION="NVIDIA Accelerated Graphics Driver"
+SRC_URI=("https://download.nvidia.com/XFree86/Linux-x86_64/390.157/NVIDIA-Linux-x86_64-${PKG_VER}.run")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE="NVIDIA-r2 BSD BSD-2 GPL-2 MIT"
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+
+src_prepare() {
+	chmod +x $DISTFILES/${SRC_URI##*/}
+	sh $DISTFILES/${SRC_URI##*/}
+}
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() { :; }

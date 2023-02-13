@@ -1,0 +1,18 @@
+HOMEPAGE="https://abcde.einval.com/wiki/"
+DESCRIPTION="A Better CD Encoder"
+SRC_URI="https://abcde.einval.com/download/abcde-${PKG_VER}.tar.gz"
+LICENSE="GPLv2"
+DEPS=""
+BDEPS=""
+RDEPS="media-libs/flac media-libs/musicbrainz media-libs/libvorbis media-sound/cd-discid media-sound/cdparanoia media-sound/lame media-video/ffmpeg net-misc/wget"
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	install_default prefix=/usr
+}

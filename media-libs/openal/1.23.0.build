@@ -1,0 +1,22 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION="https://www.openal-soft.org/"
+SRC_URI=("https://www.openal-soft.org/openal-releases/openal-soft-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE="LGPLv2+ BSD"
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV cmake make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+B=openal-soft-$PKG_VER
+
+src_configure() {
+	# EXAMPLES=OFF prevents ffmpeg dependency (src:gentoo ebuild)
+	configure_default -DALSOFT_EXAMPLES=OFF
+}
+
+src_test() { :; }

@@ -1,0 +1,11 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://github.com/wayland-project/wayland-protocols/archive/refs/tags/${PKG_VER}.tar.gz")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+setBuildENV meson ninja

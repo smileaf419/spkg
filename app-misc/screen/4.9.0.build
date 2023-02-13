@@ -1,0 +1,30 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/screen/screen-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/screen/screen-${PKG_VER}.tar.gz.sig")
+LICENSE=""
+DEPS="sys-libs/libxcrypt sys-libs/ncurses"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sh autogen.sh
+	./configure --prefix=/usr \
+				--infodir=/usr/share/info \
+				--mandir=/usr/share/man \
+				--with-socket-dir=/run/screen \
+				--with-pty-group=5 \
+				--with-sys-screenrc=/etc/screenrc
+
+	sed -i -e "s%/usr/local/etc/screenrc%/etc/screenrc%" {etc,doc}/*
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	mkdir "${D}"/etc
+	install -m 644 etc/etcscreenrc "${D}"/etc/screenrc
+}

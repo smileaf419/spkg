@@ -1,0 +1,38 @@
+HOMEPAGE="http://www.xmlsoft.org/ https://gitlab.gnome.org/GNOME/libxml2"
+DESCRIPTION="XML C parser and toolkit"
+SRC_URI=("https://download.gnome.org/sources/libxml2/${PKG_VER%.*}/libxml2-${PKG_VER}.tar.xz")
+[[ $ENABLE_TESTS == 1 ]] && SRC_URI+=("https://www.w3.org/XML/Test/xmlts20130923.tar.gz")
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/libxml2/files/libxml2-2.10.3-python3-unicode-errors.patch")
+LICENSE="MIT"
+DEPS="app-arch/xz-utils dev-libs/icu sys-libs/ncurses sys-libs/readline sys-libs/zlib"
+BDEPS=""
+RDEPS="dev-lang/python"
+SLOT=0
+
+src_prepare() {
+	PY_VER=$(getinstalledversion dev-lang/python)
+	export PYTHON_CFLAGS=-I/usr/include/python${PY_VER%.*} 
+	export PYTHON_LIBS=/usr/lib/python${PY_VER%.*}
+	echo "Set PYTHON_CFLAGS: $PYTHON_CFLAGS"
+	echo "Set PYTHON_LIBS: $PYTHON_LIBS"
+
+	prepare_default
+}
+
+src_configure() {
+	autoreconf -fiv
+
+	configure_default \
+				--with-history \
+				PYTHON=/usr/bin/python3 \
+				--with-icu \
+				--enable-ipv6
+}
+
+src_test() {
+	unpack $DISTFILES/${SRC_URI##*/}
+	make check > check.log
+	grep -E '^Total|expected' check.log
+
+	# If valgrind is installed we can instead run make check-valgrind
+}

@@ -1,0 +1,10 @@
+HOMEPAGE="https://www.videolan.org/developers/libdvdcss.html"
+DESCRIPTION="simple library designed for accessing DVDs like a block device without having to bother about the decryption."
+SRC_URI="https://download.videolan.org/pub/libdvdcss/${PKG_VER}/libdvdcss-${PKG_VER}.tar.bz2"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

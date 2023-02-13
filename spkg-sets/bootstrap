@@ -1,0 +1,27 @@
+# Pass 1
+#sys-devel/binutils[pass1]
+# Pass 1
+#sys-devel/gcc[pass1]
+#sys-kernel/linux-headers
+#sys-libs/glibc
+# Libstdc++ pass
+#sys-devel/gcc[libstdc++]
+#sys-devel/m4
+#sys-libs/ncurses
+#app-shells/bash
+#sys-apps/coreutils
+#sys-apps/diffutils
+#sys-apps/file
+#sys-apps/findutils
+#sys-apps/gawk
+#sys-apps/grep
+#app-arch/gzip
+#sys-devel/make
+#sys-devel/patch
+#sys-apps/sed
+#app-arch/tar
+#app-arch/xz-utils
+#app-arch/bzip2
+# 2nd Pass
+#sys-devel/binutils[pass2]
+#sys-devel/gcc[pass2]

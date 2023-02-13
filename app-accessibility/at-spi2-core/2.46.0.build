@@ -1,0 +1,21 @@
+HOMEPAGE="https://wiki.gnome.org/Accessibility"
+DESCRIPTION="Gtk module for bridging AT-SPI to Atk"
+SRC_URI=("https://download.gnome.org/sources/at-spi2-core/${PKG_VER%.*}/at-spi2-core-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE="LGPLv2.1+"
+DEPS="dev-libs/glib dev-libs/libffi dev-libs/libpcre2 sys-apps/dbus sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp x11-libs/libXext x11-libs/libXi x11-libs/libXtst"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default -Dsystemd_user_dir=/tmp
+}
+
+src_install() {
+	install_default
+
+	rm -r "${D}"/tmp
+}

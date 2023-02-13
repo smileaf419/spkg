@@ -1,0 +1,19 @@
+HOMEPAGE="https://github.com/clangen/musikcube"
+DESCRIPTION="a cross-platform, terminal-based music player, audio engine, metadata indexer, and server"
+SRC_URI=("https://github.com/clangen/musikcube/archive/refs/tags/${PKG_VER}.tar.gz => ${PKG_NAME}-${PKG_VER}.tar.gz")
+PATCHES=("https://github.com/clangen/musikcube/commit/0abdac4f65aef05e07254987c6992300d4854260.patch => musikcube-0.99.3-fix-detection.patch")
+LICENSE="BSD-3"
+DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd dev-libs/expat dev-libs/gmp dev-libs/icu dev-libs/libffi dev-libs/libtasn1 dev-libs/libunistring dev-libs/libxml2 dev-libs/openssl media-libs/alsa-lib media-libs/fdk-aac media-libs/flac media-libs/fontconfig media-libs/freetype media-libs/libbluray media-libs/libogg media-libs/libopenmpt media-libs/libpng media-libs/libsndfile media-libs/libtheora media-libs/libva media-libs/libvorbis media-libs/libvpx media-libs/libwebp media-libs/opus media-libs/taglib media-libs/x264 media-libs/x265 media-libs/xvid media-sound/lame media-sound/mpg123 media-video/ffmpeg net-libs/gnutls net-libs/libmicrohttpd net-misc/curl sys-apps/dbus sys-libs/ncurses sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfixes x11-libs/libdrm x11-libs/libvdpau x11-libs/libxcb"
+BDEPS="dev-cpp/asio"
+RDEPS="virtual/alsa media-video/pipewire"
+SLOT=0
+setBuildENV cmake
+
+src_configure() {
+	configure_default -G "Unix Makefiles" \
+					  -DLIBTINFO=/usr/lib/libtinfow.so \
+					  -DNO_NCURSESW=1 \
+					  -DENABLE_BUNDLED_TAGLIB=false
+}
+
+src_test() { :; }

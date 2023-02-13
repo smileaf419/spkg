@@ -1,0 +1,127 @@
+#!/bin/bash
+
+function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
+function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" == "$1"; }
+function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; }
+function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
+
+source /etc/spkg.conf
+source "${INSTALL_PATH}/libs/helpermethods"
+
+SRC_URI="https://gentoo.osuosl.org/distfiles/"
+DISTFILES_INDEX="${PKG_DB_DIR}/spkg-tools/index.html"
+if [[ $(find "$DISTFILES_INDEX" -mtime +1 -print) || ! -e $DISTFILES_INDEX ]]; then
+	cd ${DISTFILES_INDEX%/*}
+	wget -N "$SRC_URI"
+	# -O $DISTFILES_INDEX
+fi
+echo Original: $(cat $DISTFILES_INDEX | wc -l) entries
+DISTFILES=/tmp/distfiles
+cat $DISTFILES_INDEX | grep "href=" | sed -e 's,.*href=",,' -e 's,".*,,' > $DISTFILES
+echo URLS: $(cat $DISTFILES | wc -l) entries
+
+#gettext-1.07 [ sys-devel/gettext-0.21.1 ]
+#gtk-4.8.2 [ x11-libs/gtk+-3.24.34 ]
+#gtksourceview-5.6.1 [ x11-libs/gtksourceview-3.24.11 ]
+#lmdb-1.3.0 [ dev-db/lmdb-0.9.29 ]
+#gnupg-2.7.1 [ app-crypt/gnupg-2.3.8 ]
+#git-4.3.20 [ dev-vcs/git-2.38.1 ]
+#luit-20221028 [ x11-apps/luit-1.1.1 ]
+#mako-1.7.1 [ dev-python/mako-1.2.2 ]
+#bash-completion-20050121 [ app-shells/bash-completion-2.11 ]
+#json-20220320 [ dev-perl/json-4.10 ]
+#zstd-1.5.2.6 [ app-arch/zstd-1.5.2 ]
+
+FILTER=("\.patch"
+		"\.crate"
+		"\.asc"
+		"\.sig"
+		"\.diff"
+		"/"
+		"docs-html"
+		"\.gem"
+		"\-userguide"
+		"\-rc[0-9]"
+		"\-RC-"
+		"\-beta"
+		"pre[0-9]"
+		"^which"
+		"\.9[0-9]"
+		"gettext-1"
+		"gtk-4"
+		"gtksourceview-[45]"
+		"lmdb-1"
+		"gnupg-2.7"
+		"git-4"
+		"luit-20"
+		"mako-1.7"
+		"bash-completion-20"
+		"json-20"
+		"zstd-[0-9]\.[0-9]\.[0-9]\.[0-9]"
+)
+for f in ${FILTER[@]}; do
+	grep -iv $f $DISTFILES > /tmp/distfiles.new
+	mv /tmp/distfiles{.new,}
+done
+# Filter for libopenmpt
+sed -i 's,\+release\.autotools,,g' /tmp/distfiles
+
+echo Filtered: $(cat $DISTFILES | wc -l) entries
+
+for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
+	p=$(echo $p | sed "s,$PKG_DB_DIR/,,")
+	PK=$p
+	[[ $PK == accounts/* || $PK == spkg* || $PK == virtual/* ]] && continue
+#	echo -n "Checking $PK : "
+	p=${p#*/}
+	# Check Gentoo Distfiles for latest versions.
+
+	# Alter the names for filename detection
+	[[ $p == "gtk+2" ]] && p="gtk\+-2"
+	[[ $p == "gtk+3" ]] && p="gtk\+-3"
+	[[ $p == "gtksourceview2" ]] && p="gtksourceview-2"
+	[[ $p == "gtksourceview3" ]] && p="gtksourceview-3"
+	[[ $p == "xz-utils" ]] && p="xz"
+	[[ $p == "libpcre" ]] && p="pcre-"
+	[[ $p == "libpcre2" ]] && p="pcre2"
+	[[ $p == "libsdl" ]] && p="SDL-1"
+	[[ $p == "libsdl2" ]] && p="SDL2"
+	[[ $p == "llvm" ]] && p="llvm-project"
+	[[ $p == "maven" ]] && p="apache-maven"
+	[[ $p == xvid ]] && p=xvidcore
+	[[ $p == btrfs-progs ]] && p+=-v
+	[[ $p == musicbrainz ]] && p=lib$p
+	[[ $p == timezone-data ]] && p=tzdata
+	[[ $p == xorg-proto ]] && p=xorgproto
+	[[ $p == linux-headers || $p == linux-kernel ]] && p=linux-6
+	[[ $p == lmdb ]] && p=lmdbxx-0
+	[[ $p == cdparanoia ]] && p=cdparanoia-III
+
+	FILE=$(grep -P -i "^$p[-0-9\._]+(src|bin|orig|source)?.(tar|zip|tbz2|tgz)" $DISTFILES | sed -E -e 's,(-bin.*|[\.-]src.*|-source.*|\.orig|.tar.*|.tgz|.tbz2|.zip)$,,')
+
+	# Filter out only but the most recent version.
+	[[ $p == "gcc" ]] && FILE=$(echo $FILE| tr ' ' '\n' | grep "\." | tail -n2 | head -n1) 
+	FILE=$(echo $FILE | tr ' ' '\n' | sort -V | tail -n1)
+
+	# Do some package specific modifications here
+	[[ $p == tcl ]] && FILE=$(echo $FILE|sed 's,tcl,tcl-,')
+	[[ $p == lvm2 ]] && FILE=$(echo $FILE|sed 's,LVM2\.,lvm2-,')
+	[[ $p == boost ]] && FILE=$(echo $FILE|sed -e 's,boost_,boost-,' -e 's,_,.,g')
+	[[ $p == btrfs-progs-v ]] && FILE=$(echo $FILE|sed 's,-v,-,')
+
+	# These apply to all packages.
+	FILE=${FILE/.orig/}
+	FILE=${FILE//_/-}
+
+	PKG=$(getlatestversion $PK)
+	PKG=${PKG##*/}
+	[[ ${FILE##*-} == "" ]] && echo "Checking $PK : $PKG : ${FILE##*-}"
+	if [[ ${FILE##*-} == $PKG ]]; then
+		continue
+	fi
+	if version_gt ${FILE##*-} $PKG; then 
+		echo $FILE [ $PK-$PKG ] >> /tmp/checkupdates
+	fi
+done
+cat /tmp/checkupdates
+rm /tmp/checkupdates

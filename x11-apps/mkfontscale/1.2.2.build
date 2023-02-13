@@ -1,0 +1,18 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.x.org/pub/individual/app/${PKG_NAME}-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/bzip2 dev-libs/glib dev-libs/libpcre2 media-libs/freetype media-libs/harfbuzz media-libs/libpng sys-libs/zlib x11-libs/libfontenc"
+BDEPS=""
+RDEPS="x11-libs/libxcb"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static
+}
+
+src_test() { :; }

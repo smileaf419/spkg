@@ -1,0 +1,19 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://gitlab.freedesktop.org/wayland/wayland/-/releases/${PKG_VER}/downloads/wayland-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/xz-utils dev-libs/expat dev-libs/icu dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default -Ddocumentation=false
+}
+
+src_test() {
+	env -u XDG_RUNTIME_DIR ninja test
+}

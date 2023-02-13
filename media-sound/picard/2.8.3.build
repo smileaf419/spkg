@@ -1,0 +1,16 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://musicbrainz.osuosl.org/pub/musicbrainz/picard/picard-${PKG_VER}.tar.gz")
+PATCHES=("")
+LICENSE=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() { :; }

@@ -1,0 +1,14 @@
+HOMEPAGE="https://github.com/scop/bash-completion"
+DESCRIPTION="Programmable completion functions for bash"
+SRC_URI="https://github.com/scop/bash-completion/releases/download/${PKG_VER}/bash-completion-${PKG_VER}.tar.xz"
+LICENSE="GPLv2"
+BDEPS=""
+RDEPS="app-shells/bash"
+SLOT=0
+
+src_configure() {
+	# Might be unnecessary.
+	autoreconf -i
+
+	configure_default
+}

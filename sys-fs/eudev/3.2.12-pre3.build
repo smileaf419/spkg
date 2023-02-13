@@ -1,0 +1,39 @@
+HOMEPAGE="https://github.com/eudev-project/eudev"
+DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
+LFSRULEVER=20171102
+SRC_URI=("https://github.com/eudev-project/eudev/releases/download/v${PKG_VER}/eudev-${PKG_VER}.tar.gz"
+"https://anduin.linuxfromscratch.org/LFS/udev-lfs-${LFSRULEVER}.tar.xz")
+LICENSE="LGPLv2.1 MIT GPLv2"
+DEPS="app-arch/xz-utils app-arch/zstd dev-libs/openssl sys-apps/kmod sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() {
+	# These directories are required for the tests
+	mkdir -pv /usr/lib/udev/rules.d
+	mkdir -pv /etc/udev/rules.d
+
+	test_default
+}
+
+src_configure() {
+	# Fix location of udev rules in the .pc file
+#	sed -i '/udevdir/a udev_dir=${udevdir}' src/udev/udev.pc.in
+
+	configure_default \
+	            --bindir=/usr/sbin      \
+	            --sysconfdir=/etc       \
+	            --enable-manpages
+}
+
+src_install() {
+	install_default
+
+	unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz
+	install_default -f udev-lfs-${LFSRULEVER}/Makefile.lfs
+}
+
+post_install() {
+	udevadm hwdb --update
+}

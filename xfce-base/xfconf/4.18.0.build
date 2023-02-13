@@ -1,0 +1,15 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://archive.xfce.org/src/xfce/xfconf/${PKG_VER%.*}/xfconf-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS="dev-libs/glib dev-libs/libffi dev-libs/libpcre2 sys-libs/zlib xfce-base/libxfce4util"
+BDEPS="dev-lang/vala"
+RDEPS=""
+setBuildENV auto make
+SLOT=0
+
+src_test() { :; }

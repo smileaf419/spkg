@@ -1,0 +1,25 @@
+HOMEPAGE="https://mesonbuild.com/"
+DESCRIPTION=""
+SRC_URI="https://github.com/mesonbuild/meson/releases/download/${PKG_VER}/meson-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="dev-lang/python dev-python/pip"
+SLOT=0
+
+src_configure() {
+	sed -i 's,license_file,license_files,' setup.cfg 
+}
+
+src_compile() {
+	checkPythonVM
+#	pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+}
+
+src_test() { :; }
+
+src_install() {
+	pip3 install meson
+	install -vDm644 data/shell-completions/bash/meson "${D}"/usr/share/bash-completion/completions/meson
+	install -vDm644 data/shell-completions/zsh/_meson "${D}"/usr/share/zsh/site-functions/_meson
+}

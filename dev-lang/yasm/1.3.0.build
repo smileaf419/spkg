@@ -1,0 +1,13 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://www.tortall.net/projects/yasm/releases/yasm-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -i 's#) ytasm.*#)#' Makefile.in
+	configure_default
+}

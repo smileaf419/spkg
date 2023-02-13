@@ -1,0 +1,15 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://cpan.metacpan.org/authors/id/C/CH/CHRISN/Net-SSLeay-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS="dev-libs/openssl sys-libs/zlib"
+BDEPS=""
+RDEPS="dev-lang/perl"
+SLOT=0
+B="Net-SSLeay-${PKG_VER}"
+MODULE=perl
+TEST=test
+
+src_configure() {
+	yes '' | perl Makefile.PL
+}

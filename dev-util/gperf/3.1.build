@@ -1,0 +1,15 @@
+HOMEPAGE="https://www.gnu.org/software/gperf/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/gperf/gperf-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gperf/gperf-${PKG_VER}.tar.gz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() {
+	# tests are known to fail if running multiple simutaneous tests.
+	# ie: -j option greater than 1.
+	make -j1 check
+}

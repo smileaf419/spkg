@@ -1,0 +1,14 @@
+HOMEPAGE="https://www.videolan.org/developers/libbluray.html"
+DESCRIPTION="Blu-ray playback libraries"
+SRC_URI="https://downloads.videolan.org/pub/videolan/libbluray/${PKG_VER}/libbluray-${PKG_VER}.tar.bz2"
+LICENSE="LGPL-2.1"
+DEPS="app-arch/bzip2 app-arch/xz-utils dev-libs/expat dev-libs/glib dev-libs/icu dev-libs/libpcre2 dev-libs/libxml2 media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/libpng sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default --disable-bdjava-jar
+}
+
+src_test() { :; }

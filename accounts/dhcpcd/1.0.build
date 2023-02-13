@@ -1,0 +1,25 @@
+HOMEPAGE=""
+DESCRIPTION="DHCPCD User and Group"
+SRC_URI=""
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=""
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	addGroup www -g 52
+	addUser dhcpcd \
+		-c 'dhcpcd' \
+		-d /var/lib/dhcpcd  \
+		-g dhcpcd \
+		-s /bin/false     \
+		-u 52
+}

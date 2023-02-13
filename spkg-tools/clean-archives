@@ -1,0 +1,10 @@
+for d in $(find /var/lib/spkg/archive -mindepth 1 -type d); do 
+	[[ $d == *spkg-tools* || $d == *spkg-sets* ]] && continue
+	NUM=$(ls -1 $d | wc -l)
+	if [[ $NUM -gt 2 ]]; then
+		echo $d:
+		FILES=$(ls -1 $d | sort -V | head -n $(($NUM - 2)) )
+		echo $FILES
+#		rm -v $FILES
+	fi
+done

@@ -1,0 +1,25 @@
+HOMEPAGE="https://www.gnu.org/software/dejagnu/"
+DESCRIPTION="Framework for testing other programs"
+SRC_URI=("https://ftp.gnu.org/gnu/dejagnu/dejagnu-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/dejagnu/dejagnu-${PKG_VER}.tar.gz.sig")
+LICENSE="GPLv3"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+BUILD_SEPERATE_DIR=yes
+
+src_configure() {
+	../configure --prefix=/usr
+	makeinfo --html --no-split -o doc/dejagnu.html ../doc/dejagnu.texi
+	makeinfo --plaintext       -o doc/dejagnu.txt  ../doc/dejagnu.texi
+}
+
+src_compile() { :; }
+
+src_install() {
+	install_default
+
+	install -v -dm755  "${D}"/usr/share/doc/dejagnu-${PKG_VER}
+	install -v -m644   doc/dejagnu.{html,txt} "${D}"/usr/share/doc/dejagnu-${PKG_VER}
+}

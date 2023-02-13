@@ -1,0 +1,9 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-${PKG_VER}.tar.gz.sig")
+LICENSE="LGPL v2.1"
+DEPS="app-arch/zstd app-crypt/p11-kit dev-libs/gmp dev-libs/libffi dev-libs/libtasn1 dev-libs/libunistring dev-libs/nettle net-libs/gnutls sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0

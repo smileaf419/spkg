@@ -1,0 +1,11 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.gnupg.org/ftp/gcrypt/libksba/libksba-${PKG_VER}.tar.bz2")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/libksba/libksba-${PKG_VER}.tar.bz2.sig")
+LICENSE=""
+DEPS="dev-libs/libgpg-error"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

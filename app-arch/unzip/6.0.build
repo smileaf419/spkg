@@ -1,0 +1,39 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://downloads.sourceforge.net/infozip/unzip${PKG_VER/./}.tar.gz")
+#PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/unzip-6.0-consolidated_fixes-1.patch")
+PATCHES=(
+"https://gentoo.osuosl.org/distfiles/unzip_6.0-27.debian.tar.xz"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-fix-false-overlap-detection-on-32bit-systems.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-format-security.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-no-exec-stack.patch"
+)
+LICENSE="Info-ZIP"
+DEPS="app-arch/bzip2"
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=unzip${PKG_VER/./}
+
+src_patch() {
+	PATCHES=($@)
+	unpack ${DISTFILES}/${PATCHES[0]##*/}
+	# Remove debian's branding patch
+	rm $BUILD_PATH/$B/debian/patches/02*
+	PATCHES[0]=$BUILD_PATH/$B/debian/patches
+
+	spatches $PATCHES
+}
+
+src_configure() { :; }
+
+src_compile() {
+	make -f unix/Makefile generic
+}
+
+src_test() { :; }
+
+src_install() {
+	make prefix=${D}/usr MANDIR=${D}/usr/share/man/man1 \
+		-f unix/Makefile install
+}

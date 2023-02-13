@@ -1,0 +1,20 @@
+HOMEPAGE="https://troglobit.com/sysklogd.html"
+DESCRIPTION="Standard Log Daemon"
+SRC_URI="https://github.com/troglobit/sysklogd/releases/download/v${PKG_VER}/sysklogd-${PKG_VER}.tar.gz"
+LICENSE="BSD"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--runstatedir=/run
+}
+
+src_test() { :; }
+
+src_install() {
+	make DESTDIR="$D" install-strip
+}

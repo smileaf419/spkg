@@ -1,0 +1,17 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://xkbcommon.org/download/libxkbcommon-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/xz-utils dev-libs/icu dev-libs/libffi dev-libs/libxml2 dev-libs/wayland sys-libs/zlib x11-libs/libXau x11-libs/libXdmcp x11-libs/libxcb"
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+SLOT=0
+
+src_configure() {
+	configure_default -Denable-docs=false
+}

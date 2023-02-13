@@ -1,0 +1,30 @@
+HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz.sig")
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/readline-8.2-upstream_fix-1.patch")
+LICENSE=""
+DEPS="sys-libs/ncurses"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -i '/MV.*old/d' Makefile.in
+	sed -i '/{OLDSUFF}/c:' support/shlib-install
+
+	configure_default --with-curses
+}
+
+src_compile() {
+	make SHLIB_LIBS="-lncursesw"
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default SHLIB_LIBS="-lncursesw"
+#	make SHLIB_LIBS="-lncursesw" DESTDIR="${D}" install
+	mkdir -p "${D}"/usr/share/doc/readline-${PKG_VER}
+	install -v -m644 doc/*.{ps,pdf,html,dvi} "${D}"/usr/share/doc/readline-${PKG_VER}
+}

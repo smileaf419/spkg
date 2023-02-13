@@ -1,0 +1,26 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://github.com/lsof-org/lsof/archive/refs/tags/${PKG_VER}.tar.gz")
+#SRC_URI="https://github.com/lsof-org/lsof/releases/download/${PKG_VER}/lsof_${PKG_VER}.linux.tar.bz2"
+LICENSE=""
+DEPS="net-libs/libtirpc"
+BDEPS=""
+RDEPS=""
+SLOT=0
+#B=lsof_${PKG_VER}.linux
+
+src_configure() {
+	checkKernelConfig CONFIG_POSIX_MQUEUE 1 "POSIX Message Queues"
+
+	./Configure -n linux
+}
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p "${D}"/usr/bin
+	install -v -m4755 -o root -g root lsof "${D}"/usr/bin
+	mkdir -p "${D}"/usr/share/man/man8
+	mv {L,l}sof.8
+	install -v lsof.8 "${D}"/usr/share/man/man8
+}

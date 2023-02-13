@@ -1,0 +1,21 @@
+HOMEPAGE="https://www.gnu.org/software/texinfo/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/texinfo/texinfo-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/texinfo/texinfo-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="sys-libs/ncurses"
+SLOT=0
+
+src_install() {
+	install_default
+
+	make DESTDIR="${D}" TEXMF=/usr/share/texmf install-tex
+	pushd "${D}"/usr/share/info
+		rm -v dir
+		for f in *
+			do install-info $f dir 2>/dev/null
+		done
+	popd
+}

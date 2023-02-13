@@ -1,0 +1,19 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://downloads.sourceforge.net/gptfdisk/gptfdisk-${PKG_VER}.tar.gz")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/gptfdisk-1.0.9-convenience-1.patch")
+LICENSE=""
+DEPS="dev-libs/popt sys-libs/ncurses"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -i 's|ncursesw/||' gptcurses.cc
+	sed -i 's|sbin|usr/sbin|' Makefile
+	sed -i '/CGDISK_LDLIBS=-lncursesw/ s,$, -ltinfow,' Makefile
+}
+
+src_test() {
+	make $MAKEOPTS test
+}

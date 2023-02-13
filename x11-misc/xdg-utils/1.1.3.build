@@ -1,0 +1,17 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://portland.freedesktop.org/download/xdg-utils-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("https://mirrors.slackware.com/slackware/slackware-current/source/x/xdg-utils/xdg-open.no.relative.paths.diff.gz")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="app-text/xmlto www-client/links"
+setBuildENV auto make
+SLOT=0
+
+src_configure() {
+	configure_default --mandir=/usr/share/man
+}

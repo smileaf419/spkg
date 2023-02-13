@@ -1,0 +1,9 @@
+HOMEPAGE="https://www.gnu.org/software/automake/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/automake/automake-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/automake/automake-${PKG_VER}.tar.xz.sig")
+LICENSE="GPLv2"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0

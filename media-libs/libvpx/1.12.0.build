@@ -1,0 +1,21 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://github.com/webmproject/libvpx/archive/v${PKG_VER}/libvpx-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+BUILD_SEPERATE_DIR=yes
+
+src_configure() {
+	sed -i 's/cp -p/cp/' ../build/make/Makefile
+
+	../configure --prefix=/usr \
+				--enable-shared \
+				--disable-static
+}
+
+src_test() {
+	LD_LIBRARY_PATH=. make $MAKEOPTS test
+}

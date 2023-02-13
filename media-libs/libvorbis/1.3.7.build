@@ -1,0 +1,8 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://downloads.xiph.org/releases/vorbis/libvorbis-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS="media-libs/libogg"
+BDEPS=""
+RDEPS=""
+SLOT=0

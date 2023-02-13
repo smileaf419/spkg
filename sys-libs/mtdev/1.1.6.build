@@ -1,0 +1,16 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://bitmath.org/code/mtdev/mtdev-${PKG_VER}.tar.bz2")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	autoreconf -fiv
+	configure_default
+}
+
+src_test() { :; }

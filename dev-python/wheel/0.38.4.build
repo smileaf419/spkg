@@ -1,0 +1,22 @@
+HOMEPAGE="https://pypi.org/project/wheel/"
+DESCRIPTION=""
+SRC_URI=""
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="dev-lang/python dev-python/pip"
+SLOT=0
+MODULE=python
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	checkPythonVM
+	PYTHONPATH=src pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+	pip install --no-index --find-links=dist wheel
+#	python -m pip install --upgrade wheel
+}

@@ -1,0 +1,30 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://www.kernel.org/pub/software/utils/pciutils/pciutils-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS="app-arch/xz-utils app-arch/zstd dev-libs/openssl sys-apps/kmod sys-fs/eudev sys-libs/zlib"
+BDEPS=""
+RDEPS="net-misc/wget"
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() {
+	make PREFIX=/usr \
+		 SHAREDIR=/usr/share/hwdata \
+		 SHARED=yes
+}
+
+src_test() { :; }
+
+src_install() {
+	make PREFIX=${D}/usr \
+		 SHAREDIR=${D}/usr/share/hwdata \
+		 SHARED=yes \
+		 install install-lib
+	chmod -v 755 ${D}/usr/lib/libpci.so
+}
+
+post_install() {
+	update-pciids
+}

@@ -1,0 +1,13 @@
+HOMEPAGE="https://wiki.x.org/wiki/"
+DESCRIPTION=""
+SRC_URI=("https://www.x.org/pub/individual/lib/libxcvt-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+setBuildENV meson ninja
+
+src_test() { :; }

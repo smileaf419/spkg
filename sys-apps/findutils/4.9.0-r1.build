@@ -1,0 +1,28 @@
+HOMEPAGE="https://www.gnu.org/software/findutils/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/findutils/findutils-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/findutils/findutils-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+#	sed -e '/^SUBDIRS/s@locate@@' \
+#		-e '/^built_programs/s@ frcode locate updatedb@@' \
+#		-i Makefile.in
+
+	case $(uname -m) in
+	    i?86)   TIME_T_32_BIT_OK=yes ./configure --prefix=/usr --localstatedir=/var/lib/locate ;;
+	    x86_64) ./configure --prefix=/usr --localstatedir=/var/lib/locate ;;
+	esac
+}
+
+bootstrap() {
+	./configure --prefix=/usr                   \
+				--localstatedir=/var/lib/locate \
+				--host=$HOST_TGT                \
+				--build=$(build-aux/config.guess)
+	compile_default && install_default
+}

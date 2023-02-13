@@ -1,0 +1,30 @@
+HOMEPAGE="https://www.gnu.org/software/sed/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/sed/sed-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/sed/sed-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS="sys-apps/acl sys-apps/attr"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	# SELinux test fails if defined in /proc/filesystem
+	sed -i '/^  LC_ALL=C/ s,\\$,\\\n  CONFIG_HEADER=config.h \\,' testsuite/local.mk
+
+	aclocal
+	automake
+	configure_default
+}
+
+src_compile() {
+	compile_default
+	make html
+}
+
+src_install() {
+	install_default
+
+	install -d -m755           "${D}"/usr/share/doc/sed-${PKG_VER}
+	install -m644 doc/sed.html "${D}"/usr/share/doc/sed-${PKG_VER}
+}

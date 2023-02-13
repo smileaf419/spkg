@@ -1,0 +1,32 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://github.com/lfs-book/make-ca/releases/download/v${PKG_VER}/make-ca-${PKG_VER}.tar.xz"
+"http://www.cacert.org/certs/root.crt"
+"http://www.cacert.org/certs/class3.crt")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="app-crypt/p11-kit dev-libs/openssl"
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	install -vdm755 ${D}/etc/ssl/local
+
+	openssl x509 -in ${DISTFILES}/root.crt -text -fingerprint -setalias "CAcert Class 1 root" \
+	        -addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+	        > ${D}/etc/ssl/local/CAcert_Class_1_root.pem &&
+	openssl x509 -in ${DISTFILES}/class3.crt -text -fingerprint -setalias "CAcert Class 3 root" \
+	        -addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+	       	> ${D}/etc/ssl/local/CAcert_Class_3_root.pem
+
+	inform "to finish the install please run: /usr/sbin/make-ca -g"
+	inform "/usr/bin/make-ca -r"
+}

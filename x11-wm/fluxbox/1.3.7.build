@@ -1,0 +1,16 @@
+HOMEPAGE="http://www.fluxbox.org"
+DESCRIPTION="X11 window manager featuring tabs and an iconbar"
+SRC_URI=("https://downloads.sourceforge.net/fluxbox/fluxbox-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE="MIT"
+DEPS="app-arch/bzip2 dev-libs/expat dev-libs/fribidi dev-libs/glib dev-libs/libpcre2 media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/libpng sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp x11-libs/libXext x11-libs/libXft x11-libs/libXinerama x11-libs/libXpm x11-libs/libXrandr x11-libs/libXrender"
+BDEPS=""
+RDEPS="x11-apps/xmodmap x11-base/xorg-server x11-apps/xinit"
+SLOT=0
+
+src_configure() {
+	sed -i '/text_prop.value > 0/s/>/!=/' util/fluxbox-remote.cc
+	configure_default
+}
+
+src_test() { :; }

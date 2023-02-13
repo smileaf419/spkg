@@ -1,0 +1,25 @@
+HOMEPAGE="https://www.darwinsys.com/file/"
+DESCRIPTION=""
+SRC_URI="https://astron.com/pub/file/file-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+bootstrap() {
+	# Make a temp copy of file
+	mkdir build
+	pushd build
+		../configure --disable-bzlib      \
+					 --disable-libseccomp \
+					 --disable-xzlib      \
+					 --disable-zlib
+		compile_default
+	popd
+
+	./configure --prefix=/usr --host=$HOST_TGT --build=$(./config.guess)
+	compile_default FILE_COMPILE=$(pwd)/build/src/file
+	install_default
+	rm -v $D/$ROOT/usr/lib/libmagic.la
+}

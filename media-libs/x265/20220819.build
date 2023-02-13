@@ -1,0 +1,22 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://anduin.linuxfromscratch.org/BLFS/x265/x265-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+setBuildENV cmake
+BUILD_SEPERATE_DIR=../source
+
+src_configure() {
+	configure_default -DGIT_ARCHETYPE=1
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	rm -v "${D}"/usr/lib/libx265.a
+}

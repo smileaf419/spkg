@@ -1,0 +1,16 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://dri.freedesktop.org/libdrm/libdrm-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS="x11-libs/libpciaccess"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default -Dudev=true \
+					  -Dvalgrind=disabled
+}

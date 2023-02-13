@@ -1,0 +1,23 @@
+HOMEPAGE="https://www.mpfr.org/"
+DESCRIPTION=""
+SRC_URI="https://www.mpfr.org/mpfr-${PKG_VER}/mpfr-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS="dev-libs/gmp"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default \
+	            --enable-thread-safe
+}
+
+src_compile() {
+	compile_default
+	make html
+}
+
+src_install() {
+	install_default
+	make DESTDIR="${D}" install-html
+}

@@ -1,0 +1,24 @@
+HOMEPAGE=""
+DESCRIPTION="NTP User and Group"
+SRC_URI=""
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=""
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	addGroup ntp -g 87
+	addUser ntp \
+		-c "Network_Time_Protocol" \
+		-d /var/lib/ntp -u 87 \
+		-g ntp \
+		-s /bin/false
+}

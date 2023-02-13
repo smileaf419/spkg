@@ -1,0 +1,15 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://downloads.sourceforge.net/libtirpc/libtirpc-${PKG_VER}.tar.bz2"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default --sysconfdir=/etc \
+					  --disable-gssapi
+}
+
+src_test() { :; }

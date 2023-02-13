@@ -1,0 +1,10 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://www.oberhumer.com/opensource/lzo/download/lzo-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

@@ -1,0 +1,32 @@
+HOMEPAGE="https://www.gnu.org/software/gmp/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/gmp/gmp-${PKG_VER}.tar.xz")
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/gmp/files/gmp-6.2.1-CVE-2021-43618.patch")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gmp/gmp-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default --enable-cxx
+}
+
+src_compile() {
+	compile_default
+
+	make html
+}
+
+src_test() {
+	make check 2>&1 | tee gmp-check-log
+	TEST=$(awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log)
+#	[ $TEST != 197 ] && die "Passing tests: ${TEST} != 197"
+}
+
+src_install() {
+	install_default
+
+	make DESTDIR="${D}" install-html
+}

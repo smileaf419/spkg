@@ -1,0 +1,121 @@
+HOMEPAGE="https://www.gnu.org/software/ncurses/"
+DESCRIPTION=""
+SRC_URI=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz.asc")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default \
+	            --mandir=/usr/share/man \
+	            --without-debug         \
+	            --without-normal        \
+	            --with-cxx-shared		\
+	            --enable-pc-files       \
+	            --enable-widec          \
+	            --with-termlib          \
+	            --with-pcre2            \
+	            --without-hashed-db     \
+	            --with-pkg-config-libdir=/usr/lib/pkgconfig
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	for lib in ncurses form panel menu ; do
+	    rm -vf                    "${D}"/usr/lib/lib${lib}.so
+	    echo "INPUT(-l${lib}w)" > "${D}"/usr/lib/lib${lib}.so
+	    ln -sfv ${lib}w.pc        "${D}"/usr/lib/pkgconfig/${lib}.pc
+	done
+
+	rm -vf                     "${D}"/usr/lib/libcursesw.so
+	echo "INPUT(-lncursesw)" > "${D}"/usr/lib/libcursesw.so
+	ln -sfv libncurses.so      "${D}"/usr/lib/libcurses.so
+
+	# Documentation
+	mkdir -pv      "${D}"/usr/share/doc/ncurses-${PKG_VER}
+	cp -v -R doc/* "${D}"/usr/share/doc/ncurses-${PKG_VER}
+}
+
+bootstrap() {
+	sed -i s/mawk// configure
+
+	# Build tic
+	mkdir build
+	pushd build
+		../configure
+		make -C include
+		make -C progs tic
+	popd
+
+	# Build 64bit
+	./configure --prefix=/usr                \
+				--bindir=/bin                \
+				--libdir=/lib                \
+	            --host=$HOST_TGT             \
+	            --build=$(./config.guess)    \
+	            --without-manpages           \
+	            --with-shared                \
+	            --without-normal             \
+	            --with-cxx-shared            \
+	            --without-debug              \
+	            --without-ada                \
+	            --disable-stripping          \
+	            --enable-widec               \
+	            --without-termlib
+	compile_default
+	install_default TIC_PATH=$(pwd)/build/progs/tic
+	echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so
+
+	# Build 32bit
+	make distclean
+
+	CC="$HOST_TGT-gcc -m32"              \
+	CXX="$HOST_TGT-g++ -m32"             \
+	./configure --prefix=/usr           \
+				--host=$HOST_TGT32       \
+				--build=$(./config.guess)    \
+				--libdir=/lib32     \
+				--mandir=/usr/share/man \
+				--with-shared           \
+				--without-normal        \
+				--with-cxx-shared       \
+				--without-debug         \
+				--without-ada           \
+				--disable-stripping     \
+				--enable-widec &&
+	compile_default &&
+	make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
+	ln -s libncursesw.so DESTDIR/lib32/libcursesw.so
+	mkdir -p $D/$ROOT/lib32
+	cp -Rv DESTDIR/lib32/* $D/$ROOT/lib32
+	rm -rf DESTDIR
+
+	# Build x32bit
+	make distclean
+
+	CC="$HOST_TGT-gcc -mx32"             \
+	CXX="$HOST_TGT-g++ -mx32"            \
+	./configure --prefix=/usr           \
+				--host=$HOST_TGTX32      \
+				--build=$(./config.guess)    \
+				--libdir=/libx32    \
+				--mandir=/usr/share/man \
+				--with-shared           \
+				--without-normal        \
+				--with-cxx-shared       \
+				--without-debug         \
+				--without-ada           \
+				--disable-stripping     \
+				--enable-widec &&
+	compile_default &&
+	make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
+	ln -s libncursesw.so DESTDIR/libx32/libcursesw.so
+	mkdir -p $D/$ROOT/libx32
+	cp -Rv DESTDIR/libx32/* $D/$ROOT/libx32
+}

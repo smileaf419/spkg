@@ -1,0 +1,23 @@
+HOMEPAGE="https://www.nongnu.org/unac/"
+DESCRIPTION=""
+# Download links on main website seem to not be working and 1.8.0 isn't even listed on its main page?
+SRC_URI=("https://gentoo.osuosl.org/distfiles/unac_${PKG_VER}.orig.tar.gz")
+PATCHES=("")
+LICENSE=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=unac-${PKG_VER}.orig
+
+src_configure() {
+	echo " * Attempting to update autotool files"
+	sed -i 's,AM_CONFIG_HEADER,AC_CONFIG_HEADERS,' configure.ac
+	sed -i "s,INCLUDES,AM_CPPFLAGS," Makefile.am
+	autoupdate
+	touch config.rpath
+	automake
+	autoreconf -fiv || echo Expected failure.. checking if it\'ll configure...
+	configure_default
+}
+
+src_test() { :; }

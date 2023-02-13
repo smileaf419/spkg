@@ -1,0 +1,16 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://download.gnome.org/sources/gobject-introspection/${PKG_VER%.*}/gobject-introspection-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS="dev-libs/glib dev-libs/libffi dev-libs/libpcre2 sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+[[ $ENABLE_TESTS == 1 ]] && BDEPS+=" dev-python/mako x11-libs/cairo"
+
+setBuildENV meson ninja
+
+src_test() {
+	inform " * gobject-introspection tests require: gjs gtk-doc and markdown"
+	#test_default
+}

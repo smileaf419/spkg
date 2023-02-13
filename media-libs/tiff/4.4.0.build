@@ -1,0 +1,18 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://download.osgeo.org/libtiff/tiff-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/tiff-4.4.0-upstream_fixes-1.patch")
+LICENSE=""
+DEPS="app-arch/zstd media-libs/libjpeg-turbo media-libs/libwebp sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=no
+SLOT=0
+
+src_configure() {
+	configure_default -G Ninja
+}

@@ -1,0 +1,43 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://invisible-mirror.net/archives/xterm/xterm-${PKG_VER}.tgz")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/bzip2 dev-libs/expat dev-libs/libpcre media-libs/fontconfig media-libs/freetype media-libs/libpng sys-libs/ncurses sys-libs/zlib x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/libXau x11-libs/libXaw x11-libs/libXdmcp x11-libs/libXext x11-libs/libXft x11-libs/libXinerama x11-libs/libXmu x11-libs/libXpm x11-libs/libXrender x11-libs/libXt x11-libs/libxcb"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -i '/v0/{n;s/new:/new:kb=^?:/}' termcap
+	printf '\tkbs=\\177,\n' >> terminfo
+
+	LDFLAGS="-ltinfow ${LDFLAGS}" \
+	LIBS="-ltinfow ${LIBS}" \
+	TERMINFO=/usr/share/terminfo \
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static \
+			    --with-app-defaults=/etc/X11/app-defaults
+
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	make DESTDIR="${D}" install-ti
+	
+	mkdir -pv "${D}"/usr/share/applications
+	cp -v *.desktop "${D}"/usr/share/applications/
+
+	mkdir -p "${D}"/etc/X11/app-defaults
+	cat >> "${D}"/etc/X11/app-defaults/XTerm << "EOF"
+*VT100*locale: true
+*VT100*faceName: Monospace
+*VT100*faceSize: 10
+*backarrowKeyIsErase: true
+*ptyInitialErase: true
+EOF
+}

@@ -1,0 +1,36 @@
+HOMEPAGE="https://sourceware.org/bzip2/"
+DESCRIPTION="A high-quality data compressor."
+SRC_URI=("https://www.sourceware.org/pub/bzip2/bzip2-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.sourceware.org/pub/bzip2/bzip2-${PKG_VER}.tar.gz.sig")
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/bzip2-${PKG_VER}-install_docs-1.patch")
+LICENSE="BZIP2"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -i 's@\(ln -s -f \)$(PREFIX)/bin/@\1@' Makefile
+	sed -i "s@(PREFIX)/man@(PREFIX)/share/man@g" Makefile
+
+	append_ldflags -fPIC
+	make -f Makefile-libbz2_so
+	make clean
+}
+
+src_install() {
+	make PREFIX="${D}/$ROOT/usr" install
+	cp -av libbz2.so.* "${D}/$ROOT"/usr/lib
+	ln -sv libbz2.so.${PKG_VER} "${D}/$ROOT"/usr/lib/libbz2.so
+
+	cp -v bzip2-shared "${D}/$ROOT"/usr/bin/bzip2
+	for i in "${D}/$ROOT"/usr/bin/{bzcat,bunzip2}; do
+		ln -sfv bzip2 $i
+	done
+	rm -fv "${D}/$ROOT"/usr/lib/libbz2.a
+}
+
+bootstrap() {
+	src_configure
+	src_install
+}

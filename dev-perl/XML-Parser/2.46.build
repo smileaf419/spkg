@@ -1,0 +1,15 @@
+HOMEPAGE="https://github.com/chorny/XML-Parser"
+DESCRIPTION=""
+SRC_URI="https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-${PKG_VER}.tar.gz"
+LICENSE=""
+B=XML-Parser-${PKG_VER}
+DEPS="dev-libs/expat"
+BDEPS=""
+RDEPS="dev-lang/perl"
+SLOT=0
+MODULE=perl
+TEST=test
+
+src_configure() {
+	perl Makefile.PL
+}

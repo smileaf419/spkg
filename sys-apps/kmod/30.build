@@ -1,0 +1,29 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS="app-arch/xz-utils app-arch/zstd dev-libs/openssl sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/             \
+	            --sysconfdir=/etc      \
+	            --with-openssl         \
+	            --with-xz              \
+	            --with-zstd            \
+	            --with-zlib
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	mkdir -p "${D}/sbin"
+	for target in depmod insmod modinfo modprobe rmmod; do
+		ln -sfv ../bin/kmod "${D}"/sbin/$target
+	done
+
+	ln -sfv kmod "${D}"/bin/lsmod
+}

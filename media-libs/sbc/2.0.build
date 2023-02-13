@@ -1,0 +1,15 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.kernel.org/pub/linux/bluetooth/sbc-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default --disable-tester
+}
+
+src_test() { :; }

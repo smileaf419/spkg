@@ -1,0 +1,15 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://cpan.metacpan.org/authors/id/H/HA/HAARG/Test-Needs-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS="dev-lang/perl"
+SLOT=0
+B="Test-Needs-$PKG_VER"
+MODULE=perl
+TEST=test
+
+src_configure() {
+	yes | perl Makefile.PL
+}

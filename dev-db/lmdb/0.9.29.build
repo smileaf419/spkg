@@ -1,0 +1,22 @@
+HOMEPAGE="https://github.com/LMDB/lmdb"
+DESCRIPTION="An ultra-fast, ultra-compact, crash-proof, key-value, embedded data store"
+SRC_URI="https://github.com/LMDB/lmdb/archive/LMDB_${PKG_VER}.tar.gz"
+LICENSE="OpenLDAP"
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=lmdb-LMDB_${PKG_VER}/libraries/liblmdb
+
+src_configure() { :; }
+
+src_compile() {
+	compile_default
+	sed -i 's| liblmdb.a||' Makefile
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default prefix=/usr
+}

@@ -1,0 +1,17 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/nettle/nettle-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/nettle/nettle-${PKG_VER}.tar.gz.sig")
+LICENSE=""
+DEPS="dev-libs/gmp"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_install() {
+	install_default
+
+	chmod   -v   755 "${D}"/usr/lib/lib{hogweed,nettle}.so
+	install -v -m755 -d "${D}"/usr/share/doc/nettle-${PKG_VER}
+	install -v -m644 nettle.html "${D}"/usr/share/doc/nettle-${PKG_VER}
+}

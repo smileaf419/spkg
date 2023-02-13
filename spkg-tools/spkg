@@ -1,0 +1,667 @@
+#!/bin/bash
+# SMiLeaf Package Manager
+# Author Stephen Leaf <smileaf@me.com>
+# Date started: 2022/06/17
+
+VERSION="20230121"
+
+if [ -e /etc/spkg.conf ]; then
+	source /etc/spkg.conf
+#	export CPPFLAGS
+elif [[ $(test -w /etc/ ) ]]; then
+	cat > /etc/spkg.conf << "EOF"
+# -j<# of cpu cores + 1>
+MAKEOPTS="-j"$(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,1+,'|bc)
+CFLAGS="-march=native -O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+#CPPFLAGS="${CFLAGS}"
+
+# User to build and test packages with
+BUILD_USER=smileaf
+# User to run tests as.
+TEST_USER=smileaf
+
+# Enable/Disable features via Gentoo-like USE flag.
+USE=""
+
+# USA Users
+export PAGE=letter
+# Everyone else
+#export PAGE=A4
+
+# Creates Archives
+BUILD_PACKAGE=yes
+# Output Progress
+SILENT_BUILD=no
+
+# 0 Disable : 1 Enable
+# Probably not a good idea to enable tests globally.
+# instead use --enable-tests
+ENABLE_TESTS=0
+# if you read any of the documentation in /usr/share/doc
+# enable this, otherwise disable to save space.
+INSTALL_DOCS=0
+
+LOGFILE="pkg-$(date +%Y%m%d).log"
+# Not a good idea to modify anything below this point.
+# Where spkg was installed.
+INSTALL_PATH="/var/db/spkg/spkg-tools"
+PKG_DB_DIR="/var/db/spkg"
+PKG_CACHE="/var/lib/spkg/data"
+DISTFILES="/var/lib/spkg/files"
+PKG_WORLD="/var/lib/spkg/world"
+LOGDIR="/var/log/spkg"
+# if BUILD_PACKAGE=yes archives will be stored here
+PKG_ARCHIVE_DIR="/var/lib/spkg/archive"
+# Packages are built within here
+WORKDIR_BASE="/var/tmp/spkg"
+# Used in bootstrapping tells where to install packages
+ROOT="/"
+# Location of the Python VM
+PYTHON_VM="/var/lib/python"
+EOF
+	source /etc/spkg.conf
+else
+	echo "Cannot write /etc/spkg.conf file!"
+	exit 1
+fi
+
+# Set some defaults if they don't exist.
+ENABLE_TEST=${ENABLE_TESTS:-0}
+INSTALL_DOCS=${INSTALL_DOCS:-0}
+BUILD_PACKAGE=${BUILD_PACKAGE:-no}
+SILENT_BUILD=${SILENT_BUILD:-no}
+BUILD_USER=${BUILD_USER:-$(whoami)}
+TEST_USER=${TEST_USER:-$(whoami)}
+# Paths
+ROOT=${ROOT:-/}
+PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
+INSTALL_PATH=${INSTALL_PATH:-${PKG_DB_DIR}/spkg-tools}
+LOGDIR=${LOGDIR:-/var/log/spkg}
+LOGFILE=${LOGFILE:-pkg-$(date +%Y%m%d).log}
+WORKDIR_BASE=${WORKDIR_BASE:-/var/tmp/spkg}
+CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
+PKG_CACHE=${PKG_CACHE:-${CACHE_DIR}/data}
+DISTFILES=${DISTFILES:-${CACHE_DIR}/files}
+PKG_WORLD=${PKG_WORLD:-${CACHE_DIR}/world}
+PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-${CACHE_DIR}/archive}
+
+export PKG_DB_DIR PKG_CACHE DISTFILES WORKDIR_BASE ROOT MAKEOPTS PYTHON_VM
+export CFLAGS CXXFLAGS 
+export ENABLE_TESTS INSTALL_DOCS BUILD_USER SILENT_BUILD
+
+# 0: Install; 1: Uninstall; 2: Search; 3: Update
+MODE="install"
+FORCE=0
+PRETEND=0
+ARCHIVE_INSTALL=0
+VERBOSE=0
+
+# For security reasons this shouldn't ever be used... But exists
+IGNORE_SHA1=0
+
+#set -e
+trap '[ "$?" -ne 0 ] && exit $?' EXIT
+
+source "${INSTALL_PATH}/libs/helpermethods"
+source "${INSTALL_PATH}/libs/builddefaults"
+source "${INSTALL_PATH}/libs/spkg-include"
+
+if [ ! -d $PKG_ARCHIVE_DIR ]; 
+	then mkdir -p "$PKG_ARCHIVE_DIR" || die "Failed to create: PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"; fi
+test -w $PKG_ARCHIVE_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"
+if [ ! -d $PKG_CACHE ]; 
+	then mkdir -p "$PKG_CACHE" || die "Failed to create: PKG_CACHE: $PKG_CACHE"; fi
+test -w $PKG_CACHE || die "Cannot write to PKG_CACHE: $PKG_CACHE"
+if [ ! -d $DISTFILES ];
+	then mkdir -p "$DISTFILES" || die "Failed to create: DISTFILES: $DISTFILES"; fi
+test -w $DISTFILES || die "Cannot write to PKG_ARCHIVE_DIR: $DISTFILES"
+if [ ! -d $LOGDIR ];
+	then mkdir -p "$LOGDIR" || die "Failed to create: LOGDIR: $LOGDIR"; fi
+test -w $LOGDIR || die "Cannot write to PKG_ARCHIVE_DIR: $LOGDIR"
+if [ ! -d $WORKDIR_BASE ];
+	then mkdir -p "$WORKDIR_BASE" || die "Failed to create: WORKDIR_BASE: $WORKDIR_BASE"; fi
+test -w $WORKDIR_BASE || die "Cannot write to PKG_ARCHIVE_DIR: $WORKDIR_BASE"
+if [ ! -d $PKG_DB_DIR ]
+	then mkdir -p "$PKG_DB_DIR" || die "Failed to create: PKG_DB_DIR: $PKG_DB_DIR"; fi
+test -w $PKG_DB_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_DB_DIR"
+
+parse_cmdline() {
+	# Referenced mozilla-launcher script.
+	while [[ $# -ne 0 ]] ; do
+		if [[ $1 == -* ]] ; then
+			case "${1#-}" in
+				v|-verbose)
+					VERBOSE=$(( $VERBOSE + 1 ))
+					shift 1 ;;
+				-bootstrap)
+					MODE="bootstrap"
+					ROOT=$(readlink -f $2)
+					shift 2 ;;
+				-ignoresha)
+					IGNORE_SHA1=1
+					shift 1 ;;
+				l|-logdir)
+					LOGDIR=$2
+					shift 2 ;;
+				u|-uninstall)
+					MODE="uninstall"
+					shift 1 ;;
+				s|-search)
+					MODE="search"
+					shift 1 ;;
+				U|-update)
+					MODE="update"
+					shift 1 ;;
+				D|-deepClean)
+					MODE="clean"
+					shift 1 ;;
+				f|-force)
+					FORCE=1
+					shift 1 ;;
+				-fetchOnly)
+					FETCH_ONLY=1
+					shift 1 ;;
+				p|-pretend)
+					PRETEND=1
+					shift 1 ;;
+				A|-installArchive)
+					ARCHIVE_INSTALL="1"
+					shift 1 ;;
+				-archiveDir)
+					PKG_ARCHIVE_DIR=$2
+					shift 2 ;;
+				-enable-tests)
+					ENABLE_TESTS=1
+					shift 1 ;;
+				-disable-tests)
+					ENABLE_TESTS=0
+					shift 1 ;;
+				-buildbdeps)
+					MODE="buildbdeps"
+					shift 1 ;;
+				-updatesha1)
+					HASH_UPDATE=true
+					shift 1 ;;
+				-rebuildKernelMods)
+					MODE="rebuildKernelModules"
+					shift 1 ;;
+				-rebuildPythonMods)
+					MODE="rebuildPythonModules"
+					shift 1 ;;
+				-rebuildPerlMods)
+					MODE="rebuildPerlModules"
+					shift 1 ;;
+				-buildKernel)
+					MODE="buildKernel"
+					shift 1 ;;
+				-user)
+					BUILD_USER=$2
+					shift 2 ;;
+				-testUsr)
+					TEST_USER=$2
+					shift 2 ;;
+				-verify)
+					VERIFY_SIG=1
+					shift 1 ;;
+				1|-oneshot)
+					OMIT_RECORD_IN_WORLD=1
+					shift 1 ;;
+				Q|-silentBuild)
+					SILENT_BUILD=yes
+					shift 1 ;;
+				e|-empty)
+					EMPTY_WORLD=1
+					shift 1 ;;
+				-version)
+					echo "spkg by Stephen Leaf version $VERSION"
+					exit $? ;;					
+				h|-help)
+					echo "spkg by Stephen Leaf version $VERSION"
+					echo "Usage: $0 [Arguments] [package]"
+					echo " Modes (Default: Install)"
+					echo    "  --search, -s         Search and list package information."
+					echo    "  --uninstall, -u      uninstall package."
+					echo    "  --rebuildKernelMods  Rebuilds all Kernel Modules."
+					echo    "  --rebuildPythonMods  Rebuilds all Python Modules."
+					echo    "  --rebuildPerlMods    Rebuilds all Perl Modules."
+					echo    "  --buildKernel        Builds a new kernel"
+					echo    "  --deepClean, -D      Compares the charts of the world file and packages installed."
+					echo    " Developer Options"
+					echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
+					echo    "  --updatesha1         Creates or updates sha1sum for all packages."
+					echo    "  --bootstrap [path]   Generates a new install at [path]"
+					echo    " Optional Arguments"
+					echo    "  --silentBuild, -Q    Hides all build output."
+					echo    "  --user [username]    Runs all build file commands as [username]"
+					echo    "  --testUsr [username] Runs all build file test commands as [username]"
+					echo    "  --oneshot, -1        Omits adding any package requested to the world file."
+					echo    "  --empty, -e          Assumes an empty world file"
+					echo    "  --update, -U         Finds all updates for all installed packages."
+					echo    "  --force, -f          Forces install of already installed packages."
+					echo    "  --pretend, -p        Shows what will be done, without doing it."
+					echo    "  --fetchOnly          Fetches all files without installing."
+					echo    "  --verify             Verify PGP Signatures if available."
+					echo    "  --installArchive, -A Installs package(s) from a preprepared archive."
+					echo    "  --archiveDir [dir]   Sets the archive Directory (default: $PKG_ARCHIVE_DIR)"
+					echo -n "  --enable-tests       Enable package specific tests."
+					[ $ENABLE_TESTS == 1 ] && echo " (Default)" || echo
+					echo -n "  --disable-tests      Disables package specific tests."
+					[ $ENABLE_TESTS == 0 ] && echo " (Default)" || echo
+					echo    "  --logdir, -l [file]  Set the Log Directory (default: $LOGDIR)"
+					echo    "  --verbose, -v        Make the output more verbose. (add another for extra)"
+					echo    "  --help, -h           This Help Message."
+					exit $? ;;
+				*)
+					echo "Unknown option!"
+					exit 1 ;;
+			esac
+		else
+			list=$@
+			break
+		fi
+	done
+}
+
+parse_cmdline $@
+
+mkdir -p "${LOGDIR}" || die "Failed to mkdir ${LOGDIR}"
+test -w "${LOGDIR}/" || die "LOGDIR: ${LOGDIR} not writable"
+
+if [[ $MODE == "bootstrap" ]]; then
+	PKG_CACHE="${ROOT}/${PKG_CACHE}"
+	PKG_WORLD="${ROOT}/${PKG_WORLD}"
+	mkdir -p $PKG_CACHE $PKG_WORLD
+	chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
+	list="@bootstrap"
+	echo " * Bootstrapping .. This will take a while.."
+fi
+
+tlist=
+for p in $list; do
+	# This assumes all entries within a set are fully-qualified.
+	if [ ${p:0:1} == "@" ]; then	
+		echo " * Found ${p#@} Set .. Expanding"
+		if [[ ${p#@} == "world" ]]; then
+			tlist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
+		elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
+			tlist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
+		else
+			echo " * Unknown set: ${p#@}"
+		fi
+	else
+		setupENV $p
+		[[ "$PKG_CAT/$PKG_NAME" == "/" ]] && tlist+=" $p" || tlist+=" $PKG_CAT/$PKG_NAME"
+	fi
+done
+export REQUESTED_LIST=${tlist# }
+list=${tlist# }
+
+if [[ $MODE == "update" ]]; then
+	for f in $(find $PKG_CACHE -wholename *BDEPS | sed -e 's,/BDEPS,,' -e "s,$PKG_CACHE/,,"); do
+		[ $VERBOSE -ge 2 ] && echo -n "$f : "
+		setupENV ${f%/*}
+		VER=${f##*/}
+		[ $VERBOSE -ge 2 ] && echo "Checking $PKG_NAME - $PKG_VR > $VER"
+		if version_gt $PKG_VR $VER ; then
+			list+=" $PKG_CAT/$PKG_NAME"
+			echo $PKG_NAME :: $PKG_VR
+		fi
+	done	
+	# Has the potential to produce multiple entries for the same program.
+	# This filters out them out so we don't install them twice.
+	list=$(echo $list | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
+	[ $VERBOSE -ge 1 ] && echo list: $list
+
+
+# Build Dependencies
+# There are 3 types of Dependencies
+# 1) Run time
+# 2) Build time
+# 3) Binary
+# For the sake of simplicity, Run time and Build time
+# Are contained within the same variable.
+# For any dependency listed and not found to be binary.
+# will be added to RDEPS. All other dependencies will be
+# contained within BDEPS.
+# Because dependencies can change across versions, This
+# will only update the BDEPS of the installed package.
+elif [[ $MODE == "buildbdeps" ]]; then
+	# Filter the tool-chain dependencies.
+	# These will always be installed and will only cause
+	# circular dependency issues.
+	for f in $(find "$PKG_CACHE" -name BDEPS); do
+		# Filter out the Toolchain. These are always depended on,
+		# So we don't need it complicating the logic
+		PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
+		OUT=
+		# Category/PKG Name/PKG Version
+		PKG=$(echo $f | sed -e "s,$PKG_CACHE/,," -e "s,/BDEPS,,")
+		[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
+		# Grab the static IUSE flag, and add the items to our filter.
+		IUSE=$(grep '^[\t ]*[^#]*[\t ]*IUSE'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*USE=",,'   -e 's,".*,,')
+		CDEPS=$(grep '^[\t ]*[^#]*[\t ]*CDEPS'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*CDEPS=",,'   -e 's,".*,,')
+		PKG_FILTER+=(${IUSE[@]})
+		PKG_FILTER+=(${CDEPS[@]})
+		for d in $(cat "$f"); do
+			# readlink to resolve relative paths that
+			# occationally show up.
+			d=$(readlink -f "$d")
+			# Not that it should happen, but filter out any directories 
+			# and empty results.
+			[[ -d $d || -z $d ]] && continue
+			# Grab a list of category/PKG names for each file.
+			# It is possible for multiple results to occur.
+			# However duplicates should be statically linked.
+			# Such as: /usr/lib/plexmediaserver/lib/libc.so 
+			# if /lib/libc.so is searched.
+			# But libc.so is installed within /usr/lib/libc.so which should
+			# Protect it from this.
+			# Other possibilities may occur
+			O=$(grep -r "$d\$" $PKG_CACHE/*/*/*/CONTENTS | 
+				sed -e 's,:.*,,' \
+				    -e "s,$PKG_CACHE/,," \
+				    -e 's,/CONTENTS,,' \
+					-e 's,\(.*/.*\)/.*,\1,')
+			# No package found for the file.
+			[[ -z $O ]] && continue
+			# Filter out itself.
+			[[ "${PKG%/*}" == "$O" ]] && continue
+			# For some reason not all were filtered out in the previous line
+			echo $O | grep ${PKG%/*} > /dev/null
+			[[ $? == 0 ]] && continue
+			# If its not within our filter, or already added, add it to the list.
+			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]])"$O"($|[[:space:]]) && 
+				  ! $OUT =~ (^|[[:space:]])"$O"($|[[:space:]]) ]]; then
+				OUT+=" $O"
+				[ $VERBOSE -ge 1 ] && echo -n "$O '$d' "
+			fi
+		done
+		[ $VERBOSE -ge 1 ] && echo ")"
+		# Filter out duplicates we didn't catch earlier.
+		D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+		# Trim the space at the end for cosmetic reasoning.
+		D=${D%% }
+		# Dependencies
+		grep '^DEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
+		if [ $? != 0 ]; then
+			echo -n "DEPS Missing - checking for BDEPS: "
+			grep '^BDEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
+			if [ $? == 0 ]; then
+				echo "Updating."
+				sed -i 's,^BDEPS=["'\'']\(.*\)\["'\''],DEPS=\"\1\"\nBDEPS=\"\",' $PKG_DB_DIR/$PKG.build
+			else
+				echo "Not found, Skipping.."
+				continue
+			fi
+		fi
+		
+		# Theoretically speaking sorting is wasted if this is exclusively used
+		# to add DEPS, but this isn't always the case.
+		# sort things to avoid false-positives
+		LD=$(grep '^DEPS=' $PKG_DB_DIR/$PKG.build | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+
+		# If any need updating
+		if [[ ${LD%% } != $D ]]; then
+			AD=
+			for l in $D; do
+				if [[ ! $LD =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
+					AD+=" $l"
+				fi
+			done
+			RD=
+			for l in $LD; do
+				if [[ ! $D =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
+					RD+=" $l"
+				fi
+			done
+		
+			echo " * Updating $PKG:"
+			[[ ! -z $AD ]] && echo " - Added:$AD"
+			[[ ! -z $RD ]] && echo " - Removed:$RD"
+			sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
+		fi
+	done
+	
+	HASH_UPDATE=true
+fi
+if [[ $HASH_UPDATE ]]; then
+	echo " * Updating All SHA1 hashes."
+	et=$ENABLE_TESTS
+	vs=$VERIFY_SIG
+	source "${INSTALL_PATH}/libs/updateallsha1.sh"
+	ENABLE_TESTS=$et
+	VERIFY_SIG=$vs
+fi
+if [[ $MODE == "buildKernel" ]]; then
+	buildKernel
+	MODE="rebuildKernelModules"
+fi
+if [[ $MODE == "rebuildKernelModules" ]]; then
+	list=$(rebuildModules kernel)
+	REQUESTED_LIST=$list
+	FORCE=1
+fi
+if [[ $MODE == "rebuildPythonModules" ]]; then
+	list=$(rebuildModules python)
+	echo $list
+	REQUESTED_LIST=$list
+	FORCE=1
+fi
+if [[ $MODE == "rebuildPerlModules" ]]; then
+	list=$(rebuildModules perl)
+	REQUESTED_LIST=$list
+	FORCE=1
+fi
+if [[ $MODE == "clean" ]]; then
+	ENABLE_TESTS=1
+	echo " * Deep Cleaning"
+	echo " * Gathering a list of @system and @world"
+	list=$(expandSets "@system @world")
+	echo " * Calculating Package List"
+	getFullPkgList $list
+	echo " * Getting a list of installed packages."
+	find $PKG_CACHE -mindepth 2 -maxdepth 2 -type d | sed "s,$PKG_CACHE/,," > /tmp/installedPkgs
+	echo " * Gathering a list of targets to remove"
+	list=$(cat /tmp/chart /tmp/installedPkgs | sort | uniq -u)
+	REQUESTED_LIST=$list
+	MODE="uninstall"
+	
+	# { output=$(command 2>&1 1>&3-) ;} 3>&1
+fi
+
+if [[ $MODE == "bootstrap" ]]; then
+	export HOST_TGT=$(uname -m)-leaf-linux-gnu
+	export PATH="$ROOT/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin"
+	# Make a LSB compliant /
+	mkdir -pv $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib{,32,64},media/{cdrom},mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
+	mkdir -pv $ROOT/lib/firmware
+	# Create /usr hierachy
+	mkdir -pv $ROOT/usr/{bin,include,lib{,32,64},libexec,local,sbin,share,src}
+	# Create /usr/local hierachy
+	mkdir -pv $ROOT/usr/local/{bin,etc,games,include,lib{,32,64},man,sbin,share,src}
+	mkdir -pv $ROOT/usr/{,local/}share/{color,dict,doc,info,locale,man}
+	mkdir -pv $ROOT/usr/{,local/}share/{misc,terminfo,zoneinfo}
+	mkdir -pv $ROOT/usr/{,local/}share/man/man{1..8}
+	mkdir -pv $ROOT/var/{cache,local,log,mail,opt,spool}
+	# Create the /var Heirachy
+	mkdir -pv $ROOT/var/{cache,db,lib,lock,log,opt,spool}
+	# Create dirs for spkg
+	mkdir -pv $ROOT/var/{lib/spkg/{archive,data,files},db/spkg}
+	# Fix permissions for our building user, we'll need to fully fix the permissions later.
+	chown -R $BUILD_USER $ROOT
+	installList $list
+	chown -R root:root $ROOT
+	ln -sfv /run $ROOT/var/run
+	ln -sfv /run/lock $ROOT/var/lock
+	[[ ! -e /root ]] && install -dv -m 0750 $ROOT/root || chmod -v 0750 $ROOT/root
+	[[ ! -e $ROOT/tmp || ! -e $ROOT/var/tmp ]] && install -dv -m 1777 $ROOT/tmp $ROOT/var/tmp || chmod -v 1777 $ROOT/{,var}/tmp
+	ln -sv /proc/self/mounts $ROOT/etc/mtab
+
+	cat > $ROOT/etc/hosts << EOF
+127.0.0.1  localhost $(hostname)
+::1        localhost
+EOF
+
+	cat > $ROOT/etc/passwd << "EOF"
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/dev/null:/usr/bin/false
+daemon:x:6:6:Daemon User:/dev/null:/usr/bin/false
+messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/usr/bin/false
+uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false
+nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false
+EOF
+
+	cat > $ROOT/etc/group << "EOF"
+root:x:0:
+bin:x:1:daemon
+sys:x:2:
+kmem:x:3:
+tape:x:4:
+tty:x:5:
+daemon:x:6:
+floppy:x:7:
+disk:x:8:
+lp:x:9:
+dialout:x:10:
+audio:x:11:
+video:x:12:
+utmp:x:13:
+usb:x:14:
+cdrom:x:15:
+adm:x:16:
+messagebus:x:18:
+input:x:24:
+mail:x:34:
+kvm:x:61:
+uuidd:x:80:
+wheel:x:97:
+users:x:999:
+nogroup:x:65534:
+EOF
+
+	touch $ROOT/var/log/{btmp,lastlog,faillog,wtmp}
+	chgrp -v utmp $ROOT/var/log/lastlog
+	chmod -v 664  $ROOT/var/log/lastlog
+	chmod -v 600  $ROOT/var/log/btmp
+	exit 0
+fi
+
+# Get Dependencies and check if any require updates.
+if [[ $MODE != "search" ]]; then
+	echo " * Calculating Package Order..."
+	getFullPkgList $list
+	if [[ $VERBOSE -ge 1 ]]; then
+		echo "Package Order (Full List):"
+		cat /tmp/chart
+		echo "Package Order:"
+	fi
+	list=
+	[[ $MODE == "uninstall" ]] && tac /tmp/chart > /tmp/chart2 && mv /tmp/chart{2,}
+	for p in $(cat /tmp/chart); do
+		setupENV $p
+
+		if [[ $MODE != "uninstall" ]]; then
+			# By default we don't install already installed packages, even when requested
+			# check forced or empty world.
+			version_gt $PKG_VR $O_VER
+			if [[ $? == 0 ||
+				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]])) ||
+				! -z $EMPTY_WORLD ]]; then
+				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
+				[[ $FORCE == 1 ]] && echo -n " (forced)"
+				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
+				echo
+				list+=" $PKG_CAT/$PKG_NAME"
+			elif [[ $VERBOSE -gt 1 ]]; then
+				echo $PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE
+			fi
+		else
+			if [[ $(getinstalledversion $PKG_CAT/$PKG_NAME) != 0 &&
+				($REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]])) ]]; then
+				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
+				[[ $FORCE == 1 ]] && echo -n " (forced)"
+				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
+				echo
+				list+=" $PKG_CAT/$PKG_NAME"
+			fi
+		fi
+	done
+
+#	rm /tmp/chart
+	[ $PRETEND == 1 ] && exit 0
+	[[ -z $list ]] && die "Nothing to upgrade."
+fi
+
+# Search
+if [[ $MODE == "search" ]]; then
+	for p in $list; do
+		echo "Searching: $p"
+		for s in $(find $PKG_DB_DIR -mindepth 2 -type d -wholename \*$p\* | sed -e "s,$PKG_DB_DIR/,,"); do
+			setupENV $s
+			checkSha1 ${PKG_BLD%/*} $PKG_BLD
+			echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"
+			echo "    Installed: ${O_VER}"
+			(
+				source "${PKG_BLD}"
+				echo "    Homepage: ${HOMEPAGE}"
+				echo "    Description: ${DESCRIPTION}"
+				[[ -z $LICENSE ]] && LICENSE="Unknown"
+				echo "    License:  ${LICENSE}"
+				[[ ! -z $IUSE ]] && echo "    USE: ${IUSE}"
+				echo -n "    Deps: ${DEPS}"
+				[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
+				[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
+				[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
+				[[ ! -z "$CDEPS" ]] && echo -n " [C:${CDEPS}]"
+				echo
+			)
+			echo
+		done
+	done
+	exit 0;
+fi	
+installList $list
+
+if [ -e /tmp/preserved ]; then
+	echo " * Gathering list of packages to rebuild"
+	REQUESTED_LIST=
+	for f in $(cat /tmp/preserved); do
+		echo -n "$f:"
+		pkgs=$(checkFileDep $f | sed 's,/[^/]*$,,'|sort|uniq|tr '\n' ' ')
+		echo " $pkgs"
+		for d in $pkgs; do
+			if [[ ! $REQUESTED_LIST =~ (^|[[:space:]])"$d"($|[[:space:]]) ]]; then
+				REQUESTED_LIST+=" $d"
+			fi
+		done
+	done
+	list=
+	getFullPkgList $REQUESTED_LIST
+	for p in $(cat /tmp/chart); do
+		setupENV $p
+
+		version_gt $PKG_VR $O_VER
+		if [[ $? == 0 || 
+			$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]]) ]]; then
+			echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
+			[[ $FORCE == 1 ]] && echo -n " (forced)"
+			[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
+			echo
+			list+=" $PKG_CAT/$PKG_NAME"
+		fi
+	done
+	installList $list
+	for f in $(cat /tmp/preserved); do
+		rm "$f" 2> /dev/null && echo " << $f" || echo " <! $f"
+	done
+	rm /tmp/preserved
+fi
+
+if [ -e "${WORKDIR_BASE}/inform.log" ]; then
+	cat "${WORKDIR_BASE}/inform.log"
+	rm "${WORKDIR_BASE}/inform.log"
+fi
+
+# Can use this to find applications/init scripts to restart following an update.
+# lsof / | awk '/deleted/ && !/tmp/{print $9}' | sort -u

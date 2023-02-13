@@ -1,0 +1,21 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://gitlab.freedesktop.org/xdg/shared-mime-info/-/archive/${PKG_VER}/shared-mime-info-${PKG_VER}.tar.gz")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/xz-utils dev-libs/glib dev-libs/icu dev-libs/libpcre2 dev-libs/libxml2 sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+setBuildENV meson ninja
+
+src_test() { :; }
+
+src_compile() {
+	compile_default
+}
+
+post_install() {
+	update-mime-database /usr/share/mime
+}

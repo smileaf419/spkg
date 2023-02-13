@@ -1,0 +1,17 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${PKG_VER}.tar.bz2")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${PKG_VER}.tar.bz2.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	install -v -m644 -D README "${D}"/usr/share/doc/libgpg-error-${PKG_VER}/README
+}

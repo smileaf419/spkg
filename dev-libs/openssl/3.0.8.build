@@ -1,0 +1,27 @@
+HOMEPAGE="https://www.openssl.org/"
+DESCRIPTION=""
+SRC_URI="https://www.openssl.org/source/openssl-${PKG_VER}.tar.gz"
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/openssl/files/openssl-3.0.7-x509-CVE-2022-3996.patch")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+TEST=test
+
+src_configure() {
+	append-flags -fno-strict-aliasing
+
+	./config --prefix=/usr         \
+	         --openssldir=/etc/ssl \
+	         --libdir=lib          \
+	         shared                \
+	         zlib-dynamic
+}
+
+src_install() {
+	sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+	install_default MANSUFFIX=ssl
+	mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
+	cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
+}

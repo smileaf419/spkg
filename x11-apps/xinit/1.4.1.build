@@ -1,0 +1,24 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.x.org/pub/individual/app/xinit-${PKG_VER}.tar.bz2")
+PATCHES=("")
+LICENSE=""
+DEPS="x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libxcb"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static \
+				--with-xinitdir=/etc/X11/app-defaults
+}
+
+src_test() { :; }
+
+src_install(){
+	install_default
+	sed -i '/$serverargs $vtarg/ s/serverargs/: #&/' "${D}"/usr/bin/startx
+}

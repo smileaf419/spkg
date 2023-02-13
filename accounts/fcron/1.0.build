@@ -1,0 +1,24 @@
+HOMEPAGE=""
+DESCRIPTION="Fcron User and Group"
+SRC_URI=""
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=""
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	addGroup fcron -g 22
+	addUser fcron \
+		 -d /dev/null \
+		-u 22 \
+		-s /bin/false \
+		-c "Fcron"
+}

@@ -1,0 +1,15 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("http://shnutils.freeshell.org/shntool/dist/src/shntool-${PKG_VER}.tar.gz")
+PATCHES=(
+"https://aur.archlinux.org/cgit/aur.git/plain/debian_patches_950803.patch?h=shntool => shntool-deb-950803.patch"
+"https://aur.archlinux.org/cgit/aur.git/plain/debian_patches_no-cdquality-check.patch?h=shntool => shntool-no-cdquality-check.patch"
+"https://aur.archlinux.org/cgit/aur.git/plain/shntool-3.0.10-large-size.diff?h=shntool => shntool-large-size.patch"
+"https://aur.archlinux.org/cgit/aur.git/plain/shntool-3.0.10-large-times.diff?h=shntool => shntool-large-times.patch"
+)
+LICENSE="GPL"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_test() { :; }

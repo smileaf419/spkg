@@ -1,0 +1,10 @@
+HOMEPAGE="https://www.gnu.org/software/grep/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/grep/grep-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/grep/grep-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+BDEPS="dev-libs/libpcre"
+RDEPS=""
+SLOT=0
+export PCRE_CFLAGS="-I/usr/lib" 
+export PCRE_LIBS="-L/usr/lib -lpcre"

@@ -1,0 +1,308 @@
+# .build file helper methods
+# Only functions which will be used in .build files
+# should be within this file. 
+# Any function that shouldn't be allowed within .build files
+# should be found within spkg-include.
+# Author: smileaf (smileaf@me.com)
+
+unpack() {
+	FILE=$1
+	if [ $(echo $FILE | grep -E "\.tar|\.tgz$") ]; then
+		tar -xf "${FILE}" || die "Failed to Extract!"
+	elif [ ${FILE##*.} == "zip" ]; then
+		unzip -o "${FILE}"
+	else
+		die "Cannot Extract!"
+	fi
+}
+die() { echo "$*" 1>&2 ; exit 77; }
+inform() { echo "$*" | tee -a /tmp/inform.log; }
+
+spatch() {
+	echo -n " * Applying Patch: $1"
+	if [[ $1 == *gz ]]; then
+		gzip -cd $1 | patch -Np1 > /dev/null || die " .. Failed!"
+	elif [[ $1 == *xz ]]; then
+		xz -cd $1 | patch -Np1 > /dev/null || die " .. Failed!"
+	elif [[ $1 == *bz2 ]]; then
+		bzip2 -cd $1 | patch -Np1 > /dev/null || die " .. Failed!"
+	else
+		patch -Np1 -i "$1" > /dev/null || die " .. Failed!"
+	fi
+	echo " .. Ok!"
+}
+spatches() {
+	PATCHES=($@)
+	PATCH_FILES=($(echo ${PATCHES[@]} | tr ' ' '\n' | sed "s,^https\?://.*/,${DISTFILES}/,"))
+
+	for p in ${PATCH_FILES[@]}; do
+		if [[ $p == *.tar.* ]]; then
+			unpack $p
+			p=${p%.tar.*}
+			p=${p##*/}
+			echo " * p : $p"
+		fi
+		if [ -d "$p" ]; then
+			echo " * Applying All patches within: $p"
+			spatches "$(find "$p" -type f -iname '*.patch' | sort)"
+		else
+			spatch "$p"
+		fi
+	done
+}
+filterflags() {
+	export CFLAGS=$(echo $CFLAGS|sed "s,$1,,")
+	export CXXFLAGS=$(echo $CXXFLAGS|sed "s,$1,,")
+}
+append-ldflags() {
+	export LDFLAGS+=" $@"
+}
+append-flags() {
+	export CFLAGS+=" $@"
+	export CXXFLAGS+=" $@"
+}
+append-cppflags() {
+	export CXXFLAGS+=" $@"
+}
+
+# Requires the full path of the build dir.
+getlatestversion() {
+	find "$PKG_DB_DIR" -wholename "*/${1}/*.build" | 
+		sed -e "s,$PKG_DB_DIR/,," \
+			-e "s,.build$,," \
+				-e 's,:,/,'|
+		sort -V|
+		tail -n1
+}
+# Requires the PKG_NAME
+# Returns: 
+getinstalledversion() {
+	[ -d "${PKG_CACHE}/${1}" ] && ls -1 "${PKG_CACHE}/${1}" | head -n1 || echo 0
+}
+
+# 1: Name of package
+# Returns: Name/version-rev (ex: package-1.0-r1)
+getpkg() {
+	getlatestversion $1
+}
+# 1: getpkg
+# Returns Category
+getcategory() {
+	echo ${1%%/*}
+}
+# 1: getpkg
+# Returns: Package Name
+getpkgname() {
+	local T=${1%/*}
+	echo ${T#*/}
+}
+# 1: getpkg
+# Returns: Package Version
+getpkgver() {
+	echo ${1##*/}|sed 's,-r[0-9]*$,,'
+}
+# 1: getpkg
+# Returns: Package Revision
+getpkgrev() {
+	local rev=$(echo ${PKG##*/}|sed 's,.*-r\([0-9]*\)$,\1,')
+	[[ $rev == $(getpkgver $1) ]] && echo "0" || echo $rev
+}
+# 1: getpkg
+# Returns: version with revision; example: 1.0r2
+getpkgvr() {
+	REV=$(getpkgrev $1)
+	if [[ $REV != "0" ]]; then
+		echo $(getpkgver $1)-r$REV
+	else
+		echo $(getpkgver $1)
+	fi
+}
+
+getMajorVer() {
+	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
+	echo $VER | tr '.' '\n'|head -n1
+}
+
+getMinorVer() {
+	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
+	c=$(echo $VER | tr '.' '\n'|wc -l)
+	if [[ $c == 2 ]]; then
+		echo $VER | tr '.' '\n'|tail -n1
+	elif [[ $c -ge 3 ]]; then
+		echo $VER | tr '.' '\n'|head -n2|tail -n1
+	else
+		echo 0
+	fi
+}
+
+getMicroVer() {
+	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
+	n=$(echo $VER|tr '.' '\n'|wc -l)
+	if [[ $n == 3 ]]; then
+		echo $VER|tr '.' '\n'|tail -n1
+	else
+		echo 0
+	fi
+}
+
+# 1: http address
+fetch_file() {
+	# Just Ignore Empty calls.
+	[[ $1 == "" ]] && return 0
+	FILE=${1##*/}
+	OUTFILE=$2
+	# No custom outfile .. just save it as normal
+	[[ $OUTFILE == "" ]] && OUTFILE=$FILE
+	[ -e "${DISTFILES}/${OUTFILE}" ] && return 0
+	wget -c -O "${DISTFILES}/${OUTFILE}" "$1"
+	if [ $? != 0 ]; then
+		rm "${DISTFILES}/${OUTFILE}"
+		echo ${FILE##.*\.}
+		[ ${FILE##*.} == "sig" ] ||
+			die "Error Downloading from: $1"; 
+	fi
+}
+
+checkSha1() {
+	[[ $IGNORE_SHA1 == 1 ]] && return 0
+	PKG=$1
+	FILE=$2
+	[[ $VERBOSE -ge 2 ]] && echo -n "Checking Sha1: $FILE ..."
+	h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
+#	echo -n $h
+	grep "$h" $PKG/sha1 > /dev/null
+	if [[ $? == 0 ]]; then
+		[[ $VERBOSE -ge 2 ]] && echo "Ok"
+	else
+		die "Failed Sha1 Checksum: FILE: $FILE; Hash: $h"
+	fi
+}
+
+# Check the USE flag for an option, 
+# return 0 if found; 1 if not.
+# returns 2 if found and is disabled
+use-enable() {
+	if [[ ${USE[*]} =~ (^|[[:space:]])"$1"($|[[:space:]]) ]]; then
+		return 0
+	fi
+	if [[ ${USE[*]} =~ (^|[[:space:]])-"$1"($|[[:space:]]) ]]; then
+		return 2
+	fi
+	return 1
+}
+
+# 1: File
+# Returns: list of files depending on a file.
+checkFileDep() {
+	grep "$1\$" ${PKG_CACHE}/*/*/*/BDEPS|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,,"
+}
+
+# 1: Category/Package 2: Version
+# Returns: list of files depending on a package.
+isDependedOn() {
+	PKG=$1
+	PKG_VER=$2
+	for f in $(cat "${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS"); do
+		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort|uniq|grep -v $PKG
+	done
+}
+
+# 1: Config option; 2: needs at least module [0|1]
+# 3: Output dialog
+checkKernelConfig() {
+	CONFIG=$1
+	NEEDS_MODULE=$2
+	DIALOG=$3
+	HAS_PROC=0
+	HAS_CONFIG=0
+	
+	if [ $NEEDS_MODULE == 0 ]; then
+		ERROR_DIALOG="$CONFIG Needs Disabled"
+	else
+		ERROR_DIALOG="$CONFIG Needs to be Y (built-in) or M (module)"
+	fi
+
+	echo -n "Checking for $DIALOG"
+	if [ -f /proc/config.gz ]; then
+		echo -n " [/proc/config.gz: "
+		gzip -cd /proc/config.gz | grep -E "${CONFIG}=[ym]" > /dev/null
+		[ $? != $NEEDS_MODULE ] && echo -n "Ok]" && HAS_PROC=1 || echo -n "No]"
+	fi
+	if [ -f /usr/src/linux/.config ]; then
+		echo -n " [/usr/src/linux/.config: "
+		grep -E "${CONFIG}=[ym]" /usr/src/linux/.config > /dev/null
+		[ $? != $NEEDS_MODULE ] && echo -n "Ok]" && HAS_CONFIG=1 || echo -n "No]"
+	fi
+	[[ $HAS_PROC == 1 || $HAS_CONFIG == 1 ]] && echo ||
+		die $ERR_DIALOG
+}
+
+# 1: if 1 then don't activate the VM, Just setup/update the environment
+checkPythonVM() {
+	echo -n " * Setting up Python Virtual Environment ... "
+	mkdir -pv $PYTHON_VM
+	python3 -m venv $PYTHON_VM
+	[ $? == 0 ] && echo "Ok" || die "Failed!"
+	if [[ $1 != 1 ]]; then
+		source $PYTHON_VM/bin/activate
+	fi
+}
+
+addUser() {
+	USER=$1
+	shift 1
+	grep "^${USER}:" /etc/passwd > /dev/null 2>&1
+	if [[ $? != 0 ]]; then
+		echo " * Adding User $USER"
+		useradd "$@" $USER
+	else
+		echo " * User Exists: Updating [$@]"
+		usermod "$@" $USER
+	fi
+}
+
+addGroup() {
+	GROUP=$1
+	shift 1
+	grep "^${GROUP}:" /etc/group > /dev/null 2>&1
+	if [[ $? != 0 ]]; then
+		echo " * Adding Group $GROUP"
+		groupadd "$@" $GROUP
+	else
+		echo " * Group Exists: Updating [$@]"
+		groupmod "$@" $GROUP
+	fi
+}
+
+install-init.d() {
+	(
+		d=$PWD
+		PKG=$(getpkg sys-boot/blfs-bootscripts)
+		PKG_NAME=$(getpkgname $PKG)
+		PKG_BLD="$PKG_DB_DIR/${PKG}.build"
+		PKG_VER=$(getpkgver $PKG)
+		unset PATCHES SRC_URI
+		checkSha1 ${PKG_BLD%/*} $PKG_BLD
+		source "${PKG_BLD}"
+		BUILD_PATH=$d
+		B="${PKG_NAME}-${PKG_VER}"
+		src_prepare
+		src_install install-$1
+	)
+}
+
+function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
+function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" == "$1"; }
+function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; }
+function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
+
+# If the function exists within this file, 
+# it must be exported so build files can use it.
+export -f addGroup addUser checkPythonVM checkKernelConfig \
+	use-enable \
+	getpkgvr getpkgrev getpkgver getpkgname getpkg \
+	getinstalledversion getlatestversion \
+	filterflags append-flags append-ldflags append-cppflags \
+	spatches spatch \
+	inform die unpack \
+	version_gt version_le version_lt version_ge

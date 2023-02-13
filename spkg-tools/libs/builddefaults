@@ -1,0 +1,156 @@
+# .build file default methods
+# These methods shouldn't contain helper methods to make the code easier to read.
+# Exception would be src_unpack! This should be so rarely ever overridden its easy
+# to reference what it does.
+# The lack of helper methods makes them readable without having 
+# to referencing other files/methods.
+# This also reduces the chance that a later change to a helper method 
+# causes a build file to break.
+# This also brings about a problem of ugly code or non-standard 
+# actions and could be prone to breakage/other issues.
+# However this is the price to pay for "simplicity" and a crystal clear knowledge
+# of whats happening within the build.
+
+# auto, meson, cmake
+export configTool=auto
+
+# make, ninja
+export buildTool=make
+
+# no defaults to '.' yes to '..'
+# Alternatively you can set a path.
+export BUILD_SEPERATE_DIR=no
+
+setBuildENV() {
+	[[ -z $1 ]] && configTool=auto || configTool=$1
+	[[ -z $2 ]] && buildTool=make || buildTool=$2
+	case $configTool in
+		auto)
+			BDEPS+=" sys-devel/autoconf" ;;
+		meson)
+			BDEPS+=" dev-util/meson"
+			[[ $BUILD_SEPERATE_DIR == no ]] && BUILD_SEPERATE_DIR=yes ;;
+		cmake)
+			BDEPS+=" dev-util/cmake" ;;
+		*)
+			break ;;
+	esac
+	case $buildTool in
+		make)
+			BDEPS+=" sys-devel/automake" ;;
+		ninja)
+			BDEPS+=" dev-util/ninja" ;;
+		*)
+			break ;;
+	esac
+}
+
+src_unpack() { unpack $1; }
+src_configure() { configure_default; }
+src_compile() { compile_default; }
+src_test() { test_default; }
+src_install() { install_default; }
+post_install() { :; }
+
+bootstrap_default() {
+	umask 022
+	set +h
+#	export HOST_TGT=$(uname -m)-leaf-linux-gnu
+	export HOST_TGT=${HOST_TGT:-x86_64-leaf-linux-gnu}
+	export HOST_TGT32=${HOST_TGT32:-i686-leaf-linux-gnu}
+	export HOST_TGTX32=${HOST_TGTX32:-x86_64-leaf-linux-gnux32}
+	export PATH="$ROOT/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin"
+	export CONFIG_SITE=$ROOT/usr/share/config.site
+
+	# The above code *MUST* be ran
+	bootstrap
+}
+bootstrap() {
+	configure_default
+	compile_default
+	install_default
+}
+
+# 1: Any extra switches in addition to the defaults
+src_prepare() {
+	prepare_default
+}
+
+src_patch() {
+	spatches "$1" || die "Patching Failed!"
+}
+
+configure_default() {
+	# FIXME: Currently we default to x86_64 with no way for build files to change this.
+	HOST_TGT=${HOST_TGT:-x86_64-pc-linux-gnu}
+	HOST_TGT32=${HOST_TGT32:-i686-pc-linux-gnu}
+	HOST_TGTx32=${HOST_TGTx32:-x86_64-pc-linux-gnux32}
+	d=.
+	if [[ $BUILD_SEPERATE_DIR != no ]]; then
+		[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
+	fi
+	if [[ $configTool == "auto" ]]; then
+		# Not all packages support these options.
+		# Allow them to override and still benefit from the use of
+		# customizing the *FLAGS.
+		if [[ -z $CONF_FLAGS ]]; then
+			conf_flags="--prefix=/usr \
+						--disable-static \
+						--enable-shared \
+						--docdir=/usr/share/doc/${PKG_NAME}-${PKG_VR}"
+			[[ $MODE == "bootstrap" ]] && conf_flags+=" --host=$HOST_TGT"
+		else
+			conf_flags=$CONF_FLAGS	
+		fi
+		LDFLAGS="$LDFLAGS" \
+		CFLAGS="$CFLAGS" \
+		CXXFLAGS="$CXXFLAGS" \
+			$d/configure $conf_flags "$@" || die "Configure Failed!"
+	elif [[ $configTool == "meson" ]]; then
+		meson --prefix=/usr --buildtype=release "$@" $d || die "Configure Failed!"
+	elif [[ $configTool == "cmake" ]]; then
+		cmake -DCMAKE_INSTALL_PREFIX=/usr \
+			  -DCMAKE_BUILD_TYPE=Release \
+			  -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NAME}-${PKG_VR} \
+				  "$@" $d || die "Configure Failed!"
+	else
+		die "No configTool set!"
+	fi
+}
+
+compile_default() {
+	if [[ $buildTool == "make" ]]; then
+		make $MAKEOPTS $@ || die "Compile Failed!"
+	elif [[ $buildTool == "ninja" ]]; then
+		ninja || die "Compile Failed!"
+	else
+		die "No buildTool set!"
+	fi
+}
+
+test_default() {
+	# Some use check, others use test
+	TEST=${TEST:-check}
+	
+	if [[ $buildTool == "make" ]]; then
+		make $MAKEOPTS $@ $TEST || die "Test Failed!"
+	elif [[ $buildTool == "ninja" ]]; then
+		ninja test || die "Test Failed!"
+	else
+		die "No buildTool set!"
+	fi
+}
+
+install_default() {
+	if [[ $buildTool == "make" ]]; then
+		make DESTDIR="${D}/$ROOT" $@ install || die "Install Failed!"
+	elif [[ $buildTool == "ninja" ]]; then
+		DESTDIR="${D}/$ROOT" ninja install || die "Install Failed!"
+	else
+		die "No buildTool set!"
+	fi
+}
+export -f src_unpack src_configure src_compile src_test \
+	configure_default compile_default test_default \
+	install_default src_install \
+	src_prepare src_patch bootstrap bootstrap_default

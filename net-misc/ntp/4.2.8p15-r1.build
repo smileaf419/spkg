@@ -1,0 +1,42 @@
+HOMEPAGE="http://www.ntp.org/"
+DESCRIPTION="Network Time Protocol suite/programs"
+SRC_URI="https://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-${PKG_VER%.*}/ntp-${PKG_VER}.tar.gz"
+PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8_p15-gcc10.patch"
+"https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8-sntp-test-pthreads.patch"
+"https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8-ipc-caps.patch"
+"https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8_p14-add_cap_ipc_lock.patch")
+LICENSE="HPND BSD ISC"
+DEPS="dev-libs/openssl sys-libs/libcap sys-libs/ncurses sys-libs/readline"
+BDEPS="dev-perl/IO-Socket-SSL"
+RDEPS="accounts/ntp"
+SLOT=0
+append-flags -fPIC
+append-cppflags -D_GNU_SOURCE
+
+src_configure() {
+	sed -e 's/"(\\S+)"/"?([^\\s"]+)"?/' \
+		-i scripts/update-leap/update-leap.in
+	sed -e 's/#ifndef __sun/#if !defined(__sun) \&\& !defined(__GLIBC__)/' \
+		-i libntp/work_thread.c
+	autoreconf -vi
+
+	configure_default \
+				--bindir=/usr/sbin    \
+				--sysconfdir=/etc     \
+				--enable-linuxcaps    \
+				--with-lineeditlibs=readline
+}
+
+src_test() {
+	# Disable unless we have ruby
+	# Right now installing ruby isn't on the todo list.
+	inform " * Disabled as tests require Ruby which isn't available right now."
+}
+
+src_install() {
+	install_default
+
+	install -v -o ntp -g ntp -d "${D}"/var/lib/ntp
+
+	install-init.d ntpd
+}

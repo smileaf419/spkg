@@ -1,0 +1,22 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://www.rarlab.com/rar/unrarsrc-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+B=unrar
+
+src_configure() { :; }
+
+src_compile() {
+	make $MAKEOPTS -f makefile
+}
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p "${D}"/usr/bin
+	install -v -m755 unrar "${D}"/usr/bin
+}

@@ -1,0 +1,42 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.x.org/pub/individual/xserver/xorg-server-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/bzip2 dev-libs/expat dev-libs/libffi dev-libs/wayland media-libs/freetype media-libs/libepoxy media-libs/libpng media-libs/mesa net-libs/libtirpc sys-apps/dbus sys-fs/eudev sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfixes x11-libs/libXfont2 x11-libs/libXxf86vm x11-libs/libdrm x11-libs/libfontenc x11-libs/libpciaccess x11-libs/libxcb x11-libs/libxcvt x11-libs/libxshmfence x11-libs/pixman"
+BDEPS=""
+RDEPS="x11-libs/libxkbfile x11-apps/xkbcomp media-fonts/font-util x11-drivers/xf86-input-evdev x11-drivers/xf86-input-libinput x11-drivers/xf86-video-fbdev x11-misc/xkeyboard-config x11-terms/xterm x11-apps/xauth"
+
+# FIXME: This is a specific Video card driver
+# We should allow a user to more easily modify this
+RDEPS+=" x11-drivers/xf86-video-nouveau"
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default \
+		  --localstatedir=/var  \
+		  --libdir=/usr/lib     \
+		  -Dsuid_wrapper=true   \
+		  -Dxkb_output_dir=/var/lib/xkb
+}
+
+src_test() {
+	# run ldconfig first, else some tests may fail..
+	# Can't do this within the script as all functions are ran as user except those ran at the end.
+	test default
+}
+
+src_install() {
+	install_default
+
+	chmod u+s "${D}"/usr/libexec/Xorg
+
+	mkdir -pv "${D}"/etc/X11/xorg.conf.d
+	mkdir -p "${D}"/etc/sysconfig
+	cat >> "${D}"/etc/sysconfig/createfiles << "EOF"
+/tmp/.ICE-unix dir 1777 root root
+/tmp/.X11-unix dir 1777 root root
+EOF
+}

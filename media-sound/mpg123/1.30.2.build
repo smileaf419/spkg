@@ -1,0 +1,10 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://downloads.sourceforge.net/mpg123/mpg123-${PKG_VER}.tar.bz2")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.sourceforge.net/mpg123/mpg123-${PKG_VER}.tar.bz2")
+PATCHES=("")
+LICENSE=""
+DEPS="media-libs/alsa-lib media-libs/flac media-libs/libogg media-libs/libsndfile media-libs/libvorbis media-libs/opus media-sound/lame sys-apps/dbus sys-libs/ncurses"
+BDEPS=""
+RDEPS=""
+SLOT=0

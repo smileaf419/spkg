@@ -1,0 +1,28 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://github.com/uclouvain/openjpeg/archive/v${PKG_VER}/openjpeg-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("")
+LICENSE=""
+DEPS="app-arch/xz-utils app-arch/zstd media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/libwebp media-libs/tiff sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake make
+SLOT=0
+
+src_configure() {
+	configure_default -DBUILD_STATIC_LIBS=OFF
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	pushd doc
+		for man in man/man?/* ; do
+			install -v -D -m 644 $man ${D}/usr/share/$man
+		done
+	popd
+}

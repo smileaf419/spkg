@@ -1,0 +1,16 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://www.x.org/pub/individual/driver/xf86-input-libinput-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS="dev-libs/libevdev dev-libs/libinput sys-fs/eudev sys-libs/mtdev"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static
+}

@@ -1,0 +1,18 @@
+HOMEPAGE="https://id3v2.sourceforge.net"
+DESCRIPTION="A command line editor for id3v2 tags"
+SRC_URI="http://prdownloads.sourceforge.net/id3v2/id3v2-${PKG_VER}.tar.gz"
+LICENSE="LGPLv2"
+DEPS=""
+BDEPS=""
+RDEPS="media-libs/id3lib"
+SLOT=0
+
+src_configure() { :; }
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p "${D}"/usr/bin
+	mkdir -p "${D}"/usr/share/man/man1
+	make PREFIX="${D}/usr" install
+}

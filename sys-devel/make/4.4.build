@@ -1,0 +1,17 @@
+HOMEPAGE="https://www.gnu.org/software/make/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/make/make-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/make/make-${PKG_VER}.tar.gz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	sed -e '/ifdef SIGPIPE/,+2 d' \
+		-e '/undef  FATAL_SIG/i FATAL_SIG (SIGPIPE);' \
+		-i src/main.c
+
+	configure_default
+}

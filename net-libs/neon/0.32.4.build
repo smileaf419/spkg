@@ -1,0 +1,12 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI="https://notroj.github.io/neon/neon-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS="dev-libs/expat dev-libs/openssl sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	configure_default --with-ssl
+}

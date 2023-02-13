@@ -1,0 +1,29 @@
+HOMEPAGE="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/"
+DESCRIPTION=""
+SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PKG_VER%.*}/util-linux-${PKG_VER}.tar.xz"
+LICENSE=""
+SLOT=0
+DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd sys-apps/file sys-fs/eudev sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+
+src_configure() {
+	./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
+	            --bindir=/bin    \
+	            --libdir=/lib    \
+	            --sbindir=/sbin  \
+	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
+	            --disable-chfn-chsh  \
+	            --disable-login      \
+	            --disable-nologin    \
+	            --disable-su         \
+	            --disable-setpriv    \
+	            --disable-runuser    \
+	            --disable-pylibmount \
+	            --disable-static     \
+	            --without-python     \
+	            --without-systemd    \
+	            --without-systemdsystemunitdir
+}
+
+src_test() { :; }

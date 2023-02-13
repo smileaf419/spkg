@@ -1,0 +1,19 @@
+HOMEPAGE="https://wiki.x.org/wiki/"
+DESCRIPTION=""
+SRC_URI=("https://xorg.freedesktop.org/archive/individual/proto/xcb-proto-${PKG_VER}.tar.xz")
+PATCHES=("")
+LICENSE=""
+DEPS=""
+BDEPS=""
+[[ $ENABLE_TESTS == 1 ]] && BDEPS+=" dev-libs/libxml2"
+RDEPS="dev-lang/python"
+SLOT=0
+
+src_configure() {
+	PYTHON=python3 ./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static
+}
+
+src_compile() { :; }

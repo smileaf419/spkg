@@ -1,0 +1,15 @@
+HOMEPAGE="https://www.gnu.org/software/libtool/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/libtool/libtool-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/libtool/libtool-${PKG_VER}.tar.xz.sig")
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_install() {
+	install_default
+
+	rm -fv "${D}/usr/lib/libltdl.a"
+}

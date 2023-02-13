@@ -1,0 +1,39 @@
+HOMEPAGE="https://www.gnu.org/software/binutils/"
+DESCRIPTION="GNU Binary tools"
+SRC_URI=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz.sig")
+PATCHES=("")
+#https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-devel/binutils/files/binutils-configure-LANG.patch")
+LICENSE="GPL-3+"
+DEPS="sys-devel/flex sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+BUILD_SEPERATE_DIR=yes
+
+src_configure() {
+	../configure --prefix=/usr       \
+				 --sysconfdir=/etc   \
+				 --enable-gold       \
+				 --enable-ld=default \
+				 --enable-plugins    \
+				 --enable-shared     \
+				 --disable-werror    \
+				 --enable-64-bit-bfd \
+				 --with-jdk=$JAVA_HOME \
+				 --with-system-zlib
+}
+
+src_compile() { 
+	compile_default tooldir=/usr
+}
+
+src_test() {
+	test_default -k
+}
+
+src_install() {
+	install_default tooldir=/usr
+	rm -fv ${D}/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.a
+	rm -fv ${D}/usr/share/man/man1/gprofng.1
+}
