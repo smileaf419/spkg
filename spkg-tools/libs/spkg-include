@@ -318,7 +318,11 @@ prepare_default() {
 		
 		# We only unpack the first one, anything else will need to be done via the build file.
 		echo "Unpacking ${SRC_FILE##*/}"
-		su -p -c 'src_unpack "${DISTFILES}/${SRC_FILE##*/}"' $BUILD_USER
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_unpack "${DISTFILES}/${SRC_FILE##*/}"' $BUILD_USER
+		else
+			src_unpack "${DISTFILES}/${SRC_FILE##*/}"
+		fi
 		# In most cases archive directories are the name of the archive itself.
 		# This could be a better default for B.
 		if [ ! -d "${BUILD_PATH}/${B}" ]; then
@@ -332,7 +336,11 @@ prepare_default() {
 		P="${PATCHES[@]}"
 		# Export so we can use it, unset afterwards. Sad we can't export arrays.
 		export P
-		su -p -c 'src_patch "$P"' $BUILD_USER
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_patch "$P"' $BUILD_USER
+		else
+			src_patch "$P"
+		fi
 		unset P
 	fi
 }
@@ -369,12 +377,24 @@ buildPackage() {
 		export HOME=/tmp
 		if [[ $MODE != "bootstrap" ]]; then
 			echo " * src_configure ($BUILD_USER)"
-			su -p -c 'src_configure' $BUILD_USER || die "Error in src_configure"
+			if [[ -e /bin/su || -e /usr/bin/su ]]; then
+				su -p -c 'src_configure' $BUILD_USER || die "Error in src_configure"
+			else
+				src_configure
+			fi
 			echo " * src_compile ($BUILD_USER)"
-			su -p -c 'src_compile' $BUILD_USER || die "Error in src_compile"
+			if [[ -e /bin/su || -e /usr/bin/su ]]; then
+				su -p -c 'src_compile' $BUILD_USER || die "Error in src_compile"
+			else
+				src_compile
+			fi
 			if [ $ENABLE_TESTS == 1 ]; then
 				echo " * src_test ($TEST_USER)"
-				su -p -c 'src_test' $BUILD_USER || die "Error in src_test"
+				if [[ -e /bin/su || -e /usr/bin/su ]]; then
+					su -p -c 'src_test' $BUILD_USER || die "Error in src_test"
+				else
+					src_test
+				fi
 			fi
 			echo " * src_install"
 			src_install		|| die "Error in src_install"
@@ -388,7 +408,11 @@ buildPackage() {
 			esac
 		else
 			echo " * Bootstrapping"
-			su -p -c 'bootstrap_default' $BUILD_USER || die "Error bootstrapping"
+			if [[ -e /bin/su || -e /usr/bin/su ]]; then
+				su -p -c 'bootstrap_default' $BUILD_USER || die "Error bootstrapping"
+			else
+				bootstrap_default
+			fi
 		fi
 	) || die "Error Building Package."
 }
