@@ -12,7 +12,7 @@ MODULE=kernel
 src_configure() {
 	append-flags -fno-tree-vectorize
 	sh autogen.sh
-	./configure --prefix=/ \
+	./configure --prefix=/usr \
 				--bindir=/bin \
 				--sysconfdir=/etc \
 				--localstatedir=/var \
