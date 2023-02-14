@@ -9,11 +9,10 @@ source /etc/spkg.conf
 source "${INSTALL_PATH}/libs/helpermethods"
 
 SRC_URI="https://gentoo.osuosl.org/distfiles/"
-DISTFILES_INDEX="${PKG_DB_DIR}/spkg-tools/index.html"
+DISTFILES_INDEX="/tmp/distindex"
 if [[ $(find "$DISTFILES_INDEX" -mtime +1 -print) || ! -e $DISTFILES_INDEX ]]; then
 	cd ${DISTFILES_INDEX%/*}
-	wget -N "$SRC_URI"
-	# -O $DISTFILES_INDEX
+	wget -O- -N "$SRC_URI" > "$DISTFILES_INDEX"
 fi
 echo Original: $(cat $DISTFILES_INDEX | wc -l) entries
 DISTFILES=/tmp/distfiles
@@ -71,7 +70,7 @@ echo Filtered: $(cat $DISTFILES | wc -l) entries
 for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	p=$(echo $p | sed "s,$PKG_DB_DIR/,,")
 	PK=$p
-	[[ $PK == accounts/* || $PK == spkg* || $PK == virtual/* ]] && continue
+	[[ $PK == accounts/* || $PK == spkg* || $PK == virtual/* || $PK == *git/* ]] && continue
 #	echo -n "Checking $PK : "
 	p=${p#*/}
 	# Check Gentoo Distfiles for latest versions.
@@ -97,11 +96,14 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	[[ $p == lmdb ]] && p=lmdbxx-0
 	[[ $p == cdparanoia ]] && p=cdparanoia-III
 
-	FILE=$(grep -P -i "^$p[-0-9\._]+(src|bin|orig|source)?.(tar|zip|tbz2|tgz)" $DISTFILES | sed -E -e 's,(-bin.*|[\.-]src.*|-source.*|\.orig|.tar.*|.tgz|.tbz2|.zip)$,,')
+	FILES=$(grep -P -i "^$p[-0-9\._]+(src|bin|orig|source)?.(tar|zip|tbz2|tgz)" $DISTFILES)
 
 	# Filter out only but the most recent version.
-	[[ $p == "gcc" ]] && FILE=$(echo $FILE| tr ' ' '\n' | grep "\." | tail -n2 | head -n1) 
-	FILE=$(echo $FILE | tr ' ' '\n' | sort -V | tail -n1)
+	[[ $p == "gcc" ]] && FILES=$(echo $FILES| tr ' ' '\n' | grep -E -v "202[0-9]{5}" | tail -n2 | head -n1) 
+	FILE=$(echo $FILES | tr ' ' '\n' | sort -V | tail -n1)
+	FILE_O=$FILE
+	FILE=$(echo $FILE | sed -E -e 's,(-bin.*|[\.-]src.*|-source.*|\.orig|.tar.*|.tgz|.tbz2|.zip)$,,')
+
 
 	# Do some package specific modifications here
 	[[ $p == tcl ]] && FILE=$(echo $FILE|sed 's,tcl,tcl-,')
@@ -120,7 +122,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		continue
 	fi
 	if version_gt ${FILE##*-} $PKG; then 
-		echo $FILE [ $PK-$PKG ] >> /tmp/checkupdates
+		echo $FILE [ $PK-$PKG ] $FILE_O >> /tmp/checkupdates
 	fi
 done
 cat /tmp/checkupdates
