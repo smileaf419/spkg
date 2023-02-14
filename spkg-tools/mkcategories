@@ -1,4 +1,0 @@
-#!/bin/sh
-GENTOO=/srv/media/backup/gentoo/var/db/repos/gentoo
-mkdir $(for p in $(ls /var/db/pkg/ -1); do ls -d $GENTOO/*/$p 2>/dev/null | sed -e "s,$GENTOO/,," -e "s,/$p,,"; done | sort | uniq)
-
