@@ -2,7 +2,7 @@
 source /etc/spkg.conf
 
 for d in $(find $PKG_DB_DIR -mindepth 2 -type d); do 
-	[[ $d == *spkg-tools* || $d == *spkg-sets* ]] && continue
+	[[ $d == *spkg-tools* || $d == *spkg-sets* || $d == *.git* ]] && continue
 	NUM=$(ls -1 $d/*.build | wc -l)
 	if [[ $NUM -gt 3 ]]; then
 		echo $d:
