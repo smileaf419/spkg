@@ -4,7 +4,7 @@ HOMEPAGE=""
 DESCRIPTION=""
 SRC_URI=("")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
+PATCHES=()
 LICENSE=""
 DEPS=""
 BDEPS=""
