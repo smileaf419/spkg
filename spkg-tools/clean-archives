@@ -1,4 +1,7 @@
-for d in $(find /var/lib/spkg/archive -mindepth 1 -type d); do 
+#!/bin/sh
+source /etc/spkg.conf
+
+for d in $(find $PKG_ARCHIVE_DIR -mindepth 1 -type d); do 
 	[[ $d == *spkg-tools* || $d == *spkg-sets* ]] && continue
 	NUM=$(ls -1 $d | wc -l)
 	if [[ $NUM -gt 2 ]]; then
