@@ -1,0 +1,48 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://archive.mozilla.org/pub/security/nss/releases/NSS_${PKG_VER//./_}_RTM/src/nss-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/nss-3.88.1-standalone-1.patch")
+LICENSE=""
+DEPS="dev-db/sqlite dev-libs/nspr sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+
+src_configure() { :; }
+
+# FIXME: Add a USE flag for SQLITE
+src_compile() {
+	cd nss
+	compile_default BUILD_OPT=1                         \
+					NSPR_INCLUDE_DIR=/usr/include/nspr  \
+					USE_SYSTEM_ZLIB=1                   \
+					ZLIB_LIBS=-lz                       \
+					NSS_ENABLE_WERROR=0                 \
+					$([ $(uname -m) = x86_64 ] && echo USE_64=1) \
+					$([ -f /usr/include/sqlite3.h ] && echo NSS_USE_SYSTEM_SQLITE=1)
+}
+
+src_test() {
+	cd tests
+	HOST=localhost DOMSUF=localdomain ./all.sh
+}
+
+src_install() {
+	cd dist
+	install -v -m755 -d                           ${D}/usr/{lib,bin}
+	install -v -m755 Linux*/lib/*.so              ${D}/usr/lib
+	install -v -m644 Linux*/lib/{*.chk,libcrmf.a} ${D}/usr/lib
+	install -v -m755 -d                           ${D}/usr/include/nss
+	cp -v -RL {public,private}/nss/*              ${D}/usr/include/nss
+	chmod -v 644                                  ${D}/usr/include/nss/*
+	install -v -m755 Linux*/bin/{certutil,nss-config,pk12util} ${D}/usr/bin
+	install -v -m644 Linux*/lib/pkgconfig/nss.pc  ${D}/usr/lib/pkgconfig
+
+	# P11-kit
+	ln -sfv ./pkcs11/p11-kit-trust.so ${D}/usr/lib/libnssckbi.so
+}
