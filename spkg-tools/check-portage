@@ -2,7 +2,7 @@
 
 source /etc/spkg.conf
 source $INSTALL_PATH/libs/helpermethods
-GENTOO=/srv/media/backup/gentoo/var/db/repos/gentoo
+GENTOO=${GENTOO:-$1}
 
 for cat in $(ls -1 $PKG_DB_DIR); do
 	[ ! -d $GENTOO/$cat ] && continue
