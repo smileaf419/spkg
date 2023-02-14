@@ -1,0 +1,48 @@
+HOMEPAGE="https://www.lighttpd.net"
+DESCRIPTION="lighttpd (pronounced /lighty/) is a secure, fast, compliant, and very flexible web server that has been optimized for high-performance environments."
+SRC_URI=("https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-${PKG_VER}.tar.xz"
+"https://salsa.debian.org/debian/lighttpd/-/raw/master/debian/lighttpd.conf?inline=false")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-${PKG_VER}.tar.xz.asc")
+PATCHES=("")
+LICENSE="BSD-2 GPLv2"
+DEPS="app-arch/bzip2 app-arch/xz-utils dev-db/sqlite dev-libs/icu dev-libs/libpcre2 dev-libs/libxml2 dev-libs/openssl sys-libs/libxcrypt sys-libs/zlib"
+BDEPS=""
+RDEPS="accounts/www"
+SLOT=0
+
+src_configure() {
+	configure_default --with-bzip2 --with-sqlite --with-openssl=/usr --with-libev=/usr --with-webdav-props
+}
+
+# Required perl packages for tests
+# perl-Digest
+# perl-Digest-MD5
+# perl-Encode-Locale
+# perl-HTML-Entities-Interpolate
+# perl-HTML-Parser
+# perl-HTML-Tagset
+# perl-HTTP-Date
+# perl-HTTP-Message
+# perl-IO-HTML
+# perl-LWP-MediaTypes
+# perl-Test-Harness
+# perl-Test-Simple
+# perl-Tie-Function  
+# perl-TimeDate
+# make check
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	install -o www -d www -d ${D}/etc/lighttpd/conf-enabled
+	CONFIG="${D}/etc/lighttpd/lighttpd.conf"
+	install -o www -g www "${DISTFILES}/lighttpd.conf?inline=false" $CONFIG
+
+	# Fix user/group and a path.
+	sed -i "s,-data,,"            $CONFIG
+	sed -i "s,/var/www,/srv/www," $CONFIG
+
+	install -o www -g www -d ${D}/var/log/lighttpd
+	install -o www -g www -d ${D}/var/cache/lighttpd/uploads
+}
