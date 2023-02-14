@@ -115,12 +115,12 @@ verifySha1() {
 }
 cd $PKG_DB_DIR
 for d in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
+	[[ $d == "spkg-sets" || $d == "spkg-tools/libs" || $d == *.git/* ]] && continue
 	echo -n $d
 	DIR=$PKG_DB_DIR/$d
 	# If it exists, grab a list of build files, 
 	#	gather a list of files within each 
 	# and verify them all via the sha1 file
-	[[ $d == "spkg-sets" || $d == "spkg-tools/libs" ]] && continue
 	if [ -e $DIR/sha1 ]; then
 		echo -n "["
 		for f in $(find $DIR -type f -name *.build); do
