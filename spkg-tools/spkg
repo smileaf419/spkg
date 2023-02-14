@@ -11,7 +11,7 @@ if [ -e /etc/spkg.conf ]; then
 elif [[ $(test -w /etc/ ) ]]; then
 	cat > /etc/spkg.conf << "EOF"
 # -j<# of cpu cores + 1>
-MAKEOPTS="-j"$(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,1+,'|bc)
+MAKEOPTS="-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))
 CFLAGS="-march=native -O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 #CPPFLAGS="${CFLAGS}"
