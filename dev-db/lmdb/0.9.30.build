@@ -8,7 +8,7 @@ DEPS=""
 BDEPS=""
 RDEPS=""
 SLOT=0
-B=lmdb-LMDB_${PKG_VER}/libraries/liblmdb
+B=openldap-LMDB_${PKG_VER}/libraries/liblmdb
 
 src_configure() { :; }
 
