@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PKG_VER%.*}/util-linux-${PKG_VER}.tar.xz"
 LICENSE=""
 SLOT=0
-DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd sys-apps/file sys-fs/eudev sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
+DEPS="app-arch/bzip2 app-arch/xz-utils sys-apps/file sys-fs/eudev sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 
