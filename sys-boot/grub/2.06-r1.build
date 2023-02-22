@@ -1,0 +1,34 @@
+HOMEPAGE="https://www.gnu.org/software/grub/"
+DESCRIPTION=""
+SRC_URI=("https://ftp.gnu.org/gnu/grub/grub-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/grub/grub-${PKG_VER}.tar.xz.sig")
+# Fix an issue causing grub-install to fail when the /boot partition 
+# (or the root partition if /boot is not a separate partition) is created by e2fsprogs-1.47.0 or later
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/grub-2.06-upstream_fixes-1.patch")
+LICENSE=""
+DEPS="app-arch/bzip2 app-arch/xz-utils dev-libs/glib dev-libs/libpcre2 dev-libs/openssl media-libs/freetype media-libs/harfbuzz media-libs/libpng net-libs/libtirpc sys-fs/eudev sys-fs/lvm2 sys-fs/zfs sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr          \
+	            --sysconfdir=/etc      \
+	            --disable-efiemu       \
+	            --disable-werror \
+	            --enable-device-mapper
+}
+
+src_compile() {
+	unset {C,CPP,CXX,LD}FLAGS
+	compile_default
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	mkdir -p "${D}"/usr/share/bash-completion
+	mv -v "${D}"/etc/bash_completion.d/grub "${D}"/usr/share/bash-completion/completions
+}

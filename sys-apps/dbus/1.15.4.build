@@ -39,6 +39,8 @@ src_install() {
 	# mkdir ${D}/etc
 	# ln -sv ${D}/var/lib/dbus/machine-id ${D}/etc
 
+	rm -r ${D}/no
+
 	mkdir ${D}/etc/dbus-1
 cat > ${D}/etc/dbus-1/session-local.conf << "EOF"
 <!DOCTYPE busconfig PUBLIC
