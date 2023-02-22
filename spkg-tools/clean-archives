@@ -3,11 +3,13 @@ source /etc/spkg.conf
 
 for d in $(find $PKG_ARCHIVE_DIR -mindepth 1 -type d); do 
 	[[ $d == *spkg-tools* || $d == *spkg-sets* ]] && continue
-	NUM=$(ls -1 $d | wc -l)
-	if [[ $NUM -gt 2 ]]; then
-		echo $d:
-		FILES=$(ls -1 $d | sort -V | head -n $(($NUM - 2)) )
-		echo $FILES
-#		rm -v $FILES
-	fi
+	for e in $(ls $d -1 | sed s,-[0-9.pre-]*.tar.gz,, | sort | uniq) ; do
+		NUM=$(ls -1 $d/$e-* | wc -l);
+		if [[ $NUM -gt 3 ]]; then
+			echo -n "$e: "
+			FILES=$(ls -1 $d/$e-* | sort -V | head -n $(( $NUM - 3 )))
+			echo $( echo $FILES | tr ' ' '\n' | wc -l) deleted
+			rm $FILES
+		fi
+	done
 done
