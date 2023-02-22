@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source /etc/spkg.conf
+
+CLEAN_LOG_DATE=${CLEAN_LOG_DATE:-90}
+
+echo -n " * Cleaning logs .. "
+CLEANED=$(find $LOGDIR -mtime +$CLEAN_LOG_DATE -print | wc -l)
+find $LOGDIR -mtime +$CLEAN_LOG_DATE -delete > /dev/null 2>&1
+[[ $? == 0 ]] && echo " cleaned $CLEANED logs" || echo " Failed!"
