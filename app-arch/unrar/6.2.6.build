@@ -1,7 +1,7 @@
-HOMEPAGE=""
+HOMEPAGE="https://www.rarlab.com/rar_add.htm"
 DESCRIPTION=""
 SRC_URI="https://www.rarlab.com/rar/unrarsrc-${PKG_VER}.tar.gz"
-LICENSE=""
+LICENSE="unRAR"
 DEPS=""
 BDEPS=""
 RDEPS=""
@@ -11,12 +11,11 @@ B=unrar
 src_configure() { :; }
 
 src_compile() {
-	make $MAKEOPTS -f makefile
+	compile_default -f makefile
 }
 
 src_test() { :; }
 
 src_install() {
-	mkdir -p "${D}"/usr/bin
-	install -v -m755 unrar "${D}"/usr/bin
+	install -D -v -m755 unrar "${D}"/usr/bin/unrar
 }
