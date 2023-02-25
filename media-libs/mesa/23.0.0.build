@@ -1,0 +1,31 @@
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://mesa.freedesktop.org/archive/mesa-${PKG_VER}.tar.xz")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/mesa-22.1.7-add_xdemos-1.patch")
+LICENSE=""
+DEPS="app-arch/xz-utils app-arch/zstd dev-libs/elfutils dev-libs/expat dev-libs/icu dev-libs/libffi dev-libs/libxml2 dev-libs/wayland sys-apps/lm-sensors sys-devel/llvm sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfixes x11-libs/libXxf86vm x11-libs/libdrm x11-libs/libpciaccess x11-libs/libxcb x11-libs/libxshmfence"
+BDEPS="x11-apps/xrandr"
+RDEPS="dev-libs/wayland-protocols"
+use-enable X && UDEPS="x11-libs/libXv x11-libs/libXvMC"
+IUSE="X"
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	checkPythonVM
+	configure_default \
+		  -Dplatforms=x11,wayland \
+		  -Dgallium-drivers=auto  \
+		  -Dvulkan-drivers=""     \
+		  -Dglx=dri               \
+		  -Dvalgrind=disabled     \
+		  -Dlibunwind=disabled    \
+		  $([[ $ENABLE_TESTS == 1 ]] && echo -Dbuild-tests=true)
+}
+
+src_install() {
+	install_default
+	install -v -dm755 "${D}"/usr/share/doc/mesa-${PKG_VER}
+	cp -rfv ../docs/* "${D}"/usr/share/doc/mesa-${PKG_VER}
+}

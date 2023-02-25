@@ -12,6 +12,7 @@ RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 SLOT=0
+MODULE=kernel
 
 src_prepare() {
 	chmod +x $DISTFILES/${SRC_URI##*/}
