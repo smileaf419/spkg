@@ -1,35 +1,20 @@
 #!/bin/bash
 
-function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
-function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" == "$1"; }
-function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; }
-function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
-
 source /etc/spkg.conf
 source "${INSTALL_PATH}/libs/helpermethods"
 
 SRC_URI="https://gentoo.osuosl.org/distfiles/"
 DISTFILES_INDEX="/tmp/distindex"
+DISTFILES=/tmp/distfiles
+UPDATE_LIST=/tmp/checkupdates
+
 if [[ $(find "$DISTFILES_INDEX" -mtime +1 -print) || ! -e $DISTFILES_INDEX ]]; then
 	cd ${DISTFILES_INDEX%/*}
-	wget -O- -N "$SRC_URI" > "$DISTFILES_INDEX"
+	wget -O "$DISTFILES_INDEX" "$SRC_URI"
 fi
 echo Original: $(cat $DISTFILES_INDEX | wc -l) entries
-DISTFILES=/tmp/distfiles
-cat $DISTFILES_INDEX | grep "href=" | sed -e 's,.*href=",,' -e 's,".*,,' > $DISTFILES
-echo URLS: $(cat $DISTFILES | wc -l) entries
-
-#gettext-1.07 [ sys-devel/gettext-0.21.1 ]
-#gtk-4.8.2 [ x11-libs/gtk+-3.24.34 ]
-#gtksourceview-5.6.1 [ x11-libs/gtksourceview-3.24.11 ]
-#lmdb-1.3.0 [ dev-db/lmdb-0.9.29 ]
-#gnupg-2.7.1 [ app-crypt/gnupg-2.3.8 ]
-#git-4.3.20 [ dev-vcs/git-2.38.1 ]
-#luit-20221028 [ x11-apps/luit-1.1.1 ]
-#mako-1.7.1 [ dev-python/mako-1.2.2 ]
-#bash-completion-20050121 [ app-shells/bash-completion-2.11 ]
-#json-20220320 [ dev-perl/json-4.10 ]
-#zstd-1.5.2.6 [ app-arch/zstd-1.5.2 ]
+grep "href=" $DISTFILES_INDEX | sed -e 's,.*href="\([^"]*\).*,\1,'> $DISTFILES
+echo URLS: $(wc -l $DISTFILES) entries
 
 FILTER=("\.patch"
 		"\.crate"
@@ -59,13 +44,11 @@ FILTER=("\.patch"
 		"zstd-[0-9]\.[0-9]\.[0-9]\.[0-9]"
 )
 for f in ${FILTER[@]}; do
-	grep -iv $f $DISTFILES > /tmp/distfiles.new
-	mv /tmp/distfiles{.new,}
+	grep -iv $f $DISTFILES > ${DISTFILES}.new
+	mv $DISTFILES{.new,}
 done
-# Filter for libopenmpt
-sed -i 's,\+release\.autotools,,g' /tmp/distfiles
 
-echo Filtered: $(cat $DISTFILES | wc -l) entries
+echo Filtered: $(wc -l $DISTFILES) entries
 
 for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	p=$(echo $p | sed "s,$PKG_DB_DIR/,,")
@@ -76,40 +59,54 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	# Check Gentoo Distfiles for latest versions.
 
 	# Alter the names for filename detection
-	[[ $p == "gtk+2" ]] && p="gtk\+-2"
-	[[ $p == "gtk+3" ]] && p="gtk\+-3"
-	[[ $p == "gtksourceview2" ]] && p="gtksourceview-2"
-	[[ $p == "gtksourceview3" ]] && p="gtksourceview-3"
-	[[ $p == "xz-utils" ]] && p="xz"
-	[[ $p == "libpcre" ]] && p="pcre-"
-	[[ $p == "libpcre2" ]] && p="pcre2"
-	[[ $p == "libsdl" ]] && p="SDL-1"
-	[[ $p == "libsdl2" ]] && p="SDL2"
-	[[ $p == "llvm" ]] && p="llvm-project"
-	[[ $p == "maven" ]] && p="apache-maven"
-	[[ $p == xvid ]] && p=xvidcore
-	[[ $p == btrfs-progs ]] && p+=-v
-	[[ $p == musicbrainz ]] && p=lib$p
-	[[ $p == timezone-data ]] && p=tzdata
-	[[ $p == xorg-proto ]] && p=xorgproto
-	[[ $p == linux-headers || $p == linux-kernel ]] && p=linux-6
-	[[ $p == lmdb ]] && p=lmdbxx-0
-	[[ $p == cdparanoia ]] && p=cdparanoia-III
+	case "$p" in
+		gtk+2) p="gtk\+-2" ;;
+		gtk+3) p="gtk\+-3" ;;
+		gtksourceview2) p=gtksourceview-2 ;;
+		gtksourceview3) p=gtksourceview-3 ;;
+		xz-utils) p=xz ;;
+		libpcre) p=pcre- ;;
+		libpcre2) p=pcre2 ;;
+		libsdl) p=SDL-1 ;;
+		libsdl2) p=SDL2 ;;
+		llvm) p=llvm-project ;;
+		maven-bin) p=apache-maven ;;
+		btrfs-progs) p+=-v ;;
+		musicbrainz) p=lib$p ;;
+		xorg-proto) p=xorgproto ;;
+		linux-headers|linux-kernel) p=linux-6 ;;
+		lmdb) p=lmdbxx-0 ;;
+		cdparanoia) p=cdparanoia-III ;;
+		pam) p=Linux-${p^^};;
+		xvid) p+=core ;;
+		docbook-dtd) p=docbook-4 ;;
+		docbook-xsl-nons) p=docbook-xsl ;;
+		ghostscript-gpl) p=ghostscript ;;
+	esac
 
 	FILES=$(grep -P -i "^$p[-0-9\._]+(src|bin|orig|source)?.(tar|zip|tbz2|tgz)" $DISTFILES)
 
-	# Filter out only but the most recent version.
-	[[ $p == "gcc" ]] && FILES=$(echo $FILES| tr ' ' '\n' | grep -E -v "202[0-9]{5}" | tail -n2 | head -n1) 
+	# Get the correct versions
+	case "$p" in
+		gcc) FILES=$(echo $FILES| tr ' ' '\n' | grep -E -v "202[0-9]{5}" | tail -n2 | head -n1) ;;
+		libopenmpt) FILES=$(grep -P -i "^$p-" $DISTFILES); FILES=${FILES//+release.autotools/} ;;
+		ntp|openssh) FILES=$(grep -P "^$p-[0-9p]+" $DISTFILES | grep -v 'manpages') ;;
+		timezone-data) FILES=$(grep -P "tzdata[0-9a-z]{5}" $DISTFILES) ;;
+		unzip) FILES=$(grep -P unzip[0-9]+ $DISTFILES | sed -e 's,unzip,unzip-,' -e 's,\([0-9]\),\1.,g' -e 's,\.\.,.,') ;;
+	esac
 	FILE=$(echo $FILES | tr ' ' '\n' | sort -V | tail -n1)
 	FILE_O=$FILE
 	FILE=$(echo $FILE | sed -E -e 's,(-bin.*|[\.-]src.*|-source.*|\.orig|.tar.*|.tgz|.tbz2|.zip)$,,')
 
 
 	# Do some package specific modifications here
-	[[ $p == tcl ]] && FILE=$(echo $FILE|sed 's,tcl,tcl-,')
-	[[ $p == lvm2 ]] && FILE=$(echo $FILE|sed 's,LVM2\.,lvm2-,')
-	[[ $p == boost ]] && FILE=$(echo $FILE|sed -e 's,boost_,boost-,' -e 's,_,.,g')
-	[[ $p == btrfs-progs-v ]] && FILE=$(echo $FILE|sed 's,-v,-,')
+	case "$p" in
+		boost) FILE=${FILE/_/-}; FILE=${FILE//_/.} ;;
+		btrfs-progs-v) FILE=${FILE/-v/-} ;;
+		lvm2) FILE=$(echo $FILE|sed 's,LVM2\.,lvm2-,') ;;
+		tcl) FILE=${FILE/tcl/tcl-} ;;
+		timezone-data) FILE=${FILE/tzdata/} ;;
+	esac
 
 	# These apply to all packages.
 	FILE=${FILE/.orig/}
@@ -122,8 +119,10 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		continue
 	fi
 	if version_gt ${FILE##*-} $PKG; then 
-		echo $FILE [ $PK-$PKG ] $FILE_O >> /tmp/checkupdates
+		echo $FILE [ $PK-$PKG ] $FILE_O >> $UPDATE_LIST
 	fi
 done
-cat /tmp/checkupdates
-rm /tmp/checkupdates
+if [ -e $UPDATE_LIST ]; then
+	cat $UPDATE_LIST
+	rm $UPDATE_LIST
+fi
