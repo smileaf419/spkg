@@ -1,4 +1,5 @@
 stripPackage() {
+	[[ $RESTRICT == *strip* ]] && return
 	cd "${D}"
 	echo "Stripping..."
 	for s in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*"  ); do
@@ -17,10 +18,16 @@ archivePackage() {
 
 # Find all Binary deps
 getBDeps() {
+	[[ $RESTRICT == *nobin* ]] && return
 	cd "${D}"
 	echo -n "Finding Binary Dependencies..."
 	for dep in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*" -type f ); do
 	    deps=$(ldd $dep 2> /dev/null | sed -e 's,.*=> ,,' -e "s, (.*,," -e "s,\\s*,,")
+# readelf doesn't give the path to the library
+# we can find if its within our path via:
+# ldconfig -v -N
+# Even this however is not easily grep'd for the path.
+# We would have to build a cache So that it is searchable
 #		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
 	    for d in $deps; do
 			# Only add it, if it actually exists.
@@ -207,6 +214,7 @@ installList() {
 			set -o pipefail
 			LOG="${LOGDIR}/$(date +%Y%m%d)-${PKG_NAME}-${PKG_VR}.log"
 			CFG_PROTECT=true
+			export RESTRICT=
 			
 			echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR} ($C of $length)"
 
@@ -348,193 +356,190 @@ export -f prepare_default
 
 buildPackage() {
 	BUILD_SEPERATE_DIR=no
+	# Export this so packages can override the src_unpack.
+	export LDFLAGS CXXFLAGS CFLAGS
+
+	# Download all files.
+	# If it fails, create it and try again.
+	# Package may have overrode it.	
+	cd "${BUILD_PATH}" > /dev/null 2>&1 || 
+			install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}"
+	chown $BUILD_USER "$BUILD_PATH"
+	src_prepare
+		
+	if [[ $BUILD_SEPERATE_DIR != no ]]; then
+		install -d -o $BUILD_USER build
+		cd build
+	fi
+
+	# When we pass commands to our BUILD_USER these does not get updated
+	# Set it here to avoid permission issues when packages call for
+	# $HOME/.cache for example
+	export USER=$BUILD_USER
+	export LOGNAME=$BUILD_USER
+	export HOME=/tmp
+	if [[ $MODE != "bootstrap" ]]; then
+		echo " * src_configure ($BUILD_USER)"
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_configure' $BUILD_USER || die "Error in src_configure"
+		else
+			src_configure
+		fi
+		echo " * src_compile ($BUILD_USER)"
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_compile' $BUILD_USER || die "Error in src_compile"
+		else
+			src_compile
+		fi
+		if [ $ENABLE_TESTS == 1 ]; then
+			echo " * src_test ($TEST_USER)"
+			if [[ -e /bin/su || -e /usr/bin/su ]]; then
+				su -p -c 'src_test' $BUILD_USER || die "Error in src_test"
+			else
+				src_test
+			fi
+		fi
+		echo " * src_install"
+		src_install		|| die "Error in src_install"
+		case $MODULE in 
+			kernel)
+				echo > ${BUILD_PATH}/KERNEL_MODULE ;;
+			perl)
+				echo > ${BUILD_PATH}/PERL_MODULE ;;
+			python)
+				echo > ${BUILD_PATH}/PYTHON_MODULE ;;
+		esac
+	else
+		echo " * Bootstrapping"
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'bootstrap_default' $BUILD_USER || die "Error bootstrapping"
+		else
+			bootstrap_default
+		fi
+	fi
+}
+
+installPackage() {
 	checkSha1 ${PKG_BLD%/*} $PKG_BLD
 	(
 		set -o pipefail
 		source "${PKG_BLD}"
 		
-		# Export this so packages can override the src_unpack.
-		export LDFLAGS CXXFLAGS CFLAGS
-
-		# Download all files.
-		# If it fails, create it and try again.
-		# Package may have overrode it.	
-		cd "${BUILD_PATH}" > /dev/null 2>&1 || 
-			install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}"
-		chown $BUILD_USER "$BUILD_PATH"
-		src_prepare
-		
-		if [[ $BUILD_SEPERATE_DIR != no ]]; then
-			install -d -o $BUILD_USER build
-			cd build
-		fi
-
-		# When we pass commands to our BUILD_USER these does not get updated
-		# Set it here to avoid permission issues when packages call for
-		# $HOME/.cache for example
-		export USER=$BUILD_USER
-		export LOGNAME=$BUILD_USER
-		export HOME=/tmp
-		if [[ $MODE != "bootstrap" ]]; then
-			echo " * src_configure ($BUILD_USER)"
-			if [[ -e /bin/su || -e /usr/bin/su ]]; then
-				su -p -c 'src_configure' $BUILD_USER || die "Error in src_configure"
-			else
-				src_configure
-			fi
-			echo " * src_compile ($BUILD_USER)"
-			if [[ -e /bin/su || -e /usr/bin/su ]]; then
-				su -p -c 'src_compile' $BUILD_USER || die "Error in src_compile"
-			else
-				src_compile
-			fi
-			if [ $ENABLE_TESTS == 1 ]; then
-				echo " * src_test ($TEST_USER)"
-				if [[ -e /bin/su || -e /usr/bin/su ]]; then
-					su -p -c 'src_test' $BUILD_USER || die "Error in src_test"
-				else
-					src_test
-				fi
-			fi
-			echo " * src_install"
-			src_install		|| die "Error in src_install"
-			case $MODULE in 
-				kernel)
-					echo > ${BUILD_PATH}/KERNEL_MODULE ;;
-				perl)
-					echo > ${BUILD_PATH}/PERL_MODULE ;;
-				python)
-					echo > ${BUILD_PATH}/PYTHON_MODULE ;;
-			esac
-		else
-			echo " * Bootstrapping"
-			if [[ -e /bin/su || -e /usr/bin/su ]]; then
-				su -p -c 'bootstrap_default' $BUILD_USER || die "Error bootstrapping"
-			else
-				bootstrap_default
-			fi
-		fi
-	) || die "Error Building Package."
-}
-
-installPackage() {
-	install -o $BUILD_USER -d "${D}"
+		install -o $BUILD_USER -d "${D}"
 	
-	if [ $ARCHIVE_INSTALL == 1 ]; then
-		cd "${D}"
-		if [ -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]; then
-			tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz"
+		if [ $ARCHIVE_INSTALL == 1 ]; then
+			cd "${D}"
+			if [ -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]; then
+				tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz"
+			else
+				# If the archive isn't available, it could be due to an upgrade or just got cleaned up at some point.
+				# Just allow it to be rebuilt.
+#				die " * Archive ${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz Does not exist! Cannot install package"
+				buildPackage
+				cd "${D}"
+			fi
 		else
-			# If the archive isn't available, it could be due to an upgrade or just got cleaned up at some point.
-			# Just allow it to be rebuilt.
-#			die " * Archive ${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz Does not exist! Cannot install package"
 			buildPackage
+#			if [[ $MODE == "bootstrap" ]]; then
+#				echo -n "Cleaning up..."
+#				rm -rf "${BUILD_PATH}" && echo " Done"
+#				return
+#			fi
+			[[ $FETCH_ONLY == 1 ]] && return
 			cd "${D}"
 		fi
-	else
-		buildPackage
-#		if [[ $MODE == "bootstrap" ]]; then
-#			echo -n "Cleaning up..."
-#			rm -rf "${BUILD_PATH}" && echo " Done"
-#			return
-#		fi
-		[[ $FETCH_ONLY == 1 ]] && return
-		cd "${D}"
-	fi
 	
-	# Archive it up before we do any post modifications.
-	archivePackage
+		# Archive it up before we do any post modifications.
+		archivePackage
 
-	echo " * Removing Libtool Archives (.la)"
-	find "${D}"/usr/lib{,exec} -name \*.la -delete -print 2> /dev/null # 2>&1
+		echo " * Removing Libtool Archives (.la)"
+		find "${D}"/usr/lib{,exec} -name \*.la -delete -print 2> /dev/null # 2>&1
 	
-	if [[ $INSTALL_DOCS == 0 ]]; then
-		echo " * Removing Docs"
-		rm -r "${D}"/usr/share/doc > /dev/null 2>&1
-		rmdir "${D}"/usr/{share,} > /dev/null 2>&1
-	fi
-
-	# FIXME: This needs to get a more comprehensive list of locales to save, not ones just based on the current $LANG
-	if [[ -e "${D}/usr/share/locale" ]]; then
-		echo " * Cleaning locales"
-		# Create an Exclude list
-		LIST=$(ls -1 "${D}/usr/share/locale")
-		for l in $LANG ${LANG%.*} ${LANG%_*}; do
-			LIST=$(grep -v $l <<< $LIST)
-		done
-		for l in $LIST; do
-			rm -r "${D}/usr/share/locale/$l"
-		done
-	fi
-		
-	stripPackage
-	
-	# Gather Contents
-	# This is sort of an awkward hack...
-	# If we're bootstrapping we install binutils twice and gcc 3 times!
-	# This causes recording issues. it should be safe to remove them if we're on pass2
-	# Otherwise we're going to add to our CONTENTS
-	if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
-		find . | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
-	else
-		find . | sed "s,^\.,," | sort > "${BUILD_PATH}/CONTENTS"
-	fi
-	
-	echo " * Merging into ${ROOT}"
-	# Install New Files
-	local IFS=$'\n'   # Internal Field Sperator
-	CONFIG_PROTECTED=false
-	for file in $(cat "${BUILD_PATH}/CONTENTS"); do
-		# Check for links before anything else
-		# to avoid installing a directory when a link
-		# was expected.
-		if [ -L "${D}/${file}" ]; then
-			# Remove the link before copying. if the link is a directory
-			# we might be copying the directory link into the linked
-			# directory, rather than overriding the link itself.
-			rm "/${file}" > /dev/null 2>&1
-			cp -fd "${D}/${file}" "${file}" && 
-				echo " >> $file -> $(readlink ${file})" || 
-				echo "!>s $file"
-		# Skip installing already installed dirs.
-		# it overrides the user's permission customizations.
-		# 2 schools of thought:
-		#   1) Under most circumstances, dirs are not managed.
-		#   2) Under most circumstances, most dirs are not modified by users.
-		# Packages *can* modify dirs they manage and need
-		# a certain way in post_install
-		elif [[ -d "${D}/${file}" && ! -e "${file}" ]]; then
-			sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
-		else
-			# Check if a file is to be installed in /etc
-			#  If it is, check if the file already exists and
-			#  instead copy it to a backup file.
-			if [[ CFG_PROTECT == true && $file =~ "/etc/" && -e "${file}" ]]; then
-				pfile="${file}.cfg$(date +%s)"
-				sinstall "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!>> $file"
-				CONFIG_PROTECTED=true
-			else
-				sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
-			fi
+		if [[ $INSTALL_DOCS == 0 ]]; then
+			echo " * Removing Docs"
+			rm -r "${D}"/usr/share/doc > /dev/null 2>&1
+			rmdir "${D}"/usr/{share,} > /dev/null 2>&1
 		fi
-	done
 
-	# Uninstall Old files
-	uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
+		# FIXME: This needs to get a more comprehensive list of locales to save, not ones just based on the current $LANG
+		if [[ -e "${D}/usr/share/locale" ]]; then
+			echo " * Cleaning locales"
+			# Create an Exclude list
+			LIST=$(ls -1 "${D}/usr/share/locale")
+			for l in $LANG ${LANG%.*} ${LANG%_*}; do
+				LIST=$(grep -v $l <<< $LIST)
+			done
+			for l in $LIST; do
+				rm -r "${D}/usr/share/locale/$l"
+			done
+		fi
+		
+		stripPackage
 	
-	mkdir -p "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
-	getBDeps
-	mv "${BUILD_PATH}/CONTENTS" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/CONTENTS"
-	if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
-		mv ${BUILD_PATH}/KERNEL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/KERNEL_MODULE
-	elif [ -e ${BUILD_PATH}/PERL_MODULE ]; then
-		mv ${BUILD_PATH}/PERL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PERL_MODULE
-	elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
-		mv ${BUILD_PATH}/PYTHON_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PYTHON_MODULE
-	fi
+		# Gather Contents
+		# This is sort of an awkward hack...
+		# If we're bootstrapping we install binutils twice and gcc 3 times!
+		# This causes recording issues. it should be safe to remove them if we're on pass2
+		# Otherwise we're going to add to our CONTENTS
+		if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
+			find . | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+		else
+			find . | sed "s,^\.,," | sort > "${BUILD_PATH}/CONTENTS"
+		fi
+	
+		echo " * Merging into ${ROOT}"
+		# Install New Files
+		local IFS=$'\n'   # Internal Field Sperator
+		CONFIG_PROTECTED=false
+		for file in $(cat "${BUILD_PATH}/CONTENTS"); do
+			# Check for links before anything else
+			# to avoid installing a directory when a link
+			# was expected.
+			if [ -L "${D}/${file}" ]; then
+				# Remove the link before copying. if the link is a directory
+				# we might be copying the directory link into the linked
+				# directory, rather than overriding the link itself.
+				rm "/${file}" > /dev/null 2>&1
+				cp -fd "${D}/${file}" "${file}" && 
+					echo " >> $file -> $(readlink ${file})" || 
+					echo "!>s $file"
+			# Skip installing already installed dirs.
+			# it overrides the user's permission customizations.
+			# 2 schools of thought:
+			#   1) Under most circumstances, dirs are not managed.
+			#   2) Under most circumstances, most dirs are not modified by users.
+			# Packages *can* modify dirs they manage and need
+			# a certain way in post_install
+			elif [[ -d "${D}/${file}" && ! -e "${file}" ]]; then
+				sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
+			else
+				# Check if a file is to be installed in /etc
+				#  If it is, check if the file already exists and
+				#  instead copy it to a backup file.
+				if [[ CFG_PROTECT == true && $file =~ "/etc/" && -e "${file}" ]]; then
+					pfile="${file}.cfg$(date +%s)"
+					sinstall "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!>> $file"
+					CONFIG_PROTECTED=true
+				else
+					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
+				fi
+			fi
+		done
 
-	(
-		source "${PKG_BLD}"
+		# Uninstall Old files
+		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
+
+		mkdir -p "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
+		getBDeps
+		mv "${BUILD_PATH}/CONTENTS" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/CONTENTS"
+		if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
+			mv ${BUILD_PATH}/KERNEL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/KERNEL_MODULE
+		elif [ -e ${BUILD_PATH}/PERL_MODULE ]; then
+			mv ${BUILD_PATH}/PERL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PERL_MODULE
+		elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
+			mv ${BUILD_PATH}/PYTHON_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PYTHON_MODULE
+		fi
+
 		echo " * post_install"
 		post_install || die "Error in post_install"
 
@@ -544,32 +549,32 @@ installPackage() {
 			echo -n " * Running depmod (${KERNEL_VER}) .. "
 			depmod -a $KERNEL_VER && echo "Ok" || echo "Failed"
 		fi
-	)	
 	
-	# Check if its a system package
-	grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1
-	if [ $? != 0 ]; then
-		# If it didn't find it as a system package, check if its already in the world set.
-		# FIXME: We need a way to check if this is an explicitly requested install.
-		#        Or the result of a dependency.
-		grep "^$PKG_CAT/$PKG_NAME\$" $PKG_WORLD > /dev/null 2>&1
-		# Only add to world requested packages.
-		if [[ $? != 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]]) ]]; then
-			if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
-				echo " * Registering into World."
-				echo "$PKG_CAT/$PKG_NAME" >> $PKG_WORLD
+		# Check if its a system package
+		grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1
+		if [ $? != 0 ]; then
+			# If it didn't find it as a system package, check if its already in the world set.
+			# FIXME: We need a way to check if this is an explicitly requested install.
+			#        Or the result of a dependency.
+			grep "^$PKG_CAT/$PKG_NAME\$" $PKG_WORLD > /dev/null 2>&1
+			# Only add to world requested packages.
+			if [[ $? != 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]]) ]]; then
+				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
+					echo " * Registering into World."
+					echo "$PKG_CAT/$PKG_NAME" >> $PKG_WORLD
+				fi
 			fi
 		fi
-	fi
 
-	echo -n "Cleaning up..."
-	rm -rf "${BUILD_PATH}" && echo " Done"
+		echo -n "Cleaning up..."
+		rm -rf "${BUILD_PATH}" && echo " Done"
 
-	# TODO: automerge if files were not changed.
-	if [ $CONFIG_PROTECTED == true ]; then
-		echo " * System configuration files were protected!"
-		find /etc/ -iname "*.cfg[0-9]*"
-	fi
+		# TODO: automerge if files were not changed.
+		if [ $CONFIG_PROTECTED == true ]; then
+			echo " * System configuration files were protected!"
+			find /etc/ -iname "*.cfg[0-9]*"
+		fi
+	) || die "Error Building Package."
 }
 
 # Arguments: Package (category/name) and version to remove.
@@ -605,11 +610,8 @@ uninstall() {
 			# Links can be made around this and the real file might be 
 			# removed leaving dead links.
 			fd=
-			if [[ $file == *\.so* ]]; then
-				fd=$(checkFileDep $file)
-			else
-				fd=$(checkFileDep $file)
-			fi
+			[[ $file == *\.so* ]] && fd=$(checkFileDep $file)
+
 			if [[ -z $fd ]]; then
 				if [[ $MODE != "bootstrap" ]]; then
 					rm "${file}" 2> /dev/null && echo " << $file" || echo " <! $file"
