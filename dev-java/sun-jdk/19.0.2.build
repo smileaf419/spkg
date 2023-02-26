@@ -8,6 +8,7 @@ BDEPS=""
 RDEPS="virtual/alsa"
 SLOT=$MV
 B=jdk-${PKG_VER}
+RESTRICT=nobin
 
 src_configure() { :; }
 

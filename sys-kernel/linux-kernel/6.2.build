@@ -6,7 +6,7 @@ LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
-SLOT=0
+SLOT=6.2
 BUILD_PATH="${D}/usr/src"
 B=linux-$PKG_VER
 
