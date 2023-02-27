@@ -15,7 +15,7 @@ src_configure() {
 }
 
 bootstrap() {
-	./configure --prefix=/usr --host=$HOST_TGT --disable-perl-regexp
+	configure_default --host=$HOST_TGT --disable-perl-regexp
 	compile_default
 	install_default
 }

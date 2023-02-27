@@ -10,8 +10,8 @@ RDEPS="sys-libs/ncurses sys-libs/readline"
 SLOT=0
 
 src_configure() {
+#				--bindir=/bin                           \
 	configure_default \
-				--bindir=/bin                           \
 	            --without-bash-malloc                   \
 	            --with-installed-readline               \
 	            --enable-history
@@ -32,6 +32,7 @@ src_install() {
 
 	mkdir "${D}/$ROOT/bin"
 	ln -sv bash "${D}/$ROOT/bin/sh"
+	ln -sv /usr/bin/bash "${D}/$ROOT/bin/bash"
 	inform " !! You should update your running terminal via:"
 	inform "	exec /bin/sh --login"
 }

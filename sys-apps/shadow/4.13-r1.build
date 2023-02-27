@@ -26,11 +26,11 @@ src_configure() {
 src_test() { :; }
 
 src_install() {
-	install_default exec_prefix=/
+	install_default exec_prefix=/usr
 	make -C man DESTDIR="${D}" install-man
 
 	# Fix permissions so we can login as root.
-	chmod 4111 ${D}/bin/su
+	chmod 4111 ${D}/usr/bin/su
 }
 
 post_install() {
