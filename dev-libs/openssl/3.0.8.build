@@ -1,7 +1,7 @@
 HOMEPAGE="https://www.openssl.org/"
 DESCRIPTION=""
 SRC_URI="https://www.openssl.org/source/openssl-${PKG_VER}.tar.gz"
-PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/openssl/files/openssl-3.0.7-x509-CVE-2022-3996.patch")
+PATCHES=()
 LICENSE=""
 DEPS=""
 BDEPS=""
