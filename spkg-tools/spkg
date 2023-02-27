@@ -5,6 +5,9 @@
 
 VERSION="20230121"
 
+set +h
+umask 022
+
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
 #	export CPPFLAGS

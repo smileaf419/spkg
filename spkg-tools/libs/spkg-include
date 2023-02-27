@@ -9,7 +9,7 @@ stripPackage() {
 
 archivePackage() {
 	# Package it up
-	if [[ $BUILD_PACKAGE == "yes" && ARCHIVE_INSTALL != 1 && $MODE != "bootstrap" ]]; then
+	if [[ $BUILD_PACKAGE == "yes" && $ARCHIVE_INSTALL != 1 && $MODE != "bootstrap" ]]; then
 		echo -n "Packaging up..."
 		mkdir -p "${PKG_ARCHIVE_DIR}/${PKG_CAT}"
 		tar -zcpf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" . && echo " Done"
@@ -22,13 +22,29 @@ getBDeps() {
 	cd "${D}"
 	echo -n "Finding Binary Dependencies..."
 	for dep in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*" -type f ); do
-	    deps=$(ldd $dep 2> /dev/null | sed -e 's,.*=> ,,' -e "s, (.*,," -e "s,\\s*,,")
 # readelf doesn't give the path to the library
 # we can find if its within our path via:
 # ldconfig -v -N
 # Even this however is not easily grep'd for the path.
 # We would have to build a cache So that it is searchable
+#for lib in $(ldconfig -v -N 2> /dev/null | grep -P "^[^/]" | sed -e 's,[^a-zA-Z]*,,' -e 's, ->.*,,' | sort | uniq); do 
+#	for p in $(cat /etc/ld.so.conf); do 
+#		[ -e $p/$lib ] && echo $p/$lib && break
+#	done
+#done
+# readelf variant
 #		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
+#		for d in $deps; do
+#			for p in $(cat /etc/ld.so.conf); do
+#				if [ -e $p/$lib ]; then
+#					grep "$lib" > /dev/null 2>&1 ||
+#						echo $p/lib
+#				fi
+#			done
+#		done
+
+# LDD variant
+	    deps=$(ldd $dep 2> /dev/null | sed -e 's,.*=> ,,' -e "s, (.*,," -e "s,\\s*,,")
 	    for d in $deps; do
 			# Only add it, if it actually exists.
 	        if [ -e "${d}" ]; then
@@ -499,10 +515,10 @@ installPackage() {
 				# Remove the link before copying. if the link is a directory
 				# we might be copying the directory link into the linked
 				# directory, rather than overriding the link itself.
-				rm "/${file}" > /dev/null 2>&1
-				cp -fd "${D}/${file}" "${file}" && 
+				#cp -fd "${D}/${file}" "${file}" &&
+				ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null && 
 					echo " >> $file -> $(readlink ${file})" || 
-					echo "!>s $file"
+					echo "!>s $file -> $(readlink $file)"
 			# Skip installing already installed dirs.
 			# it overrides the user's permission customizations.
 			# 2 schools of thought:
