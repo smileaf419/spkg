@@ -512,10 +512,6 @@ installPackage() {
 			# to avoid installing a directory when a link
 			# was expected.
 			if [ -L "${D}/${file}" ]; then
-				# Remove the link before copying. if the link is a directory
-				# we might be copying the directory link into the linked
-				# directory, rather than overriding the link itself.
-				#cp -fd "${D}/${file}" "${file}" &&
 				ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null && 
 					echo " >> $file -> $(readlink ${file})" || 
 					echo "!>s $file -> $(readlink $file)"
