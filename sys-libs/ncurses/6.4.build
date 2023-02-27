@@ -9,7 +9,8 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	configure_default \
+	./configure --prefix=/usr           \
+				--with-shared           \
 	            --mandir=/usr/share/man \
 	            --without-debug         \
 	            --without-normal        \
