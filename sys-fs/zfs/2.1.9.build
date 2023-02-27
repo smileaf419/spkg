@@ -10,6 +10,7 @@ SLOT=0
 MODULE=kernel
 
 src_configure() {
+	checkKernelConfig "CONFIG_ZLIB_DEFLATE" 1 "ZLIB deflate"
 	append-flags -fno-tree-vectorize
 	sh autogen.sh
 	./configure --prefix=/usr \
