@@ -1,7 +1,7 @@
 HOMEPAGE="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/"
-DESCRIPTION=""
+DESCRIPTION="Various useful Linux utilities"
 SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PKG_VER%.*}/util-linux-${PKG_VER}.tar.xz"
-LICENSE=""
+LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT=0
 DEPS="app-arch/bzip2 app-arch/xz-utils sys-apps/file sys-fs/eudev sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
@@ -9,9 +9,9 @@ RDEPS=""
 
 src_configure() {
 	./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
-	            --bindir=/bin    \
-	            --libdir=/lib    \
-	            --sbindir=/sbin  \
+	            --bindir=/usr/bin    \
+	            --libdir=/usr/lib    \
+	            --sbindir=/usr/sbin  \
 	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
 	            --disable-chfn-chsh  \
 	            --disable-login      \

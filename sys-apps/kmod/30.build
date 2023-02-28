@@ -8,7 +8,7 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	./configure --prefix=/             \
+	./configure --prefix=/usr          \
 	            --sysconfdir=/etc      \
 	            --with-openssl         \
 	            --with-xz              \
@@ -20,10 +20,10 @@ src_test() { :; }
 
 src_install() {
 	install_default
-	mkdir -p "${D}/sbin"
+	mkdir -p "${D}/usr/sbin"
 	for target in depmod insmod modinfo modprobe rmmod; do
-		ln -sfv ../bin/kmod "${D}"/sbin/$target
+		ln -sfv ../bin/kmod "${D}"/usr/sbin/$target
 	done
 
-	ln -sfv kmod "${D}"/bin/lsmod
+	ln -sfv kmod "${D}"/usr/bin/lsmod
 }
