@@ -21,7 +21,7 @@ on first run a default /etc/spkg.conf should be created if ran as root.
 <b>BUILD_USER</b> & <b>TEST_USER</b> should have read/write access to the <b>PYTHON_VM</b> dir.
 
 # /etc/spkg.conf
-<b>MAKEOPTS: extra options to pass to make, such as -j<num> or -s to make commands silent.</b>
+<b>MAKEOPTS</b>: extra options to pass to make, such as -j<num> or -s to make commands silent.
 
 <b>CFLAGS</b> <b>CXXFLAGS</b>
 
