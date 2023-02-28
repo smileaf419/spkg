@@ -371,7 +371,6 @@ prepare_default() {
 export -f prepare_default
 
 buildPackage() {
-	BUILD_SEPERATE_DIR=no
 	# Export this so packages can override the src_unpack.
 	export LDFLAGS CXXFLAGS CFLAGS
 
@@ -439,6 +438,7 @@ installPackage() {
 	checkSha1 ${PKG_BLD%/*} $PKG_BLD
 	(
 		set -o pipefail
+		BUILD_SEPERATE_DIR=no
 		source "${PKG_BLD}"
 		
 		install -o $BUILD_USER -d "${D}"
