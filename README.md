@@ -12,12 +12,46 @@ Speed of the package manager is not a priority but rather simplicity in use and 
 
 # To Use
 spkg-tools contains the scripts, I recommend symlinking the spkg script to a dir within your path
-INSTALL_PATH must be set within the /etc/spkg.conf to wherever you've placed the scripts.
+
+<b>INSTALL_PATH</b> must be set within the /etc/spkg.conf to wherever you've placed the scripts.
 on first run a default /etc/spkg.conf should be created if ran as root.
 
-BUILD_USER and TEST_USER must be set to actual accounts or you can create a spkg user and use the default.
+<b>BUILD_USER</b> and <b>TEST_USER</b> must be set to actual accounts or you can create a spkg user and use the default.
 
-BUILD_USER & TEST_USER should have read/write access to the PYTHON_VM dir.
+<b>BUILD_USER</b> & <b>TEST_USER</b> should have read/write access to the <b>PYTHON_VM</b> dir.
+
+# /etc/spkg.conf
+<b>MAKEOPTS: extra options to pass to make, such as -j<num> or -s to make commands silent.</b>
+
+<b>CFLAGS</b> <b>CXXFLAGS</b>
+
+<b>USE</b> Gentoo like enables and disables certain options within packages.
+
+<b>PAGE</b> Groff option set to either 'letter' (US) or 'A4' (everyone else)
+
+<b>BUILD_PACKAGE</b> (yes|no) If set to 'yes' will create an archive within PKG_ARCHIVE_DIR
+
+<b>PKG_ARCHIVE_DIR</b> path to where archives will be stored. (default: /var/lib/spkg/archive)
+
+<b>ENABLE_TESTS</b> (yes|no) Best to keep to 'no' and use --enable-tests on certain packages.
+
+<b>INSTALL_DOCS</b> (yes|no) set to 'yes' to free up some extra space if you don't actually read or want any extra documentation
+
+<b>LOGDIR</b> path to where logs should be kept (default: /var/log/spkg)
+
+<b>LOGFILE</b> Unimplemented: file name to use for log files.
+
+<b>PKG_DB_DIR</b> path to build files. (default: /var/db/spkg)
+
+<b>PKG_CACHE</b> path to data pkg data files (default: /var/lib/spkg/data)
+
+<b>DISTFILES</b> path to download source and patch files (default: /var/lib/spkg/files)
+
+<b>PKG_WORLD</b> path to the world file, this file stores all explicitly installed packages. (default: /var/lib/spkg/world)
+
+<b>WORKDIR_BASE</b> path to where to build packages (default: /var/tmp/spkg)
+
+<b>ROOT</b> DANGEROUS: this sets what root directory to install all files to. (default: /)
 
 # Helper scripts
 I've shamelessly written scripts that scrape data from gentoo's repository or a portage dir
