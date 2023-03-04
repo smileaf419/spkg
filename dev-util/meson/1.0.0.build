@@ -4,12 +4,12 @@ SRC_URI="https://github.com/mesonbuild/meson/releases/download/${PKG_VER}/meson-
 LICENSE=""
 DEPS=""
 BDEPS=""
-RDEPS="dev-lang/python dev-python/pip"
+RDEPS="dev-lang/python dev-python/pip dev-python/wheel"
 SLOT=0
 
-src_configure() { :; }
-#	sed -i 's,license_file,license_files,' setup.cfg 
-#}
+src_configure() {
+	sed -i 's,license_file,license_files,' setup.cfg
+}
 
 src_compile() {
 	checkPythonVM

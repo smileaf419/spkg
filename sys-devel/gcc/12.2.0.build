@@ -4,7 +4,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz.sig")
 LICENSE=""
 TEST=1
-DEPS="dev-libs/gmp dev-libs/mpc dev-libs/mpfr sys-libs/zlib"
+DEPS="app-arch/zstd dev-libs/gmp dev-libs/mpc dev-libs/mpfr sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 SLOT=0
@@ -79,7 +79,8 @@ bootstrap() {
 	sed -e '/m64=/s/lib64/lib/' \
 		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
 		-i.orig ../gcc/config/i386/t-linux64
-	local mlist=m64,m32,mx32
+#	local mlist=m64,m32,mx32
+	local mlist=m64
 	case $PKG_FLAGS in
 		pass1)
 			../configure                  \

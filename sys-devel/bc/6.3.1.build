@@ -3,7 +3,7 @@ DESCRIPTION="An implementation of Unix dc and POSIX bc with GNU and BSD extensio
 SRC_URI=("https://github.com/gavinhoward/bc/releases/download/${PKG_VER}/bc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/gavinhoward/bc/releases/download/${PKG_VER}/bc-${PKG_VER}.tar.xz.sig")
 LICENSE="BSD-2"
-DEPS="sys-libs/ncurses sys-libs/readline"
+DEPS="dev-libs/libpcre2 sys-libs/ncurses sys-libs/readline"
 BDEPS=""
 RDEPS=""
 SLOT=0

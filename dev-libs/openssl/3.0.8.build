@@ -12,6 +12,8 @@ TEST=test
 src_configure() {
 	append-flags -fno-strict-aliasing
 
+	[ -e /bin/env ] && sed -i 's,/usr/bin/env,/bin/env,' Configure
+
 	./config --prefix=/usr         \
 	         --openssldir=/etc/ssl \
 	         --libdir=lib          \

@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://ftp.gnu.org/gnu/inetutils/inetutils-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/inetutils/inetutils-${PKG_VER}.tar.xz.sig")
 LICENSE=""
-DEPS="sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline"
+DEPS="dev-libs/libpcre2 sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline"
 BDEPS=""
 RDEPS=""
 SLOT=0

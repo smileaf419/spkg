@@ -16,6 +16,12 @@ src_compile() {
 }
 
 src_install() {
-	make prefix="${D}"/usr install
+	make prefix="${D}/usr" install
 	rm -v "${D}"/usr/lib/libzstd.a
+}
+
+bootstrap() {
+	make prefix="${D}/usr" exec_prefix="${D}/" PKGCONFDIR="${D}/usr/lib/pkgconfig"
+	make prefix="${D}/usr" exec_prefix="${D}/" PKGCONFDIR="${D}/usr/lib/pkgconfig" install
+	rm -v "${D}"/lib/libzstd.a
 }

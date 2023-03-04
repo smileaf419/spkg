@@ -4,7 +4,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz.sig")
 PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/readline-8.2-upstream_fix-1.patch")
 LICENSE=""
-DEPS="sys-libs/ncurses"
+DEPS="dev-libs/libpcre2 sys-libs/ncurses"
 BDEPS=""
 RDEPS=""
 SLOT=0

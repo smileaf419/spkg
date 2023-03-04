@@ -2,7 +2,7 @@ HOMEPAGE="https://gitlab.com/psmisc/psmisc"
 DESCRIPTION=""
 SRC_URI="https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-${PKG_VER}.tar.xz"
 LICENSE=""
-DEPS="sys-libs/ncurses"
+DEPS="dev-libs/libpcre2 sys-libs/ncurses"
 BDEPS=""
 RDEPS=""
 append-ldflags -ltinfow -lncursesw

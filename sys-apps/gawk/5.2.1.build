@@ -5,7 +5,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/gawk/gawk-${PKG_VER}.tar.xz")
 # Fixes a bug that causes a compilation error in the Linux Kernel
 PATCHES=("https://868567.bugs.gentoo.org/attachment.cgi?id=803497 => gawk-kernel-compile-fix.patch")
 LICENSE=""
-DEPS="dev-libs/gmp dev-libs/mpfr sys-libs/ncurses sys-libs/readline"
+DEPS="dev-libs/gmp dev-libs/libpcre2 dev-libs/mpfr sys-libs/ncurses sys-libs/readline"
 BDEPS=""
 RDEPS=""
 SLOT=0

@@ -31,7 +31,9 @@ src_install() {
 	install_default
 
 	mkdir "${D}/$ROOT/bin"
+	# compatibility link
 	ln -sv bash "${D}/$ROOT/bin/sh"
+	# some scripts look for bash here.
 	ln -sv /usr/bin/bash "${D}/$ROOT/bin/bash"
 	inform " !! You should update your running terminal via:"
 	inform "	exec /bin/sh --login"

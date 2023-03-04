@@ -6,7 +6,7 @@ SRC_URI=("https://www.sqlite.org/2023/sqlite-autoconf-${V}.tar.gz")
 # https://sqlite.org/2023/sqlite-doc-${V}.zip
 PATCHES=("")
 LICENSE="public-domain"
-DEPS="sys-libs/ncurses sys-libs/readline sys-libs/zlib"
+DEPS="dev-libs/libpcre2 sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 SLOT=0

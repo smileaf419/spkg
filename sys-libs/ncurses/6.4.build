@@ -3,9 +3,11 @@ DESCRIPTION=""
 SRC_URI=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz.asc")
 LICENSE=""
-DEPS=""
+DEPS="dev-libs/libpcre2"
 BDEPS=""
 RDEPS=""
+use-enable pcre2 && UDEPS="dev-libs/pcre2"
+IUSE=pcre2
 SLOT=0
 
 src_configure() {
@@ -18,7 +20,7 @@ src_configure() {
 	            --enable-pc-files       \
 	            --enable-widec          \
 	            --with-termlib          \
-	            --with-pcre2            \
+	            $(use-enable pcre2 && echo ' --with-pcre2' || echo ' --without-pcre2') \
 	            --without-hashed-db     \
 	            --with-pkg-config-libdir=/usr/lib/pkgconfig
 }
@@ -72,7 +74,9 @@ bootstrap() {
 	compile_default
 	install_default TIC_PATH=$(pwd)/build/progs/tic
 	echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so
+}
 
+bootstrap32() {
 	# Build 32bit
 	make distclean
 

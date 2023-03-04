@@ -5,7 +5,7 @@ PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-fs/e2fsprogs/files
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-fs/e2fsprogs/files/e2fsprogs-1.46.5-parallel-make.patch")
 LICENSE="GPLv2 BSD"
 DEPS=""
-BDEPS=""
+BDEPS="sys-apps/util-linux"
 RDEPS=""
 SLOT=0
 BUILD_SEPERATE_DIR=yes

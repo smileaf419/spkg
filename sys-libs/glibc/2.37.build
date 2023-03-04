@@ -92,7 +92,6 @@ EOF
 }
 
 bootstrap() {
-exit 0
 	# /lib    Generic libraries.
 	# /lib32  strict 32bit
 	# /libx34 32bit
@@ -116,7 +115,9 @@ exit 0
 				 libc_cv_slibdir=/lib &&
 	compile_default &&
 	install_default
+}
 
+bootstrap32() {
 	# 32bit build
 	make clean
 	find .. -name "*.a" -delete
