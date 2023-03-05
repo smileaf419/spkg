@@ -19,48 +19,15 @@ archivePackage() {
 # Find all Binary deps
 getBDeps() {
 	[[ $RESTRICT == *nobin* ]] && return
-	cd "${D}"
 	echo -n "Finding Binary Dependencies..."
-	for dep in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*" -type f ); do
-# readelf doesn't give the path to the library
-# we can find if its within our path via:
-# ldconfig -v -N
-# Even this however is not easily grep'd for the path.
-# We would have to build a cache So that it is searchable
-#for lib in $(ldconfig -v -N 2> /dev/null | grep -P "^[^/]" | sed -e 's,[^a-zA-Z]*,,' -e 's, ->.*,,' | sort | uniq); do 
-#	for p in $(cat /etc/ld.so.conf); do 
-#		[ -e $p/$lib ] && echo $p/$lib && break
-#	done
-#done
-# readelf variant
-#		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
-#		for d in $deps; do
-#			for p in $(cat /etc/ld.so.conf); do
-#				if [ -e $p/$lib ]; then
-#					grep "$lib" > /dev/null 2>&1 ||
-#						echo $p/lib
-#				fi
-#			done
-#		done
-
-# LDD variant
-	    deps=$(ldd $dep 2> /dev/null | sed -e 's,.*=> ,,' -e "s, (.*,," -e "s,\\s*,,")
-	    for d in $deps; do
-			# Only add it, if it actually exists.
-	        if [ -e "${d}" ]; then
-				# Don't add anything this package supplies
-				bd=$(readlink -f $d)
-				(grep "$d" "${BUILD_PATH}/CONTENTS" ||
-					echo $d | grep "${D}") > /dev/null 2>&1
-				[[ $? != 0 ]] && echo $bd
-			else
-				# 2 common instances.
-				if [[ $d != "linux-vdso.so.1" && $d != "not found" && $d != "statically linked" ]]; then
-					echo " !! Dependency '$d' Not found!" >&2
-				fi
-			fi
-	    done 
-	done | sort | uniq > "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/BDEPS"
+	for dep in $( cat $1 | grep -P 'bin/|/lib/|/lib64/|/lib32/|/libx32/'); do
+		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
+		for d in $deps; do
+			for p in $(cat /etc/ld.so.conf); do
+				[ -e $p/$d ] && echo $p/$d
+			done
+		done
+	done | sort | uniq > "${1%/*}/BDEPS"
 	echo "Done"
 }
 
@@ -542,7 +509,7 @@ installPackage() {
 		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
 
 		mkdir -p "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
-		getBDeps
+		getBDeps "${BUILD_PATH}/CONTENTS"
 		mv "${BUILD_PATH}/CONTENTS" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/CONTENTS"
 		if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
 			mv ${BUILD_PATH}/KERNEL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/KERNEL_MODULE

@@ -319,9 +319,9 @@ if [[ $MODE == "update" ]]; then
 
 # Build Dependencies
 # There are 3 types of Dependencies
-# 1) Run time
-# 2) Build time
-# 3) Binary
+# 1) Run time (RDEPS)
+# 2) Build time (BDEPS)
+# 3) Binary (DEPS)
 # For the sake of simplicity, Run time and Build time
 # Are contained within the same variable.
 # For any dependency listed and not found to be binary.
@@ -346,10 +346,13 @@ elif [[ $MODE == "buildbdeps" ]]; then
 		CDEPS=$(grep '^[\t ]*[^#]*[\t ]*CDEPS'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*CDEPS=",,'   -e 's,".*,,')
 		PKG_FILTER+=(${IUSE[@]})
 		PKG_FILTER+=(${CDEPS[@]})
+		# Refresh BDEPS file
+#		getBDeps "${f%/*}/CONTENTS"
 		for d in $(cat "$f"); do
 			# readlink to resolve relative paths that
 			# occationally show up.
-			d=$(readlink -f "$d")
+			# use dirname first in case the file is a symlink
+			d=$(readlink -f $(dirname $d))/${d##*/}
 			# Not that it should happen, but filter out any directories 
 			# and empty results.
 			[[ -d $d || -z $d ]] && continue
