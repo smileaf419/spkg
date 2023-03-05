@@ -6,7 +6,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/grub/grub-${PKG_VER}.tar.xz")
 # (or the root partition if /boot is not a separate partition) is created by e2fsprogs-1.47.0 or later
 PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/grub-2.06-upstream_fixes-1.patch")
 LICENSE=""
-DEPS="app-arch/bzip2 app-arch/xz-utils dev-libs/glib dev-libs/libpcre2 dev-libs/openssl media-libs/freetype media-libs/harfbuzz media-libs/libpng net-libs/libtirpc sys-fs/eudev sys-fs/lvm2 sys-fs/zfs sys-libs/zlib"
+DEPS="app-arch/xz-utils media-libs/freetype sys-fs/lvm2 sys-fs/zfs"
 BDEPS=""
 RDEPS=""
 SLOT=0

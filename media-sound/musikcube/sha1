@@ -1,4 +1,4 @@
-f7a4a809401ac3e3247078ece4b08eaa0482963e  0.99.5.build
+f0fcc84f56d34149afcfe056a083ac0b58700d44  0.99.5.build
 83ac82cb3ba6f7902f8ddc5660d7aab5a5b600e9  musikcube-0.99.5.tar.gz
 1ed3d2836e798fc509b44e2eae12c7160292ef46  musikcube-0.99.4-typo.patch
 5efae51a3f8caa08f2a041e1b40dcb9e4cac9ab9  0.99.4.build
@@ -7,6 +7,3 @@ f7a4a809401ac3e3247078ece4b08eaa0482963e  0.99.5.build
 f7a4a809401ac3e3247078ece4b08eaa0482963e  0.99.4-r1.build
 4c1c6b84690ea1af796a0e973742460df9bcb5de  musikcube-0.99.4.tar.gz
 1ed3d2836e798fc509b44e2eae12c7160292ef46  musikcube-0.99.4-typo.patch
-fcb0fd516141f6879dd9429c06c509c303236d0c  0.99.3.build
-c5480c200542cc2315479179a578234d83b7ec2d  musikcube-0.99.3.tar.gz
-a510fbcf7bc9ec0607d4b7466f68d0a86db2a4eb  musikcube-0.99.3-fix-detection.patch

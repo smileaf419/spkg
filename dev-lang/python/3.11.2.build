@@ -6,7 +6,7 @@ SRC_URI=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz"
 LICENSE=""
 B=Python-$PKG_VER
 IUSE="sqlite"
-DEPS="app-arch/bzip2 app-arch/xz-utils dev-db/sqlite dev-libs/expat dev-libs/libffi dev-libs/libpcre2 dev-libs/openssl net-libs/libnsl net-libs/libtirpc sys-libs/gdbm sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
+DEPS="app-arch/bzip2 app-arch/xz-utils dev-db/sqlite dev-libs/expat dev-libs/libffi dev-libs/openssl net-libs/libnsl net-libs/libtirpc sys-libs/gdbm sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 # FIXME: What switch do we need to enable/disable this?

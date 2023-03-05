@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz.sig")
 LICENSE=""
-DEPS="app-arch/bzip2 dev-libs/glib dev-libs/libpcre2 media-libs/harfbuzz media-libs/libpng sys-libs/zlib"
+DEPS="app-arch/bzip2 media-libs/harfbuzz media-libs/libpng sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 IUSE="harfbuzz"

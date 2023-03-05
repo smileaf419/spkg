@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://www.makemkv.com/download/makemkv-bin-${PKG_VER}.tar.gz"
 "https://www.makemkv.com/download/makemkv-oss-${PKG_VER}.tar.gz")
 LICENSE=""
-DEPS="app-arch/xz-utils dev-libs/expat dev-libs/openssl media-libs/fdk-aac media-libs/libogg media-libs/libtheora media-libs/libva media-libs/libvorbis media-libs/libvpx media-libs/libwebp media-libs/opus media-libs/x264 media-libs/x265 media-libs/xvid media-sound/lame media-video/ffmpeg sys-libs/ncurses sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfixes x11-libs/libdrm x11-libs/libvdpau x11-libs/libxcb"
+DEPS="dev-libs/expat dev-libs/openssl media-video/ffmpeg sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 SLOT=0

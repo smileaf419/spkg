@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://ftp.gnu.org/gnu/gdbm/gdbm-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gdbm/gdbm-${PKG_VER}.tar.gz.sig")
 LICENSE=""
-DEPS="dev-libs/libpcre2 sys-libs/ncurses sys-libs/readline"
+DEPS="sys-libs/readline"
 BDEPS=""
 RDEPS=""
 SLOT=0

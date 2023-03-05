@@ -5,7 +5,7 @@ SRC_URI=("https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-${PKG_V
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-${PKG_VER}.tar.xz.asc")
 PATCHES=("")
 LICENSE="BSD-2 GPLv2"
-DEPS="app-arch/bzip2 app-arch/xz-utils dev-db/sqlite dev-libs/icu dev-libs/libpcre2 dev-libs/libxml2 dev-libs/openssl sys-libs/libxcrypt sys-libs/zlib"
+DEPS="app-arch/bzip2 dev-db/sqlite dev-libs/libpcre2 dev-libs/libxml2 dev-libs/openssl sys-libs/libxcrypt sys-libs/zlib"
 BDEPS=""
 RDEPS="accounts/www"
 SLOT=0

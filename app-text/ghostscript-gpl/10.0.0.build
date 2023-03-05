@@ -8,7 +8,7 @@ SRC_URI=("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/downloa
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("")
 LICENSE=""
-DEPS="app-arch/bzip2 dev-libs/expat dev-libs/glib dev-libs/libpcre2 dev-libs/openssl media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/openjpeg net-print/cups sys-libs/libxcrypt sys-libs/zlib x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp x11-libs/libXext x11-libs/libXt"
+DEPS="media-libs/fontconfig media-libs/freetype media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/openjpeg net-print/cups sys-libs/zlib x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/libXext x11-libs/libXt"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

@@ -6,7 +6,7 @@ SRC_URI=("https://download.gnome.org/sources/libsecret/${PKG_VER%.*}/libsecret-$
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.gnome.org/sources/libsecret/0.20/libsecret-${PKG_VER}.tar.xz.sig")
 PATCHES=("")
 LICENSE=""
-DEPS="dev-libs/glib dev-libs/libffi dev-libs/libgcrypt dev-libs/libgpg-error dev-libs/libpcre2 sys-libs/zlib"
+DEPS="dev-libs/glib dev-libs/libgcrypt"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja

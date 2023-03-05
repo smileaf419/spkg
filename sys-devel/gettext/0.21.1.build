@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://ftp.gnu.org/gnu/gettext/gettext-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gettext/gettext-${PKG_VER}.tar.xz.sig")
 LICENSE=""
-DEPS="app-arch/xz-utils dev-libs/icu dev-libs/libunistring dev-libs/libxml2 sys-apps/acl sys-apps/attr sys-libs/zlib"
+DEPS="dev-libs/libunistring dev-libs/libxml2 sys-apps/acl"
 BDEPS=""
 RDEPS=""
 SLOT=0

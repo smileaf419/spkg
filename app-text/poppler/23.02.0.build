@@ -7,7 +7,7 @@ SRC_URI=("https://poppler.freedesktop.org/poppler-${PKG_VER}.tar.xz"
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("")
 LICENSE=""
-DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd dev-libs/expat dev-libs/glib dev-libs/libffi dev-libs/libpcre2 dev-libs/nspr dev-libs/nss dev-libs/openssl media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/libwebp media-libs/openjpeg media-libs/tiff net-misc/curl sys-libs/zlib x11-libs/cairo x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp x11-libs/libXext x11-libs/libXrender x11-libs/pixman"
+DEPS="dev-libs/glib dev-libs/nspr dev-libs/nss media-libs/fontconfig media-libs/freetype media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/openjpeg media-libs/tiff net-misc/curl sys-libs/zlib x11-libs/cairo"
 BDEPS=""
 RDEPS=""
 setBuildENV cmake make

@@ -7,7 +7,7 @@ SRC_URI=("https://github.com/xiph/libao/archive/${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("")
 LICENSE=""
-DEPS="media-libs/alsa-lib media-libs/flac media-libs/libogg media-libs/libsndfile media-libs/libvorbis media-libs/opus media-sound/lame media-sound/mpg123 media-sound/pulseaudio sys-apps/dbus sys-libs/ncurses x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp"
+DEPS="media-libs/alsa-lib media-sound/pulseaudio"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

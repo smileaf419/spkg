@@ -7,7 +7,7 @@ SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_V
 
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/clang-${PKG_VER}-enable_default_ssp-1.patch")
 LICENSE=""
-DEPS="app-arch/xz-utils app-arch/zstd dev-libs/icu dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
+DEPS="app-arch/zstd dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 SLOT=0

@@ -4,7 +4,7 @@ SRC_URI=("https://downloads.sourceforge.net/mpg123/mpg123-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.sourceforge.net/mpg123/mpg123-${PKG_VER}.tar.bz2")
 PATCHES=("")
 LICENSE=""
-DEPS="media-libs/alsa-lib media-libs/flac media-libs/libogg media-libs/libsdl2 media-libs/libsndfile media-libs/libvorbis media-libs/openal media-libs/opus media-sound/lame media-sound/pulseaudio sys-apps/dbus sys-libs/ncurses x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp"
+DEPS="media-libs/alsa-lib media-libs/libsdl2 media-libs/openal media-sound/pulseaudio"
 BDEPS=""
 RDEPS=""
 SLOT=0

@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://www.x.org/pub/individual/xserver/xorg-server-${PKG_VER}.tar.xz")
 PATCHES=("")
 LICENSE=""
-DEPS="app-arch/bzip2 dev-libs/expat dev-libs/glib dev-libs/libffi dev-libs/libpcre2 dev-libs/nettle dev-libs/wayland media-libs/freetype media-libs/harfbuzz media-libs/libepoxy media-libs/libpng media-libs/mesa net-libs/libtirpc sys-apps/dbus sys-fs/eudev sys-libs/zlib x11-libs/libdrm x11-libs/libfontenc x11-libs/libpciaccess x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libxcvt x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfixes x11-libs/libXfont2 x11-libs/libxshmfence x11-libs/libXxf86vm x11-libs/pixman"
+DEPS="dev-libs/nettle media-libs/libepoxy media-libs/mesa net-libs/libtirpc sys-fs/eudev x11-libs/libdrm x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfont2 x11-libs/pixman"
 BDEPS=""
 RDEPS="x11-libs/libxkbfile x11-apps/xkbcomp media-fonts/font-util x11-drivers/xf86-input-evdev x11-drivers/xf86-input-libinput x11-drivers/xf86-video-fbdev x11-misc/xkeyboard-config x11-terms/xterm x11-apps/xauth"
 

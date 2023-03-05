@@ -6,7 +6,7 @@ SRC_URI=("https://download.gnome.org/sources/libnotify/${PKG_VER%.*}/libnotify-$
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("")
 LICENSE=""
-DEPS="dev-libs/glib dev-libs/libffi dev-libs/libpcre2 media-libs/libjpeg-turbo media-libs/libpng sys-libs/zlib x11-libs/gdk-pixbuf"
+DEPS="dev-libs/glib x11-libs/gdk-pixbuf"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja

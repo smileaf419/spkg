@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://ftp.gnu.org/gnu/sed/sed-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/sed/sed-${PKG_VER}.tar.xz.sig")
 LICENSE=""
-DEPS="sys-apps/acl sys-apps/attr"
+DEPS="sys-apps/acl"
 BDEPS=""
 RDEPS=""
 SLOT=0

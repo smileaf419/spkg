@@ -4,7 +4,7 @@ SRC_URI=("https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PKG_VE
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PKG_VER}/pcre2-${PKG_VER}.tar.bz2.sig")
 PATCHES=("")
 LICENSE=""
-DEPS="app-arch/bzip2 sys-libs/ncurses sys-libs/readline sys-libs/zlib"
+DEPS="app-arch/bzip2 sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 SLOT=0

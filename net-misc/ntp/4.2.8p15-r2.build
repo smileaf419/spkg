@@ -6,7 +6,7 @@ PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8-ipc-caps.patch"
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8_p14-add_cap_ipc_lock.patch")
 LICENSE="HPND BSD ISC"
-DEPS="dev-libs/openssl sys-libs/libcap sys-libs/ncurses sys-libs/readline"
+DEPS="dev-libs/openssl sys-libs/libcap sys-libs/readline"
 BDEPS="dev-perl/IO-Socket-SSL"
 RDEPS="accounts/ntp"
 SLOT=0

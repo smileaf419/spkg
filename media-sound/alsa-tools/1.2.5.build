@@ -3,7 +3,7 @@ DESCRIPTION="Advanced Linux Sound Architecture (ALSA) - Tools"
 SRC_URI=("http://www.alsa-project.org/files/pub/tools/alsa-tools-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("http://www.alsa-project.org/files/pub/tools/alsa-tools-${PKG_VER}.tar.bz2.sig")
 LICENSE=""
-DEPS="dev-libs/glib dev-libs/libpcre2 media-libs/alsa-lib"
+DEPS="dev-libs/glib media-libs/alsa-lib"
 BDEPS=""
 RDEPS=""
 SLOT=0
