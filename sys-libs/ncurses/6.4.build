@@ -3,10 +3,10 @@ DESCRIPTION=""
 SRC_URI=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz.asc")
 LICENSE=""
-DEPS="dev-libs/libpcre2"
+DEPS=""
 BDEPS=""
 RDEPS=""
-use-enable pcre2 && UDEPS="dev-libs/pcre2"
+use-enable pcre2 && UDEPS="dev-libs/libpcre2"
 IUSE=pcre2
 SLOT=0
 
