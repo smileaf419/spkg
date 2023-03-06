@@ -5,8 +5,9 @@
 
 VERSION="20230121"
 
-set +h
+set +h -E
 umask 022
+trap '[ "$?" -ne 77 ] || exit 77' ERR
 
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
@@ -605,7 +606,7 @@ if [[ $MODE == "search" ]]; then
 		echo "Searching: $p"
 		for s in $(find $PKG_DB_DIR -mindepth 2 -type d -wholename \*$p\* | sed -e "s,$PKG_DB_DIR/,,"); do
 			setupENV $s
-			checkSha1 ${PKG_BLD%/*} $PKG_BLD
+			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 			echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"
 			echo "    Installed: ${O_VER}"
 			(

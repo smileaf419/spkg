@@ -167,15 +167,17 @@ checkSha1() {
 	[[ $IGNORE_SHA1 == 1 ]] && return 0
 	PKG=$1
 	FILE=$2
-	[[ $VERBOSE -ge 2 ]] && echo -n "Checking Sha1: $FILE ..."
+	[[ $VERBOSE -ge 2 ]] && echo -n "Checking Sha1: $FILE ... "
+	[ ! -e $FILE ] && echo "Failed checking $PKG sha1" && return 1
 	h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
-#	echo -n $h
+	[[ $VERBOSE -ge 2 ]] && echo -n $h
 	grep "$h" $PKG/sha1 > /dev/null
 	if [[ $? == 0 ]]; then
 		[[ $VERBOSE -ge 2 ]] && echo "Ok"
 	else
 		die "Failed Sha1 Checksum: FILE: $FILE; Hash: $h"
 	fi
+	return 0
 }
 
 # Check the USE flag for an option, 
@@ -282,7 +284,7 @@ install-init.d() {
 		PKG_BLD="$PKG_DB_DIR/${PKG}.build"
 		PKG_VER=$(getpkgver $PKG)
 		unset PATCHES SRC_URI
-		checkSha1 ${PKG_BLD%/*} $PKG_BLD
+		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 		source "${PKG_BLD}"
 		BUILD_PATH=$d
 		B="${PKG_NAME}-${PKG_VER}"

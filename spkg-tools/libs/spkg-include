@@ -263,7 +263,7 @@ prepare_default() {
 			if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
 				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
 			fi
-			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"			
+			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" || die
 		done
 		echo "Fetching Patches"
 		length=${#PATCHES[@]}
@@ -287,7 +287,7 @@ prepare_default() {
 				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
 			fi
 			echo "Checking sha1 of $SRC_OUTFILE"
-			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"
+			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" || die
 		done
 			# Check a sig file if it exists.
 			# FIXME: This code fails if there is no public key installed.
@@ -402,7 +402,7 @@ buildPackage() {
 }
 
 installPackage() {
-	checkSha1 ${PKG_BLD%/*} $PKG_BLD
+	checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 	(
 		set -o pipefail
 		BUILD_SEPERATE_DIR=no
@@ -626,7 +626,7 @@ getdep() {
 	
 	setupENV $1
 	
-	checkSha1 ${PKG_BLD%/*} $PKG_BLD
+	checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
 	#DEPS=$(grep [BR]DEPS $PKG_BLD | sed -e "s,.*[BR]DEPS=\",," -e "s,\".*,," | tr '\n' ' ')
 	(
 		# Reset variables in case they're not defined within the build file.
