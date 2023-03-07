@@ -41,8 +41,8 @@ if [[ $MODE != "search" ]]; then
 		Z=1
 	fi
 	[[ $VERBOSE -gt 0 ]] && echo "Getting Patches from $Z to $MicV"
-	for x in $(seq $Z $(echo ${MicV}-1|bc)); do
-		N=$(echo ${x}+1|bc)
+	for x in $(seq $Z $(( ${MicV}-1 ))); do
+		N=$(( ${x}+1 ))
 		[[ $VERBOSE -gt 0 ]] && echo "Adding Incr Patch: ${MV}.${MiV}.${x}-${N}"
 		PATCHES+=("$URL_BASE/incr/patch-${MV}.${MiV}.${x}-${N}.xz")
 	done
