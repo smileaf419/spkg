@@ -6,7 +6,7 @@ SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("")
 LICENSE=""
-DEPS="x11-libs/glib"
+DEPS="dev-libs/glib"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
