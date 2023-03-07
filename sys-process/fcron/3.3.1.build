@@ -21,8 +21,9 @@ src_configure() {
 
 src_test() { :; }
 
-src_post() {
-	cat > ${D}/usr/bin/run-parts << "EOF" &&
+src_install() {
+	install_default
+	cat > ${D}/usr/bin/run-parts << "EOF"
 #!/bin/sh
 # run-parts:  Runs all the scripts found in a directory.
 # from Slackware, by Patrick J. Volkerding with ideas borrowed
