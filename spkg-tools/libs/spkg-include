@@ -205,7 +205,7 @@ installList() {
 
 			[[ $SILENT_BUILD == "no" ]] && installPackage 2>&1 | tee $LOG || installPackage > $LOG 2>&1
 
-			echo "Completed in $( echo $(date "+%s.%N") - $TIMESTART | bc ) seconds." | tee -a $LOG
+			[[ -e /usr/bin/bc ]] && echo "Completed in $( echo $(date "+%s.%N") - $TIMESTART | bc ) seconds." | tee -a $LOG
 
 			[ -e $LOG.bz2 ] && rm $LOG.bz2
 			bzip2 $LOG 
