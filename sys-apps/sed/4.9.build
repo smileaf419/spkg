@@ -30,7 +30,9 @@ src_install() {
 }
 
 bootstrap() {
-	./configure --prefix=/usr --host=$HOST_TGT --disable-acl
+	./configure --prefix=/usr --host=$HOST_TGT --disable-acl --bindir=/bin
 	compile_default
 	install_default
+	mkdir -p "$D/$ROOT/usr/bin"
+	ln -s "$D/$ROOT"/{,usr/}bin/sed
 }
