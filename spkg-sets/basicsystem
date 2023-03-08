@@ -1,5 +1,5 @@
 # Basic System
-#sys-apps/man-pages
+sys-apps/man-pages
 net-misc/iana-etc
 sys-libs/glibc
 app-arch/zlib
