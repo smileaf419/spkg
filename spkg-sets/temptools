@@ -1,7 +1,7 @@
 # Temp tools
-#sys-devel/gettext[nodep]
-#sys-devel/bison[nodep]
-#dev-lang/perl[nodep]
+sys-devel/gettext[nodep]
+sys-devel/bison[nodep]
+dev-lang/perl[nodep]
 dev-lang/python[nodep]
 sys-apps/texinfo[nodep]
 sys-apps/util-linux[nodep]
