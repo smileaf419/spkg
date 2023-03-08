@@ -7,7 +7,7 @@
 
 unpack() {
 	FILE=$1
-	if [ $(echo $FILE | grep -E "\.tar|\.tgz$") ]; then
+	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
 		tar -xf "${FILE}" || die "Failed to Extract!"
 	elif [ ${FILE##*.} == "zip" ]; then
 		unzip -o "${FILE}"
