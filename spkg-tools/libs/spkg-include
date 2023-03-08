@@ -130,7 +130,7 @@ rebuildModules() {
 # 1: Package Name
 setupENV() {
 	PKG=$(getpkg ${1%[*})
-	PKG_FLAGS=${1#*[}; PKG_FLAGS=${PKG_FLAGS%]}
+	[[ -z $PKG_FLAGS ]] && PKG_FLAGS=${1#*[}; PKG_FLAGS=${PKG_FLAGS%]}
 	PKG_BLD=$PKG_DB_DIR/${PKG}.build
 	PKG_CAT=$(getcategory $PKG)
 	PKG_NAME=$(getpkgname $PKG)
@@ -259,8 +259,8 @@ prepare_default() {
 				export SRC_FILE=$file
 				export SRC_OUTFILE=${SRC_FILE##*/}
 			fi
-			echo "Fetching ($C of $length) $SRC_FILE"
 			if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
+				echo "Fetching ($C of $length) $SRC_FILE"
 				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
 			fi
 			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" || die
@@ -282,12 +282,12 @@ prepare_default() {
 				export SRC_FILE=$file
 				export SRC_OUTFILE=${SRC_FILE##*/}
 			fi
-			echo "Fetching ($C of $length) $SRC_FILE as $SRC_OUTFILE"
 			if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
+				echo "Fetching ($C of $length) $SRC_FILE as $SRC_OUTFILE"
 				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
 			fi
-			echo "Checking sha1 of $SRC_OUTFILE"
-			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" || die
+			echo -n "Checking sha1 of $SRC_OUTFILE "
+			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" && echo "Ok" || die "Failed"
 		done
 			# Check a sig file if it exists.
 			# FIXME: This code fails if there is no public key installed.
@@ -344,9 +344,12 @@ buildPackage() {
 	# Download all files.
 	# If it fails, create it and try again.
 	# Package may have overrode it.	
-	cd "${BUILD_PATH}" > /dev/null 2>&1 || 
-			install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}"
-	chown $BUILD_USER "$BUILD_PATH"
+	cd "${BUILD_PATH}" > /dev/null 2>&1
+	if [[ $? != 0 ]]; then
+		install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}" || die "Failed to create Build Dir."
+	else
+		chown $BUILD_USER "$BUILD_PATH"
+	fi
 	src_prepare
 		
 	if [[ $BUILD_SEPERATE_DIR != no ]]; then
@@ -641,6 +644,7 @@ getdep() {
 		DEPS=("$DEPS $BDEPS $RDEPS $UDEPS")
 
 		for d in ${DEPS[@]}; do
+			[[ $PKG_FLAGS == *nodep* ]] && break
 			# If its already in the list, ignore it and continue.
 			grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
 
