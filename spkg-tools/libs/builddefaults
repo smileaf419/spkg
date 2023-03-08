@@ -107,7 +107,7 @@ configure_default() {
 		CXXFLAGS="$CXXFLAGS" \
 			$d/configure $conf_flags "$@" || die "Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
-		meson --prefix=/usr --buildtype=release "$@" $d || die "Configure Failed!"
+		meson setup --prefix=/usr --buildtype=release "$@" $d || die "Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
 		cmake -DCMAKE_INSTALL_PREFIX=/usr \
 			  -DCMAKE_BUILD_TYPE=Release \
