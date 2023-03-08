@@ -15,6 +15,10 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	mkdir "${D}/etc"
-	cp services protocols "${D}/etc"
+	mkdir -p "${D}/$ROOT/etc"
+	cp services protocols "${D}/$ROOT/etc"
+}
+
+bootstrap() {
+	src_install
 }

@@ -622,6 +622,7 @@ uninstall() {
 # 1: Package of deps to get.
 # 2: if calling itself: the package which called it.
 getdep() {
+	[[ $PKG_FLAGS == *nodeps* ]] && return
 	[[ $VERBOSE -ge 1 ]] && echo "Getting deps for $1" || echo -n .
 	
 	setupENV $1
