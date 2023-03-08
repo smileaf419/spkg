@@ -17,6 +17,9 @@ src_configure() {
 	append-cppflags -D_GNU_SOURCE
 
 	../configure --prefix=/usr           \
+				 --bindir=/bin           \
+				 --sbindir=/sbin         \
+				 --libdir=/lib           \
 	             --sysconfdir=/etc       \
 	             --enable-elf-shlibs     \
 	             --disable-libblkid      \

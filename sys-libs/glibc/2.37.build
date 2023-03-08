@@ -20,13 +20,24 @@ src_configure() {
 	# Ensure ldconfig and sln are installed into /usr/sbin
 	echo "rootsbindir=/usr/sbin" > ../configparms
 
-	../configure --prefix=/usr                            \
-                 --disable-werror                         \
-                 --enable-kernel=3.2                      \
-                 --enable-stack-protector=strong          \
-                 --with-headers=/usr/include              \
-                 libc_cv_slibdir=/usr/lib \
-                 --disable-crypt \
+	# 64bit build
+	mkdir -pv $D/$ROOT/lib{,64}
+	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
+	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
+	../configure --prefix=/                         \
+				 --bindir=/bin                      \
+				 --sbindir=/sbin                    \
+				 --libdir=/lib                      \
+				 --libexecdir=/usr/libexec          \
+				 --includedir=/usr/include          \
+				 --datarootdir=/usr/share           \
+				 --enable-kernel=3.2                \
+				 --with-headers=/usr/include        \
+				 --enable-multi-arch                \
+				 libc_cv_slibdir=/lib               \
+                 --disable-werror                   \
+                 --enable-stack-protector=strong    \
+                 --disable-crypt                    \
                  $(use-enable gd || echo --with-gd=no)
 }
 

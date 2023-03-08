@@ -13,6 +13,8 @@ SLOT=0
 
 src_configure() {
 	./configure --prefix=/usr          \
+				--bindir=/bin          \
+				--sbindir=/sbin        \
 	            --sysconfdir=/etc      \
 	            --disable-efiemu       \
 	            --disable-werror \
