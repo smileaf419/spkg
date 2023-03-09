@@ -31,7 +31,7 @@ src_install() {
 
 	mkdir -pv "${D}"/sbin
 	mkdir -pv "${D}"/usr/share/man/man8
-	mv -v "${D}"/{,s}bin/chroot 
+	mv -v "${D}"/usr/{,s}bin/chroot 
 	mv -v "${D}"/usr/share/man/man1/chroot.1 "${D}"/usr/share/man/man8/chroot.8
 	sed -i 's/"1"/"8"/' "${D}"/usr/share/man/man8/chroot.8
 }
@@ -47,14 +47,16 @@ bootstrap() {
 	            --enable-no-install-program=kill,uptime
 	compile_default
 	install_default
-	mv -v $D/$ROOT/bin/chroot              $D/$ROOT/sbin
+	mkdir "$D/$ROOT/sbin"
+	mv -v "$D/$ROOT"/{,s}bin/chroot
 	mkdir -pv $D/$ROOT/usr/share/man/man8
 	mv -v $D/$ROOT/usr/share/man/man1/chroot.1 $D/$ROOT/usr/share/man/man8/chroot.8
 	sed -i 's/"1"/"8"/'                  $D/$ROOT/usr/share/man/man8/chroot.8
 
 	# A number of packages require these apps in /usr/bin
 	# Make a compatibility symlink to support these.
+	mkdir -p "$D/$ROOT/usr/bin"
 	for p in env; do
-		ln -sv /bin/$p "$D/usr/bin/$p"
+		ln -sv /bin/$p "$D/$ROOT/usr/bin/$p"
 	done
 }

@@ -19,4 +19,5 @@ bootstrap() {
 	configure_default --host=$HOST_TGT --disable-perl-regexp --bindir=/bin
 	compile_default
 	install_default
+	ln -s "$D/$ROOT/{,usr/}bin/grep"
 }

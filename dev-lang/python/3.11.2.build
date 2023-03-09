@@ -15,7 +15,7 @@ SLOT=0
 TEST=test
 
 src_configure() {
-	if [[ $PKG_FLAGS == "nodep" ]]; then
+	if [[ $PKG_FLAGS == *nodep* ]]; then
 		./configure --prefix=/usr --enable-shared --without-ensurepip
 	else
 		CXX="/usr/bin/g++" \

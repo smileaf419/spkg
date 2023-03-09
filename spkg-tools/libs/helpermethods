@@ -16,7 +16,10 @@ unpack() {
 	fi
 }
 die() { echo "$*" 1>&2 ; exit 77; }
-inform() { echo "$*" | tee -a /tmp/inform.log; }
+inform() { 
+	echo "$*" | tee -a /tmp/inform.log
+	chmod 666 /tmp/inform.log
+}
 
 spatch() {
 	echo -n " * Applying Patch: $1"
