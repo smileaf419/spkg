@@ -14,11 +14,10 @@ SLOT=0
 
 src_configure() {
 	autoreconf -fiv
-#	./configure --prefix=/usr   \
 	configure_default \
+	            --bindir=/bin   \
+	            --sbindir=/sbin \
 	            --enable-no-install-program=kill,uptime
-#	            --bindir=/bin   \
-#	            --sbindir=/sbin \
 }
 
 src_test() {

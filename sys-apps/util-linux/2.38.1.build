@@ -9,9 +9,9 @@ RDEPS=""
 
 src_configure() {
 	./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
-	            --bindir=/usr/bin    \
-	            --libdir=/usr/lib    \
-	            --sbindir=/usr/sbin  \
+	            --bindir=/bin    \
+	            --libdir=/lib    \
+	            --sbindir=/sbin  \
 	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
 	            --disable-chfn-chsh  \
 	            --disable-login      \

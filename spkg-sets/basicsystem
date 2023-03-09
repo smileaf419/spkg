@@ -2,7 +2,7 @@
 sys-apps/man-pages
 net-misc/iana-etc
 sys-libs/glibc
-app-arch/zlib
+sys-libs/zlib
 app-arch/bzip2
 app-arch/xz-utils
 app-arch/zstd
@@ -13,7 +13,7 @@ sys-devel/bc
 sys-devel/flex
 dev-lang/tcl
 dev-tcltk/expect
-dev-utils/dejagnu
+dev-util/dejagnu
 sys-devel/binutils
 dev-libs/gmp
 dev-libs/mpfr
@@ -30,7 +30,7 @@ sys-process/psmisc
 sys-devel/gettext
 sys-devel/bison
 sys-apps/grep
-app-shell/bash
+app-shells/bash
 sys-devel/libtool
 sys-libs/gdbm
 dev-util/gperf

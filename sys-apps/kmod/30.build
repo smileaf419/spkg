@@ -10,6 +10,7 @@ SLOT=0
 src_configure() {
 	./configure --prefix=/usr          \
 	            --sysconfdir=/etc      \
+	            --bindir=/bin          \
 	            --with-openssl         \
 	            --with-xz              \
 	            --with-zstd            \
@@ -20,10 +21,10 @@ src_test() { :; }
 
 src_install() {
 	install_default
-	mkdir -p "${D}/usr/sbin"
+	mkdir -p "$D/sbin"
 	for target in depmod insmod modinfo modprobe rmmod; do
-		ln -sfv ../bin/kmod "${D}"/usr/sbin/$target
+		ln -sfv ../bin/kmod "${D}"/sbin/$target
 	done
 
-	ln -sfv kmod "${D}"/usr/bin/lsmod
+	ln -sfv kmod "${D}"/bin/lsmod
 }

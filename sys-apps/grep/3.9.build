@@ -11,7 +11,7 @@ SLOT=0
 src_configure() {
 	# Warning about egrep and fgrep being obsolete can cause some tests to fail.
 	sed -i "s/echo/#echo/" src/egrep.sh
-	configure_default
+	configure_default --bindir=/bin
 }
 
 bootstrap() {

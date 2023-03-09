@@ -199,7 +199,8 @@ use-enable() {
 # 1: File
 # Returns: list of files depending on a file.
 checkFileDep() {
-	grep "$1\$" ${PKG_CACHE}/*/*/*/BDEPS|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,,"
+#	grep "$1\$" ${PKG_CACHE}/*/*/*/BDEPS
+	grep -r --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || echo
 }
 
 # 1: Category/Package 2: Version
