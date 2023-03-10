@@ -520,7 +520,7 @@ daemon:x:6:6:Daemon User:/dev/null:/bin/false
 messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/bin/false
 uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/bin/false
 nobody:x:65534:65534:Unprivileged User:/dev/null:/bin/false
-spkg:x:250:250::/var/tmp/spkg/:/sbin/nologin
+spkg:x:250:250::/var/tmp/spkg/:/bin/bash
 EOF
 
 	cat > $ROOT/etc/group << "EOF"
@@ -583,7 +583,7 @@ EOF
 	echo "Its STRONGLY encouraged now to create a $ROOT/etc/spkg.conf"
 	echo " A default is included with spkg-tools"
 	echo "You should now run $ROOT/chroot.sh"
-	echo "Afterwards: spkg @temptools"
+	echo "Afterwards: spkg @temptools ; Once complete its safe to remove the /tools dir"
 	echo "And finally: spkg -e @system"
 	exit 0
 fi
