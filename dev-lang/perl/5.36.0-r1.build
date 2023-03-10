@@ -9,8 +9,10 @@ SLOT=0
 TEST=test
 
 src_configure() {
-	export BUILD_ZLIB=False
-	export BUILD_BZIP2=0
+	if [[ -z $PKG_FLAGS ]]; then
+		export BUILD_ZLIB=False
+		export BUILD_BZIP2=0
+	fi
 
 	sh Configure -des                                         \
 	             -Dprefix=/usr                                \
