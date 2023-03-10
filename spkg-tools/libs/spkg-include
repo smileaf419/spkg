@@ -129,8 +129,10 @@ rebuildModules() {
 
 # 1: Package Name
 setupENV() {
-	PKG=$(getpkg ${1%[*})
-	[[ -z $PKG_FLAGS ]] && PKG_FLAGS=${1#*[}; PKG_FLAGS=${PKG_FLAGS%]}
+	# If the PKG changes, its Ok to reset the PKG_FLAGS
+	TPKG=$(getpkg ${1%[*})
+	[[ $TPKG != $PKG ]] && PKG_FLAGS=${1#*[}; PKG_FLAGS=${PKG_FLAGS%]}
+	PKG=$TPKG
 	PKG_BLD=$PKG_DB_DIR/${PKG}.build
 	PKG_CAT=$(getcategory $PKG)
 	PKG_NAME=$(getpkgname $PKG)
