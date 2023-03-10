@@ -6,9 +6,11 @@ SRC_URI=("https://ftp.gnu.org/gnu/grub/grub-${PKG_VER}.tar.xz")
 # (or the root partition if /boot is not a separate partition) is created by e2fsprogs-1.47.0 or later
 PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/grub-2.06-upstream_fixes-1.patch")
 LICENSE=""
-DEPS="app-arch/xz-utils media-libs/freetype sys-fs/lvm2 sys-fs/zfs"
+DEPS="app-arch/xz-utils media-libs/freetype sys-fs/lvm2"
 BDEPS=""
 RDEPS=""
+IUSE="zfs"
+use-enable zfs && UDEPS="sys-fs/zfs"
 SLOT=0
 
 src_configure() {
@@ -17,8 +19,9 @@ src_configure() {
 				--sbindir=/sbin        \
 	            --sysconfdir=/etc      \
 	            --disable-efiemu       \
-	            --disable-werror \
-	            --enable-device-mapper
+	            --disable-werror       \
+	            --enable-device-mapper \
+	            $(use-enable zfs && echo --enable-libzfs || echo --disable-libzfs)
 }
 
 src_compile() {
