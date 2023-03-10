@@ -17,15 +17,14 @@ RDEPS=""
 SLOT=0
 B=unzip${PKG_VER/./}
 
-src_patch() {
-	PATCHES=($@)
-	unpack ${DISTFILES}/${PATCHES[0]##*/}
+#src_patch() {
+#	PATCHES=($@)
+#	unpack ${DISTFILES}/${PATCHES[0]##*/}
 	# Remove debian's branding patch
-	rm $BUILD_PATH/$B/debian/patches/02*
-	PATCHES[0]=$BUILD_PATH/$B/debian/patches
-
-	spatches ${PATCHES[@]}
-}
+#	rm $BUILD_PATH/$B/debian/patches/02*
+#	PATCHES[0]=$BUILD_PATH/$B/debian/patches
+#	spatches ${PATCHES[@]}
+#}
 
 src_configure() { :; }
 
