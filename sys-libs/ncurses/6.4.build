@@ -2,6 +2,7 @@ HOMEPAGE="https://www.gnu.org/software/ncurses/"
 DESCRIPTION=""
 SRC_URI=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz.asc")
+PATCHES=("https://dev.gentoo.org/~sam/distfiles/sys-libs/ncurses/ncurses-6.4-patches.tar.xz")
 LICENSE=""
 DEPS=""
 BDEPS=""
@@ -55,7 +56,6 @@ bootstrap() {
 		make -C include
 		make -C progs tic
 	popd
-
 	# Build 64bit
 	./configure --prefix=/usr                \
 				--bindir=/bin                \

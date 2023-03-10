@@ -1,6 +1,7 @@
 5ff7659ba24d13d187977f483e80272324ada029  6.3.build
 38fb1462d13b04bb900adf07918725c4b7ed0682  ncurses-6.3.tar.gz
 6c5fccc716dbf84b6d60e7fb0df45aef9d90f67e  ncurses-6.3.tar.gz.asc
-cca16c3b80fab45b69afa1a0dbe15c3c1ea2f03f  6.4.build
+808c6988aa179ccaaee591fff62cc2809d021ddd  6.4.build
 bb5eb3f34b3ecd5bac8d0b58164b847f135b3d62  ncurses-6.4.tar.gz
 458b76ccb06a59345a4bf1706e552d78cef108f4  ncurses-6.4.tar.gz.asc
+e0be98fb08af97f0264dca878ac4776ac3e21dd3  ncurses-6.4-patches.tar.xz
