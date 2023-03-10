@@ -11,11 +11,11 @@ SLOT=0
 src_configure() {
 	# Warning about egrep and fgrep being obsolete can cause some tests to fail.
 	sed -i "s/echo/#echo/" src/egrep.sh
-	configure_default
+	configure_default --bindir=/bin
 }
 
 bootstrap() {
-	configure_default --host=$HOST_TGT --disable-perl-regexp
+	configure_default --host=$HOST_TGT --disable-perl-regexp --bindir=/bin
 	compile_default
 	install_default
 }

@@ -17,20 +17,16 @@ src_configure() {
 	sed '/width -=/s/workend - string/number_length/' \
 	    -i stdio-common/vfprintf-process-arg.c
 
-	# Ensure ldconfig and sln are installed into /usr/sbin
-	echo "rootsbindir=/usr/sbin" > ../configparms
+	# Ensure ldconfig and sln are installed into /sbin
+	echo "rootsbindir=/sbin" > configparms
 
 	# 64bit build
 	mkdir -pv $D/$ROOT/lib{,64}
 	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
-	../configure --prefix=/                         \
+	../configure --prefix=/usr                      \
 				 --bindir=/bin                      \
-				 --sbindir=/sbin                    \
 				 --libdir=/lib                      \
-				 --libexecdir=/usr/libexec          \
-				 --includedir=/usr/include          \
-				 --datarootdir=/usr/share           \
 				 --enable-kernel=3.2                \
 				 --with-headers=/usr/include        \
 				 --enable-multi-arch                \

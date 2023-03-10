@@ -14,7 +14,7 @@ src_configure() {
 
 	aclocal
 	automake
-	configure_default
+	configure_default --bindir=/bin
 }
 
 src_compile() {

@@ -139,7 +139,7 @@ bootstrap() {
 			    --disable-libssp                               \
 			    --disable-libvtv                               \
 			    --enable-languages=c,c++
-			make -j5
+			compile_default
 			install_default
 			ln -sv gcc $D/$ROOT/usr/bin/cc 
 		;;
