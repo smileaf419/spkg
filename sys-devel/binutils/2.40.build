@@ -2,7 +2,7 @@ HOMEPAGE="https://www.gnu.org/software/binutils/"
 DESCRIPTION="GNU Binary tools"
 SRC_URI=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz.sig")
-PATCHES=("")
+PATCHES=()
 #https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-devel/binutils/files/binutils-configure-LANG.patch")
 LICENSE="GPL-3+"
 DEPS="app-arch/zstd sys-devel/flex sys-libs/zlib"

@@ -63,6 +63,7 @@ append-ldflags() {
 append-flags() {
 	export CFLAGS+=" $@"
 	export CXXFLAGS+=" $@"
+	export CPPFLAGS+=" $@"
 }
 append-cppflags() {
 	export CXXFLAGS+=" $@"

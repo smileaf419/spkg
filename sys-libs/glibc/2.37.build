@@ -2,7 +2,7 @@ HOMEPAGE="https://www.gnu.org/software/libc/"
 DESCRIPTION="GNU libc C Library"
 SRC_URI=("https://ftp.gnu.org/gnu/glibc/glibc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/glibc/glibc-${PKG_VER}.tar.xz.sig")
-PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/glibc-2.36-fhs-1.patch")
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/glibc-2.37-fhs-1.patch")
 LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
 DEPS=""
 BDEPS="sys-kernel/linux-headers"
@@ -103,21 +103,18 @@ EOF
 }
 
 bootstrap() {
-	# /lib    Generic libraries.
-	# /lib32  strict 32bit
-	# /libx34 32bit
+	# /lib64  64bit
+	# /lib32  32bit
+	# /lib    Generic Libraries.
 
 	# 64bit build
 	mkdir -pv $D/$ROOT/lib{,64}
 	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
-	../configure --prefix=/                         \
+	echo "rootsbindir=/sbin" > configparms
+	../configure --prefix=/usr                      \
 				 --bindir=/bin                      \
-				 --sbindir=/sbin                    \
 				 --libdir=/lib                      \
-				 --libexecdir=/usr/libexec          \
-				 --includedir=/usr/include          \
-				 --datarootdir=/usr/share           \
 				 --host=$HOST_TGT                   \
 				 --build=$(../scripts/config.guess) \
 				 --enable-kernel=3.2                \
@@ -126,6 +123,7 @@ bootstrap() {
 				 libc_cv_slibdir=/lib &&
 	compile_default &&
 	install_default
+	sed '/RTLDLIST=/s@/usr@@g' -i "$D/$ROOT"/bin/ldd
 }
 
 bootstrap32() {

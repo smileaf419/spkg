@@ -6,7 +6,7 @@ SRC_URI=("https://github.com/eudev-project/eudev/archive/refs/heads/master.zip =
 "https://anduin.linuxfromscratch.org/LFS/udev-lfs-${LFSRULEVER}.tar.xz")
 LICENSE="LGPLv2.1 MIT GPLv2"
 DEPS="sys-apps/kmod"
-BDEPS="dev-util/gperf"
+BDEPS="dev-util/gperf app-arch/unzip"
 RDEPS=""
 SLOT=0
 B=eudev-master
