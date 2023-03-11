@@ -5,7 +5,7 @@ PATCHES=()
 LICENSE=""
 DEPS=""
 BDEPS=""
-RDEPS=""
+RDEPS="app-misc/ca-certificates"
 SLOT=0
 TEST=test
 

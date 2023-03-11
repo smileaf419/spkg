@@ -1,0 +1,19 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="https://packages.debian.org/sid/ca-certificates"
+DESCRIPTION="certificate authorities shipped with Mozilla's browser"
+SRC_URI=("http://deb.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20211016.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/app-misc/ca-certificates/files/ca-certificates-20211016.3.72-no-cryptography.patch")
+LICENSE="GPLv2"
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+B="work"
+
+src_configure() { :; }
+
+src_test() { :; }

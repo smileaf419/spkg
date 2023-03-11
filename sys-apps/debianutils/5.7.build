@@ -1,0 +1,22 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://salsa.debian.org/debian/debianutils/-/archive/debian/${PKG_VER}-0.3/debianutils-debian-${PKG_VER}-0.3.tar.bz2")
+PATCHES=()
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+B=debianutils-debian-${PKG_VER}-0.3
+
+src_configure() {
+	sed -i -e '/SUBDIRS/s|po4a||' Makefile.am
+	autoreconf -fiv
+	configure_default
+}
+
+src_test() { :; }
