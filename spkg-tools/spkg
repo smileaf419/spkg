@@ -275,7 +275,8 @@ test -w "${LOGDIR}/" || die "LOGDIR: ${LOGDIR} not writable"
 if [[ $MODE == "bootstrap" ]]; then
 	PKG_CACHE="${ROOT}/${PKG_CACHE}"
 	PKG_WORLD="${ROOT}/${PKG_WORLD}"
-	mkdir -p $PKG_CACHE $PKG_WORLD
+	mkdir -p $PKG_CACHE
+	touch $PKG_WORLD
 	chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
 	list="@bootstrap"
 	echo " * Bootstrapping .. This will take a while.."
@@ -505,7 +506,7 @@ if [[ $MODE == "bootstrap" ]]; then
 	ln -sfv /run $ROOT/var/run
 	ln -sfv /run/lock $ROOT/var/lock
 	[[ ! -e /root ]] && install -dv -m 0750 $ROOT/root || chmod -v 0750 $ROOT/root
-	[[ ! -e $ROOT/tmp || ! -e $ROOT/var/tmp ]] && install -dv -m 1777 $ROOT/tmp $ROOT/var/tmp || chmod -v 1777 $ROOT/{,var}/tmp
+	[[ ! -e $ROOT/tmp ]] && install -dv -m 1777 $ROOT/tmp || chmod -v 1777 $ROOT/tmp
 	ln -sv /proc/self/mounts $ROOT/etc/mtab
 
 	cat > $ROOT/etc/hosts << EOF
@@ -578,6 +579,7 @@ EOF
 	chgrp -v utmp $ROOT/var/log/lastlog
 	chmod -v 664  $ROOT/var/log/lastlog
 	chmod -v 600  $ROOT/var/log/btmp
+	install -m755 -d -o spkg -g spkg -v $ROOT/var/tmp/spkg
 
 	echo " * Bootstrapping complete!"
 	echo "Its STRONGLY encouraged now to create a $ROOT/etc/spkg.conf"
