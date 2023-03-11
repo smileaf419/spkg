@@ -27,3 +27,8 @@ src_install() {
 	mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
 	cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
 }
+
+post_install() {
+	echo " * Rehashing openssl certs"
+	openssl rehash $ROOT/etc/ssl/certs
+}

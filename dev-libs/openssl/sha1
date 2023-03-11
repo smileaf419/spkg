@@ -1,5 +1,5 @@
 c30d4c68e20e3aa6cf9de1c46d65b68f1c19e76d  3.0.7-r1.build
 f20736d6aae36bcbfa9aba0d358c71601833bf27  openssl-3.0.7.tar.gz
 a89a97724fa9267549fe9ce3b1afcca165e801b4  openssl-3.0.7-x509-CVE-2022-3996.patch
-d8d1bc94916d9a4a038f6f40b1844441bca2b72a  3.0.8.build
+bc115025934812f7e4b43abbecc7b0ff1aea595e  3.0.8.build
 580d8a7232327fe1fa6e7db54ac060d4321f40ab  openssl-3.0.8.tar.gz
