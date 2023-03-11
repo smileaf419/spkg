@@ -13,16 +13,3 @@ src_configure() {
 	            --sysconfdir=/etc  \
 	            --with-ssl=openssl
 }
-
-bootstrap() {
-	./configure --prefix=/usr \
-				--sysconfdir=/etc \
-				--with-included-libunistring \
-				--disable-pcre \
-				--disable-pcre2 \
-				--with-ssl=no \
-				--without-libuuid \
-				--without-zlib
-	compile_default
-	install_default
-}
