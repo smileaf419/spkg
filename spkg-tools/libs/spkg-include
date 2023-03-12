@@ -27,7 +27,7 @@ getBDeps() {
 				[ -e $p/$d ] && echo $p/$d
 			done
 		done
-	done | sort | uniq > "${1%/*}/BDEPS"
+	done | sort | uniq > "${PKG_CACHE}/$PKG_CAT/$PKG_NAME/$PKG_VER/BDEPS"
 	echo "Done"
 }
 

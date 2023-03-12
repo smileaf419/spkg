@@ -303,7 +303,8 @@ export REQUESTED_LIST=${tlist# }
 list=${tlist# }
 
 if [[ $MODE == "update" ]]; then
-	for f in $(find $PKG_CACHE -wholename *BDEPS | sed -e 's,/BDEPS,,' -e "s,$PKG_CACHE/,,"); do
+	echo " * Checking for updates"
+	for f in $(find $PKG_CACHE -name CONTENTS | sed -e 's,/CONTENTS,,' -e "s,$PKG_CACHE/,,"); do
 		[ $VERBOSE -ge 2 ] && echo -n "$f : "
 		setupENV ${f%/*}
 		VER=${f##*/}
