@@ -12,7 +12,6 @@ src_configure() {
 }
 
 src_compile() {
-#	checkPythonVM
 	pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 }
 

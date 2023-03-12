@@ -61,8 +61,6 @@ PKG_ARCHIVE_DIR="/var/lib/spkg/archive"
 WORKDIR_BASE="/var/tmp/spkg"
 # Used in bootstrapping tells where to install packages
 ROOT="/"
-# Location of the Python VM
-PYTHON_VM="/var/lib/python"
 EOF
 	source /etc/spkg.conf
 else
@@ -90,7 +88,7 @@ DISTFILES=${DISTFILES:-${CACHE_DIR}/files}
 PKG_WORLD=${PKG_WORLD:-${CACHE_DIR}/world}
 PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-${CACHE_DIR}/archive}
 
-export PKG_DB_DIR PKG_CACHE DISTFILES WORKDIR_BASE ROOT MAKEOPTS PYTHON_VM
+export PKG_DB_DIR PKG_CACHE DISTFILES WORKDIR_BASE ROOT MAKEOPTS
 export CFLAGS CXXFLAGS 
 export ENABLE_TESTS INSTALL_DOCS BUILD_USER SILENT_BUILD
 

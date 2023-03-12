@@ -244,17 +244,6 @@ checkKernelConfig() {
 		die $ERR_DIALOG
 }
 
-# 1: if 1 then don't activate the VM, Just setup/update the environment
-checkPythonVM() {
-	echo -n " * Setting up Python Virtual Environment ... "
-	mkdir -pv $PYTHON_VM
-	python3 -m venv $PYTHON_VM
-	[ $? == 0 ] && echo "Ok" || die "Failed!"
-	if [[ $1 != 1 ]]; then
-		source $PYTHON_VM/bin/activate
-	fi
-}
-
 addUser() {
 	USER=$1
 	shift 1
@@ -305,7 +294,7 @@ function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)"
 
 # If the function exists within this file, 
 # it must be exported so build files can use it.
-export -f addGroup addUser checkPythonVM checkKernelConfig \
+export -f addGroup addUser checkKernelConfig \
 	use-enable \
 	getpkgvr getpkgrev getpkgver getpkgname getpkg \
 	getinstalledversion getlatestversion \

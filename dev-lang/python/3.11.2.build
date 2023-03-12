@@ -9,7 +9,6 @@ IUSE="sqlite"
 DEPS="app-arch/bzip2 app-arch/xz-utils dev-libs/expat dev-libs/libffi dev-libs/openssl net-libs/libnsl net-libs/libtirpc sys-libs/gdbm sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-# FIXME: What switch do we need to enable/disable this?
 use-enable sqlite && UDEPS="dev-db/sqlite"
 SLOT=0
 TEST=test
@@ -20,9 +19,10 @@ src_configure() {
 	else
 		CXX="/usr/bin/g++" \
 		configure_default \
-	            --with-system-expat  \
-	            --with-system-ffi    \
-	            --enable-optimizations
+			--with-system-expat  \
+			--with-system-ffi    \
+			--enable-optimizations \
+			--with-ensurepip=install
 	fi
 	use-enable sqlite || echo MODULE__SQLITE3_STATE=disabled >> Makefile
 }
@@ -42,8 +42,8 @@ disable-pip-version-check = true
 EOF
 
 	ln -s /usr/bin/python3 "${D}"/usr/bin/python
-#	sed -e '/def warn_if_run_as_root/a\    return' \
-#	    -i "${D}"/usr/lib/python3.10/site-packages/pip/_internal/cli/req_command.py
+	sed -e '/def warn_if_run_as_root/a\    return' \
+	    -i "${D}"/usr/lib/python3.10/site-packages/pip/_internal/cli/req_command.py
 
 	if [[ $INSTALL_DOCS == 1 ]]; then
 		install -v -dm755 "${D}"/usr/share/doc/python-${PKG_VER}/html
@@ -53,10 +53,9 @@ EOF
 	    	--no-same-permissions \
 		    -C "${D}"/usr/share/doc/python-${PKG_VER}/html \
 		    -xvf "${DISTFILES}"/python-${PKG_VER}-docs-html.tar.bz2
-	fi
-}
+		ln -svfn python-3.11.2 $D/usr/share/doc/python-3
 
-# Setup the Python VM after the install
-post_install() {
-	checkPythonVM 1
+		# This should be within the user/system profile
+		# export PYTHONDOCS=/usr/share/doc/python-3/html
+	fi
 }

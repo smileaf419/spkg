@@ -13,7 +13,6 @@ SLOT=0
 setBuildENV meson ninja
 
 src_configure() {
-	checkPythonVM
 	configure_default \
 		  -Dplatforms=x11,wayland \
 		  -Dgallium-drivers=auto  \

@@ -1,12 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://files.pythonhosted.org/packages/source/M/Mako/Mako-${PKG_VER}.tar.gz"
+SRC_URI=()
 LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS="dev-python/markupsafe"
 SLOT=0
-B=Mako-$PKG_VER
+B=""
 MODULE=python
 
 src_configure() { :; }
@@ -16,7 +16,9 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	checkPythonVM
-	pip wheel -w dist --no-build-isolation --no-deps $PWD
-	pip install --no-index --find-links dist --no-cache-dir --no-user Mako
+	python -m pip install --upgrade mako
+}
+
+src_uninstall() {
+	python -m pip uninstall -y mako
 }

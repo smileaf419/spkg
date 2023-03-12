@@ -1,6 +1,6 @@
 HOMEPAGE="https://pypi.org/project/wheel/"
 DESCRIPTION=""
-SRC_URI=("https://pypi.org/packages/source/w/wheel/wheel-${PKG_VER}.tar.gz")
+SRC_URI=()
 LICENSE=""
 DEPS=""
 BDEPS=""
@@ -15,6 +15,5 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	PYTHONPATH=src pip3 wheel -w dist --no-build-isolation --no-deps $PWD
-	pip3 install --no-index --find-links=dist wheel
+	python -m pip install --upgrade wheel
 }

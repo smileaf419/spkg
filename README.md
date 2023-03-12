@@ -18,7 +18,7 @@ on first run a default /etc/spkg.conf should be created if ran as root.
 
 <b>BUILD_USER</b> and <b>TEST_USER</b> must be set to actual accounts or you can create a spkg user and use the default.
 
-<b>BUILD_USER</b> & <b>TEST_USER</b> should have read/write access to the <b>PYTHON_VM</b> dir.
+<b>BUILD_USER</b> & <b>TEST_USER</b> should have read/write access to the <b>WORKDIR_BASE</b> dir.
 
 # /etc/spkg.conf
 <b>MAKEOPTS</b>: extra options to pass to make, such as -j<num> or -s to make commands silent.

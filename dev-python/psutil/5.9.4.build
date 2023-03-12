@@ -1,6 +1,6 @@
 HOMEPAGE="https://pypi.org/project/psutil/"
 DESCRIPTION="Cross-platform lib for process and system monitoring in Python."
-SRC_URI="https://files.pythonhosted.org/packages/3d/7d/d05864a69e452f003c0d77e728e155a89a2a26b09e64860ddd70ad64fb26/psutil-${PKG_VER}.tar.gz"
+SRC_URI=()
 LICENSE="BSDv3"
 DEPS=""
 BDEPS=""
@@ -15,7 +15,9 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	checkPythonVM
-	pip wheel -w dist --no-build-isolation --no-deps $PWD
-	pip install --no-index --find-links dist --no-cache-dir --no-user Mako
+	python -m pip install --upgrade psutil
+}
+
+src_uninstall() {
+	python -m pip uninstall -y psutil
 }

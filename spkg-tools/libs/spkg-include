@@ -191,7 +191,12 @@ installList() {
 				echo "Uninstalling will break packages!"
 				echo $d
 			else
-				uninstall "${PKG_CAT}/${PKG_NAME}" $O_VER ""
+				(
+					source "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VER}/${PKG_VER}.build"
+					src_uninstall
+					uninstall "${PKG_CAT}/${PKG_NAME}" $O_VER ""
+					src_post_uninstall
+				)
 			fi
 			
 		# Install
@@ -513,7 +518,10 @@ installPackage() {
 		# Uninstall Old files
 		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
 
+		# Create the cache directory
 		mkdir -p "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
+		# Copy over our build file so we can reference it in uninstalls
+		cp "${PKG_DB_DIR}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build"
 		getBDeps "${BUILD_PATH}/CONTENTS"
 		mv "${BUILD_PATH}/CONTENTS" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/CONTENTS"
 		if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then

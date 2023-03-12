@@ -51,6 +51,8 @@ src_compile() { compile_default; }
 src_test() { test_default; }
 src_install() { install_default; }
 post_install() { :; }
+src_uninstall() { :; }
+src_post_uninstall() { :; }
 
 bootstrap_default() {
 	umask 022

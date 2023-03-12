@@ -1,13 +1,13 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-${PKG_VER}.tar.gz"
+SRC_URI=()
 LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
 SLOT=0
-B=MarkupSafe-$PKG_VER
 MODULE=python
+B=""
 
 src_configure() { :; }
 
@@ -16,7 +16,9 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	checkPythonVM
-	pip3 wheel -w dist --no-build-isolation --no-deps $PWD
-	pip3 install --no-index --find-links dist --no-cache-dir --no-user markupsafe
+	python -m pip install --upgrade markupsafe
+}
+
+src_uninstall() {
+	python -m pip uninstall -y markupsafe
 }
