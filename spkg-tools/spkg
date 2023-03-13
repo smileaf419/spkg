@@ -294,7 +294,12 @@ for p in $list; do
 		fi
 	else
 		setupENV $p
-		[[ "$PKG_CAT/$PKG_NAME" == "/" ]] && tlist+=" $p" || tlist+=" $PKG_CAT/$PKG_NAME"
+		if [[ "$PKG_CAT/$PKG_NAME" == "/" ]]; then
+			tlist+=" $p"
+		else
+			tlist+=" $PKG_CAT/$PKG_NAME"
+			[[ $PKG_FLAGS != "" ]] && tlist+="[$PKG_FLAGS]"
+		fi
 	fi
 done
 export REQUESTED_LIST=${tlist# }
@@ -309,6 +314,7 @@ if [[ $MODE == "update" ]]; then
 		[ $VERBOSE -ge 2 ] && echo "Checking $PKG_NAME - $PKG_VR > $VER"
 		if version_gt $PKG_VR $VER ; then
 			list+=" $PKG_CAT/$PKG_NAME"
+			[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
 			echo $PKG_NAME :: $PKG_VR
 		fi
 	done	
@@ -494,13 +500,17 @@ if [[ $MODE == "bootstrap" ]]; then
 	# Create the /var Heirachy
 	mkdir -pv $ROOT/var/{cache,db,lib,lock,log,opt,spool}
 	# Create dirs for spkg
-	mkdir -pv $ROOT/var/{lib/spkg/{archive,data,files},db/spkg}
-	touch $ROOT/var/lib/spkg/world
+	mkdir -pv $ROOT/{$PKG_DB_DIR,$DISTFILES,$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE,$PKG_CACHE}
+	touch $ROOT/$PKG_WORLD
 	# Fix permissions for our building user, we'll need to fully fix the permissions later.
 	chown -R $BUILD_USER $ROOT
-	# These files will ne needed later.
+	# These files will be needed later.
 	cp -v /etc/ld.so.conf /etc/resolv.conf $ROOT/etc
 	installList $list
+
+	# Fix CONTENTS file, filter out our $ROOT
+	find $ROOT/$PKG_CACHE -name CONTENTS -exec sed -i "s,$ROOT,," {} \;
+
 	chown -R root:root $ROOT
 	ln -sfv /run $ROOT/var/run
 	ln -sfv /run/lock $ROOT/var/lock
@@ -615,6 +625,7 @@ if [[ $MODE != "search" ]]; then
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 				list+=" $PKG_CAT/$PKG_NAME"
+				[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
 			elif [[ $VERBOSE -gt 1 ]]; then
 				echo $PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE
 			fi
@@ -626,6 +637,7 @@ if [[ $MODE != "search" ]]; then
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 				list+=" $PKG_CAT/$PKG_NAME"
+				[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
 			fi
 		fi
 	done
