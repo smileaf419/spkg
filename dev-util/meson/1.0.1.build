@@ -1,24 +1,22 @@
 HOMEPAGE="https://mesonbuild.com/"
 DESCRIPTION=""
-SRC_URI="https://github.com/mesonbuild/meson/releases/download/${PKG_VER}/meson-${PKG_VER}.tar.gz"
+SRC_URI=()
 LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS="dev-lang/python dev-python/pip dev-python/wheel"
 SLOT=0
 
-src_configure() {
-	sed -i 's,license_file,license_files,' setup.cfg
-}
+src_configure() { :; }
 
-src_compile() {
-	pip3 wheel -w dist --no-build-isolation --no-deps $PWD
-}
+src_compile() { :; }
 
 src_test() { :; }
 
 src_install() {
-	pip3 install --no-index --find-links dist meson
-	install -vDm644 data/shell-completions/bash/meson "${D}"/usr/share/bash-completion/completions/meson
-	install -vDm644 data/shell-completions/zsh/_meson "${D}"/usr/share/zsh/site-functions/_meson
+	python -m pip install --upgrade meson
+}
+
+src_uninstall() {
+	python -m pip uninstall -y meson
 }
