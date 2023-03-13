@@ -131,7 +131,7 @@ rebuildModules() {
 setupENV() {
 	# If the PKG changes, its Ok to reset the PKG_FLAGS
 	TPKG=$(getpkg ${1%[*})
-	if [[ $TPKG != $PKG ]]; then
+	if [[ $TPKG != $PKG && $1 == *[* ]]; then
 		PKG_FLAGS=${1#*[}
 		PKG_FLAGS=${PKG_FLAGS%]}
 	fi
