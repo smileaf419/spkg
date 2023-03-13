@@ -131,7 +131,10 @@ rebuildModules() {
 setupENV() {
 	# If the PKG changes, its Ok to reset the PKG_FLAGS
 	TPKG=$(getpkg ${1%[*})
-	[[ $TPKG != $PKG ]] && PKG_FLAGS=${1#*[}; PKG_FLAGS=${PKG_FLAGS%]}
+	if [[ $TPKG != $PKG ]]; then
+		PKG_FLAGS=${1#*[}
+		PKG_FLAGS=${PKG_FLAGS%]}
+	fi
 	PKG=$TPKG
 	PKG_BLD=$PKG_DB_DIR/${PKG}.build
 	PKG_CAT=$(getcategory $PKG)
@@ -705,7 +708,7 @@ getdep() {
 		grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps |sed 's, .*,,g'>> /tmp/chart
 	fi
 	grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
-	[ $? != 0 ] && echo $PKG_CAT/$PKG_NAME >> /tmp/chart
+	[ $? != 0 ] && echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
 	# Add the Circular dependencies again.
 	if [ -e /tmp/cdeps ]; then
 		grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps |sed 's, .*,,g'>> /tmp/chart
