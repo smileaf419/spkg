@@ -358,6 +358,7 @@ buildPackage() {
 		chown $BUILD_USER "$BUILD_PATH"
 	fi
 	src_prepare
+	[[ $FETCH_ONLY == 1 ]] && return
 		
 	if [[ $BUILD_SEPERATE_DIR != no ]]; then
 		install -d -o $BUILD_USER build
@@ -427,26 +428,23 @@ installPackage() {
 			else
 				# If the archive isn't available, it could be due to an upgrade or just got cleaned up at some point.
 				# Just allow it to be rebuilt.
-#				die " * Archive ${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz Does not exist! Cannot install package"
 				buildPackage
 				cd "${D}"
 			fi
 		else
 			buildPackage
-#			if [[ $MODE == "bootstrap" ]]; then
-#				echo -n "Cleaning up..."
-#				rm -rf "${BUILD_PATH}" && echo " Done"
-#				return
-#			fi
-			[[ $FETCH_ONLY == 1 ]] && return
 			cd "${D}"
+		fi
+		if [[ $FETCH_ONLY == 1 ]]; then
+			rm -r "${BUILD_PATH}"
+			return
 		fi
 	
 		# Archive it up before we do any post modifications.
 		archivePackage
 
 		echo " * Removing Libtool Archives (.la)"
-		find "${D}"/usr/lib{,exec} -name \*.la -delete -print 2> /dev/null # 2>&1
+		find "${D}"/usr/lib{,exec,64,32} -name \*.la -delete -print 2> /dev/null # 2>&1
 	
 		if [[ $INSTALL_DOCS == 0 ]]; then
 			echo " * Removing Docs"

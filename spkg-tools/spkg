@@ -265,6 +265,28 @@ parse_cmdline() {
 	done
 }
 
+populate_list() {
+	tlist=
+	for p in $list; do
+		# This assumes all entries within a set are fully-qualified.
+		if [ ${p:0:1} == "@" ]; then
+			echo " * Found ${p#@} Set .. Expanding"
+			if [[ ${p#@} == "world" ]]; then
+				tlist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
+			elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
+				tlist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
+			else
+				echo " * Unknown set: ${p#@}"
+			fi
+		else
+			setupENV $p
+			[[ "$PKG_CAT/$PKG_NAME" == "/" ]] && tlist+=" $p" || tlist+=" $PKG_CAT/$PKG_NAME"
+		fi
+	done
+	export REQUESTED_LIST=${tlist# }
+	list=${tlist# }
+}
+
 parse_cmdline $@
 
 mkdir -p "${LOGDIR}" || die "Failed to mkdir ${LOGDIR}"
@@ -280,25 +302,7 @@ if [[ $MODE == "bootstrap" ]]; then
 	echo " * Bootstrapping .. This will take a while.."
 fi
 
-tlist=
-for p in $list; do
-	# This assumes all entries within a set are fully-qualified.
-	if [ ${p:0:1} == "@" ]; then	
-		echo " * Found ${p#@} Set .. Expanding"
-		if [[ ${p#@} == "world" ]]; then
-			tlist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
-		elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
-			tlist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
-		else
-			echo " * Unknown set: ${p#@}"
-		fi
-	else
-		setupENV $p
-		[[ "$PKG_CAT/$PKG_NAME" == "/" ]] && tlist+=" $p" || tlist+=" $PKG_CAT/$PKG_NAME"
-	fi
-done
-export REQUESTED_LIST=${tlist# }
-list=${tlist# }
+populate_list
 
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
@@ -494,13 +498,17 @@ if [[ $MODE == "bootstrap" ]]; then
 	# Create the /var Heirachy
 	mkdir -pv $ROOT/var/{cache,db,lib,lock,log,opt,spool}
 	# Create dirs for spkg
-	mkdir -pv $ROOT/var/{lib/spkg/{archive,data,files},db/spkg}
-	touch $ROOT/var/lib/spkg/world
+	mkdir -pv $ROOT/{$PKG_DB_DIR,$DISTFILES,$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE,$PKG_CACHE}
+	touch $ROOT/$PKG_WORLD
 	# Fix permissions for our building user, we'll need to fully fix the permissions later.
 	chown -R $BUILD_USER $ROOT
-	# These files will ne needed later.
+	# These files will be needed later.
 	cp -v /etc/ld.so.conf /etc/resolv.conf $ROOT/etc
 	installList $list
+
+	# Fix CONTENTS file, filter out our $ROOT
+	find $ROOT/$PKG_CACHE -name CONTENTS -exec sed -i "s,$ROOT,," {} \;
+	
 	chown -R root:root $ROOT
 	ln -sfv /run $ROOT/var/run
 	ln -sfv /run/lock $ROOT/var/lock
@@ -573,6 +581,7 @@ chroot "$LFS" $ENV -i                        \
 umount -v $LFS/dev/{pts,}
 umount -v $LFS/{proc,sys,run}
 EOF
+	chmod +x "$ROOT/chroot.sh"
 
 	touch $ROOT/var/log/{btmp,lastlog,faillog,wtmp}
 	chgrp -v utmp $ROOT/var/log/lastlog
@@ -580,9 +589,19 @@ EOF
 	chmod -v 600  $ROOT/var/log/btmp
 	install -m755 -d -o spkg -g spkg -v $ROOT/var/tmp/spkg
 
+	# Fetch all required packages as wget will not be available initially
+	list="@system"
+	populate_list
+	FETCH_ONLY=1
+	DISTFILES="$ROOT/$DISTFILES"
+	installList $list
+
 	echo " * Bootstrapping complete!"
 	echo "Its STRONGLY encouraged now to create a $ROOT/etc/spkg.conf"
-	echo " A default is included with spkg-tools"
+	echo " A default is included within the spkg-tools subdir"
+	echo "You will need to copy or clone spkg into $PKG_DB_DIR"
+	echo " a symlink for spkg is encouraged for convience."
+	echo " ln -s ${INSTALL_PATH}/spkg /sbin"
 	echo "You should now run $ROOT/chroot.sh"
 	echo "Afterwards: spkg @temptools ; Once complete its safe to remove the /tools dir"
 	echo "And finally: spkg -e @system"
