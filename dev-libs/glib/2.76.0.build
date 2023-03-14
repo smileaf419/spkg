@@ -1,7 +1,8 @@
 HOMEPAGE="https://www.gtk.org/"
 DESCRIPTION="The GLib library of C routines"
 SRC_URI=("https://download.gnome.org/sources/glib/${PKG_VER%.*}/glib-${PKG_VER}.tar.xz")
-PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/glib-2.74.3-skip_warnings-1.patch"
+#"https://www.linuxfromscratch.org/patches/blfs/svn/glib-${PKG_VER}-skip_warnings-1.patch"
+PATCHES=(
 "https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/glib/files/glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch")
 LICENSE="LGPLv2.1+"
 DEPS="dev-libs/elfutils dev-libs/libffi dev-libs/libpcre2 sys-libs/zlib"

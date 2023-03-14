@@ -1,13 +1,3 @@
-725122f8eb4e19d261c661847c02ef050df0e37e  2.74.4-r1.build
-8d1b033c9144f59330af6d8670bfe55595ecf2db  glib-2.74.4.tar.xz
-b96bf17d0802efb5ea1788a412da171b03df013d  glib-2.74.3-skip_warnings-1.patch
-251772b697abfb5711f4a82ac85ae906f4e4aed2  glib-2.74.4-implicit-func-decl.patch
-84738141459ed94447a0bec482b649be2b1296be  glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-73e571fb72f63e15d33adcb5c5445bfcd3d71f84  2.74.5.build
-0c0802e27b0835bc911a47952e885a5555f1873a  glib-2.74.5.tar.xz
-b96bf17d0802efb5ea1788a412da171b03df013d  glib-2.74.3-skip_warnings-1.patch
-84738141459ed94447a0bec482b649be2b1296be  glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-e3fb4a43c411fd88f409170dee4848caa7c53445  2.76.0.build
+13521bc4b077a6dc59b4667fe1b57f90ff2a0539  2.76.0.build
 eca0ef73c9a44b80d1b5343ebc0b1f37f50852e4  glib-2.76.0.tar.xz
-b96bf17d0802efb5ea1788a412da171b03df013d  glib-2.74.3-skip_warnings-1.patch
 84738141459ed94447a0bec482b649be2b1296be  glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch
