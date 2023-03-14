@@ -22,7 +22,7 @@ src_install() {
 		-d /var/lib/dhcpcd \
 		-g dhcpcd          \
 		-s /bin/false      \
-		-u 52              \
+		-u 52
 }
 
 src_uninstall() {
