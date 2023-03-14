@@ -7,6 +7,7 @@ DEPS="dev-libs/glib dev-libs/lzo media-libs/fontconfig media-libs/freetype media
 BDEPS=""
 RDEPS=""
 SLOT=0
+CDEPS="media-libs/harfbuzz"
 
 src_configure() {
 	# Fix to build with binutils 2.39
