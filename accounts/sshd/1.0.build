@@ -2,10 +2,12 @@ HOMEPAGE=""
 DESCRIPTION="SSHD User and Group"
 SRC_URI=""
 LICENSE=""
+DEPS=""
 BDEPS=""
 RDEPS=""
 SLOT=0
 B=""
+RESTRICT="nostrip nobin"
 
 src_configure() { :; }
 
@@ -21,4 +23,8 @@ src_install() {
 		-g sshd          \
 		-s /bin/false    \
 		-u 50
+}
+
+src_uninstall() {
+	delUser sshd
 }

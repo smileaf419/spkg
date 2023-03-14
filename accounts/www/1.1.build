@@ -7,6 +7,7 @@ BDEPS=""
 RDEPS=""
 SLOT=0
 B=""
+RESTRICT="nostrip nobin"
 
 src_configure() { :; }
 
@@ -22,4 +23,8 @@ src_install() {
 		-g www           \
 		-s /sbin/nologin \
 		-u 25
+}
+
+src_uninstall() {
+	delUser www
 }

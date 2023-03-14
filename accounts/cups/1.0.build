@@ -7,6 +7,7 @@ BDEPS=""
 RDEPS=""
 SLOT=0
 B=""
+RESTRICT="nostrip nobin"
 
 src_configure() { :; }
 
@@ -16,10 +17,15 @@ src_test() { :; }
 
 src_install() {
 	addGroup lpadmin -g 19
-	addUser lp \
-		-d /var/spool/cups \
-		-u 9 \
-		-s /bin/false \
+	addUser lp                      \
+		-d /var/spool/cups      \
+		-u 9                    \
+		-s /bin/false           \
 		-c "Print Service User" \
-		-g lpadmin
+		-G lpadmin
+}
+
+src_uninstall() {
+	delUser lp
+	delGroup lpadmin
 }

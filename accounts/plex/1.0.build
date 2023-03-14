@@ -7,6 +7,7 @@ BDEPS=""
 RDEPS=""
 SLOT=0
 B=""
+RESTRICT="nostrip nobin"
 
 src_configure() { :; }
 
@@ -22,4 +23,8 @@ src_install() {
 		-s /bin/false                \
 		-c "Plex_User"               \
 		-g plex
+}
+
+src_uninstall() {
+	delUser plex
 }
