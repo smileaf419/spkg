@@ -506,12 +506,14 @@ installPackage() {
 				# Check if a file is to be installed in /etc
 				#  If it is, check if the file already exists and
 				#  instead copy it to a backup file.
-				if [[ CFG_PROTECT == true && $file =~ "/etc/" && -e "${file}" ]]; then
+				if [[ CFG_PROTECT == true && $file == */etc/* && -e "${file}" ]]; then
 					pfile="${file}.cfg$(date +%s)"
 					sinstall "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!>> $file"
 					CONFIG_PROTECTED=true
-				else
+				elif [[ $file == */lib* || -d "${D}/$file" ]]; then
 					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
+				else
+					cp -p "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
 				fi
 			fi
 		done
