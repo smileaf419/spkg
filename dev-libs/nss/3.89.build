@@ -4,7 +4,7 @@ HOMEPAGE=""
 DESCRIPTION=""
 SRC_URI=("https://archive.mozilla.org/pub/security/nss/releases/NSS_${PKG_VER//./_}_RTM/src/nss-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/nss-3.88.1-standalone-1.patch")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/nss-${PKG_VER}-standalone-1.patch")
 LICENSE=""
 DEPS="dev-db/sqlite dev-libs/nspr"
 BDEPS=""

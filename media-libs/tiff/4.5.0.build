@@ -4,7 +4,7 @@ HOMEPAGE=""
 DESCRIPTION=""
 SRC_URI=("https://download.osgeo.org/libtiff/tiff-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/tiff-4.4.0-upstream_fixes-1.patch")
+PATCHES=()
 LICENSE=""
 DEPS="app-arch/xz-utils app-arch/zstd media-libs/libjpeg-turbo media-libs/libwebp sys-libs/zlib"
 BDEPS=""

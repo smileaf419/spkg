@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://www.makemkv.com/download/makemkv-bin-${PKG_VER}.tar.gz"
 "https://www.makemkv.com/download/makemkv-oss-${PKG_VER}.tar.gz")
 LICENSE=""
-DEPS="app-arch/xz-utils dev-libs/expat dev-libs/openssl media-libs/fdk-aac media-libs/libogg media-libs/libtheora media-libs/libva media-libs/libvorbis media-libs/libvpx media-libs/libwebp media-libs/opus media-libs/x264 media-libs/x265 media-libs/xvid media-sound/lame media-video/ffmpeg sys-libs/ncurses sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfixes x11-libs/libdrm x11-libs/libvdpau x11-libs/libxcb"
+DEPS="dev-libs/expat dev-libs/openssl media-video/ffmpeg sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 SLOT=0
@@ -14,6 +14,9 @@ src_configure() {
 	unpack ${DISTFILES}/makemkv-oss-${PKG_VER}.tar.gz
 
 	cd ${BUILD_PATH}/makemkv-oss-${PKG_VER}
+	# Compile Error as described here:
+	# https://forum.makemkv.com/forum/viewtopic.php?f=3&t=30396
+	sed -i 's,av_mallocz_array,av_calloc,' libffabi/src/ffabi.c
 	./configure --disable-gui
 }
 

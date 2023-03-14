@@ -1,12 +1,5 @@
-058839b1aa5c7b96891b5ad1a36bdaf0d11b206d  3.89.build
+14bb8163f8dfe721f45f0e76bbbc0a253233db87  3.89.build
 24a032bcd22182db1b0f62aa14760747b4e2a3da  nss-3.89.tar.gz
-5fb76ea9118d5ea5c537eb901b4424ccced54973  nss-3.88.1-standalone-1.patch
+5fb76ea9118d5ea5c537eb901b4424ccced54973  nss-3.89-standalone-1.patch
 e35456a507245db33f2b98a6f4b4c30e19629f00  3.86.build
 2e1b5d2b248adce540ebbb16fb32aab6cc1a30ef  nss-3.86.tar.gz
-5fb76ea9118d5ea5c537eb901b4424ccced54973  nss-3.85-standalone-1.patch
-058839b1aa5c7b96891b5ad1a36bdaf0d11b206d  3.88.1.build
-cbbd99de26c74e6cd227f394d9905dd53fc13f30  nss-3.88.1.tar.gz
-5fb76ea9118d5ea5c537eb901b4424ccced54973  nss-3.88.1-standalone-1.patch
-e35456a507245db33f2b98a6f4b4c30e19629f00  3.87.build
-c6a2f51016a7057687d4e60beba027ce17b36de6  nss-3.87.tar.gz
-5fb76ea9118d5ea5c537eb901b4424ccced54973  nss-3.85-standalone-1.patch
