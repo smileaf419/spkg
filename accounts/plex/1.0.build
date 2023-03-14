@@ -16,9 +16,10 @@ src_test() { :; }
 
 src_install() {
 	addGroup plex -g 979
-	addUser plex \
-		-d /var/lib/plexmediaserver/ \
-		-u 979 \
-		-s /bin/false \
-		-c "Plex_User"
+	addUser plex                         \
+		-d /var/lib/plexmediaserver  \
+		-u 979                       \
+		-s /bin/false                \
+		-c "Plex_User"               \
+		-g plex
 }

@@ -16,10 +16,10 @@ src_test() { :; }
 
 src_install() {
 	addGroup www -g 25
-	addUser www \
-		-c 'www' \
-		-d /srv/www  \
-		-g www \
-		-s /sbin/nologin     \
+	addUser www              \
+		-c 'www'         \
+		-d /srv/www      \
+		-g www           \
+		-s /sbin/nologin \
 		-u 25
 }

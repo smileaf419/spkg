@@ -15,11 +15,11 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	addGroup www -g 52
-	addUser dhcpcd \
-		-c 'dhcpcd' \
-		-d /var/lib/dhcpcd  \
-		-g dhcpcd \
-		-s /bin/false     \
-		-u 52
+	addGroup dhcpcd -g 52
+	addUser dhcpcd             \
+		-c 'dhcpcd'        \
+		-d /var/lib/dhcpcd \
+		-g dhcpcd          \
+		-s /bin/false      \
+		-u 52              \
 }

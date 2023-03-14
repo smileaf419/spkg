@@ -16,10 +16,10 @@ src_test() { :; }
 
 src_install() {
 	addGroup ftp -g 45
-	addUser ftp \
-		-c 'ftp' \
+	addUser ftp           \
+		-c 'ftp'      \
 		-d /dev/null  \
-		-g ftp \
-		-s /bin/false     \
+		-g ftp        \
+		-s /bin/false \
 		-u 45
 }
