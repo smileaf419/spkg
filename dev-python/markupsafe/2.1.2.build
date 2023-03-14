@@ -16,9 +16,9 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	python -m pip install --upgrade markupsafe
+	python -m pip install --upgrade $PKG_NAME
 }
 
 src_uninstall() {
-	python -m pip uninstall -y markupsafe
+	python -m pip uninstall -y $PKG_NAME
 }
