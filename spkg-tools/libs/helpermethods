@@ -270,6 +270,31 @@ addGroup() {
 	fi
 }
 
+delUser() {
+	USER=$1
+	shift 1
+	grep "^${USER}:" /etc/passwd > /dev/null 2>&1
+	if [[ $? == 0 ]]; then
+		echo " * Removing User: $USER"
+		userdel "$@" $USER
+	else
+		echo " * User does not exist: $USER [$@]"
+	fi
+
+}
+
+delGroup() {
+	GROUP=$1
+	shift 1
+	grep "^${GROUP}:" /etc/group > /dev/null 2>&1
+	if [[ $? == 0 ]]; then
+		echo " * Removing Group: $GROUP"
+		groupdel "$@" $GROUP
+	else
+		echo " * Group does not exist: $GROUP [$@]"
+	fi
+}
+
 install-init.d() {
 	(
 		d=$PWD
