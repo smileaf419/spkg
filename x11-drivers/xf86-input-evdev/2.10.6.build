@@ -4,7 +4,7 @@ SRC_URI=("https://www.x.org/pub/individual/driver/xf86-input-evdev-${PKG_VER}.ta
 PATCHES=("")
 LICENSE=""
 DEPS="dev-libs/libevdev sys-fs/eudev sys-libs/mtdev"
-BDEPS=""
+BDEPS="x11-base/xorg-server"
 RDEPS=""
 SLOT=0
 

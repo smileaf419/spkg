@@ -5,8 +5,8 @@ PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-libs/libical/files
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-libs/libical/files/libical-3.0.11-pkgconfig-libdir.patch")
 LICENSE="MPL-2.0 LGPL-2.1"
 DEPS="dev-libs/glib dev-libs/icu"
-BDEPS="dev-lang/vala"
-RDEPS="dev-libs/gobject-introspection "
+BDEPS="dev-lang/vala dev-libs/gobject-introspection"
+RDEPS=""
 SLOT=0
 setBuildENV cmake
 TEST=test

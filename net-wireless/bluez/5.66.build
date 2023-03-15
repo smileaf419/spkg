@@ -4,7 +4,7 @@ SRC_URI=("http://www.kernel.org/pub/linux/bluetooth/bluez-${PKG_VER}.tar.xz")
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/bluez-${PKG_VER}-obexd_without_systemd-1.patch")
 LICENSE="BSD-2 GPLv2 LGPLv2.1 MIT Apache2.0"
 DEPS="dev-libs/glib sys-apps/dbus sys-fs/eudev sys-libs/readline"
-BDEPS="dev-libs/glib"
+BDEPS="dev-libs/libical"
 RDEPS=""
 SLOT=0
 

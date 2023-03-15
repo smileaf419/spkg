@@ -4,7 +4,7 @@ SRC_URI=("https://www.x.org/pub/individual/driver/xf86-input-libinput-${PKG_VER}
 PATCHES=("")
 LICENSE=""
 DEPS="dev-libs/libinput"
-BDEPS=""
+BDEPS="x11-base/xorg-server"
 RDEPS=""
 SLOT=0
 

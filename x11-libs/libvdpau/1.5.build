@@ -14,5 +14,7 @@ src_install() {
 	install_default
 
 	# Requires Doxygen
-	[ -e "${D}"/usr/share/doc/libvdpau ] && mv -v "${D}"/usr/share/doc/libvdpau{,${PKG_VER}} || exit 0
+	if [ -e "${D}"/usr/share/doc/libvdpau ]; then
+		mv -v "${D}"/usr/share/doc/libvdpau{,${PKG_VER}}
+	fi
 }
