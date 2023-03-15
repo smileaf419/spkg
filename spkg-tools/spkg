@@ -63,6 +63,9 @@ trap '[ "$?" -ne 0 ] && exit $?' EXIT
 source "${INSTALL_PATH}/libs/helpermethods"
 source "${INSTALL_PATH}/libs/builddefaults"
 source "${INSTALL_PATH}/libs/spkg-include"
+source "${INSTALL_PATH}/libs/utils"
+source "${INSTALL_PATH}/libs/build-tools"
+source "${INSTALL_PATH}/libs/list-tools"
 
 if [ ! -d $PKG_ARCHIVE_DIR ]; 
 	then mkdir -p "$PKG_ARCHIVE_DIR" || die "Failed to create: PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"; fi

@@ -55,7 +55,12 @@ getdep() {
 	[[ $1 == $2 ]] && return 2
 	pkg-has-flag "nodep" && return
 
-	[[ $VERBOSE -ge 1 ]] && echo "$SP$1"; SP+=" " || echo -n .
+	if [[ $VERBOSE -ge 1 ]]; then
+		echo "$SP$1"
+		SP+=" "
+	else
+		echo -n .
+	fi
 	# Don't taint the environment.
 	(
 		setupENV $1
