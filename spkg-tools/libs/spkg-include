@@ -34,8 +34,7 @@ getBDeps() {
 # Populates a /tmp/chart files
 getFullPkgList() {
 	echo > /tmp/chart
-	echo > /tmp/cdeps
-	echo > /tmp/pdeps
+	echo > /tmp/stack
 	local tlist=$@
 	local flist=
 	local rlist=
@@ -637,87 +636,72 @@ uninstall() {
 
 # 1: Package of deps to get.
 # 2: if calling itself: the package which called it.
+# Several Variables to describe how a dependency should be added and why its needed.
+#  DEPS: Binary dependencies found via: readelf -d
+# BDEPS: Build dependencies: Required for building, but not for running.
+# RDEPS: Runtime Dependencies: Required for running, but not for building.
+#        These should be added after the package.
+# UDEPS: Optional Dependencies as required via USE
+# CDEPS: Circular Dependencies are a special case where a package should be installed before and after
+#        the package, but only if its not already installed.
 getdep() {
-	[[ $PKG_FLAGS == *nodeps* ]] && return
+	# Print an interesting looking tree.
+#	SP+=" "; echo "$SP$1"
+	grep "$1" /tmp/stack > /dev/null 2>&1
+	[[ $? == 0 ]] && return || echo $1 >> /tmp/stack
+	[[ $1 == $2 ]] && return 2
+	pkg-has-flag "nodep" && return
 	[[ $VERBOSE -ge 1 ]] && echo "Getting deps for $1" || echo -n .
-	
-	setupENV $1
-	
-	checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
-	#DEPS=$(grep [BR]DEPS $PKG_BLD | sed -e "s,.*[BR]DEPS=\",," -e "s,\".*,," | tr '\n' ' ')
+	# Don't taint the environment.
 	(
-		# Reset variables in case they're not defined within the build file.
-		# Is this even necessary within a subshell?
-		UDEPS=
-		BDEPS=
-		RDEPS=
-		DEPS=
-		CDEPS=
-		PDEPS=
+		setupENV $1
+
+		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
 		source "$PKG_BLD"
-		DEPS=("$DEPS $BDEPS $RDEPS $UDEPS")
+		PDEPS=
 
-		for d in ${DEPS[@]}; do
-			[[ $PKG_FLAGS == *nodep* ]] && break
-			# If its already in the list, ignore it and continue.
-			grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
+		# Add our required now Dependencies
+		doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"
 
-			# If this package has a Circular dependency, check to see if its already installed.
-			# If it is, we don't need to worry about it.
-			# Otherwise, check if its already within our cdeps, if not add it.
-			if [[ $CDEPS != "" ]]; then
-				[[ $(getinstalledversion $PKG_CAT/$PKG_NAME) != 0 ]] && continue
-				grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps > /dev/null
-				[ $? == 0 ] && continue
-				echo $CDEPS | tr ' ' '\n' | sed "s,$, $PKG_CAT/$PKG_NAME,g" >> /tmp/cdeps
-				>&2 echo "$PKG_CAT/$PKG_NAME has CDEPS in $CDEPS"
-				continue
-			fi
+		# Check CDEPS
+		if [[ ! -z $CDEPS ]]; then
+			for p in $CDEPS; do
+				pkg-has-flag "nodep" && break
 
-			# FIXME: This does not solve the issue!
-			# But it does resolve dependencies
-			# In most cases a circular dependency is only
-			# created when an optional package is
-			# available that just happens to also have an
-			# dependency that is also available when 
-			# installed. Unless explicitly enabled or 
-			# support is requested, simply skipping and 
-			# allowing one to be installed without 
-			# support for the other will work. However 
-			# for support to be enabled the 1st one 
-			# installed will need to be reinstalled after.
-			if [[ $d == $2 ]]; then
-				# If its already installed, don't worry about resolving it twice.
-				[[ $(getinstalledversion $PKG_CAT/$PKG_NAME) != 0 ]] && continue				
-				echo $PKG_CAT/$PKG_NAME $d >> /tmp/cdeps
-				if [[ $VERBOSE -ge 1 ]]; then
-					>&2 echo " !! Detected Circular Dependency!"
-					>&2 echo "If $d fails due to $PKG_CAT/$PKG_NAME Support should be disabled in 1"
-					>&2 echo "And rebuilt without."
-					>&2 echo "Packages with circular dependencies should never explicitly be enabled."
-					>&2 echo "A USE or CDEPS flag should be created!"
-				fi
-				continue
-			fi
-			getdep $d $PKG_CAT/$PKG_NAME
-		done
-		
-		# Add our Post Dependencies here.
-		[[ ! -z $PDEPS ]] && echo $PDEPS|tr ' ' '\n'|sed "s,$, $PKG_CAT/$PKG_NAME,g">/tmp/pdeps
+				# If its already in the list, ignore it and continue.
+				grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
+
+				[[ $(getinstalledversion $p) != 0 ]] && continue
+
+				getdep $p $PKG_CAT/$PKG_NAME
+
+				# Create a Post Dependency list.
+				PDEPS+=" $p"
+			done
+		fi
+
+		# Add our package
+		grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
+		if [ $? != 0 ]; then
+			echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
+		fi
+		# Add our Post Dependency list here.
+		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> /tmp/chart
+
+		doDeps "${RDEPS[*]}"
 	)
-	# If we have Circular dependencies add them before the package.
-	if [ -e /tmp/cdeps ]; then
-		grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps |sed 's, .*,,g'>> /tmp/chart
-	fi
-	grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
-	[ $? != 0 ] && echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
-	# Add the Circular dependencies again.
-	if [ -e /tmp/cdeps ]; then
-		grep " $PKG_CAT/$PKG_NAME$" /tmp/cdeps |sed 's, .*,,g'>> /tmp/chart
-		sed -i "/$PKG_CAT\/$PKG_NAME$/d" /tmp/cdeps
-	fi
-	# Add the Post Depenencies
-	if [[ -e /tmp/pdeps ]]; then
-		grep " $PKG_CAT/$PKG_NAME$" /tmp/pdeps |sed 's, .*,,g'>> /tmp/chart
-	fi	
+}
+
+doDeps() {
+	DEPS=($1)
+	for d in ${DEPS[@]}; do
+		pkg-has-flag "nodep" && break
+		# If its already in the list, ignore it and continue.
+		grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
+
+		# Identify Circular Dependencies here so we can break out
+
+		getdep $d $PKG_CAT/$PKG_NAME
+		[[ $? == 2 ]] && break
+	done
 }

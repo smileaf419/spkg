@@ -184,14 +184,28 @@ checkSha1() {
 	return 0
 }
 
-# Check the USE flag for an option, 
+# Check the USE flag for an option,
 # return 0 if found; 1 if not.
 # returns 2 if found and is disabled
 use-enable() {
-	if [[ ${USE[*]} =~ (^|[[:space:]])"$1"($|[[:space:]]) ]]; then
+	checkinlist $USE $1
+}
+
+# Check the PKG_FLAGS for an option,
+# return 0 if found; 1 if not.
+# returns 2 if found and is disabled
+pkg-has-flag() {
+	checkinlist $PKG_FLAGS $1
+}
+
+# 1: Variable to check
+# 2: what to check
+checkinlist() {
+	V=$1
+	if [[ ${V[*]} =~ (^|[[:space:]])"$2"($|[[:space:]]) ]]; then
 		return 0
 	fi
-	if [[ ${USE[*]} =~ (^|[[:space:]])-"$1"($|[[:space:]]) ]]; then
+	if [[ ${V[*]} =~ (^|[[:space:]])-"$2"($|[[:space:]]) ]]; then
 		return 2
 	fi
 	return 1
