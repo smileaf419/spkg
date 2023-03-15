@@ -7,7 +7,9 @@ BDEPS=""
 RDEPS="media-libs/flac media-libs/musicbrainz media-libs/libvorbis media-sound/cd-discid media-sound/cdparanoia media-sound/lame media-video/ffmpeg net-misc/wget"
 SLOT=0
 
-src_configure() { :; }
+src_configure() {
+	sed '/^INSTALL/ s,/usr,,' -i Makefile
+}
 
 src_compile() { :; }
 

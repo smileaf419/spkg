@@ -7,6 +7,11 @@ BDEPS=""
 RDEPS=""
 SLOT=0
 
-src_configure() { :; }
+src_configure() {
+	# Fix a hard coded path.
+	sed -e '/install/ s,/usr/bin/,,' \
+		-e '/^PREFIX/ s,/local,,'    \
+		-i Makefile
+}
 
 src_test() { :; }
