@@ -1,0 +1,24 @@
+HOMEPAGE="https://www.iana.org/protocols"
+DESCRIPTION="Provides data for Network services and protocols"
+SRC_URI="https://github.com/Mic92/iana-etc/releases/download/${PKG_VER}/iana-etc-${PKG_VER}.tar.gz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+SLOT=0
+CFG_PROTECT=false
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p "${D}/$ROOT/etc"
+	cp services protocols "${D}/$ROOT/etc"
+}
+
+bootstrap() {
+	src_install
+}
