@@ -646,12 +646,12 @@ uninstall() {
 #        the package, but only if its not already installed.
 getdep() {
 	# Print an interesting looking tree.
-#	SP+=" "; echo "$SP$1"
 	grep "$1" /tmp/stack > /dev/null 2>&1
 	[[ $? == 0 ]] && return || echo $1 >> /tmp/stack
 	[[ $1 == $2 ]] && return 2
 	pkg-has-flag "nodep" && return
-	[[ $VERBOSE -ge 1 ]] && echo "Getting deps for $1" || echo -n .
+
+	[[ $VERBOSE -ge 1 ]] && echo "$SP$1"; SP+=" " || echo -n .
 	# Don't taint the environment.
 	(
 		setupENV $1
@@ -690,6 +690,7 @@ getdep() {
 
 		doDeps "${RDEPS[*]}"
 	)
+	SP=${SP# }
 }
 
 doDeps() {
