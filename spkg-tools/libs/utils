@@ -1,0 +1,183 @@
+# Taken from:
+# https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+whereAmI() {
+	SOURCE=${BASH_SOURCE[0]}
+	while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+		DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+		SOURCE=$(readlink "$SOURCE")
+		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+	done
+	DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+	echo $DIR
+}
+
+buildKernel() {
+	[ ! -e /usr/src/linux ] && die "you should set your /usr/src/linux symlink to a valid kernel source."
+	if [[ ! -e /usr/src/linux/.config && ! -e /proc/config.gz ]]; then
+		echo "Cannot Build kernel without either a /proc/config.gz or a /usr/src/linux/.config"
+		die "Please go to /usr/src/linux and run: make menuconfig"
+	fi
+	if [[ -e /proc/config.gz && ! -e /usr/src/linux/.config ]]; then
+		gzip -cd /proc/config.gz > /usr/src/linux/.config
+		echo " * Using current running kernel's config"
+	fi
+	KERNEL_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
+	echo " * Building Kernel - $KERNEL_VER"
+	
+	cd /usr/src/linux
+	# Set the default init to OpenRC.
+	#sed -i '/CONFIG_DEFAULT_INIT/ s,"","/sbin/openrc-init",' .config
+	
+	echo " * Running: make oldconfig"
+	make oldconfig
+	echo " * Compiling (using: $MAKEOPTS)"
+	make $MAKEOPTS
+	
+	if [[ ! -z $(grep /boot /etc/fstab) && -z $(mount | grep /boot) ]]; then
+		echo " * Mounting /boot"
+		mount /boot
+		BOOT_MOUNTED=1
+	fi
+	echo " * Installing."
+	make install modules_install
+	mv /boot/System.map{,-${KERNEL_VER}}
+	mv /boot/vmlinuz{,-${KERNEL_VER}}
+	
+	echo " * Generating grub config"
+	grub-mkconfig -o /boot/grub/grub.cfg
+	if [[ ! -z $BOOT_MOUNTED ]]; then
+		echo " * Unmounting /boot"
+		umount /boot
+	fi
+}
+
+rebuildModules() {
+	local type=$1
+	case $type in
+		kernel)
+			type=KERNEL_MODULE ;;
+		perl)
+			type=PERL_MODULE ;;
+		python)
+			type=PYTHON_MODULE ;;
+	esac
+	for m in $(find ${PKG_CACHE} -iname $type | sed -e "s,/$type,," -e "s,${PKG_CACHE}/,,")
+	do
+		echo -n "$(getcategory $m)/$(getpkgname $m) "
+	done	
+}
+
+# Build Dependencies
+# There are 3 types of Dependencies
+# 1) Run time (RDEPS)
+# 2) Build time (BDEPS)
+# 3) Binary (DEPS)
+# For the sake of simplicity, Run time and Build time
+# Are contained within the same variable.
+# For any dependency listed and not found to be binary.
+# will be added to RDEPS. All other dependencies will be
+# contained within BDEPS.
+# Because dependencies can change across versions, This
+# will only update the BDEPS of the installed package.
+buildBDeps() {
+	# Filter the tool-chain dependencies.
+	# These will always be installed and will only cause
+	# circular dependency issues.
+	for f in $(find "$PKG_CACHE" -name BDEPS); do
+		# Filter out the Toolchain. These are always depended on,
+		# So we don't need it complicating the logic
+		PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
+		OUT=
+		# Category/PKG Name/PKG Version
+		PKG=$(echo $f | sed -e "s,$PKG_CACHE/,," -e "s,/BDEPS,,")
+		[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
+		# Grab the static IUSE flag, and add the items to our filter.
+		IUSE=$(grep '^[\t ]*[^#]*[\t ]*IUSE'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*USE=",,'   -e 's,".*,,')
+		CDEPS=$(grep '^[\t ]*[^#]*[\t ]*CDEPS'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*CDEPS=",,'   -e 's,".*,,')
+		PKG_FILTER+=(${IUSE[@]})
+		PKG_FILTER+=(${CDEPS[@]})
+		# Refresh BDEPS file
+#		getBDeps "${f%/*}/CONTENTS"
+		for d in $(cat "$f"); do
+			# readlink to resolve relative paths that
+			# occationally show up.
+			# use dirname first in case the file is a symlink
+			d=$(readlink -f $(dirname $d))/${d##*/}
+			# Not that it should happen, but filter out any directories 
+			# and empty results.
+			[[ -d $d || -z $d ]] && continue
+			# Grab a list of category/PKG names for each file.
+			# It is possible for multiple results to occur.
+			# However duplicates should be statically linked.
+			# Such as: /usr/lib/plexmediaserver/lib/libc.so 
+			# if /lib/libc.so is searched.
+			# But libc.so is installed within /usr/lib/libc.so which should
+			# Protect it from this.
+			# Other possibilities may occur
+			O=$(grep -r "$d\$" $PKG_CACHE/*/*/*/CONTENTS | 
+				sed -e 's,:.*,,' \
+				    -e "s,$PKG_CACHE/,," \
+				    -e 's,/CONTENTS,,' \
+					-e 's,\(.*/.*\)/.*,\1,')
+			# No package found for the file.
+			[[ -z $O ]] && continue
+			# Filter out itself.
+			[[ "${PKG%/*}" == "$O" ]] && continue
+			# For some reason not all were filtered out in the previous line
+			echo $O | grep ${PKG%/*} > /dev/null
+			[[ $? == 0 ]] && continue
+			# If its not within our filter, or already added, add it to the list.
+			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]])"$O"($|[[:space:]]) && 
+				  ! $OUT =~ (^|[[:space:]])"$O"($|[[:space:]]) ]]; then
+				OUT+=" $O"
+				[ $VERBOSE -ge 1 ] && echo -n "$O '$d' "
+			fi
+		done
+		[ $VERBOSE -ge 1 ] && echo ")"
+		# Filter out duplicates we didn't catch earlier.
+		D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+		# Trim the space at the end for cosmetic reasoning.
+		D=${D%% }
+		# Dependencies
+		grep '^DEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
+		if [ $? != 0 ]; then
+			echo -n "DEPS Missing - checking for BDEPS: "
+			grep '^BDEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
+			if [ $? == 0 ]; then
+				echo "Updating."
+				sed -i 's,^BDEPS=["'\'']\(.*\)\["'\''],DEPS=\"\1\"\nBDEPS=\"\",' $PKG_DB_DIR/$PKG.build
+			else
+				echo "Not found, Skipping.."
+				continue
+			fi
+		fi
+		
+		# Theoretically speaking sorting is wasted if this is exclusively used
+		# to add DEPS, but this isn't always the case.
+		# sort things to avoid false-positives
+		LD=$(grep '^DEPS=' $PKG_DB_DIR/$PKG.build | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+
+		# If any need updating
+		if [[ ${LD%% } != $D ]]; then
+			AD=
+			for l in $D; do
+				if [[ ! $LD =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
+					AD+=" $l"
+				fi
+			done
+			RD=
+			for l in $LD; do
+				if [[ ! $D =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
+					RD+=" $l"
+				fi
+			done
+		
+			echo " * Updating $PKG:"
+			[[ ! -z $AD ]] && echo " - Added:$AD"
+			[[ ! -z $RD ]] && echo " - Removed:$RD"
+			sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
+		fi
+	done
+	
+	HASH_UPDATE=true
+}

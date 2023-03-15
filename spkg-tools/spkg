@@ -3,7 +3,7 @@
 # Author Stephen Leaf <smileaf@me.com>
 # Date started: 2022/06/17
 
-VERSION="20230121"
+VERSION="20230315"
 
 set +h -E
 umask 022
@@ -11,64 +11,19 @@ trap '[ "$?" -ne 77 ] || exit 77' ERR
 
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
-#	export CPPFLAGS
 elif [[ $(test -w /etc/ ) ]]; then
-	cat > /etc/spkg.conf << "EOF"
-# -j<# of cpu cores + 1>
-MAKEOPTS="-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))
-CFLAGS="-march=native -O2 -pipe"
-CXXFLAGS="${CFLAGS}"
-#CPPFLAGS="${CFLAGS}"
-
-# User to build and test packages with
-BUILD_USER=spkg
-# User to run tests as.
-TEST_USER=spkg
-
-# Enable/Disable features via Gentoo-like USE flag.
-USE=""
-
-# USA Users
-export PAGE=letter
-# Everyone else
-#export PAGE=A4
-
-# Creates Archives
-BUILD_PACKAGE=yes
-# Output Progress
-SILENT_BUILD=no
-
-# 0 Disable : 1 Enable
-# Probably not a good idea to enable tests globally.
-# instead use --enable-tests
-ENABLE_TESTS=0
-# if you read any of the documentation in /usr/share/doc
-# enable this, otherwise disable to save space.
-INSTALL_DOCS=0
-
-LOGFILE="pkg-$(date +%Y%m%d).log"
-# Not a good idea to modify anything below this point.
-# Where spkg was installed.
-INSTALL_PATH="/var/db/spkg/spkg-tools"
-PKG_DB_DIR="/var/db/spkg"
-PKG_CACHE="/var/lib/spkg/data"
-DISTFILES="/var/lib/spkg/files"
-PKG_WORLD="/var/lib/spkg/world"
-LOGDIR="/var/log/spkg"
-# if BUILD_PACKAGE=yes archives will be stored here
-PKG_ARCHIVE_DIR="/var/lib/spkg/archive"
-# Packages are built within here
-WORKDIR_BASE="/var/tmp/spkg"
-# Used in bootstrapping tells where to install packages
-ROOT="/"
-EOF
-	source /etc/spkg.conf
+	echo " * no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
 else
 	echo "Cannot write /etc/spkg.conf file!"
 	exit 1
 fi
 
 # Set some defaults if they don't exist.
+MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
+CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
+CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
+USE=${USE:-}
+PAGE=${PAGE:-letter}
 ENABLE_TEST=${ENABLE_TESTS:-0}
 INSTALL_DOCS=${INSTALL_DOCS:-0}
 BUILD_PACKAGE=${BUILD_PACKAGE:-no}
@@ -78,7 +33,7 @@ TEST_USER=${TEST_USER:-$(whoami)}
 # Paths
 ROOT=${ROOT:-/}
 PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
-INSTALL_PATH=${INSTALL_PATH:-${PKG_DB_DIR}/spkg-tools}
+INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
 LOGDIR=${LOGDIR:-/var/log/spkg}
 LOGFILE=${LOGFILE:-pkg-$(date +%Y%m%d).log}
 WORKDIR_BASE=${WORKDIR_BASE:-/var/tmp/spkg}
@@ -89,7 +44,7 @@ PKG_WORLD=${PKG_WORLD:-${CACHE_DIR}/world}
 PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-${CACHE_DIR}/archive}
 
 export PKG_DB_DIR PKG_CACHE DISTFILES WORKDIR_BASE ROOT MAKEOPTS
-export CFLAGS CXXFLAGS 
+export CFLAGS CXXFLAGS PAGE USE
 export ENABLE_TESTS INSTALL_DOCS BUILD_USER SILENT_BUILD
 
 # 0: Install; 1: Uninstall; 2: Search; 3: Update
@@ -328,119 +283,8 @@ if [[ $MODE == "update" ]]; then
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
 
-# Build Dependencies
-# There are 3 types of Dependencies
-# 1) Run time (RDEPS)
-# 2) Build time (BDEPS)
-# 3) Binary (DEPS)
-# For the sake of simplicity, Run time and Build time
-# Are contained within the same variable.
-# For any dependency listed and not found to be binary.
-# will be added to RDEPS. All other dependencies will be
-# contained within BDEPS.
-# Because dependencies can change across versions, This
-# will only update the BDEPS of the installed package.
 elif [[ $MODE == "buildbdeps" ]]; then
-	# Filter the tool-chain dependencies.
-	# These will always be installed and will only cause
-	# circular dependency issues.
-	for f in $(find "$PKG_CACHE" -name BDEPS); do
-		# Filter out the Toolchain. These are always depended on,
-		# So we don't need it complicating the logic
-		PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
-		OUT=
-		# Category/PKG Name/PKG Version
-		PKG=$(echo $f | sed -e "s,$PKG_CACHE/,," -e "s,/BDEPS,,")
-		[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
-		# Grab the static IUSE flag, and add the items to our filter.
-		IUSE=$(grep '^[\t ]*[^#]*[\t ]*IUSE'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*USE=",,'   -e 's,".*,,')
-		CDEPS=$(grep '^[\t ]*[^#]*[\t ]*CDEPS'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*CDEPS=",,'   -e 's,".*,,')
-		PKG_FILTER+=(${IUSE[@]})
-		PKG_FILTER+=(${CDEPS[@]})
-		# Refresh BDEPS file
-#		getBDeps "${f%/*}/CONTENTS"
-		for d in $(cat "$f"); do
-			# readlink to resolve relative paths that
-			# occationally show up.
-			# use dirname first in case the file is a symlink
-			d=$(readlink -f $(dirname $d))/${d##*/}
-			# Not that it should happen, but filter out any directories 
-			# and empty results.
-			[[ -d $d || -z $d ]] && continue
-			# Grab a list of category/PKG names for each file.
-			# It is possible for multiple results to occur.
-			# However duplicates should be statically linked.
-			# Such as: /usr/lib/plexmediaserver/lib/libc.so 
-			# if /lib/libc.so is searched.
-			# But libc.so is installed within /usr/lib/libc.so which should
-			# Protect it from this.
-			# Other possibilities may occur
-			O=$(grep -r "$d\$" $PKG_CACHE/*/*/*/CONTENTS | 
-				sed -e 's,:.*,,' \
-				    -e "s,$PKG_CACHE/,," \
-				    -e 's,/CONTENTS,,' \
-					-e 's,\(.*/.*\)/.*,\1,')
-			# No package found for the file.
-			[[ -z $O ]] && continue
-			# Filter out itself.
-			[[ "${PKG%/*}" == "$O" ]] && continue
-			# For some reason not all were filtered out in the previous line
-			echo $O | grep ${PKG%/*} > /dev/null
-			[[ $? == 0 ]] && continue
-			# If its not within our filter, or already added, add it to the list.
-			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]])"$O"($|[[:space:]]) && 
-				  ! $OUT =~ (^|[[:space:]])"$O"($|[[:space:]]) ]]; then
-				OUT+=" $O"
-				[ $VERBOSE -ge 1 ] && echo -n "$O '$d' "
-			fi
-		done
-		[ $VERBOSE -ge 1 ] && echo ")"
-		# Filter out duplicates we didn't catch earlier.
-		D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
-		# Trim the space at the end for cosmetic reasoning.
-		D=${D%% }
-		# Dependencies
-		grep '^DEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
-		if [ $? != 0 ]; then
-			echo -n "DEPS Missing - checking for BDEPS: "
-			grep '^BDEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
-			if [ $? == 0 ]; then
-				echo "Updating."
-				sed -i 's,^BDEPS=["'\'']\(.*\)\["'\''],DEPS=\"\1\"\nBDEPS=\"\",' $PKG_DB_DIR/$PKG.build
-			else
-				echo "Not found, Skipping.."
-				continue
-			fi
-		fi
-		
-		# Theoretically speaking sorting is wasted if this is exclusively used
-		# to add DEPS, but this isn't always the case.
-		# sort things to avoid false-positives
-		LD=$(grep '^DEPS=' $PKG_DB_DIR/$PKG.build | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
-
-		# If any need updating
-		if [[ ${LD%% } != $D ]]; then
-			AD=
-			for l in $D; do
-				if [[ ! $LD =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
-					AD+=" $l"
-				fi
-			done
-			RD=
-			for l in $LD; do
-				if [[ ! $D =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
-					RD+=" $l"
-				fi
-			done
-		
-			echo " * Updating $PKG:"
-			[[ ! -z $AD ]] && echo " - Added:$AD"
-			[[ ! -z $RD ]] && echo " - Removed:$RD"
-			sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
-		fi
-	done
-	
-	HASH_UPDATE=true
+	buildBDeps
 fi
 if [[ $HASH_UPDATE ]]; then
 	echo " * Updating All SHA1 hashes."
