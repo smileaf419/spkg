@@ -83,7 +83,7 @@ buildBDeps() {
 	# Filter the tool-chain dependencies.
 	# These will always be installed and will only cause
 	# circular dependency issues.
-	for f in $(find "$PKG_CACHE" -name BDEPS); do
+	for f in $(find "$PKG_CACHE/$1" -name BDEPS); do
 		# Filter out the Toolchain. These are always depended on,
 		# So we don't need it complicating the logic
 		PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")

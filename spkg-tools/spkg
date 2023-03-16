@@ -287,15 +287,17 @@ if [[ $MODE == "update" ]]; then
 
 
 elif [[ $MODE == "buildbdeps" ]]; then
-	buildBDeps
+	for p in $list; do
+		buildBDeps $p
+	done
 fi
 if [[ $HASH_UPDATE ]]; then
-	echo " * Updating All SHA1 hashes."
-	et=$ENABLE_TESTS
-	vs=$VERIFY_SIG
+	echo " * Updating SHA1 hashes."
 	source "${INSTALL_PATH}/libs/updateallsha1.sh"
-	ENABLE_TESTS=$et
-	VERIFY_SIG=$vs
+	for p in $list; do
+		updatesha1 $p
+	done
+	exit 0
 fi
 if [[ $MODE == "buildKernel" ]]; then
 	buildKernel

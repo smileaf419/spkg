@@ -108,13 +108,17 @@ hash_dir() {
 # 1: File to verify
 # 2: Path
 verifySha1() {
-#	echo "Verifying $1 in $2"
-#	echo 110
 	h=$(sha1sum $1 | sed 's,  .*/,  ,' 2> /dev/null)
 	grep "$h" $2/sha1 > /dev/null 2>&1
 }
-cd $PKG_DB_DIR
-for d in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
+
+updatesha1() {
+	if [[ $1 == "all" ]]; then
+		L=$(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,")
+	else
+		L=$(find $PKG_DB_DIR/$1 -type d | sed "s,$PKG_DB_DIR/,,")
+	fi
+for d in $L; do
 	[[ $d == "spkg-sets" || $d == "spkg-tools/libs" || $d == *.git/* ]] && continue
 	echo -n $d
 	DIR=$PKG_DB_DIR/$d
@@ -124,9 +128,7 @@ for d in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	if [ -e $DIR/sha1 ]; then
 		echo -n "["
 		for f in $(find $DIR -type f -name *.build); do
-#			echo -n 'b'
 			echo -n " "$(sed -E -e 's,^.*/,,' -e 's,.build$,,'  <<< $f)
-#			echo -n " $f"
 			verifySha1 $f $DIR
 			# if any fail, rehash the entire directory.
 			if [[ $? != 0 ]]; then
@@ -199,4 +201,5 @@ for d in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	else
 		hash_dir $DIR
 	fi
-done; echo
+done
+}
