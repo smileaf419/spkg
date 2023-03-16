@@ -3,8 +3,8 @@ DESCRIPTION=""
 SRC_URI="http://fcron.free.fr/archives/fcron-${PKG_VER}.src.tar.gz"
 LICENSE=""
 DEPS="sys-libs/libxcrypt sys-libs/readline"
-BDEPS=""
-RDEPS="accounts/fcron"
+BDEPS="accounts/fcron"
+RDEPS=""
 SLOT=0
 
 src_configure() {
