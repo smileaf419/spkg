@@ -12,7 +12,12 @@ BUILD_SEPERATE_DIR=yes
 
 src_configure() {
 	# prevent included intl cruft from building
-	sed -i -r -e 's:@LIBINTL@:@LTLIBINTL@:' MCONFIG.in
+	sed -i -r -e 's:@LIBINTL@:@LTLIBINTL@:' ../MCONFIG.in
+
+	# even tho the option exists within the files, it doesn't honor it.
+	# So manually fix the install location.
+	# --with-pkgconfigdir=/usr/lib/pkgconfig \
+	sed -i '/^pkgconfigdir/ s,$(libdir),/usr/lib,' ../MCONFIG.in
 
 	append-cppflags -D_GNU_SOURCE
 

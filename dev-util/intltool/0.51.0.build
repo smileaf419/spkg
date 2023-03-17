@@ -3,8 +3,8 @@ DESCRIPTION=""
 SRC_URI="https://launchpad.net/intltool/trunk/${PKG_VER}/+download/intltool-${PKG_VER}.tar.gz"
 LICENSE=""
 DEPS=""
-BDEPS=""
-RDEPS="dev-lang/perl dev-perl/XML-Parser"
+RDEPS=""
+BDEPS="dev-lang/perl dev-perl/XML-Parser"
 SLOT=0
 
 src_configure() {

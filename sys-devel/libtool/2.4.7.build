@@ -5,7 +5,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/libtool/libtool-${PKG_VER}.tar.xz")
 LICENSE=""
 DEPS=""
 BDEPS=""
-RDEPS=""
+RDEPS="sys-devel/autoconf sys-devel/automake"
 SLOT=0
 
 src_install() {

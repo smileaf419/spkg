@@ -6,7 +6,7 @@ PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/glibc-2.37-fh
 LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
 DEPS=""
 BDEPS="sys-kernel/linux-headers"
-RDEPS=""
+RDEPS="sys-libs/libxcrypt"
 IUSE="gd"
 use-enable gd && UDEPS="media-libs/gd app-arch/bzip2 dev-libs/expat dev-libs/libpcre media-libs/fontconfig media-libs/freetype media-libs/libpng media-libs/libwebp sys-libs/zlib"
 SLOT=0
@@ -137,6 +137,7 @@ bootstrap32() {
 				 --enable-multi-arch                \
 				 --libdir=/lib32                    \
 				 --libexecdir=/lib32                \
+                 --disable-crypt                    \
 				 libc_cv_slibdir=/lib32 &&
 	compile_default &&
 	make DESTDIR=$PWD/DESTDIR install &&
