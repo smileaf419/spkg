@@ -62,6 +62,8 @@ bootstrap() {
 		    --enable-64-bit-bfd        \
 		    --enable-multilib &&
 		compile_default && install_default &&
-		rm -v $D/$ROOT/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.{a,la} ;;
+		rm -v "$D/$ROOT"/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.a
+		find "$D/$ROOT"/usr/lib{,64,exec} -name \*.la -delete || true
+		;;
 	esac
 }

@@ -116,7 +116,7 @@ installList() {
 
 			TIMESTART=$(date "+%s.%N")
 
-			[[ $SILENT_BUILD == "no" ]] && installPackage 2>&1 | tee $LOG || installPackage > $LOG 2>&1
+			[[ $SILENT_BUILD == "no" ]] && installPackage | tee $LOG 2>&1 || installPackage > $LOG 2>&1
 
 			[[ -e /usr/bin/bc ]] && echo "Completed in $( echo $(date "+%s.%N") - $TIMESTART | bc ) seconds." | tee -a $LOG
 
