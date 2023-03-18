@@ -1,0 +1,5 @@
+#!/bin/bash
+# Find all binaries in /lib /lib64 /bin and /sbin and check for any shared libs in /usr
+for p in $(for f in $(find /{lib{,64},{s,}bin} -type f); do readelf -d $f 2> /dev/null | grep NEEDED; done | sed -e 's,\],,' -e 's,.* \[,,' | sort | uniq); do 
+	grep -r "$p\$" /var/lib/spkg/data/
+done | grep CONTENTS | sed -e 's,/CONTENTS:,    ,' -e 's,/var/lib/spkg/data/,,' | grep /usr

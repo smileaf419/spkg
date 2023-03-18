@@ -10,5 +10,6 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	configure_default --sysconfdir=/etc
+	sed -i '/^pkgconfdir/ s,$(libdir),/usr/lib,' Makefile.*
+	./configure --prefix=/usr --libdir=/lib --sysconfdir=/etc  --disable-static
 }
