@@ -12,16 +12,10 @@ SLOT=0
 src_configure() { :; }
 
 src_compile() {
-	make prefix=/usr
+	compile_default prefix=/usr libdir=/lib exec_prefix=/bin
 }
 
 src_install() {
-	make prefix="${D}/usr" install
-	rm -v "${D}"/usr/lib/libzstd.a
-}
-
-bootstrap() {
-	make prefix="${D}/usr" exec_prefix="${D}/" PKGCONFDIR="${D}/usr/lib/pkgconfig"
-	make prefix="${D}/usr" exec_prefix="${D}/" PKGCONFDIR="${D}/usr/lib/pkgconfig" install
-	rm -v "${D}"/lib/libzstd.a
+	install_default prefix=/usr libdir=/lib exec_prefix=/ PKGCONFDIR="/usr/lib/pkgconfig"
+	rm -v "$ROOT/$D"/lib/libzstd.a
 }
