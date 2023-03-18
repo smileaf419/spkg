@@ -16,6 +16,6 @@ src_compile() {
 }
 
 src_install() {
-	install_default prefix=/usr libdir=/lib exec_prefix=/ PKGCONFDIR="/usr/lib/pkgconfig"
+	install_default prefix=/usr libdir=/lib exec_prefix=/ PKGCONFIGDIR="/usr/lib/pkgconfig"
 	rm -v "$ROOT/$D"/lib/libzstd.a
 }

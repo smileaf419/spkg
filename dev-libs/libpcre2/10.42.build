@@ -11,11 +11,14 @@ SLOT=0
 B=pcre2-$PKG_VER
 
 src_configure() {
-	configure_default   --enable-unicode \
-						--enable-jit \
-						--enable-pcre2-16                   \
-						--enable-pcre2-32                   \
-						--enable-pcre2grep-libz             \
-						--enable-pcre2grep-libbz2           \
-						--enable-pcre2test-libreadline
+	sed -i '/^pkgconfigdir/ s,$(libdir),/usr/lib,' Makefile.in
+	configure_default --libdir=/lib             \
+					  --bindir=/bin             \
+					  --enable-unicode          \
+					  --enable-jit              \
+					  --enable-pcre2-16         \
+					  --enable-pcre2-32         \
+					  --enable-pcre2grep-libz   \
+					  --enable-pcre2grep-libbz2 \
+					  --enable-pcre2test-libreadline
 }
