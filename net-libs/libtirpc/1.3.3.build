@@ -9,6 +9,7 @@ SLOT=0
 
 src_configure() {
 	configure_default --sysconfdir=/etc \
+					  --libdir=/lib     \
 					  --disable-gssapi
 }
 

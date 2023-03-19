@@ -9,6 +9,7 @@ SLOT=0
 
 src_configure() {
 	sed -i '/install.*libaio.a/s/^/#/' src/Makefile
+	sed -i '/^libdir/ s,$(prefix),,' Makefile
 }
 
 src_test() {

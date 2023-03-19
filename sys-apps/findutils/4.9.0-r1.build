@@ -13,14 +13,15 @@ src_configure() {
 #		-e '/^built_programs/s@ frcode locate updatedb@@' \
 #		-i Makefile.in
 
-	case $(uname -m) in
-	    i?86)   TIME_T_32_BIT_OK=yes ./configure --prefix=/usr --localstatedir=/var/lib/locate ;;
-	    x86_64) ./configure --prefix=/usr --localstatedir=/var/lib/locate ;;
-	esac
+#	case $(uname -m) in
+#	    i?86)   TIME_T_32_BIT_OK=yes ;;
+#	esac
+	./configure --prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin
 }
 
 bootstrap() {
 	./configure --prefix=/usr                   \
+				--bindir=/bin                   \
 				--localstatedir=/var/lib/locate \
 				--host=$HOST_TGT                \
 				--build=$(build-aux/config.guess)

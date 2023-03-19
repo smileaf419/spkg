@@ -8,12 +8,14 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
+#	sed -i '/^pkgconfigdir/ s,${libdir},/usr/lib,' Makefile.in
 	./configure --prefix=/usr \
+				--libdir=/lib \
 				--enable-shared
 }
 
 src_install() {
 	install_default
 
-	rm -f "${D}"/usr/lib/libz.a
+	rm -f "${D}"/lib/libz.a
 }

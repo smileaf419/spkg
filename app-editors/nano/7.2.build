@@ -8,9 +8,9 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	configure_default \
-	            --sysconfdir=/etc \
-	            --enable-utf8
+	configure_default --bindir=/bin     \
+					  --sysconfdir=/etc \
+					  --enable-utf8
 }
 
 src_test() { :; }

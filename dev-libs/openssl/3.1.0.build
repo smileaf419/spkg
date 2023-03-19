@@ -16,7 +16,7 @@ src_configure() {
 
 	./config --prefix=/usr         \
 	         --openssldir=/etc/ssl \
-	         --libdir=lib          \
+			 --libdir=/lib         \
 	         shared                \
 	         zlib-dynamic
 }
@@ -26,6 +26,10 @@ src_install() {
 	install_default MANSUFFIX=ssl
 	mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
 	cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
+
+	mv "$D"{/usr,}/bin
+#	mkdir -p "$D/usr/lib"
+#	mv "$D"{,/usr}/lib/pkgconfig
 }
 
 post_install() {

@@ -7,3 +7,8 @@ DEPS="sys-apps/attr"
 BDEPS=""
 RDEPS=""
 SLOT=0
+
+src_configure() {
+	sed -i '/^pkgconfdir/ s,$(libdir),/usr/lib,' Makefile.*
+	./configure --prefix=/usr --libdir=/lib --disable-static
+}

@@ -19,6 +19,8 @@ src_configure() {
     	-i include/freetype/config/ftoption.h
 
 	configure_default --enable-freetype-config \
+					  --libdir=/lib            \
+					  --bindir=/bin            \
 		$( [[ $(getinstalledversion "media-libs/harfbuzz") == 0 ]] && use-enable harfbuzz && echo --without-harfbuzz)
 }
 

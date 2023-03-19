@@ -10,8 +10,10 @@ B="LVM2.${PKG_VER}"
 
 src_configure() {
 	PATH+=:/usr/sbin
-	./configure --prefix=/usr \
-				--enable-cmdlib \
+	./configure --prefix=/usr      \
+				--libdir=/lib      \
+				--sbindir=/sbin    \
+				--enable-cmdlib    \
 				--enable-pkgconfig \
 				-enable-udev_sync
 }
@@ -19,7 +21,7 @@ src_configure() {
 src_test() { :; }
 
 src_install() {
-	install_default
+	install_default #pkgconfigdir="$D"/usr/lib/pkgconfig
 
 	rm "${D}"/usr/lib/udev/rules.d/69-dm-lvm.rules
 }

@@ -18,6 +18,9 @@ src_configure() {
 	    -i etc/login.defs
 
 	./configure --sysconfdir=/etc \
+				--bindir=/bin     \
+				--sbindir=/sbin   \
+				--libdir=/lib     \
 	            --disable-static  \
 	            --with-group-name-max-length=32
 }
@@ -25,7 +28,7 @@ src_configure() {
 src_test() { :; }
 
 src_install() {
-	install_default exec_prefix=/
+	install_default
 	make -C man DESTDIR="${D}" install-man
 
 	# Fix permissions so we can login as root.

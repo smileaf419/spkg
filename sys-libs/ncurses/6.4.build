@@ -24,8 +24,8 @@ src_configure() {
 	            --enable-widec          \
 	            --with-termlib          \
 	            $(use-enable pcre2 && echo ' --with-pcre2' || echo ' --without-pcre2') \
-	            --without-hashed-db     \
-	            --with-pkg-config-libdir=/usr/lib/pkgconfig
+	            --without-hashed-db
+#	            --with-pkg-config-libdir=/usr/lib/pkgconfig
 }
 
 src_test() { :; }

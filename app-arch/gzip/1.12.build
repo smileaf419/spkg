@@ -7,3 +7,7 @@ DEPS=""
 BDEPS=""
 RDEPS=""
 SLOT=0
+
+src_configure() {
+	configure_default --bindir=/bin
+}

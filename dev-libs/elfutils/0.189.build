@@ -24,9 +24,12 @@ src_configure() {
 	sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
 	
 	# https://sourceware.org/PR23914
-	sed -i 's:-Werror::' */Makefile.in
-	
+#	-e 's:-Werror::'                           \
+	# fix the pkg-config directory.
+#	sed -e '/^pkgconfigdir/ s,$(libdir),/usr/lib,' \
+#		-i */Makefile.in
 	./configure --prefix=/usr                \
+				--libdir=/lib                \
 	            --disable-debuginfod         \
 	            --enable-libdebuginfod=dummy
 }
@@ -39,6 +42,6 @@ src_test() {
 
 src_install() {
 	make -C libelf DESTDIR="${D}" install
-	mkdir -p "${D}"/usr/lib/pkgconfig
-	install -vm644 config/libelf.pc "${D}"/usr/lib/pkgconfig
+#	mkdir -p "${D}"/usr/lib/pkgconfig
+#	install -vm644 config/libelf.pc "${D}"/usr/lib/pkgconfig
 }

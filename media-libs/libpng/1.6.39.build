@@ -8,6 +8,10 @@ BDEPS=""
 RDEPS=""
 SLOT=0
 
+src_configure() {
+	configure_default --bindir=/bin --libdir=/lib
+}
+
 src_install() {
 	install_default
 
