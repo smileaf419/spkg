@@ -8,8 +8,8 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	CONF_FLAGS="--prefix=/usr --libdir=/lib --disable-static --enable-shared --with-pkgconfigdir=/usr/lib/pkgconfig"
-	configure_default
+#	CONF_FLAGS="--prefix=/usr --libdir=/lib --disable-static --enable-shared --with-pkgconfigdir=/usr/lib/pkgconfig"
+	configure_default --libdir=/lib
 }
 
 src_test() { :; }

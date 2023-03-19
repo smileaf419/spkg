@@ -11,6 +11,8 @@ src_configure() {
 	./configure --prefix=/usr          \
 	            --sysconfdir=/etc      \
 	            --bindir=/bin          \
+	            --sbindir=/sbin        \
+	            --libdir=/lib          \
 	            --with-openssl         \
 	            --with-xz              \
 	            --with-zstd            \

@@ -10,7 +10,7 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	configure_default --enable-cxx
+	configure_default --enable-cxx --libdir=/lib
 }
 
 src_compile() {

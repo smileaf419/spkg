@@ -11,7 +11,7 @@ SLOT=0
 B=pcre2-$PKG_VER
 
 src_configure() {
-	sed -i '/^pkgconfigdir/ s,$(libdir),/usr/lib,' Makefile.in
+#	sed -i '/^pkgconfigdir/ s,$(libdir),/usr/lib,' Makefile.in
 	configure_default --libdir=/lib             \
 					  --bindir=/bin             \
 					  --enable-unicode          \

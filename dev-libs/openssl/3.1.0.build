@@ -28,8 +28,8 @@ src_install() {
 	cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
 
 	mv "$D"{/usr,}/bin
-	mkdir -p "$D/usr/lib"
-	mv "$D"{,/usr}/lib/pkgconfig
+#	mkdir -p "$D/usr/lib"
+#	mv "$D"{,/usr}/lib/pkgconfig
 }
 
 post_install() {

@@ -8,7 +8,7 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	sed -i '/^pkgconfigdir/ s,${libdir},/usr/lib,' Makefile.in
+#	sed -i '/^pkgconfigdir/ s,${libdir},/usr/lib,' Makefile.in
 	./configure --prefix=/usr \
 				--libdir=/lib \
 				--enable-shared

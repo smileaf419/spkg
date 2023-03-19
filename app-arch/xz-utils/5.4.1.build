@@ -9,8 +9,14 @@ RDEPS=""
 SLOT=0
 B=xz-${PKG_VER}
 
+src_configure() {
+	configure_default --bindir=/bin --libdir=/lib
+}
+
 bootstrap() {
 	./configure --prefix=/usr                     \
+				--bindir=/bin                     \
+				--libdir=/lib                     \
 				--host=$HOST_TGT                  \
 				--build=$(build-aux/config.guess) \
 				--disable-static                  \
