@@ -443,6 +443,7 @@ EOF
 	chmod -v 664  $ROOT/var/log/lastlog
 	chmod -v 600  $ROOT/var/log/btmp
 	install -m755 -d -o spkg -g spkg -v $ROOT/var/tmp/spkg
+	ln -svf "$INSTALL_PATH"/spkg $ROOT/sbin
 
 	# Fetch all required packages as wget will not be available initially
 	list="@system"
@@ -451,12 +452,21 @@ EOF
 	DISTFILES="$ROOT/$DISTFILES"
 	installList $list
 
+	if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
+		P=${PKG_DB_DIR%/} # strip / at end if exists
+		cd $ROOT/${P%spkg} # strip toplevel dir.
+		rmdir spkg
+		git clone https://github.com/smileaf419/spkg
+	else
+		echo "You will need to copy or clone spkg into $PKG_DB_DIR"
+		echo " git clone https://github.com/smileaf419/spkg"
+	fi
+
 	echo " * Bootstrapping complete!"
 	echo "Its STRONGLY encouraged now to create a $ROOT/etc/spkg.conf"
 	echo " A default is included within the spkg-tools subdir"
-	echo "You will need to copy or clone spkg into $PKG_DB_DIR"
-	echo " a symlink for spkg is encouraged for convience."
-	echo " ln -s ${INSTALL_PATH}/spkg /sbin"
+#	echo "a symlink for spkg is encouraged for convience."
+#	echo " ln -s ${INSTALL_PATH}/spkg /sbin"
 	echo "You should now run $ROOT/chroot.sh"
 	echo "Afterwards: spkg @temptools ; Once complete its safe to remove the /tools dir"
 	echo "And finally: spkg -e @system"
