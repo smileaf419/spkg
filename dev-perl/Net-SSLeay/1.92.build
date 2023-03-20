@@ -11,5 +11,9 @@ MODULE=perl
 TEST=test
 
 src_configure() {
-	yes '' | perl Makefile.PL
+	# They don't appear to have any way to adjust the header locations
+	# So we need to alter their search path.
+	sed "/'include' =>/ s,include,usr/include," -i Makefile.PL
+
+	yes '' | OPENSSL_PREFIX=/ perl Makefile.PL
 }
