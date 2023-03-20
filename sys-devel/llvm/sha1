@@ -1,6 +1,6 @@
-6da0764a1820b982a315a64ed709dbcd81e4166f  16.0.0.build
-283cac21be4676fe311f233bf2de3b393fc93739  llvm-16.0.0.src.tar.xz
-4b88e52294f97d12efd837abde2ad33b1fb63d39  clang-16.0.0.src.tar.xz
-f7c4a40f0967750ec1cb72b795afc3748589137b  compiler-rt-16.0.0.src.tar.xz
-55906cfe2edc27af09a60a1bae8b0707d506b648  llvm-cmake-16.0.0.src.tar.xz
-1b0a1be68d6bae77fb1ee60f554fb8eaba1b63d0  clang-16.0.0-enable_default_ssp-1.patch
+381e15585e981a8c520957cf8f9728025be5b491  15.0.7.build
+497ca3b2010cc0e3e38bc9dc6dda19041dbd7066  llvm-15.0.7.src.tar.xz
+7b4d1188cce1ce4ea1cf2ea362fba685c4aca34d  clang-15.0.7.src.tar.xz
+40f2a886636168f6478e20933906bcece2fd6b97  compiler-rt-15.0.7.src.tar.xz
+b364a0be14087f36a02f8d9aacf5755bf0391e09  llvm-cmake-15.0.7.src.tar.xz
+8673ee9a009f8c4309300885ae13a0fbbe383695  clang-15.0.7-enable_default_ssp-1.patch

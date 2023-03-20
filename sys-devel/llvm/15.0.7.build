@@ -37,6 +37,8 @@ src_patch() {
 }
 
 src_configure() {
+#	sed '/LLVM_COMMON_CMAKE_UTILS/s@../cmake@cmake-${PKG_VER}.src@' \
+#	    -i ../CMakeLists.txt
 	# Fix python scripts to use python3
 	grep -rl '#!.*python' | xargs sed -i '1s/python$/python3/'
 
