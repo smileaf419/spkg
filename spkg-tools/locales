@@ -1,4 +1,5 @@
 #!/bin/sh
+[ ! -e /lib/locale  ] && mkdir /lib/locale
 localedef -i POSIX -f UTF-8 C.UTF-8 2> /dev/null || true
 localedef -i cs_CZ -f UTF-8 cs_CZ.UTF-8
 localedef -i de_DE -f ISO-8859-1 de_DE
