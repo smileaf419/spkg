@@ -4,19 +4,23 @@ DESCRIPTION="A fully featured, yet light weight RFC2131 compliant DHCP client"
 SRC_URI="https://roy.marples.name/downloads/dhcpcd/dhcpcd-${PKG_VER}.tar.xz"
 LICENSE="BSD-2"
 DEPS="sys-fs/eudev"
-BDEPS="sys-devel/llvm"
-RDEPS="accounts/dhcpcd net-misc/ntp"
+BDEPS="sys-devel/llvm accounts/dhcpcd"
+RDEPS="net-misc/ntp"
 SLOT=0
 
 src_configure() {
 	sed '/Deny everything else/i SECCOMP_ALLOW(__NR_getrandom),' -i src/privsep-linux.c
     
-	install  -v -odhcpcd -gdhcpcd -m700 -d "${D}"/var/lib/dhcpcd
-
 	./configure --prefix=/usr \
 				--sysconfdir=/etc \
 				--libexecdir=/usr/lib/dhcpcd \
 				--dbdir=/var/lib/dhcpcd \
 				--runstatedir=/run \
 				--privsepuser=dhcpcd
+}
+
+src_install() {
+	install_default
+
+	chown -v dhcpcd:dhcpcd "$D/var/lib/dhcpcd"
 }
