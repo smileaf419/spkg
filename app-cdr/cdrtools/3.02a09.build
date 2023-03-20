@@ -1,0 +1,32 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+SRC_URI=("https://downloads.sourceforge.net/cdrtools/cdrtools-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+LICENSE=""
+DEPS="media-libs/alsa-lib sys-apps/acl sys-libs/libcap"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+B=cdrtools-${PKG_VER%a*}
+
+src_configure() { :; }
+
+src_compile() {
+	export GMAKE_NOWARN=true &&
+	make -j1 INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root
+}
+
+src_test() { :; }
+
+src_install() {
+	export GMAKE_NOWARN=true &&
+	make INS_BASE="$D/usr" MANSUFF_LIB=3cdr DEFINSUSR=root DEFINSGRP=root install &&
+	install -v -m755 -d "$D"/usr/share/doc/cdrtools-${PKG_VER} &&
+	install -v -m644 README.* READMEs/* ABOUT doc/*.ps \
+	                    "$D"/usr/share/doc/cdrtools-${PKG_VER}
+}
