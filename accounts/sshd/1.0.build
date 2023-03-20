@@ -17,7 +17,7 @@ src_test() { :; }
 
 src_install() {
 	addGroup sshd -g 50
-	addUser sshd
+	addUser sshd         \
 		-c 'SSH'         \
 		-d /var/lib/sshd \
 		-g sshd          \
