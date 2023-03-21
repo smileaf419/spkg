@@ -1,4 +1,3 @@
-
 # Populates a /tmp/chart files
 getFullPkgList() {
 	echo > /tmp/chart
@@ -49,12 +48,16 @@ expandSets() {
 # CDEPS: Circular Dependencies are a special case where a package should be installed before and after
 #        the package, but only if its not already installed.
 getdep() {
-	# Print an interesting looking tree.
-	grep "$1" /tmp/stack > /dev/null 2>&1
-	[[ $? == 0 ]] && return || echo $1 >> /tmp/stack
-	[[ $1 == $2 ]] && return 2
 	pkg-has-flag "nodep" && return
 
+	# Check if its on the stack, if not, add it. if so we'll get to it later.
+	grep "$1" /tmp/stack > /dev/null 2>&1
+	[[ $? == 0 ]] && return || echo $1 >> /tmp/stack
+
+	# If we somehow call ourselves..
+	[[ $1 == $2 ]] && return 2
+
+	# Print an interesting looking tree.
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "$SP$1"
 		SP+=" "
@@ -66,6 +69,7 @@ getdep() {
 		setupENV $1
 
 		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
+		unset BDEPS RDEPS UDEPS CDEPS DEPS
 		source "$PKG_BLD"
 		PDEPS=
 
@@ -93,17 +97,18 @@ getdep() {
 		grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
 		if [ $? != 0 ]; then
 			echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
+			sed "/^PKG_CAT.$PKG_NAME/d" -i /tmp/stack
 		fi
 		# Add our Post Dependency list here.
 		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> /tmp/chart
 
 		doDeps "${RDEPS[*]}"
+		SP=${SP# }
 	)
-	SP=${SP# }
 }
 
 doDeps() {
-	DEPS=($1)
+	local DEPS=($1)
 	for d in ${DEPS[@]}; do
 		pkg-has-flag "nodep" && break
 		# If its already in the list, ignore it and continue.
