@@ -4,7 +4,7 @@ SRC_URI=("https://www.x.org/pub/individual/lib/${PKG_NAME}-${PKG_VER}.tar.xz")
 PATCHES=("")
 LICENSE=""
 DEPS="x11-libs/libX11"
-BDEPS=""
+BDEPS="x11-base/xorg-proto"
 RDEPS=""
 SLOT=0
 
