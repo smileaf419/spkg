@@ -17,12 +17,12 @@ src_test() { :; }
 
 src_install() {
 	addGroup lpadmin -g 19
-	addUser lp                      \
+	addUser lp                  \
 		-d /var/spool/cups      \
 		-u 9                    \
 		-s /bin/false           \
 		-c "Print Service User" \
-		-G lpadmin
+		-g lpadmin
 }
 
 src_uninstall() {
