@@ -9,6 +9,7 @@ BDEPS="accounts/plex"
 RDEPS=""
 SLOT=0
 B=""
+RESTRICT="nobin nostrip"
 
 src_unpack() {
 	ar x $DISTFILES/${SRC_FILE##*/}
@@ -33,4 +34,7 @@ src_install() {
 	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc0.d/K40plexmediaserver 
 	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc6.d/K40plexmediaserver 
 	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc3.d/S40plexmediaserver 
+
+	sed '15i # Fix the Library Path\nLD_LIBRARY_PATH="/usr/lib/plexmediaserver/lib:$LD_LIBRARY_PATH"\n' \
+		-i "$D/etc/rc.d/init.d/plexmediaserver"
 }

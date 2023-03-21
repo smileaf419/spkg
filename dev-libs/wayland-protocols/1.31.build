@@ -1,7 +1,7 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://github.com/wayland-project/wayland-protocols/archive/refs/tags/${PKG_VER}.tar.gz")
-PATCHES=("")
+SRC_URI=("https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.31/downloads/wayland-protocols-${PKG_VER}.tar.xz")
+PATCHES=()
 LICENSE=""
 DEPS=""
 BDEPS=""

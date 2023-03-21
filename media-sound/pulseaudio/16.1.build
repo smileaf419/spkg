@@ -4,8 +4,8 @@ SRC_URI=("https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-${
 PATCHES=("")
 LICENSE=""
 DEPS="dev-libs/glib dev-libs/openssl media-libs/alsa-lib media-libs/libsndfile media-libs/sbc sys-apps/dbus sys-devel/libtool sys-fs/eudev sys-libs/gdbm sys-libs/libcap x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/libxcb x11-libs/libXtst"
-BDEPS=""
-RDEPS="dev-libs/check"
+BDEPS="dev-libs/check"
+RDEPS=""
 SLOT=0
 
 setBuildENV meson ninja
