@@ -1,5 +1,3 @@
-0a449539df0906e9794ed74f6bdec53d5677c343  9.1.build
-aa7bf0be95eef29d98eb5c76d4455698b3b705b3  coreutils-9.1.tar.xz
-a2b89b7e7c788cf3e1ff3881fbe6a0d55c763893  coreutils-9.1.tar.xz.sig
-003114a705a972d5301d392412d57b927d5ddbe1  coreutils-9.1-i18n-1.patch
-702ce090ccad742973463325fa4888c1dbaff8ca  coreutils-test-getlogin-fix.patch
+afb5c5f8d64b38b5ac3c20870ead122d73ee06ef  9.2.build
+3769071b357890dc36d820c597c1c626a1073fcb  coreutils-9.2.tar.xz
+1a342a14de40b3c2b540c64430255de994329e36  coreutils-9.2.tar.xz.sig

@@ -261,7 +261,20 @@ installPackage() {
 				elif [[ $file == */lib* || -d "${D}/$file" ]]; then
 					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
 				else
-					cp -p "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
+					# if cp fails the file might be busy, but to cp is faster than sinstall due to
+					# having to read permissions and then install
+					# fallback on sinstall if it fails.
+					cp -p "${D}/${file}" "${file}" 2> /dev/null
+					if [[ $? == 0 ]]; then
+						echo " >> $file"
+					else
+						sinstall "${D}/${file}" "${file}"
+						if [[ $? == 0 ]]; then
+							echo "i>> $file"
+						else
+							echo "!>> $file"
+						fi
+					fi
 				fi
 			fi
 		done

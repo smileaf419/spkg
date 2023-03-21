@@ -2,10 +2,7 @@ HOMEPAGE="https://www.gnu.org/software/coreutils/"
 DESCRIPTION=""
 SRC_URI=("https://ftp.gnu.org/gnu/coreutils/coreutils-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/coreutils/coreutils-${PKG_VER}.tar.xz.sig")
-PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/coreutils-${PKG_VER}-i18n-1.patch"
-"https://bugs.archlinux.org/task/75112?getfile=21552 => coreutils-test-getlogin-fix.patch")
-# Patch #2: fixes a test issue where test-getlogin fails due to stdin not being connected to a tty.
-#           https://lists.gnu.org/archive/html/bug-gnulib/2022-06/msg00001.html
+PATCHES=()
 LICENSE=""
 DEPS="dev-libs/gmp dev-libs/openssl sys-apps/acl sys-apps/attr sys-libs/libcap"
 # We require a non-root user so depend on su
@@ -14,7 +11,7 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	autoreconf -fiv
+#	autoreconf -fiv
 	configure_default \
 	            --bindir=/bin   \
 	            --sbindir=/sbin \
