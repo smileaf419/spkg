@@ -1,61 +1,43 @@
+fetch_list() {
+	# Output our message
+	echo $1
+	# local t as we can't string such a thing as ${!1[@]}
+	local t=$2[@]
+	local list=(${!t})
+	local length=${#list[@]}
+	for (( l=0; l<${length}; l++ )); do
+		C=$(( $l + 1 ))
+		file=${list[$l]}
+		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
+			export SRC_OUTFILE=${file/*=> /}
+			export SRC_FILE=${file/ =>*/}
+			# Once a fetch occurs we don't actually need the old filename.
+			# Rename it so as to avoid confusion later.
+			list[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+		else
+			export SRC_FILE=$file
+			export SRC_OUTFILE=${SRC_FILE##*/}
+		fi
+		if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
+			echo "Fetching ($C of $length) $SRC_FILE"
+			fetch_file "$SRC_FILE" "$SRC_OUTFILE"
+		fi
+		checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" || die
+	done
+}
+
 prepare_default() {
 	if [[ ! -z $SRC_URI ]]; then
-		# FIXME: Irritating duplication of code due to the inability to pass arrays.
-		echo "Fetching Files"
-		length=${#SRC_URI[@]}
-		for (( l=0; l<${length}; l++ )); do
-			# Current #
-			C=$((${l}+1))
-			file=${SRC_URI[$l]}
-			if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
-				export SRC_OUTFILE=${file/*=> /}
-				export SRC_FILE=${file/ =>*/}
-				# Once a fetch occurs we don't actually need the old filename.
-				# Rename it so as to avoid confusion later.
-				SRC_URI[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
-			else
-				export SRC_FILE=$file
-				export SRC_OUTFILE=${SRC_FILE##*/}
-			fi
-			if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
-				echo "Fetching ($C of $length) $SRC_FILE"
-				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
-			fi
-			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" || die
-		done
-		echo "Fetching Patches"
-		length=${#PATCHES[@]}
-		for (( l=0; l<${length}; l++ )); do
-			[[ ${PATCHES[$i]} == "" ]] && break
-			# Current #
-			C=$((${l}+1))
-			file=${PATCHES[$l]}
-			if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
-				export SRC_FILE=${file/ =>*/}
-				export SRC_OUTFILE=${file/*=> /}
-				# Once a fetch occurs we don't actually need the old filename.
-				# Rename it so as to avoid confusion later.
-				PATCHES[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
-			else
-				export SRC_FILE=$file
-				export SRC_OUTFILE=${SRC_FILE##*/}
-			fi
-			if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
-				echo "Fetching ($C of $length) $SRC_FILE as $SRC_OUTFILE"
-				fetch_file "$SRC_FILE" "$SRC_OUTFILE"
-			fi
-			echo -n "Checking sha1 of $SRC_OUTFILE "
-			checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" && echo "Ok" || die "Failed"
-		done
-			# Check a sig file if it exists.
-			# FIXME: This code fails if there is no public key installed.
-			# Build files should depend on a public key package.
-#			if [[ $VERIFY_SIG == 1 && $file == *.sig ]]; then
-#				echo -n "Checking Signature: ${DISTFILES}/${SRC_FILE%.*} ..."
-#				gpg --verify "${DISTFILES}/${SRC_FILE}" "${DISTFILES}/${SRC_FILE%.*}" 2>&1 | grep "Good signature" >/dev/null
-#				[ $? == 0 ] && echo "Ok" || die "Failed!"
-#			fi
-#		done
+		fetch_list "Fetching Files" SRC_URI
+		fetch_list "Fetching Patches" PATCHES
+		# Check a sig file if it exists.
+		# FIXME: This code fails if there is no public key installed.
+		# Build files should depend on a public key package.
+#		if [[ $VERIFY_SIG == 1 && $file == *.sig ]]; then
+#			echo -n "Checking Signature: ${DISTFILES}/${SRC_FILE%.*} ..."
+#			gpg --verify "${DISTFILES}/${SRC_FILE}" "${DISTFILES}/${SRC_FILE%.*}" 2>&1 | grep "Good signature" >/dev/null
+#			[ $? == 0 ] && echo "Ok" || die "Failed!"
+#		fi
 
 		[[ $FETCH_ONLY == 1 ]] && return
 
@@ -203,7 +185,6 @@ installPackage() {
 			rmdir "${D}"/usr/{share,} > /dev/null 2>&1
 		fi
 
-		# FIXME: This needs to get a more comprehensive list of locales to save, not ones just based on the current $LANG
 		if [[ -e "${D}/usr/share/locale" ]]; then
 			echo " * Cleaning locales"
 			# Create an Exclude list

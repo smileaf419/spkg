@@ -85,7 +85,6 @@ installList() {
 		# Uninstall
 		if [[ $MODE == "uninstall" ]]; then
 			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
-			# TODO: Before we do an Uninstall, Check for any Binary Dependency.
 			d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
 	
 			# FIXME: If uninstalling will break packages Check Forced.
