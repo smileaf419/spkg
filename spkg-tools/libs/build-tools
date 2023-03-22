@@ -3,17 +3,22 @@ fetch_list() {
 	echo $1
 	# local t as we can't string such a thing as ${!1[@]}
 	local t=$2[@]
-	local list=(${!t})
+	local list=${!t}
 	local length=${#list[@]}
 	for (( l=0; l<${length}; l++ )); do
 		C=$(( $l + 1 ))
 		file=${list[$l]}
+		[[ $file == "" ]] && continue
 		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
 			export SRC_OUTFILE=${file/*=> /}
 			export SRC_FILE=${file/ =>*/}
 			# Once a fetch occurs we don't actually need the old filename.
 			# Rename it so as to avoid confusion later.
-			list[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+			if [[ $3 == 'src' ]]; then
+				SRC_URI[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+			elif [[ $3 == 'patch' ]]; then
+				PATCHES[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+			fi
 		else
 			export SRC_FILE=$file
 			export SRC_OUTFILE=${SRC_FILE##*/}
@@ -28,8 +33,8 @@ fetch_list() {
 
 prepare_default() {
 	if [[ ! -z $SRC_URI ]]; then
-		fetch_list "Fetching Files" SRC_URI
-		fetch_list "Fetching Patches" PATCHES
+		fetch_list "Fetching Files" SRC_URI 'src'
+		fetch_list "Fetching Patches" PATCHES 'patch'
 		# Check a sig file if it exists.
 		# FIXME: This code fails if there is no public key installed.
 		# Build files should depend on a public key package.
