@@ -4,21 +4,21 @@ HOMEPAGE=""
 DESCRIPTION=""
 SRC_URI=("https://github.com/OpenPrinting/cups/releases/download/v${PKG_VER}/cups-${PKG_VER}-source.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
+PATCHES=()
 LICENSE=""
 DEPS="dev-libs/openssl sys-apps/acl sys-apps/dbus sys-libs/libxcrypt sys-libs/zlib"
-BDEPS=""
-RDEPS="accounts/cups"
+BDEPS="accounts/cups"
+RDEPS="net-print/cups-filters"
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 SLOT=0
 
-# FIXME: This package requires cups-filters to be installed after cups
-# However we have no way currently of added a post-dependency
-
 src_configure() {
 	# if xdg-utils is not installed
-	sed -i 's#@CUPS_HTMLVIEW@#firefox#' desktop/cups.desktop.in
+	if [[ $(getinstalledversion x11-misc/xdg-utils) == 0 ]]; then
+		sed -i 's#@CUPS_HTMLVIEW@#firefox#' desktop/cups.desktop.in
+		inform "x11-misc/xdg-utils is not installed, setting the default viewer to firefox"
+	fi
 
 	configure_default --libdir=/usr/lib  \
             --disable-systemd            \
@@ -48,5 +48,11 @@ src_install() {
 }
 
 post_install() {
-	gtk-update-icon-cache -qtf /usr/share/icons/hicolor
+	# Needs either GTK2 or 3 to be installed.
+	if [[ -e /usr/bin/gtk-update-icon-cache ]]; then
+		gtk-update-icon-cache -qtf /usr/share/icons/hicolor
+	else
+		inform "gtk-update-icon-cache is not available, gtk+2 or 3 needs be be installed for this."
+		inform "Once installed consider running: gtk-update-icon-cache -qtf /usr/share/icons/hicolor"
+	fi
 }

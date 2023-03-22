@@ -6,18 +6,21 @@ SRC_URI=("https://github.com/OpenPrinting/cups-filters/releases/download/${PKG_V
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 LICENSE=""
-DEPS=""
-BDEPS=""
+DEPS="app-text/poppler app-text/qpdf dev-libs/glib media-libs/fontconfig media-libs/freetype media-libs/lcms media-libs/libexif media-libs/libjpeg-turbo media-libs/libpng media-libs/tiff net-print/cups sys-apps/dbus sys-libs/zlib"
+BDEPS="app-text/ghostscript-gpl"
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 SLOT=0
 
 src_configure() {
+	# Required to fix an issue introduced with qpdf 11.3.0
+	append-cppflags "-std=c++17"
 	configure_default   --sysconfdir=/etc    \
 						--localstatedir=/var \
 						--without-rcdir      \
-						--disable-avahi
+						--disable-avahi      \
+						--disable-mutool
 }
 
 src_test() {

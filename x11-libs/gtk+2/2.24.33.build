@@ -21,7 +21,17 @@ src_configure() {
 # some tests will fail if this is a new install.
 # and tests must be ran from an X environment.
 
+src_install() {
+	install_default
+	mv $D/usr/bin/gtk{,2}-update-icon-cache
+}
+
 post_install() {
+	inform "gtk-update-icon-cache has been installed as 'gtk2-update-icon-cache' to avoid clobbering."
+	if [[ ! -e /usr/bin/gtk-update-icon-cache ]]; then
+		inform "A compatiblility symlink has been installed to this, however if x11-libs/gtk+3 is installed that version will be considered the default."
+		ln -svf /usr/bin/gtk2-update-icon-cache gtk-update-icon-cache
+	fi
 	gtk-query-immodules-2.0 --update-cache
 	glib-compile-schemas /usr/share/glib-2.0/schemas
 }
