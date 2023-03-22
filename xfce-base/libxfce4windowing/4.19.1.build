@@ -6,7 +6,7 @@ SRC_URI=("https://archive.xfce.org/src/xfce/libxfce4windowing/${PKG_VER%.*}/libx
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("")
 LICENSE=""
-DEPS="app-accessibility/at-spi2-core dev-libs/atk dev-libs/glib dev-libs/wayland media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libICE x11-libs/libSM x11-libs/libwnck x11-libs/libX11 x11-libs/pango"
+DEPS="app-accessibility/at-spi2-core  dev-libs/glib dev-libs/wayland media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libICE x11-libs/libSM x11-libs/libwnck x11-libs/libX11 x11-libs/pango"
 BDEPS="dev-libs/glib dev-lang/vala dev-libs/gobject-introspection"
 RDEPS=""
 setBuildENV auto make

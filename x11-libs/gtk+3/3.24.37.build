@@ -3,7 +3,7 @@ DESCRIPTION=""
 SRC_URI=("https://download.gnome.org/sources/gtk+/${PKG_VER%.*}/gtk+-${PKG_VER}.tar.xz")
 #PATCHES=("https://gitlab.gnome.org/GNOME/gtk/-/commit/66a199806ceb3daa5e2c7d3a5b45a86007cec46a.diff => gtk+-${PKG_VER}-build-fix.diff")
 LICENSE=""
-DEPS="app-accessibility/at-spi2-core dev-libs/atk dev-libs/fribidi dev-libs/glib dev-libs/wayland media-libs/fontconfig media-libs/harfbuzz media-libs/libepoxy net-print/cups x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXcursor x11-libs/libXdamage x11-libs/libXext x11-libs/libXfixes x11-libs/libXi x11-libs/libXinerama x11-libs/libxkbcommon x11-libs/libXrandr x11-libs/pango"
+DEPS="app-accessibility/at-spi2-core  dev-libs/fribidi dev-libs/glib dev-libs/wayland media-libs/fontconfig media-libs/harfbuzz media-libs/libepoxy net-print/cups x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXcursor x11-libs/libXdamage x11-libs/libXext x11-libs/libXfixes x11-libs/libXi x11-libs/libXinerama x11-libs/libxkbcommon x11-libs/libXrandr x11-libs/pango"
 BDEPS="x11-libs/libxkbcommon"
 RDEPS=""
 SLOT=0
