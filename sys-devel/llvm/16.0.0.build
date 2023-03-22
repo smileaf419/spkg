@@ -3,7 +3,8 @@ DESCRIPTION=""
 SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/llvm-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/compiler-rt-${PKG_VER}.src.tar.xz"
-"https://anduin.linuxfromscratch.org/BLFS/llvm/llvm-cmake-${PKG_VER}.src.tar.xz")
+"https://anduin.linuxfromscratch.org/BLFS/llvm/llvm-cmake-${PKG_VER}.src.tar.xz"
+"https://anduin.linuxfromscratch.org/BLFS/llvm/llvm-third-party-${PKG_VER}.src.tar.xz")
 
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/clang-${PKG_VER}-enable_default_ssp-1.patch")
 LICENSE=""
@@ -29,6 +30,7 @@ src_unpack() {
 	CRT=${SRC_URI[2]##*/}
 	mv -v ${CRT%.tar*} $B/projects/compiler-rt
 	mv -v cmake-${PKG_VER}.src cmake
+	mv -v third-party-${PKG_VER}.src third-party
 }
 
 src_patch() {
@@ -37,11 +39,13 @@ src_patch() {
 }
 
 src_configure() {
-#	sed '/LLVM_COMMON_CMAKE_UTILS/s@../cmake@cmake-${PKG_VER}.src@' \
-#	    -i ../CMakeLists.txt
 	# Fix python scripts to use python3
-	grep -rl '#!.*python' | xargs sed -i '1s/python$/python3/'
+	grep -rl '#!.*python' .. | xargs sed -i '1s/python$/python3/'
 
+	# Fix a broken testcase caused by enabling SSP by default
+	sed 's/clang_dfsan/& -fno-stack-protector/' \
+		-i ../projects/compiler-rt/test/dfsan/origin_unaligned_memtrans.c
+    
 	CC=gcc CXX=g++                                  \
 	configure_default \
 		  -DLLVM_ENABLE_FFI=ON                      \
