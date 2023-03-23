@@ -1,8 +1,8 @@
-HOMEPAGE=""
-DESCRIPTION=""
+HOMEPAGE="https://www.gnupg.org/index.html"
+DESCRIPTION="Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG."
 SRC_URI=("https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${PKG_VER}.tar.bz2.sig")
-LICENSE=""
+LICENSE="LGPLv2.1 GPLv2+"
 DEPS="dev-libs/libgpg-error"
 BDEPS=""
 RDEPS=""
@@ -23,12 +23,12 @@ src_install() {
 
 	install -v -dm755 "${D}"/usr/share/doc/libgcrypt-${PKG_VER}
 	install -v -m644 README doc/{README.apichanges,fips*,libgcrypt*} \
-                    "${D}"/usr/share/doc/libgcrypt-${PKG_VER}
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}
     install -v -dm755 "${D}"/usr/share/doc/libgcrypt-${PKG_VER}/html
     install -v -m644 doc/gcrypt.html/* \
-                    "${D}"/usr/share/doc/libgcrypt-${PKG_VER}/html
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}/html
 	install -v -m644 doc/gcrypt_nochunks.html \
-                    "${D}"/usr/share/doc/libgcrypt-${PKG_VER}
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}
     install -v -m644 doc/gcrypt.{txt,texi} \
-                    "${D}"/usr/share/doc/libgcrypt-${PKG_VER}
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}
 }
