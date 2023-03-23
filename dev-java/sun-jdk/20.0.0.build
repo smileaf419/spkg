@@ -1,7 +1,13 @@
 HOMEPAGE="https://www.oracle.com/java/technologies/downloads/"
 DESCRIPTION="Java SE Development Kit"
+
+# This breaks once any #.0.x version comes out. But only for the 1st version.
 MV=$(getMajorVer)
-SRC_URI=("https://download.oracle.com/java/${MV}/archive/jdk-${PKG_VER}_linux-x64_bin.tar.gz")
+MI_MI=$(getMinorVer).$(getMicroVer)
+My_Ver=$MV
+[[ $MI_MI != 0.0 ]] && My_Ver+=".$MI_MI"
+
+SRC_URI=("https://download.oracle.com/java/${MV}/archive/jdk-${My_Ver}_linux-x64_bin.tar.gz")
 LICENSE="https://download.oracle.com/otndocs/jcp/java_se-${MV}-final-eval-spec/license.html"
 DEPS="media-libs/alsa-lib media-libs/freetype sys-libs/zlib x11-libs/libX11 x11-libs/libXext x11-libs/libXi x11-libs/libXrender x11-libs/libXtst"
 BDEPS=""
