@@ -1,5 +1,6 @@
 HOMEPAGE="https://infozip.sourceforge.net/UnZip.html"
 DESCRIPTION="unzipper for pkzip-compressed files"
+LICENSE="Info-ZIP"
 SRC_URI=("https://downloads.sourceforge.net/infozip/unzip${PKG_VER/./}.tar.gz")
 PATCHES=(
 "https://www.linuxfromscratch.org/patches/blfs/svn/unzip-6.0-consolidated_fixes-1.patch"
@@ -10,7 +11,6 @@ PATCHES=(
 #"https://we.need.a.good.domain.com/unzip-6.0-use-system-bzip2.patch"
 )
 # system bzip2 patch is the applied patches from the consolidated_fixes patch from LFS, without the failed files.
-LICENSE="Info-ZIP"
 DEPS=""
 BDEPS=""
 RDEPS=""

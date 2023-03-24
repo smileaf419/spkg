@@ -1,9 +1,3 @@
-84597075802d5b45afb5b40ee1df238ddd2befb1  6.0-r1.build
+dbbdb7e0ada5bacc63264a0f0234ecd4cb7d5c4c  6.0-r1.build
 abf7de8a4018a983590ed6f5cbd990d4740f8a22  unzip60.tar.gz
 3b83f8814629a6164a60c5e71ed52f35cd0f3018  unzip-6.0-consolidated_fixes-1.patch
-853b3f2a37b2d565d5e8de357080d3ae37dbad27  6.0.build
-abf7de8a4018a983590ed6f5cbd990d4740f8a22  unzip60.tar.gz
-b525844c96ffa0705f8dfc741f89a51976b1d3ed  unzip_6.0-27.debian.tar.xz
-3f24b817035ba3557a4c0dec44d7d4698d72860e  unzip-6.0-fix-false-overlap-detection-on-32bit-systems.patch
-3e242bae621d04b65340fa9776e26abe1a1511d3  unzip-6.0-format-security.patch
-d26e9fb76d73d77c2651198a3b27ae8bfb06fb34  unzip-6.0-no-exec-stack.patch

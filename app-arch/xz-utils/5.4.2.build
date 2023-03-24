@@ -1,8 +1,8 @@
 HOMEPAGE="https://tukaani.org/xz"
-DESCRIPTION=""
+DESCRIPTION="General-purpose data compression software with a high compression ratio."
+LICENSE="LGPLv2.1 GPLv2 GPLv3 Public Domain"
 SRC_URI=("https://tukaani.org/xz/xz-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://tukaani.org/xz/xz-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""

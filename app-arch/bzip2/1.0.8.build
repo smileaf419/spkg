@@ -31,9 +31,3 @@ src_install() {
 	mv "$D"/{include,share/*} "$D"/usr
 	rmdir "$D/share"
 }
-
-bootstrap() {
-	src_configure
-	compile_default
-	src_install
-}

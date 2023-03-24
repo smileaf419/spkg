@@ -1,9 +1,9 @@
 HOMEPAGE="https://facebook.github.io/zstd/"
-DESCRIPTION=""
+DESCRIPTION="Zstandard is a fast compression algorithm, providing high compression ratios."
+LICENSE="GPLv2"
 SRC_URI=("https://github.com/facebook/zstd/releases/download/v${PKG_VER}/zstd-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/facebook/zstd/releases/download/v${PKG_VER}/zstd-${PKG_VER}.tar.gz.sig")
 PATCHES=()
-LICENSE=""
 DEPS="app-arch/xz-utils sys-libs/zlib"
 BDEPS=""
 RDEPS=""
