@@ -48,6 +48,7 @@ expandSets() {
 # CDEPS: Circular Dependencies are a special case where a package should be installed before and after
 #        the package, but only if its not already installed.
 getdep() {
+	p=$1
 	pkg-has-flag "nodep" && return
 
 	# Check if its on the stack, if not, add it. if so we'll get to it later.
@@ -96,7 +97,11 @@ getdep() {
 		# Add our package
 		grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
 		if [ $? != 0 ]; then
-			echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
+			if [ ${p:0:1} == "=" ]; then
+				echo "=$PKG_CAT/$PKG_NAME-${PKG_VR}"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
+			else
+				echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
+			fi
 			sed "/^PKG_CAT.$PKG_NAME/d" -i /tmp/stack
 		fi
 		# Add our Post Dependency list here.

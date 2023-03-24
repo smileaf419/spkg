@@ -240,9 +240,11 @@ populate_list() {
 			setupENV $p
 			if [[ "$PKG_CAT/$PKG_NAME" == "/" ]]; then
 				tlist+=" $p"
+			elif [ ${p:0:1} == "=" ]; then
+				tlist+=" =$PKG_CAT/$PKG_NAME-$PKG_VR"
+				[[ $PKG_FLAGS != "" ]] && tlist+="[$PKG_FLAGS]"
 			else
 				tlist+=" $PKG_CAT/$PKG_NAME"
-				[[ $PKG_FLAGS != "" ]] && tlist+="[$PKG_FLAGS]"
 			fi
 		fi
 	done
@@ -275,7 +277,7 @@ if [[ $MODE == "update" ]]; then
 		VER=${f##*/}
 		[ $VERBOSE -ge 2 ] && echo "Checking $PKG_NAME - $PKG_VR > $VER"
 		if version_gt $PKG_VR $VER ; then
-			list+=" $PKG_CAT/$PKG_NAME"
+			list+=" $PKG_CAT/$PKG_NAME-$PKG_VR"
 			[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
 			echo $PKG_NAME :: $PKG_VR
 		fi
@@ -295,6 +297,9 @@ if [[ $HASH_UPDATE ]]; then
 	echo " * Updating SHA1 hashes."
 	source "${INSTALL_PATH}/libs/updateallsha1.sh"
 	for p in $list; do
+		echo "hashing $p"
+		p=${p#=}
+		p=$(echo $p | sed -e 's,-[0-9].*$,,')
 		updatesha1 $p
 	done
 	exit 0

@@ -87,9 +87,21 @@ getinstalledversion() {
 }
 
 # 1: Name of package
-# Returns: Name/version-rev (ex: package-1.0-r1)
+# Returns: Name/version-rev (ex: package/1.0-r1)
 getpkg() {
-	getlatestversion $1
+	p=$1
+	if [ ${p:0:1} == "=" ]; then
+		p=${p#=}
+		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
+		find "$PKG_DB_DIR" -wholename "*/${p}.build" |
+			sed -e "s,$PKG_DB_DIR/,," \
+				-e "s,.build$,," \
+				-e 's,:,/,'|
+			sort -V|
+			tail -n1
+	else
+		getlatestversion $1
+	fi
 }
 # 1: getpkg
 # Returns Category

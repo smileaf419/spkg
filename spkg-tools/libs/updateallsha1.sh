@@ -113,6 +113,7 @@ verifySha1() {
 }
 
 updatesha1() {
+	cd $PKG_DB_DIR
 	if [[ $1 == "all" ]]; then
 		L=$(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,")
 	else
