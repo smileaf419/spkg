@@ -4,9 +4,9 @@ source /etc/spkg.conf
 for d in $(find $PKG_DB_DIR -mindepth 2 -type d); do 
 	[[ $d == *spkg-tools* || $d == *spkg-sets* || $d == *.git* ]] && continue
 	NUM=$(ls -1 $d/*.build | wc -l)
-	if [[ $NUM -gt 3 ]]; then
+	if [[ $NUM -gt 1 ]]; then
 		echo $d:
-		FILES=$(ls -1 $d/*.build | sort -V | head -n $(($NUM - 3)) )
+		FILES=$(ls -1 $d/*.build | sort -V | head -n $(($NUM - 1)) )
 		echo $FILES
 		rm -v $FILES
 	fi

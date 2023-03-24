@@ -1,9 +1,0 @@
-HOMEPAGE="https://savannah.gnu.org/projects/patch/"
-DESCRIPTION=""
-SRC_URI=("https://ftp.gnu.org/gnu/patch/patch-${PKG_VER}.tar.xz")
-[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/patch/patch-${PKG_VER}.tar.xz.sig")
-LICENSE=""
-DEPS="sys-apps/attr"
-BDEPS=""
-RDEPS=""
-SLOT=0
