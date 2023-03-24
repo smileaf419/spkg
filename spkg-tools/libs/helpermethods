@@ -56,6 +56,7 @@ spatches() {
 filterflags() {
 	export CFLAGS=$(echo $CFLAGS|sed "s,$1,,")
 	export CXXFLAGS=$(echo $CXXFLAGS|sed "s,$1,,")
+	export CPPFLAGS=$(echo $CPPFLAGS|sed "s,$1,,")
 }
 append-ldflags() {
 	export LDFLAGS+=" $@"
@@ -67,6 +68,7 @@ append-flags() {
 }
 append-cppflags() {
 	export CXXFLAGS+=" $@"
+	export CPPFLAGS+=" $@"
 }
 
 # Requires the full path of the build dir.
