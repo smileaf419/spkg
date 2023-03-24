@@ -53,10 +53,10 @@ spatches() {
 		fi
 	done
 }
-filterflags() {
-	export CFLAGS=$(echo $CFLAGS|sed "s,$1,,")
-	export CXXFLAGS=$(echo $CXXFLAGS|sed "s,$1,,")
-	export CPPFLAGS=$(echo $CPPFLAGS|sed "s,$1,,")
+filter-flags() {
+	export CFLAGS=$(echo $CFLAGS|sed "s,$@,,")
+	export CXXFLAGS=$(echo $CXXFLAGS|sed "s,$@,,")
+	export CPPFLAGS=$(echo $CPPFLAGS|sed "s,$@,,")
 }
 append-ldflags() {
 	export LDFLAGS+=" $@"
@@ -339,7 +339,7 @@ export -f addGroup addUser checkKernelConfig \
 	use-enable \
 	getpkgvr getpkgrev getpkgver getpkgname getpkg \
 	getinstalledversion getlatestversion \
-	filterflags append-flags append-ldflags append-cppflags \
+	filter-flags append-flags append-ldflags append-cppflags \
 	spatches spatch \
 	inform die unpack \
 	version_gt version_le version_lt version_ge

@@ -9,6 +9,6 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	filterflags "-O."
+	filter-flags "-O."
 	CC=gcc ./configure --prefix=/usr -G -O3 -r
 }

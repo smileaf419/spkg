@@ -23,15 +23,13 @@ SLOT=0
 B=zip${PKG_VER/./}
 
 src_configure() {
-	append-flags -std=gnu89
+	filter-flags -O2
+	append-cppflags -std=gnu89 -O3
 	append-cppflags -DLARGE_FILE_SUPPORT \
 					-DUIDGID_NOT_16BIT \
-					-DBZIP2_SUPPORT \
 					-DCRYPT \
 					-DUNICODE_SUPPORT
 	sh ./unix/configure "gcc" "-I. -DUNIX ${CFLAGS} ${CPPFLAGS}"
-
-	sed -i -e "s:LFLAGS2=:&'-lbz2 ':" flags
 
 	# Fix some hardcoded paths
 	sed -e "/^prefix/ s,/usr/local,$D/usr," \
