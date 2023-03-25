@@ -347,8 +347,9 @@ function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)"
 
 # If the function exists within this file, 
 # it must be exported so build files can use it.
-export -f addGroup addUser checkKernelConfig \
-	use-enable \
+export -f 	checkKernelConfig \
+	addGroup addUser delUser delGroup \
+	use-enable pkg-has-flag checkinlist \
 	getpkgvr getpkgrev getpkgver getpkgname getpkg \
 	getinstalledversion getlatestversion \
 	filter-flags append-flags append-ldflags append-cppflags \
