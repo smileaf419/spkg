@@ -277,7 +277,7 @@ if [[ $MODE == "update" ]]; then
 		VER=${f##*/}
 		[ $VERBOSE -ge 2 ] && echo "Checking $PKG_NAME - $PKG_VR > $VER"
 		if version_gt $PKG_VR $VER ; then
-			list+=" $PKG_CAT/$PKG_NAME-$PKG_VR"
+			list+=" $PKG_CAT/$PKG_NAME"
 			[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
 			echo $PKG_NAME :: $PKG_VR
 		fi
@@ -297,9 +297,7 @@ if [[ $HASH_UPDATE ]]; then
 	echo " * Updating SHA1 hashes."
 	source "${INSTALL_PATH}/libs/updateallsha1.sh"
 	for p in $list; do
-		echo "hashing $p"
-		p=${p#=}
-		p=$(echo $p | sed -e 's,-[0-9].*$,,')
+		p=$(echo ${p#=} | sed -e 's,-[0-9].*$,,')
 		updatesha1 $p
 	done
 	exit 0
