@@ -6,7 +6,7 @@ SRC_URI=("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/downloa
 "https://downloads.sourceforge.net/gs-fonts/ghostscript-fonts-std-8.11.tar.gz"
 "https://downloads.sourceforge.net/gs-fonts/gnu-gs-fonts-other-6.0.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
+PATCHES=()
 LICENSE=""
 DEPS="media-libs/fontconfig media-libs/freetype media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/openjpeg net-print/cups sys-libs/zlib x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/libXext x11-libs/libXt"
 BDEPS=""
