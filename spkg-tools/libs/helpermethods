@@ -349,7 +349,7 @@ export -f 	checkKernelConfig \
 	use-enable pkg-has-flag checkinlist \
 	getpkgvr getpkgrev getpkgver getpkgname getpkg \
 	getinstalledversion getlatestversion \
-	filter-flags append-flags append-ldflags append-cppflags \
+	filter-flags append-flags append-ldflags append-cppflags append-cflags append-cxxflags \
 	spatches spatch \
 	inform die unpack \
 	version_gt version_le version_lt version_ge
