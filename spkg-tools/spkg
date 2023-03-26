@@ -270,7 +270,6 @@ if [[ $MODE == "sync" ]]; then
 	fi
 	cd $PKG_DB_DIR
 	git pull
-	exit 0
 elif [[ $MODE == "bootstrap" ]]; then
 	PKG_CACHE="${ROOT}/${PKG_CACHE}"
 	PKG_WORLD="${ROOT}/${PKG_WORLD}"
