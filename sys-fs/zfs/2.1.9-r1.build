@@ -1,7 +1,7 @@
 HOMEPAGE="https://github.com/openzfs/zfs"
 DESCRIPTION="ZFS Userland tools & Kernel Module"
 SRC_URI=("https://github.com/openzfs/zfs/releases/download/zfs-${PKG_VER}/zfs-${PKG_VER}.tar.gz")
-PATCHES=("")
+PATCHES=("https://github.com/openzfs/zfs/pull/14668/commits/de2af4ec42fbacfb1917a86e049c25001c5e937c.patch => zfs-linux-6.2.8+-compile-fix.patch")
 LICENSE="BSD-2 CDDL MIT"
 DEPS="dev-libs/libaio dev-libs/openssl net-libs/libtirpc sys-fs/eudev sys-libs/zlib"
 BDEPS="sys-kernel/linux-kernel"
@@ -10,11 +10,17 @@ SLOT=0
 MODULE=kernel
 
 src_configure() {
+	checkKernelConfig "CONFIG_MODULES" 1 "Loadable Modules Support"
+	checkKernelConfig "CONFIG_BLOCK" 1 "Block Layer Support"
+	checkKernelConfig "CONFIG_TRIM_UNUSED_KSYM" 0 "Trim unused exported kernel symbols"
 	checkKernelConfig "CONFIG_ZLIB_DEFLATE" 1 "ZLIB deflate"
+	checkKernelConfig "CONFIG_ZLIB_INFLATE" 1 "ZLIB inflate"
+
 	append-flags -fno-tree-vectorize
 	sh autogen.sh
 	./configure --prefix=/usr \
 				--bindir=/bin \
+				--libdir=/lib \
 				--sysconfdir=/etc \
 				--localstatedir=/var \
 				--sbindir=/sbin \

@@ -25,7 +25,7 @@ spatch() {
 	patch=$1
 	shift 1
 	patch_options=${@:--Np1}
-	echo -n " * Applying Patch: $patch"
+	echo -n " * Applying Patch: $patch ($patch_options)"
 	if [[ $patch == *gz ]]; then
 		gzip -cd $1 | patch $patch_options > /dev/null || die " .. Failed!"
 	elif [[ $patch == *xz ]]; then
@@ -33,7 +33,7 @@ spatch() {
 	elif [[ $patch == *bz2 ]]; then
 		bzip2 -cd $1 | patch $patch_options > /dev/null || die " .. Failed!"
 	else
-		patch $patch_options -i "$1" > /dev/null || die " .. Failed!"
+		patch $patch_options -i "$patch" > /dev/null || die " .. Failed!"
 	fi
 	echo " .. Ok!"
 }

@@ -1,6 +1,3 @@
-e3a52412772e9c11e2eab0945be678c7ac605ea5  2.1.9.build
+f3926329c87f8d9f3e982bb4ae46be0a8075d15f  2.1.9-r1.build
 6feaaed725ddcc6d70899535929e40722f234432  zfs-2.1.9.tar.gz
-7d24913dc5f9c67b67040edabac9d279a9fc5e7a  2.1.8.build
-d712495c529833062d7ec315b3a22f99112584a7  zfs-2.1.8.tar.gz
-7d24913dc5f9c67b67040edabac9d279a9fc5e7a  2.1.7.build
-1808329b8ddf05db6b58817becfe65cf52c1410c  zfs-2.1.7.tar.gz
+fb2f1dff0cc8c1d0b2aede4ea4e03045e50f48b9  zfs-linux-6.2.8+-compile-fix.patch
