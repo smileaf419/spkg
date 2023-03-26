@@ -116,6 +116,9 @@ parse_cmdline() {
 				D|-deepClean)
 					MODE="clean"
 					shift 1 ;;
+				-sync)
+					MODE="sync"
+					shift 1 ;;
 				f|-force)
 					FORCE=1
 					shift 1 ;;
@@ -187,6 +190,7 @@ parse_cmdline() {
 					echo    "  --rebuildPerlMods    Rebuilds all Perl Modules."
 					echo    "  --buildKernel        Builds a new kernel"
 					echo    "  --deepClean, -D      Compares the charts of the world file and packages installed."
+					echo    "  --sync               syncs the package database via: git pull"
 					echo    " Developer Options"
 					echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
 					echo    "  --updatesha1         Creates or updates sha1sum for all packages."
@@ -257,7 +261,17 @@ parse_cmdline $@
 mkdir -p "${LOGDIR}" || die "Failed to mkdir ${LOGDIR}"
 test -w "${LOGDIR}/" || die "LOGDIR: ${LOGDIR} not writable"
 
-if [[ $MODE == "bootstrap" ]]; then
+if [[ $MODE == "sync" ]]; then
+	if [[ ! -e /usr/bin/git ]]; then
+		echo " !! Git is not installed!"
+		echo "    If you do not have a package database yet, you may download a copy from: https://github.com/smileaf419/spkg"
+		echo "    Otherwise install it via: spkg git"
+		exit 1
+	fi
+	cd $PKG_DB_DIR
+	git pull
+	exit 0
+elif [[ $MODE == "bootstrap" ]]; then
 	PKG_CACHE="${ROOT}/${PKG_CACHE}"
 	PKG_WORLD="${ROOT}/${PKG_WORLD}"
 	mkdir -p $PKG_CACHE
