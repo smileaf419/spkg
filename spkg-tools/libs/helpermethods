@@ -225,23 +225,6 @@ checkinlist() {
 	return 1
 }
 
-# 1: File
-# Returns: list of files depending on a file.
-checkFileDep() {
-#	grep "$1\$" ${PKG_CACHE}/*/*/*/BDEPS
-	grep -r --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || echo
-}
-
-# 1: Category/Package 2: Version
-# Returns: list of files depending on a package.
-isDependedOn() {
-	PKG=$1
-	PKG_VER=$2
-	for f in $(cat "${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS"); do
-		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort|uniq|grep -v $PKG
-	done
-}
-
 # 1: Config option; 2: needs at least module [0|1]
 # 3: Output dialog
 checkKernelConfig() {

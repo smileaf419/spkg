@@ -1,3 +1,19 @@
+# 1: File
+# Returns: list of files depending on a file.
+checkFileDep() {
+	grep -r --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || echo
+}
+
+# 1: Category/Package 2: Version
+# Returns: list of files depending on a package.
+isDependedOn() {
+	PKG=$1
+	PKG_VER=$2
+	for f in $(cat "${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS"); do
+		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort|uniq|grep -v $PKG
+	done
+}
+
 # Populates a /tmp/chart files
 getFullPkgList() {
 	echo > /tmp/chart
