@@ -47,9 +47,10 @@ setupENV() {
 	PKG_REV=$(getpkgrev $PKG)
 	PKG_VR=$(getpkgvr $PKG)
 	PKG_NVR=${PKG_NAME}-${PKG_VR}
+	PKG_NV=${PKG_NAME}-${PKG_VER}
 	BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	# Default archive build directory
-	B="${PKG_NAME}-${PKG_VER}"
+	B="${PKG_NV}"
 	# Temp install root
 	D="${BUILD_PATH}/troot"
 	O_VER=$(getinstalledversion $PKG_CAT/$PKG_NAME)
@@ -68,7 +69,7 @@ setupENV() {
 		echo "PKG_CACHE  : $PKG_CACHE"
 		echo "PKG_FLAGS  : $PKG_FLAGS"
 	fi
-	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR PKG_NVR BUILD_PATH B D O_VER
+	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR PKG_NV PKG_NVR BUILD_PATH B D O_VER
 }
 
 installList() {
@@ -104,15 +105,15 @@ installList() {
 					src_post_uninstall
 				)
 			fi
-			
+
 		# Install
 		else
 			set -o pipefail
-			LOG="${LOGDIR}/$(date +%Y%m%d)-${PKG_NAME}-${PKG_VR}.log"
+			LOG="${LOGDIR}/$(date +%Y%m%d)-${PKG_NVR}.log"
 			CFG_PROTECT=true
 			export RESTRICT=
-			
-			echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR} ($C of $length)"
+
+			echo " * ${PKG_CAT}/${PKG_NVR} ($C of $length)"
 
 			TIMESTART=$(date "+%s.%N")
 
@@ -121,8 +122,8 @@ installList() {
 			[[ -e /usr/bin/bc ]] && echo "Completed in $( echo $(date "+%s.%N") - $TIMESTART | bc ) seconds." | tee -a $LOG
 
 			[ -e $LOG.bz2 ] && rm $LOG.bz2
-			bzip2 $LOG 
-			[ $PIPESTATUS -eq 0 ] || die "Error installing package: ${PKG_NAME}-${PKG_VR}"
+			bzip2 $LOG
+			[ $PIPESTATUS != 0 ] && die "Error installing package: ${PKG_NVR}"
 		fi
 		echo -n " * Running ldconfig .."
 		ldconfig && echo "done!" || echo "failed!"
@@ -133,19 +134,9 @@ installList() {
 # and ownership, so we need to get them and 
 # explicitly set them.
 sinstall() {
-	# had to break the stat command up into 3 parts
-	# to avoid install from assuming the 3 switches 
-	# were all 1 switch.
-	# Assuming rather than interpretating the command
-	# it directly sent the arguments to install.
-	P=$(stat -c '-m%a' "$1")
-	G=$(stat -c '-g%g' "$1")
-	O=$(stat -c '-o%u' "$1")
-	if [ -d "$1" ]; then
-		install -d $P $O $G "$1" "$2"
-	else
-		install $P $O $G "$1" "$2"
-	fi
+	local d=
+	[ -d "$1" ] && d="-d"
+	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") "$1" "$2"
 }
 
 fetch_files() {
