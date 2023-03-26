@@ -22,15 +22,18 @@ inform() {
 }
 
 spatch() {
-	echo -n " * Applying Patch: $1"
-	if [[ $1 == *gz ]]; then
-		gzip -cd $1 | patch -Np1 > /dev/null || die " .. Failed!"
-	elif [[ $1 == *xz ]]; then
-		xz -cd $1 | patch -Np1 > /dev/null || die " .. Failed!"
-	elif [[ $1 == *bz2 ]]; then
-		bzip2 -cd $1 | patch -Np1 > /dev/null || die " .. Failed!"
+	patch=$1
+	shift 1
+	patch_options=${@:--Np1}
+	echo -n " * Applying Patch: $patch"
+	if [[ $patch == *gz ]]; then
+		gzip -cd $1 | patch $patch_options > /dev/null || die " .. Failed!"
+	elif [[ $patch == *xz ]]; then
+		xz -cd $1 | patch $patch_options > /dev/null || die " .. Failed!"
+	elif [[ $patch == *bz2 ]]; then
+		bzip2 -cd $1 | patch $patch_options > /dev/null || die " .. Failed!"
 	else
-		patch -Np1 -i "$1" > /dev/null || die " .. Failed!"
+		patch $patch_options -i "$1" > /dev/null || die " .. Failed!"
 	fi
 	echo " .. Ok!"
 }
@@ -54,20 +57,31 @@ spatches() {
 	done
 }
 filter-flags() {
-	export CFLAGS=$(echo $CFLAGS|sed "s,$@,,")
-	export CXXFLAGS=$(echo $CXXFLAGS|sed "s,$@,,")
-	export CPPFLAGS=$(echo $CPPFLAGS|sed "s,$@,,")
+	flags=$@
+	for flag in $flags; do
+		CFLAGS=$(echo $CFLAGS|sed "s,$flag,,")
+		CXXFLAGS=$(echo $CXXFLAGS|sed "s,$flag,,")
+		CPPFLAGS=$(echo $CPPFLAGS|sed "s,$flag,,")
+	done
+	export CFLAGS CXXFLAGS CPPFLAGS
 }
 append-ldflags() {
 	export LDFLAGS+=" $@"
 }
+# Append Flags to CPPFLAGS so that it gets added to both C and C++
 append-flags() {
-	export CFLAGS+=" $@"
-	export CXXFLAGS+=" $@"
-	export CPPFLAGS+=" $@"
+	append-cppflags $@
 }
-append-cppflags() {
+# Append C flags
+append-cflags() {
+	export CFLAGS+=" $@"
+}
+# Append C++ flags
+append-cxxflags() {
 	export CXXFLAGS+=" $@"
+}
+# Append C Pre-processor Flags
+append-cppflags() {
 	export CPPFLAGS+=" $@"
 }
 
