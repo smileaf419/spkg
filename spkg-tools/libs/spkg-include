@@ -46,6 +46,7 @@ setupENV() {
 	PKG_VER=$(getpkgver $PKG)
 	PKG_REV=$(getpkgrev $PKG)
 	PKG_VR=$(getpkgvr $PKG)
+	PKG_NVR=${PKG_NAME}-${PKG_VR}
 	BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	# Default archive build directory
 	B="${PKG_NAME}-${PKG_VER}"
@@ -67,7 +68,7 @@ setupENV() {
 		echo "PKG_CACHE  : $PKG_CACHE"
 		echo "PKG_FLAGS  : $PKG_FLAGS"
 	fi
-	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR BUILD_PATH B D O_VER
+	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR PKG_NVR BUILD_PATH B D O_VER
 }
 
 installList() {

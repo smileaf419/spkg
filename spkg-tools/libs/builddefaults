@@ -95,26 +95,20 @@ configure_default() {
 		# Not all packages support these options.
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
-		if [[ -z $CONF_FLAGS ]]; then
-			conf_flags="--prefix=/usr \
-						--disable-static \
-						--enable-shared \
-						--docdir=/usr/share/doc/${PKG_NAME}-${PKG_VR}"
-			[[ $MODE == "bootstrap" ]] && conf_flags+=" --host=$HOST_TGT"
-		else
-			conf_flags=$CONF_FLAGS	
-		fi
-		LDFLAGS="$LDFLAGS" \
-		CFLAGS="$CFLAGS" \
+		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
+		[[ $MODE == "bootstrap" ]] && CONF_FLAGS+=" --host=$HOST_TGT"
+
+		LDFLAGS="$LDFLAGS"   \
+		CFLAGS="$CFLAGS"     \
+		CPPFLAGS="$CPPFLAGS" \
 		CXXFLAGS="$CXXFLAGS" \
-			$d/configure $conf_flags "$@" || die "Configure Failed!"
+			$d/configure ${CONF_FLAGS} "$@" || die "Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
-		meson setup --prefix=/usr --buildtype=release "$@" $d || die "Configure Failed!"
+		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
+		meson setup ${CONF_FLAGS} "$@" $d || die "Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
-		cmake -DCMAKE_INSTALL_PREFIX=/usr \
-			  -DCMAKE_BUILD_TYPE=Release \
-			  -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NAME}-${PKG_VR} \
-				  "$@" $d || die "Configure Failed!"
+		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
+		cmake ${CONF_FLAGS} "$@" $d || die "Configure Failed!"
 	else
 		die "No configTool set!"
 	fi
