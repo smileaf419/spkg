@@ -11,6 +11,12 @@ src_configure() {
 	configure_default --libdir=/lib --bindir=/bin
 }
 
+src_install() {
+	install_default
+	mkdir -p "$D/$ROOT"/usr/bin
+	ln -s /bin/file "$D/$ROOT"/usr/bin/file
+}
+
 bootstrap() {
 	# Make a temp copy of file
 	mkdir build
@@ -24,6 +30,6 @@ bootstrap() {
 
 	./configure --prefix=/usr --host=$HOST_TGT --build=$(./config.guess) --bindir=/bin --libdir=/lib
 	compile_default FILE_COMPILE=$(pwd)/build/src/file
-	install_default
+	src_install
 	rm -v $D/$ROOT/usr/lib/libmagic.la
 }
