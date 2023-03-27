@@ -124,6 +124,7 @@ parse_cmdline() {
 					shift 1 ;;
 				-fetchOnly)
 					FETCH_ONLY=1
+					FORCE=1
 					shift 1 ;;
 				p|-pretend)
 					PRETEND=1
