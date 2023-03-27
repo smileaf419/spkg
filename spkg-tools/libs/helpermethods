@@ -17,8 +17,7 @@ unpack() {
 }
 die() { echo "$*" 1>&2 ; exit 77; }
 inform() { 
-	echo "$*" | tee -a /tmp/inform.log
-	chmod 666 /tmp/inform.log
+	echo "$*" | tee -a $INFORMLOG
 }
 
 spatch() {

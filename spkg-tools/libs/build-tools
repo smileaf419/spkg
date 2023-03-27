@@ -3,7 +3,18 @@ fetch_list() {
 	echo $1
 	# local t as we can't string such a thing as ${!1[@]}
 	local t=$2[@]
-	local list=${!t}
+	local tlist=(${!t})
+	local length=${#tlist[@]}
+	local list=()
+	# Preprocess our list here, unless there was a bug elsewhere than this script its sadly required..
+	for (( l=0; l<${length}; l++ )); do
+		if [[ ${tlist[$l + 1]} == "=>" ]]; then
+			list+=("${tlist[$l]} => ${tlist[$l+2]}")
+			l+=2
+		else
+			list+=(${tlist[$l]})
+		fi
+	done
 	local length=${#list[@]}
 	for (( l=0; l<${length}; l++ )); do
 		C=$(( $l + 1 ))

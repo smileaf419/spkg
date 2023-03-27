@@ -18,6 +18,24 @@ else
 	exit 1
 fi
 
+# Taken from:
+# https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+whereAmI() {
+	SOURCE=${BASH_SOURCE[0]}
+	while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+		DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+		SOURCE=$(readlink "$SOURCE")
+		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+	done
+	DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+	echo $DIR
+}
+
+# Set Environmental Variables
+PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig}
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-/lib:/lib64:/usr/lib:/usr/lib64}
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+
 # Set some defaults if they don't exist.
 MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
 CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
@@ -36,6 +54,7 @@ PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
 INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
 LOGDIR=${LOGDIR:-/var/log/spkg}
 LOGFILE=${LOGFILE:-pkg-$(date +%Y%m%d).log}
+INFORMLOG=/tmp/inform.log
 WORKDIR_BASE=${WORKDIR_BASE:-/var/tmp/spkg}
 CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
 PKG_CACHE=${PKG_CACHE:-${CACHE_DIR}/data}
@@ -85,6 +104,9 @@ test -w $WORKDIR_BASE || die "Cannot write to PKG_ARCHIVE_DIR: $WORKDIR_BASE"
 if [ ! -d $PKG_DB_DIR ]
 	then mkdir -p "$PKG_DB_DIR" || die "Failed to create: PKG_DB_DIR: $PKG_DB_DIR"; fi
 test -w $PKG_DB_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_DB_DIR"
+
+touch $INFORMLOG
+chmod 1777 $INFORMLOG
 
 parse_cmdline() {
 	# Referenced mozilla-launcher script.
@@ -603,10 +625,7 @@ if [ -e /tmp/preserved ]; then
 	rm /tmp/preserved
 fi
 
-if [ -e "${WORKDIR_BASE}/inform.log" ]; then
-	cat "${WORKDIR_BASE}/inform.log"
-	rm "${WORKDIR_BASE}/inform.log"
-fi
+cat "$INFORMLOG"
 
 # Can use this to find applications/init scripts to restart following an update.
 # lsof / | awk '/deleted/ && !/tmp/{print $9}' | sort -u
