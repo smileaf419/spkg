@@ -32,9 +32,9 @@ whereAmI() {
 }
 
 # Set Environmental Variables
-PKG_CONFIG_PATH=${PKG_CONFIG_PATH:-/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig}
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-/lib:/lib64:/usr/lib:/usr/lib64}
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+export PKG_CONFIG_PATH=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig
+export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 # Set some defaults if they don't exist.
 MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
