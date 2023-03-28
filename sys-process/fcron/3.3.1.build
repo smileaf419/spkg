@@ -16,7 +16,7 @@ src_configure() {
 				--without-sendmail \
 				--with-boot-install=no \
 				--with-systemdsystemunitdir=no \
-				--with-editor=/usr/bin/nano
+				--with-editor=/bin/nano
 }
 
 src_test() { :; }
