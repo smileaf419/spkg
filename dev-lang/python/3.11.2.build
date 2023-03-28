@@ -1,7 +1,7 @@
 HOMEPAGE="https://www.python.org/"
 DESCRIPTION=""
-SRC_URI=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz"
-"https://www.python.org/ftp/python/doc/${PKG_VER}/python-${PKG_VER}-docs-html.tar.bz2")
+SRC_URI=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz")
+[[ $INSTALL_DOCS == 1 ]] && SRC_URI+="https://www.python.org/ftp/python/doc/${PKG_VER}/python-${PKG_VER}-docs-html.tar.bz2"
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz.sig")
 LICENSE=""
 B=Python-$PKG_VER

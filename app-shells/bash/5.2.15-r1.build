@@ -30,7 +30,7 @@ EOF
 src_install() {
 	install_default
 
-	mkdir "${D}/$ROOT/bin"
+	mkdir -p "${D}/$ROOT/bin"
 	# compatibility link
 	ln -sv bash "${D}/$ROOT/bin/sh"
 	# some scripts look for bash here.

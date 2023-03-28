@@ -22,5 +22,4 @@ bootstrap() {
 				--disable-static                  \
 				--disable-doc
 	compile_default && install_default
-	rm -v $D/$ROOT/usr/lib/liblzma.la
 }

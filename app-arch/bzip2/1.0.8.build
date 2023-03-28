@@ -28,6 +28,12 @@ src_install() {
 		ln -sfv bzip2 $i
 	done
 	rm -fv "${D}/$ROOT"/lib/libbz2.a
-	mv "$D"/{include,share/*} "$D"/usr
-	rmdir "$D/share"
+	mv "$D/$ROOT"/{include,share/*} "$D/$ROOT"/usr
+	rmdir "$D/$ROOT"/share
+}
+
+bootstrap() {
+	src_configure
+	compile_default
+	src_install
 }

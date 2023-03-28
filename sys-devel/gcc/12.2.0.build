@@ -11,13 +11,6 @@ SLOT=0
 BUILD_SEPERATE_DIR=yes
 
 src_configure() {
-#	case $(uname -m) in
-#	  x86_64)
-#	    sed -e '/m64=/s/lib64/lib/' \
-#	        -i../.orig ../gcc/config/i386/t-linux64
-#	  ;;
-#	esac
-
 	../configure --prefix=/usr            \
 	             LD=ld                    \
 	             --enable-languages=c,c++ \
@@ -63,17 +56,6 @@ fi
 }
 
 bootstrap() {
-	MPFR_VER=$(getpkgver $(getlatestversion dev-libs/mpfr))
-	GMP_VER=$(getpkgver $(getlatestversion dev-libs/gmp))
-	MPC_VER=$(getpkgver $(getlatestversion dev-libs/mpc))
-	pushd ..
-		unpack ${DISTFILES}/mpfr-$MPFR_VER.tar.xz
-		mv -v mpfr-$MPFR_VER mpfr
-		unpack ${DISTFILES}/gmp-$GMP_VER.tar.xz
-		mv -v gmp-$GMP_VER gmp
-		unpack ${DISTFILES}/mpc-$MPC_VER.tar.gz
-		mv -v mpc-$MPC_VER mpc
-	popd
 	local glibc=$(getpkgver $(getlatestversion sys-libs/glibc))
 	echo " * Using glibc: $glibc"
 	sed -e '/m64=/s/lib64/lib/' \
@@ -105,7 +87,7 @@ bootstrap() {
 			    --disable-libvtv            \
 			    --disable-libstdcxx         \
 			    --enable-languages=c,c++ &&
-			compile_default && install_default
+			compile_default && make DESTDIR="$D" install
 		;;
 		libstdc++)
 			../libstdc++-v3/configure           \
@@ -142,8 +124,7 @@ bootstrap() {
 			    --enable-languages=c,c++
 			compile_default
 			install_default
-			ln -sv gcc $D/$ROOT/bin/cc
-			find "$D/$ROOT"/usr/lib{,64,exec} -name \*.la -delete || true
+			ln -sv gcc "$D/$ROOT"/usr/bin/cc
 		;;
 	esac
 }
