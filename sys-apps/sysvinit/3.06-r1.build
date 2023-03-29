@@ -10,6 +10,7 @@ DEPS="sys-libs/libxcrypt"
 BDEPS=""
 RDEPS=""
 SLOT=0
+append-ldflags -lcrypt
 
 src_configure() { :; }
 
