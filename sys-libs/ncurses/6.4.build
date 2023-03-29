@@ -16,16 +16,15 @@ src_configure() {
 				--bindir=/bin           \
 				--libdir=/lib           \
 				--with-shared           \
-	            --mandir=/usr/share/man \
-	            --without-debug         \
-	            --without-normal        \
-	            --with-cxx-shared		\
-	            --enable-pc-files       \
-	            --enable-widec          \
-	            --with-termlib          \
-	            $(use-enable pcre2 && echo ' --with-pcre2' || echo ' --without-pcre2') \
-	            --without-hashed-db
-#	            --with-pkg-config-libdir=/usr/lib/pkgconfig
+				--mandir=/usr/share/man \
+				--without-debug         \
+				--without-normal        \
+				--with-cxx-shared		\
+				--enable-pc-files       \
+				--enable-widec          \
+				--with-termlib          \
+				$(use-enable pcre2 && echo ' --with-pcre2' || echo ' --without-pcre2') \
+				--without-hashed-db
 }
 
 src_test() { :; }
@@ -34,14 +33,14 @@ src_install() {
 	install_default
 
 	for lib in ncurses form panel menu ; do
-	    rm -vf                    "${D}"/usr/lib/lib${lib}.so
-	    echo "INPUT(-l${lib}w)" > "${D}"/usr/lib/lib${lib}.so
-	    ln -sfv ${lib}w.pc        "${D}"/usr/lib/pkgconfig/${lib}.pc
+	    rm -vf                    "${D}"/lib/lib${lib}.so
+	    echo "INPUT(-l${lib}w)" > "${D}"/lib/lib${lib}.so
+	    ln -sfv ${lib}w.pc        "${D}"/lib/pkgconfig/${lib}.pc
 	done
 
-	rm -vf                     "${D}"/usr/lib/libcursesw.so
-	echo "INPUT(-lncursesw)" > "${D}"/usr/lib/libcursesw.so
-	ln -sfv libncurses.so      "${D}"/usr/lib/libcurses.so
+	rm -vf                     "${D}"/lib/libcursesw.so
+	echo "INPUT(-lncursesw)" > "${D}"/lib/libcursesw.so
+	ln -sfv libncurses.so      "${D}"/lib/libcurses.so
 
 	# Documentation
 	mkdir -pv      "${D}"/usr/share/doc/ncurses-${PKG_VER}
