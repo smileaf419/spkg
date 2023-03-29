@@ -377,7 +377,7 @@ fi
 
 if [[ $MODE == "bootstrap" ]]; then
 	export HOST_TGT=$(uname -m)-leaf-linux-gnu
-	export PATH="$ROOT/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin"
+	export PATH="$ROOT/tools/bin:$PATH"
 	# Make a LSB compliant /
 	mkdir -pv $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib{,32,64},media/{cdrom},mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
 	mkdir -pv $ROOT/lib/firmware
@@ -401,7 +401,9 @@ if [[ $MODE == "bootstrap" ]]; then
 	installList $list
 
 	# Fix CONTENTS file, filter out our $ROOT
-	find $ROOT/$PKG_CACHE -name CONTENTS -exec sed -i "s,$ROOT,," {} \;
+	echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
+	# This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
+	find $PKG_CACHE -name CONTENTS -exec sed -i "s,$ROOT,," {} \;
 
 	chown -R root:root $ROOT
 	ln -sfv /run $ROOT/var/run
@@ -625,7 +627,7 @@ if [ -e /tmp/preserved ]; then
 	rm /tmp/preserved
 fi
 
-cat "$INFORMLOG"
+cat "$INFORMLOG" && rm "$INFORMLOG"
 
 # Can use this to find applications/init scripts to restart following an update.
 # lsof / | awk '/deleted/ && !/tmp/{print $9}' | sort -u
