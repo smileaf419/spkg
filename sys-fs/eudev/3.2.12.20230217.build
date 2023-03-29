@@ -25,7 +25,8 @@ src_configure() {
 #	sed -i '/udevdir/a udev_dir=${udevdir}' src/udev/udev.pc.in
 
 	configure_default \
-	            --bindir=/sbin    \
+				--bindir=/bin     \
+	            --sbindir=/sbin   \
 	            --libdir=/lib     \
 	            --sysconfdir=/etc \
 	            --enable-manpages
