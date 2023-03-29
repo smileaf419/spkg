@@ -116,6 +116,7 @@ bootstrap() {
 				 --enable-kernel=3.2                \
 				 --with-headers=$ROOT/usr/include   \
 				 --enable-multi-arch                \
+				 --disable-crypt                    \
 				 libc_cv_slibdir=/lib &&
 	compile_default &&
 	install_default
