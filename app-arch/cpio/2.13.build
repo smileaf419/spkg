@@ -1,0 +1,39 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://ftp.gnu.org/gnu/cpio/cpio-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+SLOT=0
+
+src_configure() {
+	sed -i '/The name/,+2 d' src/global.c
+	./configure --prefix=/usr \
+				--enable-mt   \
+				--with-rmt=/usr/libexec/rmt
+}
+
+src_compile() {
+	compile_default
+	makeinfo --html            -o doc/html      doc/cpio.texi
+	makeinfo --html --no-split -o doc/cpio.html doc/cpio.texi
+	makeinfo --plaintext       -o doc/cpio.txt  doc/cpio.texi
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	install -v -m755 -d /usr/share/doc/cpio-${PKG_VER}/html
+	install -v -m644    doc/html/* \
+						/usr/share/doc/cpio-${PKG_VER}/html
+	install -v -m644    doc/cpio.{html,txt} \
+						/usr/share/doc/cpio-${PKG_VER}
+}
