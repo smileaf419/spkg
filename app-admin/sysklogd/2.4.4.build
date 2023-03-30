@@ -8,7 +8,10 @@ RDEPS=""
 SLOT=0
 
 src_configure() {
-	./configure --prefix=/usr \
+	./configure --prefix=/usr     \
+				--sbindir=/sbin   \
+				--bindir=/bin     \
+				--libdir=/lib     \
 				--sysconfdir=/etc \
 				--runstatedir=/run
 }
