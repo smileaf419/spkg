@@ -11,11 +11,13 @@ SLOT=0
 src_configure() {
 	sed '/Deny everything else/i SECCOMP_ALLOW(__NR_getrandom),' -i src/privsep-linux.c
     
-	./configure --prefix=/usr \
-				--sysconfdir=/etc \
-				--libexecdir=/usr/lib/dhcpcd \
-				--dbdir=/var/lib/dhcpcd \
-				--runstatedir=/run \
+	./configure --prefix=/usr            \
+				--sbindir=/sbin          \
+				--libdir=/lib            \
+				--sysconfdir=/etc        \
+				--libexecdir=/lib/dhcpcd \
+				--dbdir=/var/lib/dhcpcd  \
+				--runstatedir=/run       \
 				--privsepuser=dhcpcd
 }
 
