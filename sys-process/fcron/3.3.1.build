@@ -23,6 +23,9 @@ src_test() { :; }
 
 src_install() {
 	install_default
+
+	install-init.d fcron
+
 	cat > ${D}/usr/bin/run-parts << "EOF"
 #!/bin/sh
 # run-parts:  Runs all the scripts found in a directory.
