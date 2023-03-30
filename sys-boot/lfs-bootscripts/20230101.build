@@ -7,7 +7,11 @@ BDEPS=""
 RDEPS=""
 SLOT=0
 
-src_configure() { :; }
+src_configure() {
+	# As we do not use the version of sysklogd found within the LFS book
+	# Remove the lines pertaining to the kernel logger klogd
+	sed '37,40d;44,47d' -i lfs/init.d/sysklogd
+}
 
 src_compile() { :; }
 
