@@ -9,7 +9,13 @@ BDEPS=""
 RDEPS="app-crypt/p11-kit dev-libs/openssl"
 SLOT=0
 
-src_configure() { :; }
+src_configure() {
+	# Fix hardcoded paths
+	sed -e 's,/usr/bin/md5sum,/bin/md5sum,'   \
+		-e 's,/usr/bin/openssl,/bin/openssl,' \
+		-e 's,/usr/bin/cut,/bin/cut,'         \
+		-i make-ca
+}
 
 src_compile() { :; }
 
@@ -28,5 +34,5 @@ src_install() {
 	       	> ${D}/etc/ssl/local/CAcert_Class_3_root.pem
 
 	inform "to finish the install please run: /usr/sbin/make-ca -g"
-	inform "/usr/bin/make-ca -r"
+	inform "/usr/sbin/make-ca -r"
 }
