@@ -1,13 +1,14 @@
 HOMEPAGE="http://tcl.sourceforge.net/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://downloads.sourceforge.net/tcl/tcl${PKG_VER}-src.tar.gz"
 "https://downloads.sourceforge.net/tcl/tcl${PKG_VER}-html.tar.gz")
-LICENSE=""
 SRCDIR=""
 B="tcl${PKG_VER}/unix"
 DEPS="sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 TEST=test
 

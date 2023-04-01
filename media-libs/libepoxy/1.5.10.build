@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://download.gnome.org/sources/libepoxy/1.5/libepoxy-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://download.gnome.org/sources/libepoxy/${PKG_VER%.*}/libepoxy-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

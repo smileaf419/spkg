@@ -1,9 +1,10 @@
 HOMEPAGE="https://linuxfromscratch.org/lfs/view/development/chapter09/bootscripts.html"
 DESCRIPTION="Bootscripts for the Beyond LFS system."
-SRC_URI="https://anduin.linuxfromscratch.org/BLFS/blfs-bootscripts/blfs-bootscripts-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://anduin.linuxfromscratch.org/BLFS/blfs-bootscripts/blfs-bootscripts-${PKG_VER}.tar.xz"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }

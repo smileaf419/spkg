@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://github.com/libsndfile/libsndfile/releases/download/${PKG_VER}/libsndfile-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://github.com/libsndfile/libsndfile/releases/download/${PKG_VER}/libsndfile-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS="media-libs/alsa-lib media-libs/flac media-libs/libogg media-libs/libvorbis media-libs/opus media-sound/lame"
 BDEPS=""
 RDEPS=""
 CDEPS="media-sound/mpg123"
+ARCH="x86 x86_64"
 SLOT=0

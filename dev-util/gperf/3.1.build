@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.gnu.org/software/gperf/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/gperf/gperf-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gperf/gperf-${PKG_VER}.tar.gz.sig")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_test() {

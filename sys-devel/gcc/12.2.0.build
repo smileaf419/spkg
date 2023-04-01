@@ -1,12 +1,13 @@
 HOMEPAGE="https://gcc.gnu.org/"
 DESCRIPTION="GNU Compiler Collection"
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 TEST=1
 DEPS="app-arch/zstd dev-libs/gmp dev-libs/mpc dev-libs/mpfr sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 

@@ -1,15 +1,16 @@
 HOMEPAGE="https://www.python.org/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz")
 [[ $INSTALL_DOCS == 1 ]] && SRC_URI+="https://www.python.org/ftp/python/doc/${PKG_VER}/python-${PKG_VER}-docs-html.tar.bz2"
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 B=Python-$PKG_VER
 IUSE="sqlite"
 DEPS="app-arch/bzip2 app-arch/xz-utils dev-libs/expat dev-libs/libffi dev-libs/openssl net-libs/libnsl net-libs/libtirpc sys-libs/gdbm sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 use-enable sqlite && UDEPS="dev-db/sqlite"
+ARCH="x86 x86_64"
 SLOT=0
 TEST=test
 

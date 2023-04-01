@@ -1,12 +1,13 @@
 HOMEPAGE="https://libcheck.github.io/check"
 DESCRIPTION="A unit test framework for C"
+LICENSE="LGPLv2.1+"
 SRC_URI=("https://github.com/libcheck/check/releases/download/${PKG_VER}/check-${PKG_VER}.tar.gz")
 PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-libs/check/files/check-0.15.2-Fix-pkgconfig-file-s-libdir-value.patch?id=301f5e6332309bfe2bdc10aea941bbe0bd9a16cb => check-0.15.2-Fix-pkgconfig-file-s-libdir-value.patch"
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-libs/check/files/check-0.14.0-r2-disable-automagic-dep.patch?id=301f5e6332309bfe2bdc10aea941bbe0bd9a16cb => check-0.14.0-r2-disable-automagic-dep.patch")
-LICENSE="LGPLv2.1+"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_install() {

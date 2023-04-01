@@ -1,12 +1,13 @@
 HOMEPAGE="https://kernel.org"
-DESCRIPTION=""
+DESCRIPTION="The Linux Kernel"
+LICENSE="GPLv2"
 #SRC_URI=("https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${PKG_VER}.tar.xz")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
-SLOT=6.2
+ARCHS="x86 x86_64"
+SLOT=6.1
 RESTRICT="strip nobin"
 BUILD_PATH="${D}/usr/src"
 B=linux-$PKG_VER

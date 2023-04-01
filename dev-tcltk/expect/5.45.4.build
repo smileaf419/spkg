@@ -1,10 +1,11 @@
 HOMEPAGE="https://core.tcl.tk/expect/"
 DESCRIPTION=""
-SRC_URI="https://prdownloads.sourceforge.net/expect/expect${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://prdownloads.sourceforge.net/expect/expect${PKG_VER}.tar.gz"
 DEPS="dev-lang/tcl"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B="${PKG_NAME}${PKG_VER}"
 TEST=test

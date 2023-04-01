@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://downloads.sourceforge.net/mpg123/mpg123-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.sourceforge.net/mpg123/mpg123-${PKG_VER}.tar.bz2")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="media-libs/alsa-lib media-libs/libsdl2 media-libs/openal media-sound/pulseaudio"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0

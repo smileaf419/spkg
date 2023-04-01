@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://anduin.linuxfromscratch.org/BLFS/x264/x264-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://anduin.linuxfromscratch.org/BLFS/x264/x264-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS="dev-lang/nasm"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

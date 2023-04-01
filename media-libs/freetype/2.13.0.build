@@ -1,8 +1,8 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 DEPS="app-arch/bzip2 media-libs/libpng sys-libs/zlib"
 BDEPS=""
 RDEPS=""
@@ -10,7 +10,7 @@ IUSE="harfbuzz"
 # Creates a dependency resolving loop due to a circular dependency.
 # Unless pulled in by something else OR already installed support won't be enabled.
 use-enable harfbuzz && UDEPS="media-libs/harfbuzz"
-
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

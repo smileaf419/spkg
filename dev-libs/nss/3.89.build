@@ -2,15 +2,16 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://archive.mozilla.org/pub/security/nss/releases/NSS_${PKG_VER//./_}_RTM/src/nss-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/nss-${PKG_VER}-standalone-1.patch")
-LICENSE=""
 DEPS="dev-db/sqlite dev-libs/nspr"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }

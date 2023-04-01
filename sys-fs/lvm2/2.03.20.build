@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://sourceware.org/ftp/lvm2/LVM2.${PKG_VER}.tgz"
 LICENSE=""
+SRC_URI="https://sourceware.org/ftp/lvm2/LVM2.${PKG_VER}.tgz"
 DEPS="dev-libs/libaio sys-fs/eudev sys-libs/readline"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B="LVM2.${PKG_VER}"
 

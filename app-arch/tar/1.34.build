@@ -6,6 +6,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/tar/tar-${PKG_VER}.tar.xz")
 DEPS="sys-apps/acl"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

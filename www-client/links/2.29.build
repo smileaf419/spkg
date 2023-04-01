@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("http://links.twibright.com/download/links-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd dev-libs/libev dev-libs/openssl media-libs/fontconfig media-libs/freetype media-libs/libjpeg-turbo media-libs/libpng media-libs/libwebp media-libs/tiff sys-libs/zlib x11-libs/libX11"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

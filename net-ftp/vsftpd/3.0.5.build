@@ -2,6 +2,7 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://security.appspot.com/downloads/vsftpd-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-2.3.2-kerberos.patch"
@@ -9,11 +10,11 @@ PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsf
 "https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-3.0.3-sparc.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-3.0.5-seccomp.patch"
 "http://git.mis.ks.ua/US1GHQ/packages/raw/commit/3737c84bbdeb45c451c103664bab696e3f35692c/net/vsftpd/patches/010-openssl-deprecated.patch")
-LICENSE=""
 DEPS="net-libs/libnsl"
 BDEPS=""
 RDEPS="accounts/ftp"
 setBuildENV auto make
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

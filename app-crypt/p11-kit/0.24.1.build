@@ -1,11 +1,12 @@
 HOMEPAGE="" 
 DESCRIPTION="" 
+LICENSE=""
 SRC_URI=("https://github.com/p11-glue/p11-kit/releases/download/${PKG_VER}/p11-kit-${PKG_VER}.tar.xz") 
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/p11-glue/p11-kit/releases/download/${PKG_VER}/p11-kit-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 DEPS="dev-libs/libffi dev-libs/libtasn1"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

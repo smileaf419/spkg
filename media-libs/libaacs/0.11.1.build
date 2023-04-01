@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.videolan.org/developers/libaacs.html"
 DESCRIPTION="Advanced Access Content System Library"
-SRC_URI="https://download.videolan.org/pub/videolan/libaacs/${PKG_VER}/libaacs-${PKG_VER}.tar.bz2"
 LICENSE=""
+SRC_URI="https://download.videolan.org/pub/videolan/libaacs/${PKG_VER}/libaacs-${PKG_VER}.tar.bz2"
 DEPS="dev-libs/libgcrypt dev-libs/libgpg-error"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

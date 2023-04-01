@@ -1,10 +1,11 @@
 HOMEPAGE="https://pypi.org/project/psutil/"
 DESCRIPTION="Cross-platform lib for process and system monitoring in Python."
-SRC_URI=()
 LICENSE="BSDv3"
+SRC_URI=()
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 MODULE=python
 

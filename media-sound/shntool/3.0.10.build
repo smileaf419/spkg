@@ -1,5 +1,6 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE="GPL"
 SRC_URI=("http://shnutils.freeshell.org/shntool/dist/src/shntool-${PKG_VER}.tar.gz")
 PATCHES=(
 "https://aur.archlinux.org/cgit/aur.git/plain/debian_patches_950803.patch?h=shntool => shntool-deb-950803.patch"
@@ -7,9 +8,9 @@ PATCHES=(
 "https://aur.archlinux.org/cgit/aur.git/plain/shntool-3.0.10-large-size.diff?h=shntool => shntool-large-size.patch"
 "https://aur.archlinux.org/cgit/aur.git/plain/shntool-3.0.10-large-times.diff?h=shntool => shntool-large-times.patch"
 )
-LICENSE="GPL"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

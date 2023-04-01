@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://download.gnome.org/sources/cairo/${PKG_VER%.*}/cairo-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://download.gnome.org/sources/cairo/${PKG_VER%.*}/cairo-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS="dev-libs/glib dev-libs/lzo media-libs/fontconfig media-libs/freetype media-libs/libpng sys-devel/binutils sys-libs/zlib x11-libs/libX11 x11-libs/libxcb x11-libs/libXext x11-libs/libXrender x11-libs/pixman"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 CDEPS="media-libs/harfbuzz"
 

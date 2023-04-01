@@ -2,16 +2,17 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="app-accessibility/at-spi2-core  dev-libs/glib media-libs/fontconfig x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libnotify x11-libs/libX11 x11-libs/libXcursor x11-libs/libXi x11-libs/libXrandr x11-libs/pango xfce-base/exo xfce-base/garcon xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf"
 BDEPS=""
 # FIXME: Technically can be 1 or the other At some point if possible we
 # Should add logic like dep1 || dep2
 RDEPS="x11-themes/gnome-icon-theme lxde-base/lxde-icon-theme"
 setBuildENV auto make
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

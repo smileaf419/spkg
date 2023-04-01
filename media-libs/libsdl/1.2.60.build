@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://www.libsdl.org/"
 DESCRIPTION="The Simple DirectMedia Layer"
-SRC_URI=("https://github.com/libsdl-org/sdl12-compat/archive/refs/tags/release-${PKG_VER}.tar.gz => libsdl-${PKG_VER}.tar.gz")
-PATCHES=("")
 LICENSE="LGPLv2.1"
+SRC_URI=("https://github.com/libsdl-org/sdl12-compat/archive/refs/tags/release-${PKG_VER}.tar.gz => libsdl-${PKG_VER}.tar.gz")
+PATCHES=()
 DEPS=""
 BDEPS="media-libs/glu"
 RDEPS=""
 setBuildENV cmake make
 BUILD_SEPERATE_DIR=yes
+ARCH="x86 x86_64"
 SLOT=0
 B=sdl12-compat-release-${PKG_VER}
 

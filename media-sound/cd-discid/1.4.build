@@ -1,10 +1,11 @@
 HOMEPAGE="http://linukz.org/cd-discid.shtml"
 DESCRIPTION="Utility to get CDDB discid information from a CD-ROM disc."
-SRC_URI="http://linukz.org/download/cd-discid-${PKG_VER}.tar.gz"
 LICENSE="GPLv2"
+SRC_URI="http://linukz.org/download/cd-discid-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

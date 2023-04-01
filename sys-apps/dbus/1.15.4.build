@@ -1,16 +1,17 @@
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/dbus/"
 DESCRIPTION="A message bus system, a simple way for applications to talk to each other"
 SRC_URI=("https://dbus.freedesktop.org/releases/dbus/dbus-${PKG_VER}.tar.xz")
+LICENSE="GPLv2"
 # Add support for elogind and fix checks for X
 # Errors out with needing to install autoconf-archive
 #PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/dbus/files/dbus-enable-elogind.patch"
 #"https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-apps/dbus/files/dbus-1.14.0-x-autoconf-fixes.patch")
-LICENSE="GPLv2"
 DEPS="dev-libs/expat"
 IUSE="X"
 use-enable X && UDEPS+="x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libxcb"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

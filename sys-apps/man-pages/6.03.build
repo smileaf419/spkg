@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.kernel.org/doc/man-pages/"
 DESCRIPTION="A comprehensive collection of Linux manual pages"
-SRC_URI="https://mirrors.edge.kernel.org/pub/linux/docs/man-pages/man-pages-${PKG_VER}.tar.xz"
 LICENSE="man-pages GPL-2+ BSD"
+SRC_URI="https://mirrors.edge.kernel.org/pub/linux/docs/man-pages/man-pages-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS="sys-apps/man-db"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }

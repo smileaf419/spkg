@@ -1,10 +1,11 @@
 HOMEPAGE="https://kernel.org"
 DESCRIPTION="Linux Kernel Headers"
-PATCHES=("")
-LICENSE=""
+LICENSE="GPLv2"
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=linux-$PKG_VER
 RESTRICT="strip nobin"

@@ -2,15 +2,16 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://github.com/OpenPrinting/cups/releases/download/v${PKG_VER}/cups-${PKG_VER}-source.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-LICENSE=""
 DEPS="dev-libs/openssl sys-apps/acl sys-apps/dbus sys-libs/libxcrypt sys-libs/zlib"
 BDEPS="accounts/cups"
 RDEPS="net-print/cups-filters"
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://gitlab.freedesktop.org/libinput/libinput/-/archive/${PKG_VER}/libinput-${PKG_VER}.tar.gz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://gitlab.freedesktop.org/libinput/libinput/-/archive/${PKG_VER}/libinput-${PKG_VER}.tar.gz")
+PATCHES=()
 DEPS="dev-libs/libevdev sys-fs/eudev sys-libs/mtdev"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

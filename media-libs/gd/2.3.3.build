@@ -1,13 +1,14 @@
 HOMEPAGE="https://libgd.github.io https://libgd.org/"
 DESCRIPTION="Graphics library for fast image creation"
-SRC_URI=("https://github.com/libgd/libgd/releases/download/gd-${PKG_VER}/libgd-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE="gd IJG HPND BSD"
+SRC_URI=("https://github.com/libgd/libgd/releases/download/gd-${PKG_VER}/libgd-${PKG_VER}.tar.xz")
+PATCHES=()
 IUSE="X"
 DEPS="media-libs/fontconfig media-libs/freetype media-libs/libjpeg-turbo media-libs/libpng media-libs/libwebp media-libs/tiff sys-libs/zlib x11-libs/libX11 x11-libs/libXpm"
 use-enable X && UDEPS="x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp x11-libs/libXpm"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=libgd-${PKG_VER}
 

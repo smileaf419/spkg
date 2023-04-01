@@ -1,11 +1,12 @@
 HOMEPAGE="https://git.yzena.com/gavin/bc"
 DESCRIPTION="An implementation of Unix dc and POSIX bc with GNU and BSD extensions."
+LICENSE="BSD-2"
 SRC_URI=("https://github.com/gavinhoward/bc/releases/download/${PKG_VER}/bc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/gavinhoward/bc/releases/download/${PKG_VER}/bc-${PKG_VER}.tar.xz.sig")
-LICENSE="BSD-2"
 DEPS="sys-libs/readline"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

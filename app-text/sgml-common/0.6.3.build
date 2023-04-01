@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://sourceware.org/ftp/docbook-tools/new-trials/SOURCES/sgml-common-${PKG_VER}.tgz")
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/sgml-common-0.6.3-manpage-1.patch")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

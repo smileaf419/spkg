@@ -1,10 +1,11 @@
 HOMEPAGE="https://github.com/smileaf419/spkg"
 DESCRIPTION="NTP User and Group"
-SRC_URI=""
 LICENSE="none"
+SRC_URI=""
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=""
 RESTRICT="nostrip nobin"

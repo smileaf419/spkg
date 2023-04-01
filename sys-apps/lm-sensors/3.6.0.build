@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 PV=$(echo $PKG_VER|sed 's,\.,-,g')
 SRC_URI="https://github.com/lm-sensors/lm-sensors/archive/V${PV}/lm-sensors-${PV}.tar.gz"
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS="sys-apps/which"
+ARCH="x86 x86_64"
 SLOT=0
 B=lm-sensors-$PV
 

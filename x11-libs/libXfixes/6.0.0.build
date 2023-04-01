@@ -1,11 +1,12 @@
 HOMEPAGE="https://wiki.x.org/wiki/"
 DESCRIPTION=""
-SRC_URI=("https://www.x.org/pub/individual/lib/${PKG_NAME}-${PKG_VER}.tar.bz2")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://www.x.org/pub/individual/lib/${PKG_NAME}-${PKG_VER}.tar.bz2")
+PATCHES=()
 DEPS="x11-libs/libX11"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

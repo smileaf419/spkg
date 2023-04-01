@@ -1,13 +1,14 @@
 HOMEPAGE="https://www.gnu.org/software/coreutils/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/coreutils/coreutils-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/coreutils/coreutils-${PKG_VER}.tar.xz.sig")
 PATCHES=()
-LICENSE=""
 DEPS="dev-libs/gmp dev-libs/openssl sys-apps/acl sys-apps/attr sys-libs/libcap"
 # We require a non-root user so depend on su
 BDEPS="sys-apps/shadow"
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

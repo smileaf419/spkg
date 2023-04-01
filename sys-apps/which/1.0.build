@@ -1,10 +1,11 @@
 HOMEPAGE="https://linuxfromscratch.org/blfs/view/svn/general/which.html"
 DESCRIPTION="Shell Script Emulating GNU Which"
-SRC_URI=""
 LICENSE=""
+SRC_URI=""
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }

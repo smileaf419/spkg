@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.iana.org/protocols"
 DESCRIPTION="Provides data for Network services and protocols"
-SRC_URI="https://github.com/Mic92/iana-etc/releases/download/${PKG_VER}/iana-etc-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://github.com/Mic92/iana-etc/releases/download/${PKG_VER}/iana-etc-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 CFG_PROTECT=false
 

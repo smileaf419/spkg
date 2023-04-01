@@ -1,12 +1,13 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://download.samba.org/pub/samba/stable/samba-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://download.samba.org/pub/samba/stable/samba-${PKG_VER}.tar.gz"
 DEPS="app-arch/libarchive dev-lang/python dev-libs/icu dev-libs/jansson dev-libs/libtasn1 dev-libs/popt net-libs/gnutls net-libs/libtirpc sys-apps/acl sys-libs/libcap sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS="dev-perl/JSON net-libs/rpcsvc-proto dev-perl/Parse-Yapp dev-python/iso8601 dev-python/cryptography dev-python/pyasn1"
 RDEPS="dev-db/lmdb"
 IUSE="ldap"
 use-enable ldap && UDEPS="net-nds/openldap"
+ARCH="x86 x86_64"
 SLOT=0
 TEST=test
 

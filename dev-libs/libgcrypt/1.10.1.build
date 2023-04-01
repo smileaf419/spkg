@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.gnupg.org/index.html"
 DESCRIPTION="Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG."
+LICENSE="LGPLv2.1 GPLv2+"
 SRC_URI=("https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${PKG_VER}.tar.bz2.sig")
-LICENSE="LGPLv2.1 GPLv2+"
 DEPS="dev-libs/libgpg-error"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_compile() {

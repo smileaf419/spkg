@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.perl.org/"
 DESCRIPTION=""
-SRC_URI=("https://www.cpan.org/src/5.0/perl-${PKG_VER}.tar.xz")
 LICENSE=""
+SRC_URI=("https://www.cpan.org/src/5.0/perl-${PKG_VER}.tar.xz")
 DEPS="net-libs/libnsl sys-libs/gdbm sys-libs/libxcrypt"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 TEST=test
 

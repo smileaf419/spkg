@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://github.com/lsof-org/lsof/archive/refs/tags/${PKG_VER}.tar.gz")
 #SRC_URI="https://github.com/lsof-org/lsof/releases/download/${PKG_VER}/lsof_${PKG_VER}.linux.tar.bz2"
-LICENSE=""
 DEPS="net-libs/libtirpc"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 #B=lsof_${PKG_VER}.linux
 

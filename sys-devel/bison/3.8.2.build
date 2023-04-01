@@ -1,9 +1,10 @@
 HOMEPAGE="https://www.gnu.org/software/bison/"
 DESCRIPTION="A General Purpose Generator."
+LICENSE="GPLv3+"
 SRC_URI=("https://ftp.gnu.org/gnu/bison/bison-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/bison/bison-${PKG_VER}.tar.xz.sig")
-LICENSE="GPLv3+"
 DEPS="sys-devel/gettext"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0

@@ -1,9 +1,10 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://github.com/unicode-org/icu/releases/download/release-${PKG_VER//./-}/icu4c-${PKG_VER//./_}-src.tgz"
 LICENSE=""
+SRC_URI="https://github.com/unicode-org/icu/releases/download/release-${PKG_VER//./-}/icu4c-${PKG_VER//./_}-src.tgz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=icu/source

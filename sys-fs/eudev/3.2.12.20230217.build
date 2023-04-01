@@ -1,13 +1,14 @@
 HOMEPAGE="https://github.com/eudev-project/eudev"
 DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
+LICENSE="LGPLv2.1 MIT GPLv2"
 LFSRULEVER=20171102
 #"https://github.com/eudev-project/eudev/releases/download/v${PKG_VER}/eudev-${PKG_VER}.tar.gz"
 SRC_URI=("https://github.com/eudev-project/eudev/archive/refs/heads/master.zip => eudev-master-$PKG_VER.zip"
 "https://anduin.linuxfromscratch.org/LFS/udev-lfs-${LFSRULEVER}.tar.xz")
-LICENSE="LGPLv2.1 MIT GPLv2"
 DEPS="sys-apps/kmod"
 BDEPS="dev-util/gperf app-arch/unzip"
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=eudev-master
 

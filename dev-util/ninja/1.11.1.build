@@ -1,10 +1,11 @@
 HOMEPAGE="https://ninja-build.org/"
 DESCRIPTION=""
-SRC_URI="https://github.com/ninja-build/ninja/archive/v${PKG_VER}/ninja-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://github.com/ninja-build/ninja/archive/v${PKG_VER}/ninja-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS="dev-lang/python"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

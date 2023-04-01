@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.xvid.org/"
 DESCRIPTION="High Performance/Quality MPEG-4 video de-/encoding codec"
+LICENSE="GPL-2"
 SRC_URI=("https://downloads.xvid.com/downloads/xvidcore-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.xvid.com/downloads/xvidcore-${PKG_VER}.tar.bz2.sig")
-LICENSE="GPL-2"
 DEPS=""
 BDEPS=""
 RDEPS="dev-lang/yasm"
+ARCH="x86 x86_64"
 SLOT=0
 B=xvidcore/build/generic
 

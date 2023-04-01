@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://github.com/docbook/xslt10-stylesheets/releases/download/release/${PKG_VER}/docbook-xsl-nons-${PKG_VER}.tar.bz2")
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/docbook-xsl-nons-${PKG_VER}-stack_fix-1.patch")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS="dev-libs/libxml2 app-text/docbook-xml"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }

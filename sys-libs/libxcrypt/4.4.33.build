@@ -1,10 +1,11 @@
 HOMEPAGE="https://github.com/besser82/libxcrypt"
 DESCRIPTION="Extended crypt library for descrypt, md5crypt, bcrypt, and others"
-SRC_URI="https://github.com/besser82/libxcrypt/releases/download/v${PKG_VER}/libxcrypt-${PKG_VER}.tar.xz"
 LICENSE="LGPL-2.1"
+SRC_URI="https://github.com/besser82/libxcrypt/releases/download/v${PKG_VER}/libxcrypt-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

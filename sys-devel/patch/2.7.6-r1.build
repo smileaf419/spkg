@@ -1,5 +1,6 @@
 HOMEPAGE="https://savannah.gnu.org/projects/patch/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/patch/patch-${PKG_VER}.tar.xz")
 PATCHES=(
 "https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-fix-test-suite.patch"
@@ -16,10 +17,10 @@ PATCHES=(
 "https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-Avoid-invalid-memory-access-in-context-format-diffs.patch"
 )
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/patch/patch-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 DEPS="sys-apps/attr"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 bootstrap() {

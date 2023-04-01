@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/pkg-config"
 DESCRIPTION=""
-SRC_URI="https://pkg-config.freedesktop.org/releases/pkg-config-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://pkg-config.freedesktop.org/releases/pkg-config-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.openssl.org/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI="https://www.openssl.org/source/openssl-${PKG_VER}.tar.gz"
 PATCHES=()
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS="app-misc/ca-certificates"
+ARCH="x86 x86_64"
 SLOT=0
 TEST=test
 

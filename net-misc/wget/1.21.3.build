@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/wget/wget-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/wget/wget-${PKG_VER}.tar.gz.sig")
-LICENSE=""
 DEPS="dev-libs/libpcre2 dev-libs/libunistring dev-libs/openssl sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

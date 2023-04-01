@@ -1,11 +1,12 @@
 HOMEPAGE="https://github.com/westes/flex"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://github.com/westes/flex/releases/download/v${PKG_VER}/flex-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/westes/flex/releases/download/v${PKG_VER}/flex-${PKG_VER}.tar.gz.sig")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_install() {

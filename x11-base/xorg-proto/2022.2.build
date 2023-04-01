@@ -1,11 +1,12 @@
 HOMEPAGE="https://wiki.x.org/wiki/"
 DESCRIPTION=""
-SRC_URI=("https://xorg.freedesktop.org/archive/individual/proto/xorgproto-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://xorg.freedesktop.org/archive/individual/proto/xorgproto-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS="x11-misc/util-macros"
+ARCH="x86 x86_64"
 SLOT=0
 B=xorgproto-${PKG_VER}
 

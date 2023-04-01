@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.nongnu.org/unac/"
 DESCRIPTION=""
+LICENSE=""
 # Download links on main website seem to not be working and 1.8.0 isn't even listed on its main page?
 SRC_URI=("https://gentoo.osuosl.org/distfiles/unac_${PKG_VER}.orig.tar.gz")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=unac-${PKG_VER}.orig
 

@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://downloads.sourceforge.net/libcddb/libcddb-${PKG_VER}.tar.bz2"
 LICENSE=""
+SRC_URI="https://downloads.sourceforge.net/libcddb/libcddb-${PKG_VER}.tar.bz2"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 # Tests fail to load.

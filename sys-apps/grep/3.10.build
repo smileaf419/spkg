@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.gnu.org/software/grep/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/grep/grep-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/grep/grep-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 DEPS="dev-libs/libpcre2"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

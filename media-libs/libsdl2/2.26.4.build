@@ -1,13 +1,14 @@
 HOMEPAGE="https://www.libsdl.org/"
 DESCRIPTION="The Simple DirectMedia Layer Version 2"
+LICENSE="ZLIB"
 SRC_URI=("https://www.libsdl.org/release/SDL2-${PKG_VER}.tar.gz")
 PATCHES=()
-LICENSE="ZLIB"
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
+ARCH="x86 x86_64"
 SLOT=0
 B=SDL2-$PKG_VER
 

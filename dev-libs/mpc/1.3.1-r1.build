@@ -1,11 +1,12 @@
 HOMEPAGE="http://www.multiprecision.org/"
 DESCRIPTION="A library for multiprecision complex arithmetic with exact rounding"
+LICENSE="LGPL-2.1"
 SRC_URI=("https://ftp.gnu.org/gnu/mpc/mpc-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/mpc/mpc-${PKG_VER}.tar.gz.sig")
-LICENSE="LGPL-2.1"
 DEPS="dev-libs/gmp dev-libs/mpfr"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

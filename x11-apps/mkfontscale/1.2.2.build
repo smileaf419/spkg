@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://www.x.org/pub/individual/app/${PKG_NAME}-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://www.x.org/pub/individual/app/${PKG_NAME}-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS="media-libs/freetype sys-libs/zlib x11-libs/libfontenc"
 BDEPS=""
 RDEPS="x11-libs/libxcb"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

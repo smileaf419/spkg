@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION="A GObject based library for accessing the Secret Service API."
+LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/libsecret/${PKG_VER%.*}/libsecret-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.gnome.org/sources/libsecret/0.20/libsecret-${PKG_VER}.tar.xz.sig")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="dev-libs/glib dev-libs/libgcrypt"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

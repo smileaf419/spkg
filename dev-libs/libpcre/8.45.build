@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://sourceforge.net/projects/pcre/files/pcre/${PKG_VER}/pcre-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://sourceforge.net/projects/pcre/files/pcre/${PKG_VER}/pcre-${PKG_VER}.tar.bz2.sig")
-LICENSE=""
 DEPS="app-arch/bzip2 sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=pcre-$PKG_VER
 

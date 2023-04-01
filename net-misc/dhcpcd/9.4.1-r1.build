@@ -1,11 +1,12 @@
 HOMEPAGE="https://github.com/NetworkConfiguration/dhcpcd/
 https://roy.marples.name/projects/dhcpcd/"
 DESCRIPTION="A fully featured, yet light weight RFC2131 compliant DHCP client"
-SRC_URI="https://roy.marples.name/downloads/dhcpcd/dhcpcd-${PKG_VER}.tar.xz"
 LICENSE="BSD-2"
+SRC_URI="https://roy.marples.name/downloads/dhcpcd/dhcpcd-${PKG_VER}.tar.xz"
 DEPS="sys-fs/eudev"
 BDEPS="sys-devel/llvm accounts/dhcpcd"
 RDEPS="net-misc/ntp"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

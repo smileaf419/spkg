@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.gnu.org/software/libtool/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/libtool/libtool-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/libtool/libtool-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS="sys-devel/autoconf sys-devel/automake"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_install() {

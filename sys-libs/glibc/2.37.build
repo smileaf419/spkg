@@ -1,14 +1,15 @@
 HOMEPAGE="https://www.gnu.org/software/libc/"
 DESCRIPTION="GNU libc C Library"
+LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
 SRC_URI=("https://ftp.gnu.org/gnu/glibc/glibc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/glibc/glibc-${PKG_VER}.tar.xz.sig")
 PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/glibc-2.37-fhs-1.patch")
-LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
 DEPS=""
 BDEPS="sys-kernel/linux-headers"
 RDEPS="sys-libs/libxcrypt"
 IUSE="gd"
 use-enable gd && UDEPS="media-libs/gd app-arch/bzip2 dev-libs/expat dev-libs/libpcre media-libs/fontconfig media-libs/freetype media-libs/libpng media-libs/libwebp sys-libs/zlib"
+ARCH="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 

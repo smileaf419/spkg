@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://gitlab.freedesktop.org/wayland/wayland/-/releases/${PKG_VER}/downloads/wayland-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://gitlab.freedesktop.org/wayland/wayland/-/releases/${PKG_VER}/downloads/wayland-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS="dev-libs/expat dev-libs/libffi dev-libs/libxml2"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

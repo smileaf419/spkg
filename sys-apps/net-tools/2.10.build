@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://downloads.sourceforge.net/project/net-tools/net-tools-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://downloads.sourceforge.net/project/net-tools/net-tools-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

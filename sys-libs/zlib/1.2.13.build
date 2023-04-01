@@ -1,10 +1,11 @@
 HOMEPAGE="https://zlib.net/"
 DESCRIPTION="Standard (de)compression library"
-SRC_URI="https://zlib.net/zlib-${PKG_VER}.tar.xz"
 LICENSE="ZLIB"
+SRC_URI="https://zlib.net/zlib-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

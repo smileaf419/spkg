@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${PKG_VER}.tar.gz"
 DEPS="media-libs/libjpeg-turbo media-libs/libpng media-libs/tiff"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

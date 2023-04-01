@@ -1,11 +1,12 @@
 HOMEPAGE="https://wiki.x.org/wiki/"
 DESCRIPTION=""
-SRC_URI=("https://xorg.freedesktop.org/archive/individual/lib/libxcb-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://xorg.freedesktop.org/archive/individual/lib/libxcb-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS="x11-libs/libXau x11-libs/libXdmcp"
 BDEPS="x11-base/xcb-proto"
 RDEPS="x11-base/xorg-proto"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

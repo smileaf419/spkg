@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-${PKG_VER}.tar.gz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-${PKG_VER}.tar.gz")
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 setBuildENV cmake
 BUILD_SEPERATE_DIR=yes

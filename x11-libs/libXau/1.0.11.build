@@ -1,11 +1,12 @@
 HOMEPAGE="https://wiki.x.org/wiki/"
 DESCRIPTION="X Authorization routines"
-SRC_URI=("https://www.x.org/pub/individual/lib/libXau-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://www.x.org/pub/individual/lib/libXau-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS="x11-base/xorg-proto"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

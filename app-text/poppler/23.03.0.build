@@ -2,15 +2,16 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://poppler.freedesktop.org/poppler-${PKG_VER}.tar.xz"
 "https://poppler.freedesktop.org/poppler-data-0.4.11.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="dev-libs/glib dev-libs/nspr dev-libs/nss media-libs/fontconfig media-libs/freetype media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/openjpeg media-libs/tiff net-misc/curl sys-libs/zlib x11-libs/cairo"
 BDEPS=""
 RDEPS=""
 setBuildENV cmake make
+ARCH="x86 x86_64"
 SLOT=0
 TEST=test
 

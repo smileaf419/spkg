@@ -1,9 +1,10 @@
 HOMEPAGE="https://btrfs.wiki.kernel.org"
 DESCRIPTION="BTRFS Filesystem Utilities"
-SRC_URI="https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v${PKG_VER}.tar.xz"
 LICENSE="GPLv2"
+SRC_URI="https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v${PKG_VER}.tar.xz"
 BDEPS="app-arch/zstd dev-libs/lzo sys-fs/e2fsprogs sys-fs/eudev sys-libs/zlib"
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B="btrfs-progs-v${PKG_VER}"
 

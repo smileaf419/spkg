@@ -1,10 +1,11 @@
 HOMEPAGE="https://libexpat.github.io/"
 DESCRIPTION=""
-SRC_URI="https://prdownloads.sourceforge.net/expat/expat-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://prdownloads.sourceforge.net/expat/expat-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_install() {

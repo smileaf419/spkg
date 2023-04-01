@@ -1,16 +1,18 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://github.com/webmproject/libvpx/archive/v${PKG_VER}/libvpx-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://github.com/webmproject/libvpx/archive/v${PKG_VER}/libvpx-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS="dev-lang/nasm"
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 
 src_configure() {
 	sed -i 's/cp -p/cp/' ../build/make/Makefile
 
+	# configure_default
 	../configure --prefix=/usr \
 				--enable-shared \
 				--disable-static

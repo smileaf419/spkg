@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://salsa.debian.org/debian/debianutils/-/archive/debian/${PKG_VER}-0.3/debianutils-debian-${PKG_VER}-0.3.tar.bz2")
 PATCHES=()
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
+ARCH="x86 x86_64"
 SLOT=0
 B=debianutils-debian-${PKG_VER}-0.3
 

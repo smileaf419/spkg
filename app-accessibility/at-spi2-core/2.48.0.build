@@ -1,11 +1,12 @@
 HOMEPAGE="https://wiki.gnome.org/Accessibility"
 DESCRIPTION="Gtk module for bridging AT-SPI to Atk"
+LICENSE="LGPLv2.1+"
 SRC_URI=("https://download.gnome.org/sources/at-spi2-core/${PKG_VER%.*}/at-spi2-core-${PKG_VER}.tar.xz")
 PATCHES=()
-LICENSE="LGPLv2.1+"
 DEPS="dev-libs/glib sys-apps/dbus x11-libs/libX11 x11-libs/libXi"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

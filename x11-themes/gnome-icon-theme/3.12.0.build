@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/gnome-icon-theme/${PKG_VER%.*}/gnome-icon-theme-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
+ARCH="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

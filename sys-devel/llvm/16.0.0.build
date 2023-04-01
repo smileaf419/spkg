@@ -1,5 +1,6 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/llvm-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/compiler-rt-${PKG_VER}.src.tar.xz"
@@ -7,10 +8,10 @@ SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_V
 "https://anduin.linuxfromscratch.org/BLFS/llvm/llvm-third-party-${PKG_VER}.src.tar.xz")
 
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/clang-${PKG_VER}-enable_default_ssp-1.patch")
-LICENSE=""
 DEPS="app-arch/zstd dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 setBuildENV cmake ninja
 BUILD_SEPERATE_DIR=yes

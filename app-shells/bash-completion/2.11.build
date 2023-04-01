@@ -1,9 +1,10 @@
 HOMEPAGE="https://github.com/scop/bash-completion"
 DESCRIPTION="Programmable completion functions for bash"
-SRC_URI="https://github.com/scop/bash-completion/releases/download/${PKG_VER}/bash-completion-${PKG_VER}.tar.xz"
 LICENSE="GPLv2"
+SRC_URI="https://github.com/scop/bash-completion/releases/download/${PKG_VER}/bash-completion-${PKG_VER}.tar.xz"
 BDEPS=""
 RDEPS="app-shells/bash"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -1,13 +1,14 @@
 HOMEPAGE="https://www.iana.org/time-zones"
 DESCRIPTION="Time Zone Data"
-SRC_URI="https://www.iana.org/time-zones/repository/releases/tzdata${PKG_VER}.tar.gz"
 LICENSE="BSD public-domain"
+SRC_URI="https://www.iana.org/time-zones/repository/releases/tzdata${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
-export TIMEZONE="America/Chicago"
 B="."
+export TIMEZONE=${TIMEZONE:-America/Chicago}
 
 src_configure() { :; }
 

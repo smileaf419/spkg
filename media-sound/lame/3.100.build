@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://downloads.sourceforge.net/lame/lame-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://downloads.sourceforge.net/lame/lame-${PKG_VER}.tar.gz"
 DEPS="sys-libs/ncurses"
 BDEPS=""
 RDEPS="dev-lang/nasm"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

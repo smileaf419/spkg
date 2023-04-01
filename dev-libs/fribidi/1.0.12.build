@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://github.com/fribidi/fribidi/releases/download/v${PKG_VER}/fribidi-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://github.com/fribidi/fribidi/releases/download/v${PKG_VER}/fribidi-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

@@ -2,15 +2,16 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="http://think-async.com/Asio/ https://github.com/chriskohlhoff/asio"
 DESCRIPTION="A cross-platform C++ library for network and low-level I/O programming that provides developers with a consistent asynchronous model using a modern C++ approach."
+LICENSE="Boost"
 SRC_URI=("https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-${PKG_VER//./-}.zip")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE="Boost"
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
+ARCH="x86 x86_64"
 SLOT=0
 B=asio-asio-${PKG_VER//./-}/asio
 

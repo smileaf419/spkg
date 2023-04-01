@@ -1,14 +1,15 @@
 HOMEPAGE="https://www.sqlite.org/"
 DESCRIPTION="Small fast self-contained SQL database."
+LICENSE="public-domain"
 V=${PKG_VER/./}
 V=${V/./0}00
 SRC_URI=("https://www.sqlite.org/2023/sqlite-autoconf-${V}.tar.gz")
 # https://sqlite.org/2023/sqlite-doc-${V}.zip
-PATCHES=("")
-LICENSE="public-domain"
+PATCHES=()
 DEPS="sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=sqlite-autoconf-$V
 

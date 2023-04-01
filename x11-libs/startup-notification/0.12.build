@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://www.freedesktop.org/software/startup-notification/releases/startup-notification-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="x11-libs/libX11 x11-libs/libxcb x11-libs/xcb-util"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
+ARCH="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

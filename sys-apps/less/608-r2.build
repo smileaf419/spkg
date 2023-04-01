@@ -1,12 +1,13 @@
 HOMEPAGE="https://www.greenwoodsoftware.com/less/"
 DESCRIPTION="Excellent text file viewer"
+LICENSE="GPLv3 BSD-2"
 SRC_URI=("https://www.greenwoodsoftware.com/less/less-${PKG_VER}.tar.gz")
 PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/sys-apps/less/files/less-${PKG_VER}-procfs.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/sys-apps/less/files/less-${PKG_VER}-CVE-2022-46663.patch")
-LICENSE="GPLv3 BSD-2"
 DEPS="sys-libs/ncurses"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 IUSE="pcre2"
 use-enable pcre2 && UDEPS="dev-libs/libpcre2"

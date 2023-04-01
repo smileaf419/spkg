@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.boost.org/"
 DESCRIPTION="Boost Libraries for C++"
-SRC_URI="https://boostorg.jfrog.io/artifactory/main/release/${PKG_VER}/source/boost_${PKG_VER//./_}.tar.bz2"
 LICENSE="Boost-1.0"
+SRC_URI="https://boostorg.jfrog.io/artifactory/main/release/${PKG_VER}/source/boost_${PKG_VER//./_}.tar.bz2"
 DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd dev-libs/icu sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=boost_${PKG_VER//./_}
 

@@ -2,15 +2,16 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE="BSD-2"
 SRC_URI=("https://github.com/OpenRC/openrc/archive/refs/tags/${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE="BSD-2"
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
 BUILD_SEPERATE_DIR=yes
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

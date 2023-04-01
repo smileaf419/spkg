@@ -2,16 +2,17 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 #SRC_URI=("https://downloads.xiph.org/releases/ao/libao-${PKG_VER}.tar.gz")
 SRC_URI=("https://github.com/xiph/libao/archive/${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="media-libs/alsa-lib media-sound/pulseaudio"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

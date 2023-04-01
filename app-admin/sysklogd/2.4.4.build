@@ -1,10 +1,11 @@
 HOMEPAGE="https://troglobit.com/sysklogd.html"
 DESCRIPTION="Standard Log Daemon"
-SRC_URI="https://github.com/troglobit/sysklogd/releases/download/v${PKG_VER}/sysklogd-${PKG_VER}.tar.gz"
 LICENSE="BSD"
+SRC_URI="https://github.com/troglobit/sysklogd/releases/download/v${PKG_VER}/sysklogd-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

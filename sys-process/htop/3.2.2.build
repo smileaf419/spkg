@@ -1,10 +1,11 @@
 HOMEPAGE="https://htop.dev"
 DESCRIPTION="An interactive process viewer"
-SRC_URI="https://github.com/htop-dev/htop/releases/download/${PKG_VER}/htop-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://github.com/htop-dev/htop/releases/download/${PKG_VER}/htop-${PKG_VER}.tar.xz"
 DEPS="sys-libs/libcap sys-libs/ncurses"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

@@ -2,16 +2,17 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION="JamesDunne's fork of Blargg's video game music file emulation/playback library"
+LICENSE="LGPLv2.1"
 SRC_URI=("https://github.com/JamesDunne/libgme/archive/refs/heads/master.zip => libgme-${PKG_VER}.zip")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("https://github.com/mcfiredrill/libgme/commit/1eaccbf5ba13254a734e4c22836db60e81236370.patch => libgme-clang-fix.patch"
 "https://github.com/mcfiredrill/libgme/commit/1ff874399ae1e888425d00228a06e2e655a4973c.patch => libgme-gcc-version-fix.patch")
-LICENSE="LGPLv2.1"
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV cmake make
 BUILD_SEPERATE_DIR=yes
+ARCH="x86 x86_64"
 SLOT=0
 B=libgme-master
 

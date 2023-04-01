@@ -1,13 +1,14 @@
 HOMEPAGE="https://www.gnu.org/software/gawk/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/gawk/gawk-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gawk/gawk-${PKG_VER}.tar.xz.sig")
 # Fixes a bug that causes a compilation error in the Linux Kernel
 PATCHES=("https://868567.bugs.gentoo.org/attachment.cgi?id=803497 => gawk-kernel-compile-fix.patch")
-LICENSE=""
 DEPS="dev-libs/gmp dev-libs/mpfr sys-libs/readline"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

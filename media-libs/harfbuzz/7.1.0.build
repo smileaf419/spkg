@@ -1,7 +1,7 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="https://github.com/harfbuzz/harfbuzz/releases/download/${PKG_VER}/harfbuzz-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://github.com/harfbuzz/harfbuzz/releases/download/${PKG_VER}/harfbuzz-${PKG_VER}.tar.xz"
 DEPS="dev-libs/glib dev-libs/icu"
 BDEPS=""
 RDEPS=""
@@ -13,6 +13,7 @@ RDEPS=""
 # Without those packages requiring harfbuzz, harfbuzz won't be pulled into the dependency tree resulting in a lost dependency and harfbuzz getting cleaned.
 #CDEPS="media-libs/freetype x11-libs/cairo"
 CDEPS="media-libs/freetype"
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

@@ -1,12 +1,13 @@
 HOMEPAGE="http://www.xmlsoft.org/ https://gitlab.gnome.org/GNOME/libxml2"
 DESCRIPTION="XML C parser and toolkit"
+LICENSE="MIT"
 SRC_URI=("https://download.gnome.org/sources/libxml2/${PKG_VER%.*}/libxml2-${PKG_VER}.tar.xz")
 [[ $ENABLE_TESTS == 1 ]] && SRC_URI+=("https://www.w3.org/XML/Test/xmlts20130923.tar.gz")
 PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/libxml2/files/libxml2-2.10.3-python3-unicode-errors.patch")
-LICENSE="MIT"
 DEPS="app-arch/xz-utils dev-libs/icu sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS="dev-lang/python"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_prepare() {

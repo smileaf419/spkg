@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.mpfr.org/"
 DESCRIPTION=""
-SRC_URI="https://www.mpfr.org/mpfr-${PKG_VER}/mpfr-${PKG_VER}.tar.xz"
 LICENSE=""
+SRC_URI="https://www.mpfr.org/mpfr-${PKG_VER}/mpfr-${PKG_VER}.tar.xz"
 DEPS="dev-libs/gmp"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

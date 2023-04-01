@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("")
-LICENSE=""
+PATCHES=()
 DEPS="app-accessibility/at-spi2-core  dev-libs/glib media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/pango x11-libs/startup-notification xfce-base/libxfce4util xfce-base/xfconf"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

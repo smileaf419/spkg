@@ -1,11 +1,12 @@
 HOMEPAGE="https://savannah.nongnu.org/projects/acl"
 DESCRIPTION="Access Control List Manipulation Programs"
+LICENSE="GPLv2"
 SRC_URI=("https://download.savannah.gnu.org/releases/acl/acl-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.savannah.gnu.org/releases/acl/acl-${PKG_VER}.tar.xz.sig")
-LICENSE="GPLv2"
 DEPS="sys-apps/attr"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-${PKG_VER}.tar.bz2.sig")
-LICENSE=""
 DEPS="app-accessibility/at-spi2-core app-crypt/libsecret  dev-libs/glib dev-libs/libassuan dev-libs/libgpg-error dev-libs/libpcre2 media-libs/fontconfig media-libs/freetype media-libs/harfbuzz sys-libs/ncurses x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+2 x11-libs/pango"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

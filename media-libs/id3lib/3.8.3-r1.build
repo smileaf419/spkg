@@ -1,5 +1,6 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI="https://downloads.sourceforge.net/project/id3lib/id3lib/${PKG_VER}/id3lib-${PKG_VER}.tar.gz"
 PATCHES=(
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/media-libs/id3lib/files/id3lib-3.8.3-gcc-4.3.patch"
@@ -11,11 +12,10 @@ PATCHES=(
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/media-libs/id3lib/files/id3lib-3.8.3-unicode16.patch"
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/media-libs/id3lib/files/id3lib-3.8.3-zlib.patch"
 )
-
-LICENSE=""
 DEPS="sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

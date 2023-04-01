@@ -1,12 +1,13 @@
 HOMEPAGE="https://github.com/LMDB/lmdb"
 DESCRIPTION="An ultra-fast, ultra-compact, crash-proof, key-value, embedded data store"
+LICENSE="OpenLDAP"
 MY_P="${PKG_NAME^^}_${PKG_VER}"
 SRC_URI=("https://git.openldap.org/openldap/openldap/-/archive/${MY_P}/openldap-${MY_P}.tar.gz")
 #"https://github.com/LMDB/lmdb/archive/LMDB_${PKG_VER}.tar.gz"
-LICENSE="OpenLDAP"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B=openldap-LMDB_${PKG_VER}/libraries/liblmdb
 

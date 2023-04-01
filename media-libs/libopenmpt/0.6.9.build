@@ -1,11 +1,12 @@
 HOMEPAGE="https://lib.openmpt.org/libopenmpt/"
 DESCRIPTION="Library to decode tracked music files (modules)"
-SRC_URI=("https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-${PKG_VER}+release.autotools.tar.gz")
-PATCHES=("")
 LICENSE="BSD"
+SRC_URI=("https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-${PKG_VER}+release.autotools.tar.gz")
+PATCHES=()
 DEPS="media-libs/flac media-libs/libogg media-libs/libsndfile media-libs/libvorbis media-sound/mpg123 media-sound/pulseaudio sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 B="libopenmpt-${PKG_VER}+release.autotools"
 

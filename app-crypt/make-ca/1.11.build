@@ -1,12 +1,13 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://github.com/lfs-book/make-ca/releases/download/v${PKG_VER}/make-ca-${PKG_VER}.tar.xz"
 "http://www.cacert.org/certs/root.crt"
 "http://www.cacert.org/certs/class3.crt")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS="app-crypt/p11-kit dev-libs/openssl"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

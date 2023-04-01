@@ -1,11 +1,12 @@
 HOMEPAGE="https://kbd-project.org/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://www.kernel.org/pub/linux/utils/kbd/kbd-${PKG_VER}.tar.xz")
 PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/kbd-${PKG_VER}-backspace-1.patch")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

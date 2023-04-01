@@ -1,11 +1,12 @@
 HOMEPAGE="https://www.gnu.org/software/m4/"
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://ftp.gnu.org/gnu/m4/m4-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/m4/m4-${PKG_VER}.tar.xz.sig")
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 bootstrap() {

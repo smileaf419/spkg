@@ -1,8 +1,8 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI=("https://www.x.org/pub/individual/xserver/xorg-server-${PKG_VER}.tar.xz")
-PATCHES=("")
 LICENSE=""
+SRC_URI=("https://www.x.org/pub/individual/xserver/xorg-server-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS="dev-libs/nettle media-libs/libepoxy media-libs/mesa net-libs/libtirpc sys-fs/eudev x11-libs/libdrm x11-libs/libX11 x11-libs/libXau x11-libs/libXdmcp x11-libs/libXext x11-libs/libXfont2 x11-libs/pixman"
 BDEPS="x11-libs/libxcvt"
 RDEPS="x11-libs/libxkbfile x11-apps/xkbcomp media-fonts/font-util x11-drivers/xf86-video-fbdev x11-misc/xkeyboard-config x11-terms/xterm x11-apps/xauth"
@@ -10,6 +10,7 @@ RDEPS="x11-libs/libxkbfile x11-apps/xkbcomp media-fonts/font-util x11-drivers/xf
 # FIXME: This is a specific Video card driver
 # We should allow a user to more easily modify this
 RDEPS+=" x11-drivers/xf86-video-nouveau"
+ARCH="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

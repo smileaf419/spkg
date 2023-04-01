@@ -1,11 +1,12 @@
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("https://downloads.sourceforge.net/libpng/libpng-${PKG_VER}.tar.xz")
 PATCHES=("https://downloads.sourceforge.net/sourceforge/libpng-apng/libpng-1.6.38-apng.patch.gz")
-LICENSE=""
 DEPS="sys-libs/zlib"
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

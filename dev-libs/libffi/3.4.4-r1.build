@@ -1,10 +1,11 @@
 HOMEPAGE="https://sourceware.org/libffi/"
 DESCRIPTION=""
-SRC_URI="https://github.com/libffi/libffi/releases/download/v${PKG_VER}/libffi-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="https://github.com/libffi/libffi/releases/download/v${PKG_VER}/libffi-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() {

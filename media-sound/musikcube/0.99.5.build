@@ -1,11 +1,12 @@
 HOMEPAGE="https://github.com/clangen/musikcube"
 DESCRIPTION="a cross-platform, terminal-based music player, audio engine, metadata indexer, and server"
+LICENSE="BSD-3"
 SRC_URI=("https://github.com/clangen/musikcube/archive/refs/tags/${PKG_VER}.tar.gz => ${PKG_NAME}-${PKG_VER}.tar.gz")
 PATCHES=("https://github.com/clangen/musikcube/files/10340400/musikcube-0.99.4-typo.patch")
-LICENSE="BSD-3"
 DEPS=""
 BDEPS="dev-cpp/asio"
 RDEPS="virtual/alsa media-video/pipewire"
+ARCH="x86 x86_64"
 SLOT=0
 setBuildENV cmake
 

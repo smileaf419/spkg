@@ -1,10 +1,11 @@
 HOMEPAGE="https://www.docbook.org/"
 DESCRIPTION="Docbook DTD for XML"
-SRC_URI="https://www.docbook.org/xml/${PKG_VER}/docbook-xml-${PKG_VER}.zip"
 LICENSE="docbook"
+SRC_URI="https://www.docbook.org/xml/${PKG_VER}/docbook-xml-${PKG_VER}.zip"
 DEPS=""
 BDEPS=""
 RDEPS="app-arch/unzip app-text/sgml-common dev-libs/libxml2"
+ARCH="x86 x86_64"
 SLOT=0
 B=""
 

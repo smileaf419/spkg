@@ -1,10 +1,11 @@
 HOMEPAGE=""
 DESCRIPTION=""
-SRC_URI="http://mj.ucw.cz/download/linux/pci/pciutils-${PKG_VER}.tar.gz"
 LICENSE=""
+SRC_URI="http://mj.ucw.cz/download/linux/pci/pciutils-${PKG_VER}.tar.gz"
 DEPS="sys-fs/eudev sys-libs/zlib"
 BDEPS=""
 RDEPS="net-misc/wget"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }

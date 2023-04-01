@@ -1,10 +1,11 @@
 HOMEPAGE="https://id3v2.sourceforge.net"
 DESCRIPTION="A command line editor for id3v2 tags"
-SRC_URI="http://prdownloads.sourceforge.net/id3v2/id3v2-${PKG_VER}.tar.gz"
 LICENSE="LGPLv2"
+SRC_URI="http://prdownloads.sourceforge.net/id3v2/id3v2-${PKG_VER}.tar.gz"
 DEPS="media-libs/id3lib sys-libs/zlib"
 BDEPS=""
 RDEPS="media-libs/id3lib"
+ARCH="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }
