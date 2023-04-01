@@ -32,16 +32,14 @@ setBuildENV() {
 			[[ $BUILD_SEPERATE_DIR == no ]] && BUILD_SEPERATE_DIR=yes ;;
 		cmake)
 			BDEPS+=" dev-util/cmake" ;;
-		*)
-			break ;;
 	esac
 	case $buildTool in
 		make)
 			BDEPS+=" sys-devel/automake" ;;
 		ninja)
 			BDEPS+=" dev-util/ninja" ;;
-		*)
-			break ;;
+		pip)
+			RESTRICT="nobin nostrip" ;;
 	esac
 }
 
@@ -109,8 +107,6 @@ configure_default() {
 	elif [[ $configTool == "cmake" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
 		cmake ${CONF_FLAGS} "$@" $d || die "Configure Failed!"
-	else
-		die "No configTool set!"
 	fi
 }
 
@@ -119,8 +115,6 @@ compile_default() {
 		make $MAKEOPTS $@ || die "Compile Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
 		ninja || die "Compile Failed!"
-	else
-		die "No buildTool set!"
 	fi
 }
 
@@ -132,8 +126,6 @@ test_default() {
 		make $MAKEOPTS $@ $TEST || die "Test Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
 		ninja test || die "Test Failed!"
-	else
-		die "No buildTool set!"
 	fi
 }
 
@@ -142,10 +134,17 @@ install_default() {
 		make DESTDIR="${D}/$ROOT" $@ install || die "Install Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
 		DESTDIR="${D}/$ROOT" ninja install || die "Install Failed!"
-	else
-		die "No buildTool set!"
+	elif [[ $buildTool == "pip" ]]; then
+		python -m pip install --upgrade $PKG_NAME
 	fi
 }
+
+uninstall_default() {
+	if [[ $buildTool == "pip" ]]; then
+		python -m pip uninstall -y $PKG_NAME
+	fi
+}
+
 export -f src_unpack src_configure src_compile src_test \
 	configure_default compile_default test_default \
 	install_default src_install \

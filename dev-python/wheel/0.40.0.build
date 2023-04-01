@@ -8,13 +8,4 @@ RDEPS="dev-lang/python dev-python/pip"
 ARCHS="x86 x86_64"
 SLOT=0
 MODULE=python
-
-src_configure() { :; }
-
-src_compile() { :; }
-
-src_test() { :; }
-
-src_install() {
-	python -m pip install --upgrade wheel
-}
+setBuildENV none pip

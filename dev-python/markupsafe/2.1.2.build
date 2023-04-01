@@ -9,17 +9,4 @@ ARCHS="x86 x86_64"
 SLOT=0
 MODULE=python
 B=""
-
-src_configure() { :; }
-
-src_compile() { :; }
-
-src_test() { :; }
-
-src_install() {
-	python -m pip install --upgrade $PKG_NAME
-}
-
-src_uninstall() {
-	python -m pip uninstall -y $PKG_NAME
-}
+setBuildENV none pip

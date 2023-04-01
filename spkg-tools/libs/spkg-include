@@ -112,7 +112,7 @@ installList() {
 			else
 				(
 					source "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VER}/${PKG_VER}.build"
-					src_uninstall
+					uninstall_default
 					uninstall "${PKG_CAT}/${PKG_NAME}" $O_VER ""
 					src_post_uninstall
 				)

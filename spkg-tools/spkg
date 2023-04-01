@@ -534,7 +534,7 @@ if [[ $MODE != "search" ]]; then
 			# check forced or empty world.
 			version_gt $PKG_VR $O_VER
 			if [[ $? == 0 ||
-				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]])) ||
+				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ||
 				! -z $EMPTY_WORLD ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
@@ -543,11 +543,11 @@ if [[ $MODE != "search" ]]; then
 				list+=" $PKG_CAT/$PKG_NAME"
 				[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
 			elif [[ $VERBOSE -gt 1 ]]; then
-				echo $PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE
+				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 			fi
 		else
 			if [[ $(getinstalledversion $PKG_CAT/$PKG_NAME) != 0 &&
-				($REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]])) ]]; then
+				($REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
