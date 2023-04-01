@@ -6,7 +6,7 @@ PATCHES=()
 DEPS="media-libs/libpng sys-libs/zlib x11-libs/libX11 x11-libs/libXau x11-libs/libXcursor x11-libs/libXdmcp x11-libs/libXfixes x11-libs/libXrender x11-libs/libxcb"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -8,7 +8,7 @@ BDEPS="x11-apps/xrandr dev-python/mako dev-libs/wayland-protocols"
 RDEPS=""
 use-enable X && UDEPS="x11-libs/libXv x11-libs/libXvMC"
 IUSE="X"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

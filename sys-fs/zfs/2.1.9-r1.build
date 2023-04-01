@@ -6,7 +6,7 @@ PATCHES=("https://github.com/openzfs/zfs/pull/14668/commits/de2af4ec42fbacfb1917
 DEPS="dev-libs/libaio dev-libs/openssl net-libs/libtirpc sys-fs/eudev sys-libs/zlib"
 BDEPS="sys-kernel/linux-kernel"
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 MODULE=kernel
 

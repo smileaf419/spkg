@@ -7,7 +7,7 @@ PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/app-crypt/gnupg/files/gn
 DEPS="app-arch/bzip2 dev-db/sqlite dev-libs/libassuan dev-libs/libgcrypt dev-libs/libgpg-error dev-libs/libksba dev-libs/npth net-libs/gnutls sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS="app-crypt/p11-kit dev-libs/nettle app-crypt/pinentry"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

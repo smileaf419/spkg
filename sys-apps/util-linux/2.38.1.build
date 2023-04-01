@@ -5,7 +5,7 @@ SRC_URI="https://www.kernel.org/pub/linux/utils/util-linux/v${PKG_VER%.*}/util-l
 DEPS="dev-libs/libpcre2 sys-apps/file sys-fs/eudev sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

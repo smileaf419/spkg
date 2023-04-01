@@ -6,7 +6,7 @@ PATCHES=()
 DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd dev-libs/libxml2 dev-libs/openssl sys-apps/acl sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 #src_configure() {

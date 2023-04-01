@@ -9,7 +9,7 @@ BDEPS="sys-kernel/linux-headers"
 RDEPS="sys-libs/libxcrypt"
 IUSE="gd"
 use-enable gd && UDEPS="media-libs/gd app-arch/bzip2 dev-libs/expat dev-libs/libpcre media-libs/fontconfig media-libs/freetype media-libs/libpng media-libs/libwebp sys-libs/zlib"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 

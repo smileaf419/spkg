@@ -5,7 +5,7 @@ SRC_URI="https://downloads.videolan.org/pub/videolan/libbluray/${PKG_VER}/libblu
 DEPS="dev-libs/libxml2 media-libs/fontconfig media-libs/freetype"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

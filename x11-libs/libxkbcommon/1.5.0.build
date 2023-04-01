@@ -10,7 +10,7 @@ DEPS="dev-libs/libxml2 x11-libs/libxcb"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

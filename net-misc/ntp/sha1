@@ -1,10 +1,4 @@
-9766588898fc3ea3c71290dd3967b2c693e417c5  4.2.8p15-r2.build
-e34e5b6f48c3ed1bbcfb03080dec1b8f91e19381  ntp-4.2.8p15.tar.gz
-a518c993a0c443dc7afcccfae82b1add86d28c66  ntp-4.2.8_p15-gcc10.patch
-1b23a4a6f35561e964b06bdb278d564551814115  ntp-4.2.8-sntp-test-pthreads.patch
-ec22a27dc598afbdc0fd0c26cc970a95c1b58d81  ntp-4.2.8-ipc-caps.patch
-96a08d0a5c8292dea2e578d6ead6c487716eb1f5  ntp-4.2.8_p14-add_cap_ipc_lock.patch
-b1ba0381b78f0e11421d94b27b0cb48fcca4f68b  4.2.8p15-r1.build
+cd422491b77e2b3c7b44033a555d69ef6934003b  4.2.8p15-r2.build
 e34e5b6f48c3ed1bbcfb03080dec1b8f91e19381  ntp-4.2.8p15.tar.gz
 a518c993a0c443dc7afcccfae82b1add86d28c66  ntp-4.2.8_p15-gcc10.patch
 1b23a4a6f35561e964b06bdb278d564551814115  ntp-4.2.8-sntp-test-pthreads.patch

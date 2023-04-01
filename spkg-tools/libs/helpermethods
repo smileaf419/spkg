@@ -86,36 +86,77 @@ append-cppflags() {
 
 # Requires the full path of the build dir.
 getlatestversion() {
-	find "$PKG_DB_DIR" -wholename "*/${1}/*.build" | 
+	getPkgVerList $1 | 
+		filterArch
+}
+
+getLatest() {
+	echo $(cat -) | tr ' ' '\n' |
 		sed -e "s,$PKG_DB_DIR/,," \
-			-e "s,.build$,," \
-				-e 's,:,/,'|
-		sort -V|
+			-e "s,.build$,," |
+		sort -V |
 		tail -n1
 }
+
 # Requires the PKG_NAME
-# Returns: 
+# Returns: the installed version
 getinstalledversion() {
 	[ -d "${PKG_CACHE}/${1}" ] && ls -1 "${PKG_CACHE}/${1}" | head -n1 || echo 0
 }
 
+getPkgVerList() {
+	find "$PKG_DB_DIR" -wholename "*/$1/*.build"
+}
+filterArch() {
+	echo $(cat -) | xargs grep -H "ARCHS=" | grep '[^~]'$ARCH'[ "]' | sed 's,:.*,,'
+}
+filterSlot() {
+	local p=$(cat -)
+	local slot=${1:-0}
+	if [[ $slot == 0 ]]; then
+		echo $p
+	else
+		echo $p | xargs grep "SLOT=$slot" | sed 's,:.*,,'
+	fi
+}
+
 # 1: Name of package
+#    Minimum syntax: pkgname
+#    Ulitmately I want this to be able to handle such a complex name as: =pkg_cat/pkg-name-1.0-r1:0[flags]
+# 2: Archs accepted
 # Returns: Name/version-rev (ex: package/1.0-r1)
 getpkg() {
 	p=$1
+	# Check for flags
+	if [[ $p == *[* ]]; then
+		flags=${p#*[}
+		flags=${flags%]}
+		p=${p%[*}
+	fi
+	# Check for slot
+	if [[ $p == *:* ]]; then
+		slot=${p#*:}
+		p=${p%:*}
+	fi
+
+	# If we have a = in the beginning a version is now required.
 	if [ ${p:0:1} == "=" ]; then
 		p=${p#=}
 		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
 		find "$PKG_DB_DIR" -wholename "*/${p}.build" |
 			sed -e "s,$PKG_DB_DIR/,," \
-				-e "s,.build$,," \
-				-e 's,:,/,'|
+				-e "s,.build$,," |
 			sort -V|
 			tail -n1
 	else
-		getlatestversion $1
+		getlatestversion $p | filterSlot $slot | getLatest
 	fi
 }
+
+getpkgslot() {
+	grep 'SLOT=' $1 | sed 's,^SLOT=,,'
+}
+
 # 1: getpkg
 # Returns Category
 getcategory() {

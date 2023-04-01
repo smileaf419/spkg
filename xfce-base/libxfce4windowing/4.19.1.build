@@ -10,7 +10,7 @@ DEPS="app-accessibility/at-spi2-core  dev-libs/glib dev-libs/wayland media-libs/
 BDEPS="dev-libs/glib dev-lang/vala dev-libs/gobject-introspection"
 RDEPS=""
 setBuildENV auto make
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

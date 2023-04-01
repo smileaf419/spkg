@@ -1,6 +1,5 @@
-4df7889ae89dd9d45d70c6c3e407f0773249434c  2.7.6-r1.build
+890f10ade3dc46c362e76c8c9589e9052f9e21c0  2.7.6-r1.build
 6f64fa75993bdb285ac4ed6eca6c9212725bff91  patch-2.7.6.tar.xz
-06be3f6cc4a529d7428c53355f7904fb624d96df  patch-2.7.6.tar.xz.sig
 9d4f622df9501d72ffa40e62edca9b934aaad1c4  patch-2.7.6-fix-test-suite.patch
 8bff26cb8818dad5f918b7bad2df64b15bfa6dae  patch-2.7.6-fix-error-handling-with-git-style-patches.patch
 b4b6a520c9b5bbf4992b3bed3c1f575d8fe7c153  patch-2.7.6-CVE-2018-6951.patch
@@ -13,6 +12,3 @@ bdc66548ba3d00b253edb0d0b8367b8c5f63fff9  patch-2.7.6-CVE-2018-6952.patch
 63cebf216bd490ba857018bf5e3018fd784aef64  patch-2.7.6-CVE-2019-13636.patch
 3e1e678bd781792635d3b922a58debd75da79687  patch-2.7.6-CVE-2019-13638.patch
 ef5082f32491a32e6341625cb10007b976266b05  patch-2.7.6-Avoid-invalid-memory-access-in-context-format-diffs.patch
-f6371c359d1c882a838f1c313e98d80635c150d5  2.7.6.build
-6f64fa75993bdb285ac4ed6eca6c9212725bff91  patch-2.7.6.tar.xz
-06be3f6cc4a529d7428c53355f7904fb624d96df  patch-2.7.6.tar.xz.sig

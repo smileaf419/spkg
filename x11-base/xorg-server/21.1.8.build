@@ -10,7 +10,7 @@ RDEPS="x11-libs/libxkbfile x11-apps/xkbcomp media-fonts/font-util x11-drivers/xf
 # FIXME: This is a specific Video card driver
 # We should allow a user to more easily modify this
 RDEPS+=" x11-drivers/xf86-video-nouveau"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

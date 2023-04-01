@@ -6,7 +6,7 @@ SRC_URI=("https://downloads.xvid.com/downloads/xvidcore-${PKG_VER}.tar.bz2")
 DEPS=""
 BDEPS=""
 RDEPS="dev-lang/yasm"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=xvidcore/build/generic
 

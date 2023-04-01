@@ -7,7 +7,7 @@ TEST=1
 DEPS="app-arch/zstd dev-libs/gmp dev-libs/mpc dev-libs/mpfr sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 
@@ -46,7 +46,7 @@ if [ TEST == 1 ]; then
 	readelf -l a.out | grep ': /lib'
 	grep -o '/usr/lib.*/crt[1in].*succeeded' dummy.log
 	grep -B4 '^ /usr/include' dummy.log
-	grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g'
+	grep 'SEARCHS.*/usr/lib' dummy.log |sed 's|; |\n|g'
 	grep "/lib.*/libc.so.6 " dummy.log
 	grep found dummy.log
 	rm -v dummy.c a.out dummy.log

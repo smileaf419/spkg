@@ -23,7 +23,7 @@ getFullPkgList() {
 	local rlist=
 	for d in $tlist; do
 		getdep $d
-		flist+=" $PKG_CAT/$PKG_NAME"
+		flist+=" $LENTRY" #$PKG_CAT/$PKG_NAME"
 	done
 	echo
 }
@@ -113,11 +113,12 @@ getdep() {
 		# Add our package
 		grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
 		if [ $? != 0 ]; then
-			if [ ${p:0:1} == "=" ]; then
-				echo "=$PKG_CAT/$PKG_NAME-${PKG_VR}"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
-			else
-				echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
-			fi
+			echo $LENTRY >> /tmp/chart
+#			if [ ${p:0:1} == "=" ]; then
+#				echo "=$PKG_CAT/$PKG_NAME-${PKG_VR}"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
+#			else
+#				echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
+#			fi
 			sed "/^PKG_CAT.$PKG_NAME/d" -i /tmp/stack
 		fi
 		# Add our Post Dependency list here.

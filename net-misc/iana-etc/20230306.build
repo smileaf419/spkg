@@ -5,7 +5,7 @@ SRC_URI="https://github.com/Mic92/iana-etc/releases/download/${PKG_VER}/iana-etc
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 CFG_PROTECT=false
 

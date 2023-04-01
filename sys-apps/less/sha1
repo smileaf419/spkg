@@ -1,9 +1,4 @@
-c3fc6c80e71bda92065ea0cf2323fc4beb4333c5  608-r1.build
-94493a15bed80574cefc30153a10ceebab6824a0  less-608.tar.gz
-41e82ee1acaeff13abbba3d83825778e7bea95db  less-608-procfs.patch
-7876a1bc3dceb750f52c7934ce885e52d9c73c82  608-r2.build
+51396f796d0df439217e94a49098ebdce41a896e  608-r2.build
 94493a15bed80574cefc30153a10ceebab6824a0  less-608.tar.gz
 41e82ee1acaeff13abbba3d83825778e7bea95db  less-608-procfs.patch
 cde58ed6b0b0d9930af5c0f61d5b7ac19e1bdc4d  less-608-CVE-2022-46663.patch
-7ad7d67130d351d6b89d48c114555c19ff45d27e  608.build
-94493a15bed80574cefc30153a10ceebab6824a0  less-608.tar.gz

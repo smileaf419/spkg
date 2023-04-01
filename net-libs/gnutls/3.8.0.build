@@ -6,7 +6,7 @@ SRC_URI=("https://www.gnupg.org/ftp/gcrypt/gnutls/v${PKG_VER%.*}/gnutls-${PKG_VE
 DEPS="app-arch/zstd app-crypt/p11-kit dev-libs/gmp dev-libs/libtasn1 dev-libs/libunistring dev-libs/nettle sys-libs/zlib"
 BDEPS=""
 RDEPS="app-crypt/make-ca"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

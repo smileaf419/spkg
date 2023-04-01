@@ -40,6 +40,7 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
 CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
+ARCHS=${ARCHS:-x86_64}
 USE=${USE:-}
 PAGE=${PAGE:-letter}
 ENABLE_TEST=${ENABLE_TESTS:-0}
@@ -63,7 +64,7 @@ PKG_WORLD=${PKG_WORLD:-${CACHE_DIR}/world}
 PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-${CACHE_DIR}/archive}
 
 export PKG_DB_DIR PKG_CACHE DISTFILES WORKDIR_BASE ROOT MAKEOPTS
-export CFLAGS CXXFLAGS PAGE USE
+export CFLAGS CXXFLAGS PAGE USE ARCHS
 export ENABLE_TESTS INSTALL_DOCS BUILD_USER SILENT_BUILD
 
 # 0: Install; 1: Uninstall; 2: Search; 3: Update
@@ -265,14 +266,15 @@ populate_list() {
 			fi
 		else
 			setupENV $p
-			if [[ "$PKG_CAT/$PKG_NAME" == "/" ]]; then
-				tlist+=" $p"
-			elif [ ${p:0:1} == "=" ]; then
-				tlist+=" =$PKG_CAT/$PKG_NAME-$PKG_VR"
-				[[ $PKG_FLAGS != "" ]] && tlist+="[$PKG_FLAGS]"
-			else
-				tlist+=" $PKG_CAT/$PKG_NAME"
-			fi
+			tlist+=" $LENTRY"
+#			if [[ "$PKG_CAT/$PKG_NAME" == "/" ]]; then
+#				tlist+=" $p"
+#			elif [ ${p:0:1} == "=" ]; then
+#				tlist+=" =$PKG_CAT/$PKG_NAME-$PKG_VR"
+#				[[ $PKG_FLAGS != "" ]] && tlist+="[$PKG_FLAGS]"
+#			else
+#				tlist+=" $PKG_CAT/$PKG_NAME"
+#			fi
 		fi
 	done
 	export REQUESTED_LIST=${tlist# }
@@ -313,8 +315,7 @@ if [[ $MODE == "update" ]]; then
 		VER=${f##*/}
 		[ $VERBOSE -ge 2 ] && echo "Checking $PKG_NAME - $PKG_VR > $VER"
 		if version_gt $PKG_VR $VER ; then
-			list+=" $PKG_CAT/$PKG_NAME"
-			[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
+			list+=" $LENTRY"
 			echo $PKG_NAME :: $PKG_VR
 		fi
 	done	
@@ -566,27 +567,25 @@ fi
 if [[ $MODE == "search" ]]; then
 	for p in $list; do
 		echo "Searching: $p"
-		for s in $(find $PKG_DB_DIR -mindepth 2 -type d -wholename \*$p\* | sed -e "s,$PKG_DB_DIR/,,"); do
-			setupENV $s
-			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
-			echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"
-			echo "    Installed: ${O_VER}"
-			(
-				source "${PKG_BLD}"
-				echo "    Homepage: ${HOMEPAGE}"
-				echo "    Description: ${DESCRIPTION}"
-				[[ -z $LICENSE ]] && LICENSE="Unknown"
-				echo "    License:  ${LICENSE}"
-				[[ ! -z $IUSE ]] && echo "    USE: ${IUSE}"
-				echo -n "    Deps: ${DEPS}"
-				[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
-				[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
-				[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
-				[[ ! -z "$CDEPS" ]] && echo -n " [C:${CDEPS}]"
-				echo
-			)
+		setupENV $p
+		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
+		echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"
+		echo "    Installed: ${O_VER}"
+		(
+			source "${PKG_BLD}"
+			echo "    Homepage: ${HOMEPAGE}"
+			echo "    Description: ${DESCRIPTION}"
+			[[ -z $LICENSE ]] && LICENSE="Unknown"
+			echo "    License:  ${LICENSE}"
+			[[ ! -z $IUSE ]] && echo "    USE: ${IUSE}"
+			echo -n "    Deps: ${DEPS}"
+			[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
+			[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
+			[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
+			[[ ! -z "$CDEPS" ]] && echo -n " [C:${CDEPS}]"
 			echo
-		done
+		)
+		echo
 	done
 	exit 0
 fi	

@@ -6,7 +6,7 @@ PATCHES=()
 DEPS="dev-libs/libevdev sys-fs/eudev sys-libs/mtdev"
 BDEPS="x11-base/xorg-server"
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

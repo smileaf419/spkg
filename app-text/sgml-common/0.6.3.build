@@ -6,7 +6,7 @@ PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/sgml-common-0.6.3-ma
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

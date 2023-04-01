@@ -8,7 +8,7 @@ PATCHES=()
 DEPS="app-arch/bzip2 dev-db/sqlite dev-libs/libpcre2 dev-libs/libxml2 dev-libs/openssl sys-libs/libxcrypt sys-libs/zlib"
 BDEPS=""
 RDEPS="accounts/www"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

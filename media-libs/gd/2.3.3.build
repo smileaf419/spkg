@@ -8,7 +8,7 @@ DEPS="media-libs/fontconfig media-libs/freetype media-libs/libjpeg-turbo media-l
 use-enable X && UDEPS="x11-libs/libX11 x11-libs/libXau x11-libs/libxcb x11-libs/libXdmcp x11-libs/libXpm"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=libgd-${PKG_VER}
 

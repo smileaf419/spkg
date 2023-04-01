@@ -1,8 +1,4 @@
-625c4b66917bcf25a0d20fa4d5563cef3db29c7a  2.3.8.build
-1f31b7b4c9c9adad97f94ea3acf1aa64c0424bcc  gnupg-2.3.8.tar.bz2
-b6b02feb04baebb9d4929e3227157f041a0c3b99  gnupg-2.3.8.tar.bz2.sig
-6d66f106c634537ad624d21c29e7dddcdb4eb086  gnupg-2.2.40-fix-no-ldap-build.patch
-d7c7e07df431af1203f3927e1635c612eb2ba233  2.4.0.build
+982aaa19530c4d143f12cf28c260aaa984d6b49b  2.4.0.build
 63dde155a8df0d5e1987efa5fc17438beca83ac1  gnupg-2.4.0.tar.bz2
 f8698c30bf688a8b35a634f90cd5bc304f72a054  gnupg-2.4.0.tar.bz2.sig
 6d66f106c634537ad624d21c29e7dddcdb4eb086  gnupg-2.2.40-fix-no-ldap-build.patch

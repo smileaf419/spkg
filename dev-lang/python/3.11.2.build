@@ -10,7 +10,7 @@ DEPS="app-arch/bzip2 app-arch/xz-utils dev-libs/expat dev-libs/libffi dev-libs/o
 BDEPS=""
 RDEPS=""
 use-enable sqlite && UDEPS="dev-db/sqlite"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 

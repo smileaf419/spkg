@@ -7,5 +7,5 @@ PATCHES=()
 DEPS="media-libs/alsa-lib media-libs/libsdl2 media-libs/openal media-sound/pulseaudio"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0

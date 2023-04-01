@@ -8,7 +8,7 @@ DEPS="dev-libs/gmp dev-libs/openssl sys-apps/acl sys-apps/attr sys-libs/libcap"
 # We require a non-root user so depend on su
 BDEPS="sys-apps/shadow"
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

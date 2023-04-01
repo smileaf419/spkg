@@ -11,7 +11,7 @@ if [[ $(type -t fetch_file) != 0 ]]; then
 fi
 
 # Set a few flags to ensure everything gets fetched and hashed.
-VERIFY_SIG=1
+VERIFY_SIG=0
 ENABLE_TESTS=1
 
 get_files() {

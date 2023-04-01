@@ -8,7 +8,7 @@ B="elfutils-${PKG_VER}"
 DEPS="sys-libs/zlib"
 BDEPS="sys-devel/flex sys-devel/m4 sys-devel/gettext"
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 append-flags -g
 #CPPFLAGS+=" -g"

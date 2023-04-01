@@ -5,5 +5,5 @@ SRC_URI="http://ftp.rpm.org/popt/releases/popt-1.x/popt-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0

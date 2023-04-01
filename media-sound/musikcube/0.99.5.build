@@ -6,7 +6,7 @@ PATCHES=("https://github.com/clangen/musikcube/files/10340400/musikcube-0.99.4-t
 DEPS=""
 BDEPS="dev-cpp/asio"
 RDEPS="virtual/alsa media-video/pipewire"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 setBuildENV cmake
 

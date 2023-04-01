@@ -6,5 +6,5 @@ SRC_URI=("https://ftp.gnu.org/gnu/automake/automake-${PKG_VER}.tar.xz")
 DEPS="sys-devel/autoconf"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0

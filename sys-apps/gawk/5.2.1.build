@@ -8,7 +8,7 @@ PATCHES=("https://868567.bugs.gentoo.org/attachment.cgi?id=803497 => gawk-kernel
 DEPS="dev-libs/gmp dev-libs/mpfr sys-libs/readline"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

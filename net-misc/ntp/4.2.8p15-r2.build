@@ -9,7 +9,7 @@ PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp
 DEPS="dev-libs/openssl sys-libs/libcap sys-libs/readline"
 BDEPS="dev-perl/IO-Socket-SSL accounts/ntp"
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 append-flags -fPIC -g
 append-cppflags -D_GNU_SOURCE

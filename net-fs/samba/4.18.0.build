@@ -7,7 +7,7 @@ BDEPS="dev-perl/JSON net-libs/rpcsvc-proto dev-perl/Parse-Yapp dev-python/iso860
 RDEPS="dev-db/lmdb"
 IUSE="ldap"
 use-enable ldap && UDEPS="net-nds/openldap"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 

@@ -6,7 +6,7 @@ PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS="x11-libs/libxcb"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

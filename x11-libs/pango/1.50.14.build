@@ -6,7 +6,7 @@ PATCHES=()
 DEPS="dev-libs/fribidi dev-libs/glib media-libs/fontconfig media-libs/freetype media-libs/harfbuzz x11-libs/cairo x11-libs/libX11 x11-libs/libXft x11-libs/libXrender"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

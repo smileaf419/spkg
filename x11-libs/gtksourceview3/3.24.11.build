@@ -6,6 +6,6 @@ PATCHES=()
 DEPS="app-accessibility/at-spi2-core  dev-libs/glib dev-libs/libxml2 media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/pango"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=gtksourceview-$PKG_VER

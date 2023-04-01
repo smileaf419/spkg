@@ -6,7 +6,7 @@ SRC_URI=("https://www.makemkv.com/download/makemkv-bin-${PKG_VER}.tar.gz"
 DEPS="dev-libs/expat dev-libs/openssl media-video/ffmpeg sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 # Empty initially as we still need to unpack the OSS package.
 B=""

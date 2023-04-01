@@ -1,11 +1,3 @@
-48ef5cc2f8257ec9bfc8806b23bd2f076a6150a8  5.1.1.build
-87dfc1a72c2da51b4ebdafae221ba1d4a5a7b07e  gawk-5.1.1.tar.xz
-375a889bf3bfcbfa0801e37214142d63d172d640  gawk-5.1.1.tar.xz.sig
-4647e08830902bc01f3513687ed0cfdc22597e06  5.2.1.build
+aac6e999e1a9b76f6125a5e6db8014cd7f1917df  5.2.1.build
 1ec9f46427e7a2778b6f497a8d08b412b5fcaee5  gawk-5.2.1.tar.xz
-8f4edb0a68e1dc7d4d1451866acc20a3f593f373  gawk-5.2.1.tar.xz.sig
 32925d9f123983cc10e7bf35fc8dd42b06ec3f2c  gawk-kernel-compile-fix.patch
-9d276dd4afc255b1f007a88ccc2d5a17a4378faf  5.2.0.build
-2537335e0b8c40b071f4235182a256599a974ce7  gawk-5.2.0.tar.xz
-21ad48a72741ea7af34d97175b589c73e28b413a  gawk-5.2.0.tar.xz.sig
-32925d9f123983cc10e7bf35fc8dd42b06ec3f2c  attachment.cgi?id=803497

@@ -5,7 +5,7 @@ SRC_URI="https://storage.googleapis.com/downloads.webmproject.org/releases/webp/
 DEPS="media-libs/libjpeg-turbo media-libs/libpng media-libs/tiff"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

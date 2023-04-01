@@ -7,7 +7,7 @@ PATCHES=()
 DEPS="app-arch/bzip2 sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=pcre2-$PKG_VER
 

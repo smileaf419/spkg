@@ -5,7 +5,7 @@ SRC_URI="https://github.com/thkukuk/rpcsvc-proto/releases/download/v${PKG_VER}/r
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

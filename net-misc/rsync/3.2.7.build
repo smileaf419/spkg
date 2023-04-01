@@ -5,7 +5,7 @@ SRC_URI="https://www.samba.org/ftp/rsync/src/rsync-${PKG_VER}.tar.gz"
 DEPS="app-arch/zstd dev-libs/openssl dev-libs/popt sys-apps/acl sys-apps/attr sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

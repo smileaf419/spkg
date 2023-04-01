@@ -5,5 +5,5 @@ SRC_URI="https://downloads.xiph.org/releases/ogg/libogg-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0

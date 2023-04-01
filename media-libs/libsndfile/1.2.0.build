@@ -7,5 +7,5 @@ DEPS="media-libs/alsa-lib media-libs/flac media-libs/libogg media-libs/libvorbis
 BDEPS=""
 RDEPS=""
 CDEPS="media-sound/mpg123"
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0

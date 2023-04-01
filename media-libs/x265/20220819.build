@@ -5,13 +5,13 @@ SRC_URI="https://anduin.linuxfromscratch.org/BLFS/x265/x265-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCH="x86 x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 setBuildENV cmake
 BUILD_SEPERATE_DIR=../source
 
 src_configure() {
-	configure_default -DGIT_ARCHETYPE=1
+	configure_default -DGIT_ARCHSETYPE=1
 }
 
 src_test() { :; }

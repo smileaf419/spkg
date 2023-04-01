@@ -31,15 +31,14 @@ getBDeps() {
 	echo "Done"
 }
 
+# Setup package name & version variables
 # 1: Package Name
 setupENV() {
-	# If the PKG changes, its Ok to reset the PKG_FLAGS
-	TPKG=$(getpkg ${1%[*})
-	if [[ $TPKG != $PKG && $1 == *[* ]]; then
+	if [[ $1 == *[* ]]; then
 		PKG_FLAGS=${1#*[}
 		PKG_FLAGS=${PKG_FLAGS%]}
 	fi
-	PKG=$TPKG
+	PKG=$(getpkg $1)
 	PKG_BLD=$PKG_DB_DIR/${PKG}.build
 	PKG_CAT=$(getcategory $PKG)
 	PKG_NAME=$(getpkgname $PKG)
@@ -48,12 +47,22 @@ setupENV() {
 	PKG_VR=$(getpkgvr $PKG)
 	PKG_NVR=${PKG_NAME}-${PKG_VR}
 	PKG_NV=${PKG_NAME}-${PKG_VER}
+	PKG_SLOT=$(getpkgslot $PKG_BLD)
 	BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	# Default archive build directory
 	B="${PKG_NV}"
 	# Temp install root
 	D="${BUILD_PATH}/troot"
 	O_VER=$(getinstalledversion $PKG_CAT/$PKG_NAME)
+
+	# Build a fully Qualified List Entry for data safe-keeping.
+	LENTRY="="$PKG_CAT/$PKG_NVR
+	if [[ $1 == *:* ]]; then
+		LENTRY+=:$PKG_SLOT
+	fi
+	if [[ ! -z $PKG_FLAGS ]]; then
+		LENTRY+=[$PKG_FLAGS]
+	fi
 	if [ $VERBOSE -ge 3 ]; then
 		echo "1          : $1"
 		echo "PKG        : $PKG"
@@ -63,13 +72,16 @@ setupENV() {
 		echo "PKG_VER    : $PKG_VER"
 		echo "PKG_REV    : $PKG_REV"
 		echo "PKG_VR     : $PKG_VR"
+		echo "PKG_SLOT   : $PKG_SLOT"
 		echo "BUILD_PATH : $BUILD_PATH"
 		echo "B          : $B"
 		echo "O_VER      : $O_VER"
 		echo "PKG_CACHE  : $PKG_CACHE"
 		echo "PKG_FLAGS  : $PKG_FLAGS"
+		echo "LENTRY     : $LENTRY"
 	fi
-	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR PKG_NV PKG_NVR BUILD_PATH B D O_VER
+	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR PKG_NV PKG_NVR PKG_SLOT
+	export BUILD_PATH B D O_VER LENTRY
 }
 
 installList() {

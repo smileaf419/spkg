@@ -2,16 +2,18 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
+LICENSE=""
 SRC_URI=("")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-LICENSE=""
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
 SLOT=0
+#B=
 
 src_configure() { :; }
 
