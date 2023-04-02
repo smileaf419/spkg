@@ -1,12 +1,15 @@
-HOMEPAGE=""
-DESCRIPTION=""
-SRC_URI=("https://download.gnome.org/sources/cairo/${PKG_VER%.*}/cairo-${PKG_VER}.tar.xz")
-PATCHES=("")
-LICENSE=""
+HOMEPAGE="https://cairographics.org"
+DESCRIPTION="2D graphics library with support for multiple output devices"
+LICENSE="LGPLv2.1 MPL"
+SRC_URI=("https://cairographics.org/snapshots/cairo-${PKG_VER}.tar.xz")
+#https://download.gnome.org/sources/cairo/${PKG_VER%.*}/cairo-${PKG_VER}.tar.xz")
+PATCHES=()
 DEPS="dev-libs/glib dev-libs/lzo media-libs/fontconfig media-libs/freetype media-libs/libpng sys-devel/binutils sys-libs/zlib x11-libs/libX11 x11-libs/libxcb x11-libs/libXext x11-libs/libXrender x11-libs/pixman"
 BDEPS=""
 RDEPS=""
+ARCHS="~x86 ~x86_64"
 SLOT=0
+CDEPS="media-libs/harfbuzz"
 
 src_configure() {
 	# Fix to build with binutils 2.39

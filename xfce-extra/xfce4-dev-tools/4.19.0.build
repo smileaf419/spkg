@@ -2,14 +2,15 @@
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://www.xfce.org"
 DESCRIPTION=""
-SRC_URI=("https://archive.xfce.org/xfce/${PKG_VER%.*}/src/xfce4-dev-tools-$PKG_VER.tar.bz2")
+LICENSE=""
+SRC_URI=("https://archive.xfce.org/src/xfce/xfce4-dev-tools/${PKG_VER%.*}/xfce4-dev-tools-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-LICENSE=""
 DEPS="dev-libs/glib"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
+ARCHS="~x86 ~x86_64"
 SLOT=0
 
 src_configure() {
