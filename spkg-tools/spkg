@@ -40,7 +40,7 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
 CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
-ARCHS=${ARCHS:-x86_64}
+ARCH=${ARCH:-x86_64}
 USE=${USE:-}
 PAGE=${PAGE:-letter}
 ENABLE_TEST=${ENABLE_TESTS:-0}
@@ -255,7 +255,7 @@ populate_list() {
 	tlist=
 	for p in $list; do
 		# This assumes all entries within a set are fully-qualified.
-		if [ ${p:0:1} == "@" ]; then
+		if [[ ${p:0:1} == "@" ]]; then
 			echo " * Found ${p#@} Set .. Expanding"
 			if [[ ${p#@} == "world" ]]; then
 				tlist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
@@ -267,14 +267,6 @@ populate_list() {
 		else
 			setupENV $p
 			tlist+=" $LENTRY"
-#			if [[ "$PKG_CAT/$PKG_NAME" == "/" ]]; then
-#				tlist+=" $p"
-#			elif [ ${p:0:1} == "=" ]; then
-#				tlist+=" =$PKG_CAT/$PKG_NAME-$PKG_VR"
-#				[[ $PKG_FLAGS != "" ]] && tlist+="[$PKG_FLAGS]"
-#			else
-#				tlist+=" $PKG_CAT/$PKG_NAME"
-#			fi
 		fi
 	done
 	export REQUESTED_LIST=${tlist# }
@@ -305,7 +297,9 @@ elif [[ $MODE == "bootstrap" ]]; then
 	echo " * Bootstrapping .. This will take a while.."
 fi
 
-populate_list
+if [[ $MODE != "search" ]]; then
+	populate_list
+fi
 
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
@@ -567,25 +561,32 @@ fi
 if [[ $MODE == "search" ]]; then
 	for p in $list; do
 		echo "Searching: $p"
-		setupENV $p
-		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
-		echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"
-		echo "    Installed: ${O_VER}"
-		(
-			source "${PKG_BLD}"
-			echo "    Homepage: ${HOMEPAGE}"
-			echo "    Description: ${DESCRIPTION}"
-			[[ -z $LICENSE ]] && LICENSE="Unknown"
-			echo "    License:  ${LICENSE}"
-			[[ ! -z $IUSE ]] && echo "    USE: ${IUSE}"
-			echo -n "    Deps: ${DEPS}"
-			[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
-			[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
-			[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
-			[[ ! -z "$CDEPS" ]] && echo -n " [C:${CDEPS}]"
-			echo
-		)
-		echo
+		for r in $(find $PKG_DB_DIR -maxdepth 2 -iname *$p* | sed "s,$PKG_DB_DIR\(/*\)\?,,"); do
+			setupENV $r
+			if [[ $PKG_NAME != "" ]]; then
+				checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
+				echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"
+				echo "    Installed: ${O_VER}"
+				(
+					source "${PKG_BLD}"
+					echo "    Homepage: ${HOMEPAGE}"
+					echo "    Description: ${DESCRIPTION}"
+					[[ -z $LICENSE ]] && LICENSE="Unknown"
+					echo "    License:  ${LICENSE}"
+					[[ ! -z $IUSE ]] && echo "    USE: ${IUSE}"
+					echo -n "    Deps: ${DEPS}"
+					[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
+					[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
+					[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
+					[[ ! -z "$CDEPS" ]] && echo -n " [C:${CDEPS}]"
+					echo
+				)
+				echo
+			else
+				echo " !! $p not found"
+				break
+			fi
+		done
 	done
 	exit 0
 fi	

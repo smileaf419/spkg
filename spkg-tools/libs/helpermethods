@@ -105,7 +105,7 @@ getinstalledversion() {
 }
 
 getPkgVerList() {
-	find "$PKG_DB_DIR" -wholename "*/$1/*.build"
+	find "$PKG_DB_DIR" -iwholename "*/$1/*.build"
 }
 filterArch() {
 	echo $(cat -) | xargs grep -H "ARCHS=" | grep '[^~]'$ARCH'[ "]' | sed 's,:.*,,'
@@ -140,7 +140,7 @@ getpkg() {
 	fi
 
 	# If we have a = in the beginning a version is now required.
-	if [ ${p:0:1} == "=" ]; then
+	if [[ ${p:0:1} == "=" ]]; then
 		p=${p#=}
 		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
 		find "$PKG_DB_DIR" -wholename "*/${p}.build" |
