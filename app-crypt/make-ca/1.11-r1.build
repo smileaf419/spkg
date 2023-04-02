@@ -1,0 +1,53 @@
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/lfs-book/make-ca/releases/download/v${PKG_VER}/make-ca-${PKG_VER}.tar.xz"
+"http://www.cacert.org/certs/root.crt"
+"http://www.cacert.org/certs/class3.crt")
+DEPS=""
+BDEPS=""
+RDEPS="app-crypt/p11-kit dev-libs/openssl"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	# Fix hardcoded paths
+	sed -e 's,/usr/bin/md5sum,/bin/md5sum,'   \
+		-e 's,/usr/bin/openssl,/bin/openssl,' \
+		-e 's,/usr/bin/cut,/bin/cut,'         \
+		-i make-ca
+}
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	install -vdm755 "${D}"/etc/ssl/local
+
+	openssl x509 -in "${DISTFILES}"/root.crt -text -fingerprint -setalias "CAcert Class 1 root" \
+			-addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+			> "${D}"/etc/ssl/local/CAcert_Class_1_root.pem &&
+	openssl x509 -in ${DISTFILES}/class3.crt -text -fingerprint -setalias "CAcert Class 3 root" \
+			-addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+			> "${D}"/etc/ssl/local/CAcert_Class_3_root.pem
+
+	# Create a profile variable so python will used non-bundled certs
+	mkdir -pv "${D}"/etc/profile.d
+cat > "${D}"/etc/profile.d/pythoncerts.sh << "EOF"
+export _PIP_STANDALONE_CERT=/etc/pki/tls/certs/ca-bundle.crt
+EOF
+
+	# Create a cron job to update certs weekly
+	mkdir -p "${D}"/etc/cron.weekly
+	cat > "${D}"/etc/cron.weekly/update-pki.sh << "EOF"
+#!/bin/bash
+/usr/sbin/make-ca -g
+EOF
+	chmod 754 "${D}"/etc/cron.weekly/update-pki.sh
+
+	inform "to finish the install please run: /usr/sbin/make-ca -g"
+	inform "A cronjob has been installed to do this every week"
+}
