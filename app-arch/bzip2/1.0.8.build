@@ -11,7 +11,9 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	# Ensure installation of Symlinks
 	sed -i 's@\(ln -s -f \)$(PREFIX)/bin/@\1@' Makefile
+	# Fix man page installation
 	sed -i "s@(PREFIX)/man@(PREFIX)/usr/share/man@g" Makefile
 
 	append-ldflags -fPIC

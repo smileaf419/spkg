@@ -9,6 +9,10 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	# Fix a test case based on a bug of old Glibc releases
+	sed -e 's/+01,234,567/+1,234,567 /' \
+		-e 's/13.10Pd/13Pd/'            \
+		-i tests/tsprintf.c
 	configure_default \
 	            --enable-thread-safe
 }
@@ -24,6 +28,10 @@ src_install() {
 }
 
 bootstrap() {
+	# Fix a test case based on a bug of old Glibc releases
+	sed -e 's/+01,234,567/+1,234,567 /' \
+		-e 's/13.10Pd/13Pd/'            \
+		-i tests/tsprintf.c
 	case $PKG_FLAGS in
 		pass1) ./configure --host=$HOST_TGT --build=$(config.guess) --prefix=/tools ;;
 		pass2) configure_default ;;

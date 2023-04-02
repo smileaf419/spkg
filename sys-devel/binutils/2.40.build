@@ -8,9 +8,10 @@ PATCHES=()
 DEPS="app-arch/zstd sys-devel/flex sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="x86 x86_64"
+ARCHS="~x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
+[[ ${ARCH#\~} == "x86" ]] && SET_ABI="ABI=32"
 
 src_configure() {
 	configure_default \

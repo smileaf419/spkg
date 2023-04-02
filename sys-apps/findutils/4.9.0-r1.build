@@ -10,21 +10,18 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
-#	sed -e '/^SUBDIRS/s@locate@@' \
-#		-e '/^built_programs/s@ frcode locate updatedb@@' \
-#		-i Makefile.in
-
-#	case $(uname -m) in
-#	    i?86)   TIME_T_32_BIT_OK=yes ;;
-#	esac
-	./configure --prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin
+	conf_opts="--prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin"
+	case $(uname -m) in
+		i?86)   TIME_T_32_BIT_OK=yes ./configure $conf_opts ;;
+		x86_64) ./configure $conf_opts ;;
+	esac
 }
 
 bootstrap() {
-	./configure --prefix=/usr                   \
-				--bindir=/bin                   \
-				--localstatedir=/var/lib/locate \
-				--host=$HOST_TGT                \
-				--build=$(build-aux/config.guess)
+	conf_opts="--prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin --host=$HOST_TGT --build=$(build-aux/config.guess)"
+	case $(uname -m) in
+		i?86)   TIME_T_32_BIT_OK=yes ./configure $conf_opts ;;
+		x86_64) ./configure $conf_opts ;;
+	esac
 	compile_default && install_default
 }

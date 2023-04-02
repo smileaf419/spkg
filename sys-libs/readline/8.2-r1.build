@@ -1,6 +1,6 @@
 HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
-DESCRIPTION=""
-LICENSE=""
+DESCRIPTION="Provides a set of functions for use by applications that allow users to edit command lines as they are typed in."
+LICENSE="GPLv3"
 SRC_URI=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz.sig")
 PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/readline-8.2-upstream_fix-1.patch")
@@ -11,6 +11,8 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	# Probably not required as we're always installing into a clean temp root.
+	# But included from LFS.
 	sed -i '/MV.*old/d' Makefile.in
 	sed -i '/{OLDSUFF}/c:' support/shlib-install
 
