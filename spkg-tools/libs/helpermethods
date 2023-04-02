@@ -108,7 +108,7 @@ getPkgVerList() {
 	find "$PKG_DB_DIR" -iwholename "*/$1/*.build"
 }
 filterArch() {
-	echo $(cat -) | xargs grep -H "ARCHS=" | grep '[^~]'$ARCH'[ "]' | sed 's,:.*,,'
+	echo $(cat -) | xargs grep -H "ARCHS=" 2> /dev/null | grep '[^~]'$ARCH'[ "]' 2> /dev/null| sed 's,:.*,,'
 }
 filterSlot() {
 	local p=$(cat -)
@@ -116,7 +116,7 @@ filterSlot() {
 	if [[ $slot == 0 ]]; then
 		echo $p
 	else
-		echo $p | xargs grep "SLOT=$slot" | sed 's,:.*,,'
+		echo $p | xargs grep "SLOT=$slot" 2> /dev/null | sed 's,:.*,,'
 	fi
 }
 
@@ -154,7 +154,7 @@ getpkg() {
 }
 
 getpkgslot() {
-	grep 'SLOT=' $1 | sed 's,^SLOT=,,'
+	grep 'SLOT=' $1 2> /dev/null | sed 's,^SLOT=,,'
 }
 
 # 1: getpkg

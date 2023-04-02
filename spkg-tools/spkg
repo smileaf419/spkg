@@ -266,6 +266,11 @@ populate_list() {
 			fi
 		else
 			setupENV $p
+			if [[ $PKG_NAME == "" ]]; then
+				echo " !! $p Not found!"
+				MODE=search
+				return
+			fi
 			tlist+=" $LENTRY"
 		fi
 	done
