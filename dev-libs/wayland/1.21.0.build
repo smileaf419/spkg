@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://wayland.freedesktop.org/ https://gitlab.freedesktop.org/wayland/wayland"
+DESCRIPTION="Wayland protocol libraries"
+LICENSE="MIT"
 SRC_URI=("https://gitlab.freedesktop.org/wayland/wayland/-/releases/${PKG_VER}/downloads/wayland-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS="dev-libs/expat dev-libs/libffi dev-libs/libxml2"

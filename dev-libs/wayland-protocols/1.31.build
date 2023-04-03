@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://wayland.freedesktop.org/"
+DESCRIPTION="Wayland protocol files"
+LICENSE="MIT"
 SRC_URI=("https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.31/downloads/wayland-protocols-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS=""

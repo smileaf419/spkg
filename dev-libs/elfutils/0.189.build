@@ -1,5 +1,5 @@
 HOMEPAGE="https://sourceware.org/elfutils/"
-DESCRIPTION=""
+DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 LICENSE="GPLv2 GPLv3 LGPLv3"
 SRC_URI=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar.bz2"
 "https://dev.gentoo.org/~sam/distfiles/dev-libs/elfutils/elfutils-0.187-patches.tar.xz")
@@ -11,7 +11,6 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 append-flags -g
-#CPPFLAGS+=" -g"
 
 src_configure() {
 	# Rather than PATCHES for auto patching, we need to unpack/patch an archive
@@ -37,8 +36,7 @@ src_configure() {
 
 src_test() {
 	test_default
-	inform " * ${PKG_NAME} ${PKG_VER}:"
-	inform " * 2 tests are known to fail on 64bit systems without 32bit support"
+	inform " * ${PKG_NVR}: 2 tests are known to fail on 64bit systems without 32bit support"
 }
 
 src_install() {
