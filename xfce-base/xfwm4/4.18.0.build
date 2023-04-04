@@ -1,6 +1,6 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
+HOMEPAGE="https://www.xfce.org"
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://archive.xfce.org/src/xfce/xfwm4/${PKG_VER%.*}/xfwm4-${PKG_VER}.tar.bz2")

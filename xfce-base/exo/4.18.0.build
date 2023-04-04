@@ -1,13 +1,13 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.xfce.org https://docs.xfce.org/xfce/exo/start https://gitlab.xfce.org/xfce/exo/"
+DESCRIPTION="Extensions, widgets and framework library with session support for Xfce"
+LICENSE="GPLv2 LGPLv2.1"
 SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="app-accessibility/at-spi2-core  dev-libs/glib media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/pango xfce-base/libxfce4ui xfce-base/libxfce4util"
-BDEPS=""
+DEPS="app-accessibility/at-spi2-core dev-libs/glib media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/pango xfce-base/libxfce4ui xfce-base/libxfce4util"
+BDEPS="dev-util/xfce4-dev-tools"
 RDEPS=""
 setBuildENV auto make
 ARCHS="x86 x86_64"

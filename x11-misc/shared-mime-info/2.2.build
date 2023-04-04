@@ -1,4 +1,4 @@
-HOMEPAGE=""
+HOMEPAGE="https://www.x.org/wiki/"
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://gitlab.freedesktop.org/xdg/shared-mime-info/-/archive/${PKG_VER}/shared-mime-info-${PKG_VER}.tar.gz")

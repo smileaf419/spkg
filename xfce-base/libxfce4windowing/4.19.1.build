@@ -1,12 +1,13 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.xfce.org https://gitlab.xfce.org/xfce/libxfce4windowing/"
+DESCRIPTION="Unified widget and session management libs for Xfce"
+LICENSE="LGPLv2.1+"
 SRC_URI=("https://archive.xfce.org/src/xfce/libxfce4windowing/${PKG_VER%.*}/libxfce4windowing-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
-DEPS="app-accessibility/at-spi2-core  dev-libs/glib dev-libs/wayland media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libICE x11-libs/libSM x11-libs/libwnck x11-libs/libX11 x11-libs/pango"
+# Fixes a wayland only build
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/xfce-base/libxfce4windowing/files/libxfce4windowing-4.19.1-no-x.patch")
+DEPS="app-accessibility/at-spi2-core dev-libs/glib dev-libs/wayland media-libs/harfbuzz sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 x11-libs/libICE x11-libs/libSM x11-libs/libwnck x11-libs/libX11 x11-libs/pango"
 BDEPS="dev-libs/glib dev-lang/vala dev-libs/gobject-introspection"
 RDEPS=""
 setBuildENV auto make

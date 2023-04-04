@@ -1,6 +1,6 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
+HOMEPAGE="https://www.x.org/wiki/"
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://portland.freedesktop.org/download/xdg-utils-${PKG_VER}.tar.gz")

@@ -1,4 +1,4 @@
-HOMEPAGE=""
+HOMEPAGE="https://www.x.org/wiki/"
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://www.x.org/pub/individual/driver/$PKG_NAME-${PKG_VER}.tar.bz2")
