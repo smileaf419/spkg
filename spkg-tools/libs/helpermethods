@@ -87,7 +87,7 @@ append-cppflags() {
 # Requires the full path of the build dir.
 getlatestversion() {
 	getPkgVerList $1 | 
-		filterArch
+		filterArch | getLatest
 }
 
 getLatest() {
@@ -388,7 +388,7 @@ export -f 	checkKernelConfig \
 	addGroup addUser delUser delGroup \
 	use-enable pkg-has-flag checkinlist \
 	getpkgvr getpkgrev getpkgver getpkgname getpkg \
-	getinstalledversion getlatestversion \
+	getinstalledversion getlatestversion getPkgVerList getLatest filterArch \
 	filter-flags append-flags append-ldflags append-cppflags append-cflags append-cxxflags \
 	spatches spatch \
 	inform die unpack \

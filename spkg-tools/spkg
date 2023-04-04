@@ -251,9 +251,12 @@ parse_cmdline() {
 	done
 }
 
+# This function takes a list supplied on the command line and populates it with fully qualified entries
+# in the form:  =category/package_name-version:slot
 populate_list() {
 	tlist=
 	for p in $list; do
+		# Expand Sets
 		# This assumes all entries within a set are fully-qualified.
 		if [[ ${p:0:1} == "@" ]]; then
 			echo " * Found ${p#@} Set .. Expanding"
@@ -266,6 +269,7 @@ populate_list() {
 			fi
 		else
 			setupENV $p
+			# If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
 			if [[ $PKG_NAME == "" ]]; then
 				echo " !! $p Not found!"
 				list=$p
@@ -275,38 +279,41 @@ populate_list() {
 			tlist+=" $LENTRY"
 		fi
 	done
+	# Save a list of what was requested on the commandline.
 	export REQUESTED_LIST=${tlist# }
 	list=${tlist# }
 }
 
 parse_cmdline $@
 
+# Ensure we can write to our LOGDIR.
 mkdir -p "${LOGDIR}" || die "Failed to mkdir ${LOGDIR}"
 test -w "${LOGDIR}/" || die "LOGDIR: ${LOGDIR} not writable"
 
+# Sync our database to the repository.
 if [[ $MODE == "sync" ]]; then
+	# If git is not installed, inform the user to install it.
 	if [[ ! -e /usr/bin/git ]]; then
 		echo " !! Git is not installed!"
-		echo "    If you do not have a package database yet, you may download a copy from: https://github.com/smileaf419/spkg"
-		echo "    Otherwise install it via: spkg git"
+		echo "    Please install it via: spkg git; Or download a copy from: https://github.com/smileaf419/spkg"
 		exit 1
 	fi
 	cd $PKG_DB_DIR
-	git pull
-elif [[ $MODE == "bootstrap" ]]; then
-	PKG_CACHE="${ROOT}/${PKG_CACHE}"
-	PKG_WORLD="${ROOT}/${PKG_WORLD}"
-	mkdir -p $PKG_CACHE
-	touch $PKG_WORLD
-	chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
-	list="@bootstrap"
-	echo " * Bootstrapping .. This will take a while.."
+	git pull || die " !! Sync Failed!"
 fi
 
+# Set a list to the bootstrap set.
+if [[ $MODE == "bootstrap" ]]; then
+	list="@bootstrap"
+fi
+
+# Populate our list with fully qualified entries so long as we're not searching.
+# We wouldn't want to destroy our search terms.
 if [[ $MODE != "search" ]]; then
 	populate_list
 fi
 
+# Check for updates against whats installed and build our list.
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
 	for f in $(find $PKG_CACHE -name CONTENTS | sed -e 's,/CONTENTS,,' -e "s,$PKG_CACHE/,,"); do
@@ -325,11 +332,15 @@ if [[ $MODE == "update" ]]; then
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
 
+# Calculate Binary Dependencies and update the DEPS var within the build file.
 elif [[ $MODE == "buildbdeps" ]]; then
 	for p in $list; do
 		buildBDeps $p
 	done
 fi
+
+# Update the sha1sum of all files for the given package.
+# Accept a list of 'all'; Not recommended as our repository is getting quite large =]
 if [[ $HASH_UPDATE ]]; then
 	echo " * Updating SHA1 hashes."
 	source "${INSTALL_PATH}/libs/updateallsha1.sh"
@@ -339,26 +350,43 @@ if [[ $HASH_UPDATE ]]; then
 	done
 	exit 0
 fi
+
+# Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 if [[ $MODE == "buildKernel" ]]; then
 	buildKernel
 	MODE="rebuildKernelModules"
 fi
+
+# Build all kernel modules.
 if [[ $MODE == "rebuildKernelModules" ]]; then
 	list=$(rebuildModules kernel)
 	REQUESTED_LIST=$list
 	FORCE=1
 fi
+# Build all Python Modules
 if [[ $MODE == "rebuildPythonModules" ]]; then
 	list=$(rebuildModules python)
 	echo $list
 	REQUESTED_LIST=$list
 	FORCE=1
 fi
+# Build all Perl Modules
 if [[ $MODE == "rebuildPerlModules" ]]; then
 	list=$(rebuildModules perl)
 	REQUESTED_LIST=$list
 	FORCE=1
 fi
+
+# Attempts to clean a system of all unessential packages.
+# This is done by building 2 lists:
+#  First we calculate a full list based on our @system and @world sets
+#  Aftwards we gather a list of installed packages
+# Finally compare the 2 lists and filter out the uniq entries.
+# The entries which only exist in 1 list, will be removed.
+#  In theory These entries exist installed, but not in the full list of required packages.
+#  Its possible however that it got installed, then a package is updated and the uniq entry is a new package.
+# FIXME: We should itterate over the list to ensure the uniq pkgs are installed, 
+#        if not, error out and tell the user to run: spkg @system @world
 if [[ $MODE == "clean" ]]; then
 	ENABLE_TESTS=1
 	echo " * Deep Cleaning"
@@ -377,142 +405,7 @@ if [[ $MODE == "clean" ]]; then
 fi
 
 if [[ $MODE == "bootstrap" ]]; then
-	export HOST_TGT=$(uname -m)-leaf-linux-gnu
-	export PATH="$ROOT/tools/bin:$PATH"
-	# Make a LSB compliant /
-	mkdir -pv $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib{,32,64},media/{cdrom},mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
-	mkdir -pv $ROOT/lib/firmware
-	# Create /usr hierachy
-	mkdir -pv $ROOT/usr/{bin,include,lib{,32,64},libexec,local,sbin,share,src}
-	# Create /usr/local hierachy
-	mkdir -pv $ROOT/usr/local/{bin,etc,games,include,lib{,32,64},man,sbin,share,src}
-	mkdir -pv $ROOT/usr/{,local/}share/{color,dict,doc,info,locale,man}
-	mkdir -pv $ROOT/usr/{,local/}share/{misc,terminfo,zoneinfo}
-	mkdir -pv $ROOT/usr/{,local/}share/man/man{1..8}
-	mkdir -pv $ROOT/var/{cache,local,log,mail,opt,spool}
-	# Create the /var Heirachy
-	mkdir -pv $ROOT/var/{cache,db,lib,lock,log,opt,spool}
-	# Create dirs for spkg
-	mkdir -pv $ROOT/{$PKG_DB_DIR,$DISTFILES,$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE,$PKG_CACHE}
-	touch $ROOT/$PKG_WORLD
-	# Fix permissions for our building user, we'll need to fully fix the permissions later.
-	chown -R $BUILD_USER $ROOT
-	# These files will be needed later.
-	cp -v /etc/ld.so.conf /etc/resolv.conf $ROOT/etc
-	installList $list
-
-	# Fix CONTENTS file, filter out our $ROOT
-	echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
-	# This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
-	find $PKG_CACHE -name CONTENTS -exec sed -i "s,$ROOT,," {} \;
-
-	chown -R root:root $ROOT
-	ln -sfv /run $ROOT/var/run
-	ln -sfv /run/lock $ROOT/var/lock
-	[[ ! -e /root ]] && install -dv -m 0750 $ROOT/root || chmod -v 0750 $ROOT/root
-	[[ ! -e $ROOT/tmp ]] && install -dv -m 1777 $ROOT/tmp || chmod -v 1777 $ROOT/tmp
-	ln -sv /proc/self/mounts $ROOT/etc/mtab
-
-	cat > $ROOT/etc/hosts << EOF
-127.0.0.1  localhost $(hostname)
-::1        localhost
-EOF
-
-	cat > $ROOT/etc/passwd << "EOF"
-root:x:0:0:root:/root:/bin/bash
-bin:x:1:1:bin:/dev/null:/usr/false
-daemon:x:6:6:Daemon User:/dev/null:/bin/false
-messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/bin/false
-uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/bin/false
-nobody:x:65534:65534:Unprivileged User:/dev/null:/bin/false
-spkg:x:250:250::/var/tmp/spkg/:/bin/bash
-EOF
-
-	cat > $ROOT/etc/group << "EOF"
-root:x:0:
-bin:x:1:daemon
-sys:x:2:
-kmem:x:3:
-tape:x:4:
-tty:x:5:
-daemon:x:6:
-floppy:x:7:
-disk:x:8:
-lp:x:9:
-dialout:x:10:
-audio:x:11:
-video:x:12:
-utmp:x:13:
-usb:x:14:
-cdrom:x:15:
-adm:x:16:
-messagebus:x:18:
-input:x:24:
-mail:x:34:
-kvm:x:61:
-uuidd:x:80:
-wheel:x:97:
-spkg:x:250:
-users:x:999:
-nogroup:x:65534:
-EOF
-	cat > $ROOT/chroot.sh << "EOF"
-#!/bin/bash
-[[ -z $1 ]] && LFS=${0%/*} || LFS=$1
-mount -v --bind /dev $LFS/dev
-mount -v --bind /dev/pts $LFS/dev/pts
-mount -vt proc proc $LFS/proc
-mount -vt sysfs sysfs $LFS/sys
-mount -vt tmpfs tmpfs $LFS/run
-if [ -h $LFS/dev/shm ]; then
-        mkdir -pv $LFS/$(readlink $LFS/dev/shm)
-fi
-[ -e /bin/env ] && ENV=/bin/env || ENV=/usr/bin/env
-chroot "$LFS" $ENV -i                        \
-        HOME=/root                                    \
-        TERM="$TERM"                                   \
-        PS1='(chroot) \u:\w\$ '                         \
-        LD_LIBRARY_PATH=/usr/lib:/usr/lib64:/lib:/lib64  \
-        PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin \
-        /bin/bash --login
-umount -v $LFS/dev/{pts,}
-umount -v $LFS/{proc,sys,run}
-EOF
-	chmod +x "$ROOT/chroot.sh"
-
-	touch $ROOT/var/log/{btmp,lastlog,faillog,wtmp}
-	chgrp -v utmp $ROOT/var/log/lastlog
-	chmod -v 664  $ROOT/var/log/lastlog
-	chmod -v 600  $ROOT/var/log/btmp
-	install -m755 -d -o spkg -g spkg -v $ROOT/var/tmp/spkg
-	ln -svf "$INSTALL_PATH"/spkg $ROOT/sbin
-
-	# Fetch all required packages as wget will not be available initially
-	list="@system"
-	populate_list
-	FETCH_ONLY=1
-	DISTFILES="$ROOT/$DISTFILES"
-	installList $list
-
-	if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
-		P=${PKG_DB_DIR%/} # strip / at end if exists
-		cd $ROOT/${P%spkg} # strip toplevel dir.
-		rmdir spkg
-		git clone https://github.com/smileaf419/spkg
-	else
-		echo "You will need to copy or clone spkg into $PKG_DB_DIR"
-		echo " git clone https://github.com/smileaf419/spkg"
-	fi
-
-	echo " * Bootstrapping complete!"
-	echo "Its STRONGLY encouraged now to create a $ROOT/etc/spkg.conf"
-	echo " A default is included within the spkg-tools subdir"
-#	echo "a symlink for spkg is encouraged for convience."
-#	echo " ln -s ${INSTALL_PATH}/spkg /sbin"
-	echo "You should now run $ROOT/chroot.sh"
-	echo "Afterwards: spkg @temptools ; Once complete its safe to remove the /tools dir"
-	echo "And finally: spkg -e @system"
-	exit 0
+	source "${INSTALL_PATH}/libs/bootstrap"
 fi
 
 # Get Dependencies and check if any require updates.
