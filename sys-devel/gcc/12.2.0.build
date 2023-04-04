@@ -58,6 +58,9 @@ fi
 
 bootstrap() {
 	local glibc=$(getpkgver $(getlatestversion sys-libs/glibc))
+	if [[ $glibc == "" ]]; then
+		die " !! Error getting installed glibc version!"
+	fi
 	echo " * Using glibc: $glibc"
 	sed -e '/m64=/s/lib64/lib/' \
 		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
