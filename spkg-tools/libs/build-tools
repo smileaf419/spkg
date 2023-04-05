@@ -251,10 +251,19 @@ installPackage() {
 				# Check if a file is to be installed in /etc
 				#  If it is, check if the file already exists and
 				#  instead copy it to a backup file.
-				if [[ CFG_PROTECT == true && $file == */etc/* && -e "${file}" ]]; then
-					pfile="${file}.cfg$(date +%s)"
-					sinstall "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!>> $file"
-					CONFIG_PROTECTED=true
+				if [[ $CFG_PROTECT == true && $file == */etc/* && -e "${file}" ]]; then
+					# Check if the file is different
+					# If the file hasn't change, we can safely ignore it.
+					# If the file has changed however, protect it and report it at the end.
+					diff "$D/$file" "$file" > /dev/null 2>&1
+					if [[ $? != 0 ]]; then
+						pfile="${file}.cfg$(date +%s)"
+						cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!>> $file"
+						CONFIG_PROTECTED=true
+					else
+						echo "a>> $file"
+					fi
+				# If the file is a library we must use install and not cp as the library maybe in use.
 				elif [[ $file == */lib* || -d "${D}/$file" ]]; then
 					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
 				else
