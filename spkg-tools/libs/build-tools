@@ -245,8 +245,10 @@ installPackage() {
 			#   2) Under most circumstances, most dirs are not modified by users.
 			# Packages *can* modify dirs they manage and need
 			# a certain way in post_install
-			elif [[ -d "${D}/${file}" && ! -e "${file}" ]]; then
-				sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
+			elif [[ -d "${D}/${file}" ]]; then
+				if [[ ! -e "${file}" ]]; then
+					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
+				fi
 			else
 				# Check if a file is to be installed in /etc
 				#  If it is, check if the file already exists and
