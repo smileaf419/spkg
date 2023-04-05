@@ -1,0 +1,42 @@
+HOMEPAGE="https://www.gnu.org/software/screen/"
+DESCRIPTION="Full-screen window manager that multiplexes a physical terminal between several processes, typically interactive shells"
+LICENSE="GPLv3+"
+SRC_URI=("https://ftp.gnu.org/gnu/screen/screen-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/screen/screen-${PKG_VER}.tar.gz.sig")
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/app-misc/screen/files/screen-4.9.0-configure-implicit-function-decls.patch")
+DEPS="sys-libs/libxcrypt sys-libs/ncurses"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	sh autogen.sh
+	./configure --prefix=/usr \
+				--infodir=/usr/share/info \
+				--mandir=/usr/share/man \
+				--with-socket-dir=/run/screen \
+				--with-pty-group=5 \
+				--with-sys-screenrc=/etc/screenrc
+
+	sed -i -e "s%/usr/local/etc/screenrc%/etc/screenrc%" {etc,doc}/*
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	mkdir "${D}"/etc
+	install -m 644 etc/etcscreenrc "${D}/etc/screenrc"
+
+	cat >> "${D}/etc/screenrc" << "EOF"
+# Enable Scrollback history
+defscrollback 10000
+
+# Clear the screen on detach https://unix.stackexchange.com/questions/21707/clear1-after-detach-in-gnu-screen
+termcapinfo xterm*|rxvt* te=\E[H\E[2J:ti=\E[H\E[2J:
+# Uses an Alternate screen, seems to disable scrollback however.
+#termcapinfo xterm*|rxvt*  te=\E[?1049l:ti=\E[?1049h:
+EOF
+}
