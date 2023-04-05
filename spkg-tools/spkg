@@ -459,6 +459,8 @@ fi
 # Search
 if [[ $MODE == "search" ]]; then
 	for p in $list; do
+		# User supplied a category but the package wasn't found. Do a search on the package name without the category.
+		[[ $p == */* ]] && p=${p#*/}
 		echo "Searching: $p"
 		for r in $(find $PKG_DB_DIR -maxdepth 2 -iname *$p* | sed "s,$PKG_DB_DIR\(/*\)\?,,"); do
 			setupENV $r

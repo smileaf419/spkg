@@ -15,10 +15,13 @@ unpack() {
 		die "Cannot Extract!"
 	fi
 }
+export -f unpack
+
 die() { echo "$*" 1>&2 ; exit 77; }
-inform() { 
-	echo "$*" | tee -a $INFORMLOG
-}
+export -f die
+
+inform() { echo "$*" | tee -a $INFORMLOG; }
+export -f inform
 
 spatch() {
 	patch=$1
@@ -36,6 +39,8 @@ spatch() {
 	fi
 	echo " .. Ok!"
 }
+export -f spatch
+
 spatches() {
 	PATCHES=($@)
 	PATCH_FILES=($(echo ${PATCHES[@]} | tr ' ' '\n' | sed "s,^https\?://.*/,${DISTFILES}/,"))
@@ -55,6 +60,8 @@ spatches() {
 		fi
 	done
 }
+export -f spatches
+
 filter-flags() {
 	flags=$@
 	for flag in $flags; do
@@ -64,31 +71,33 @@ filter-flags() {
 	done
 	export CFLAGS CXXFLAGS CPPFLAGS
 }
-append-ldflags() {
-	export LDFLAGS+=" $@"
-}
+export -f filter-flags
+
+append-ldflags() { export LDFLAGS+=" $@"; }
+export -f append-ldflags
+
 # Append Flags to CPPFLAGS so that it gets added to both C and C++
-append-flags() {
-	append-cppflags $@
-}
+append-flags() { append-cppflags $@; }
+export -f append-flags
+
 # Append C flags
-append-cflags() {
-	export CFLAGS+=" $@"
-}
+append-cflags() { export CFLAGS+=" $@"; }
+export -f append-cflags
+
 # Append C++ flags
-append-cxxflags() {
-	export CXXFLAGS+=" $@"
-}
+append-cxxflags() { export CXXFLAGS+=" $@"; }
+export -f append-cxxflags
+
 # Append C Pre-processor Flags
-append-cppflags() {
-	export CPPFLAGS+=" $@"
-}
+append-cppflags() { export CPPFLAGS+=" $@"; }
+export -f append-cppflags
 
 # Requires the full path of the build dir.
 getlatestversion() {
 	getPkgVerList $1 | 
 		filterArch | getLatest
 }
+export -f getlatestversion
 
 getLatest() {
 	echo $(cat -) | tr ' ' '\n' |
@@ -97,34 +106,57 @@ getLatest() {
 		sort -V |
 		tail -n1
 }
+export -f getLatest
 
-# Requires the PKG_NAME
-# Returns: the installed version
+# Requires the PKG_CAT/PKG_NAME
+# Returns: the latest installed version
 getinstalledversion() {
-	[ -d "${PKG_CACHE}/${1}" ] && ls -1 "${PKG_CACHE}/${1}" | head -n1 || echo 0
+	getInstalledVersions $1 | sort -V | sed -e 's,.*/,,' -e 's,\.build$,,' | tail -n1 
 }
+export -f getinstalledversion
+
+# Requires PKG_CAT/PKG_NAME
+getInstalledVersions() {
+	v=$(find "$PKG_CACHE" -iwholename "*/$1/*.build")
+	[[ $v == "" ]] && echo 0 || echo $v | tr ' ' '\n'
+}
+export -f getInstalledVersions
+
+# Requires a PKG_CAT/PKG_NAME and PKG_SLOT
+# Returns: Installed PKG_BLD filtered by PKG_SLOT
+getInstalledBySlot() {
+	getInstalledVersions $1 | filterSlot $2 | sort -V | tail -n1
+}
+export -f getInstalledBySlot
 
 getPkgVerList() {
 	find "$PKG_DB_DIR" -iwholename "*/$1/*.build"
 }
+export -f getPkgVerList
+
+## Filters PKG_BLDs by ARCH
+# FIXME: This needs to be able to handle the ability to return x86 results if ARCH is set to ~x86 and no ~x86 results are available.
 filterArch() {
-	echo $(cat -) | xargs grep -H "ARCHS=" 2> /dev/null | grep '[^~]'$ARCH'[ "]' 2> /dev/null| sed 's,:.*,,'
+	echo $(cat -) | xargs grep -H 'ARCHS=.*[^~]'$ARCH'[ "]' 2> /dev/null| sed 's,:.*,,'
 }
+export -f filterArch
+
 filterSlot() {
 	local p=$(cat -)
 	local slot=${1:-0}
 	if [[ $slot == 0 ]]; then
 		echo $p
 	else
-		echo $p | xargs grep "SLOT=$slot" 2> /dev/null | sed 's,:.*,,'
+		echo $p | xargs grep -H "SLOT=$slot" 2> /dev/null | sed 's,:.*,,'
 	fi
 }
+export -f filterSlot
 
 # 1: Name of package
 #    Minimum syntax: pkgname
 #    Ulitmately I want this to be able to handle such a complex name as: =pkg_cat/pkg-name-1.0-r1:0[flags]
 # 2: Archs accepted
-# Returns: Name/version-rev (ex: package/1.0-r1)
+# Returns: PKG_CAT/PKG_NAME/PKG_VR (ex: category/package/1.0-r1)
 getpkg() {
 	p=$1
 	# Check for flags
@@ -149,36 +181,43 @@ getpkg() {
 			sort -V|
 			tail -n1
 	else
-		getlatestversion $p | filterSlot $slot | getLatest
+		getPkgVerList $p | filterArch | filterSlot $slot | getLatest
 	fi
 }
+export -f getpkg
 
+# Requires a Build file
 getpkgslot() {
 	grep 'SLOT=' $1 2> /dev/null | sed 's,^SLOT=,,'
 }
+export -f getpkgslot
 
 # 1: getpkg
 # Returns Category
-getcategory() {
-	echo ${1%%/*}
-}
+getcategory() { echo ${1%%/*}; }
+export -f getcategory
+
 # 1: getpkg
 # Returns: Package Name
 getpkgname() {
 	local T=${1%/*}
 	echo ${T#*/}
 }
+export -f getpkgname
+
 # 1: getpkg
 # Returns: Package Version
-getpkgver() {
-	echo ${1##*/}|sed 's,-r[0-9]*$,,'
-}
+getpkgver() { echo ${1##*/}|sed 's,-r[0-9]*$,,'; }
+export -f getpkgver
+
 # 1: getpkg
 # Returns: Package Revision
 getpkgrev() {
 	local rev=$(echo ${PKG##*/}|sed 's,.*-r\([0-9]*\)$,\1,')
 	[[ $rev == $(getpkgver $1) ]] && echo "0" || echo $rev
 }
+export -f getpkgrev
+
 # 1: getpkg
 # Returns: version with revision; example: 1.0r2
 getpkgvr() {
@@ -189,11 +228,13 @@ getpkgvr() {
 		echo $(getpkgver $1)
 	fi
 }
+export -f getpkgvr
 
 getMajorVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
 	echo $VER | tr '.' '\n'|head -n1
 }
+export -f getMajorVer
 
 getMinorVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
@@ -206,6 +247,7 @@ getMinorVer() {
 		echo 0
 	fi
 }
+export -f getMinorVer
 
 getMicroVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
@@ -216,6 +258,7 @@ getMicroVer() {
 		echo 0
 	fi
 }
+export -f getMicroVer
 
 # 1: http address
 fetch_file() {
@@ -234,6 +277,7 @@ fetch_file() {
 			die "Error Downloading from: $1"; 
 	fi
 }
+export fetch_file
 
 checkSha1() {
 	[[ $IGNORE_SHA1 == 1 ]] && return 0
@@ -251,20 +295,19 @@ checkSha1() {
 	fi
 	return 0
 }
+export -f checkSha1
 
 # Check the USE flag for an option,
 # return 0 if found; 1 if not.
 # returns 2 if found and is disabled
-use-enable() {
-	checkinlist $USE $1
-}
+use-enable() { checkinlist $USE $1; }
+export -f use-enable
 
 # Check the PKG_FLAGS for an option,
 # return 0 if found; 1 if not.
 # returns 2 if found and is disabled
-pkg-has-flag() {
-	checkinlist $PKG_FLAGS $1
-}
+pkg-has-flag() { checkinlist $PKG_FLAGS $1; }
+export -f pkg-has-flag
 
 # 1: Variable to check
 # 2: what to check
@@ -278,6 +321,7 @@ checkinlist() {
 	fi
 	return 1
 }
+export -f checkinlist
 
 # 1: Config option; 2: needs at least module [0|1]
 # 3: Output dialog
@@ -308,6 +352,7 @@ checkKernelConfig() {
 	[[ $HAS_PROC == 1 || $HAS_CONFIG == 1 ]] && echo ||
 		die $ERR_DIALOG
 }
+export -f checkKernelConfig
 
 addUser() {
 	USER=$1
@@ -321,6 +366,7 @@ addUser() {
 		usermod "$@" $USER
 	fi
 }
+export -f addUser
 
 addGroup() {
 	GROUP=$1
@@ -334,6 +380,7 @@ addGroup() {
 		groupmod "$@" $GROUP
 	fi
 }
+export -f addGroup
 
 delUser() {
 	USER=$1
@@ -345,8 +392,8 @@ delUser() {
 	else
 		echo " * User does not exist: $USER [$@]"
 	fi
-
 }
+export -f delUser
 
 delGroup() {
 	GROUP=$1
@@ -359,6 +406,7 @@ delGroup() {
 		echo " * Group does not exist: $GROUP [$@]"
 	fi
 }
+export -f delGroup
 
 install-init.d() {
 	(
@@ -376,20 +424,10 @@ install-init.d() {
 		src_install install-$1
 	)
 }
+export -f install-init.d
 
 function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
 function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" == "$1"; }
 function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; }
 function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
-
-# If the function exists within this file, 
-# it must be exported so build files can use it.
-export -f 	checkKernelConfig \
-	addGroup addUser delUser delGroup \
-	use-enable pkg-has-flag checkinlist \
-	getpkgvr getpkgrev getpkgver getpkgname getpkg \
-	getinstalledversion getlatestversion getPkgVerList getLatest filterArch \
-	filter-flags append-flags append-ldflags append-cppflags append-cflags append-cxxflags \
-	spatches spatch \
-	inform die unpack \
-	version_gt version_le version_lt version_ge
+export -f version_gt version_le version_lt version_ge

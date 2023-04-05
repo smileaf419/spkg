@@ -315,17 +315,19 @@ installPackage() {
 		fi
 	
 		# Check if its a system package
+		# Currently we don't use slots within the system set.
+		# So the most recent slot should always be used.
 		grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1
 		if [ $? != 0 ]; then
 			# If it didn't find it as a system package, check if its already in the world set.
 			# FIXME: We need a way to check if this is an explicitly requested install.
 			#        Or the result of a dependency.
-			grep "^$PKG_CAT/$PKG_NAME\$" $PKG_WORLD > /dev/null 2>&1
+			grep "^$PKG_CAT/$PKG_NAME:$PKG_SLOT\$" $PKG_WORLD > /dev/null 2>&1
 			# Only add to world requested packages.
-			if [[ $? != 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]]) ]]; then
+			if [[ $? != 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$LENTRY"($|[[:space:]]) ]]; then
 				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
 					echo " * Registering into World."
-					echo "$PKG_CAT/$PKG_NAME" >> $PKG_WORLD
+					echo "$PKG_CAT/$PKG_NAME:$PKG_SLOT" >> $PKG_WORLD
 				fi
 			fi
 		fi
@@ -349,6 +351,12 @@ uninstall() {
 	O_VER=$3
 	FLIST=""
 	[[ "$O_VER" == "0" ]] && return
+
+	## Compare Slots
+	# If slots differ we got the wrong version or the only other installed version is a different slot
+	# Either way, we need to ignore it.
+	[[ $(getInstalledBySlot $PKG $PKG_SLOT) != *build ]] && return
+
 	if [[ "$O_VER" != "" ]]; then
 		# Grep to add the filename before the files as a cheap trick
 		# Sort it by 2nd field, add a space to induce a 2nd field for uniq
