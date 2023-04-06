@@ -1,11 +1,12 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.gnu.org/software/cpio/"
+DESCRIPTION="A file archival tool which can also read and write tar files"
+LICENSE="GPLv3+"
 SRC_URI=("https://ftp.gnu.org/gnu/cpio/cpio-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
+PATCHES=("https://dev.gentoo.org/~sam/distfiles/app-arch/cpio/cpio-2.13-CVE-2021-38185.patch.xz"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/cpio/files/cpio-2.13-fix-no-absolute-filenames-revert-CVE-2015-1197-handling.patch")
 DEPS=""
 BDEPS=""
 RDEPS=""
@@ -15,8 +16,13 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	# fix a build issue when using GCC-10+
 	sed -i '/The name/,+2 d' src/global.c
+
+	autoreconf -fiv
+
 	./configure --prefix=/usr \
+				--bindir=/bin \
 				--enable-mt   \
 				--with-rmt=/usr/libexec/rmt
 }
