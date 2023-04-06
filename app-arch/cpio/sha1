@@ -1,6 +1,4 @@
-7c3344413d93d09e735dcf670108d772e5a922aa  2.13-r1.build
+a03c86138a42710358da6a60cdd2e9c742112d81  2.13-r1.build
 4dcefc0e1bc36b11506a354768d82b15e3fe6bb8  cpio-2.13.tar.bz2
 8c9bad32365e5cfe0bd34337638a483d97c32589  cpio-2.13-CVE-2021-38185.patch.xz
 593463adc769c30c42fddb37cef9e1f524c572ad  cpio-2.13-fix-no-absolute-filenames-revert-CVE-2015-1197-handling.patch
-3b1a9ca2239095ce6b58856af12c435d29e99b6f  2.13.build
-4dcefc0e1bc36b11506a354768d82b15e3fe6bb8  cpio-2.13.tar.bz2

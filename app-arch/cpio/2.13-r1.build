@@ -34,8 +34,6 @@ src_compile() {
 	makeinfo --plaintext       -o doc/cpio.txt  doc/cpio.texi
 }
 
-src_test() { :; }
-
 src_install() {
 	install_default
 	install -v -m755 -d /usr/share/doc/cpio-${PKG_VER}/html
