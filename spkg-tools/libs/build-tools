@@ -260,14 +260,14 @@ installPackage() {
 					diff "$D/$file" "$file" > /dev/null 2>&1
 					if [[ $? != 0 ]]; then
 						pfile="${file}.cfg$(date +%s)"
-						cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!>> $file"
+						cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
 						CONFIG_PROTECTED=true
 					else
 						echo "a>> $file"
 					fi
 				# If the file is a library we must use install and not cp as the library maybe in use.
-				elif [[ $file == */lib* || -d "${D}/$file" ]]; then
-					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>> $file"
+				elif [[ $file == */lib* ]]; then
+					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!l> $file"
 				else
 					# if cp fails the file might be busy, but to cp is faster than sinstall due to
 					# having to read permissions and then install
@@ -280,7 +280,7 @@ installPackage() {
 						if [[ $? == 0 ]]; then
 							echo "i>> $file"
 						else
-							echo "!>> $file"
+							echo "!>c $file"
 						fi
 					fi
 				fi
