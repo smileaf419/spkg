@@ -149,7 +149,7 @@ installList() {
 sinstall() {
 	local d=
 	[ -d "$1" ] && d="-d"
-	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") "$1" "$2"
+	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") \"$1\" \"$2\"
 }
 
 fetch_files() {
