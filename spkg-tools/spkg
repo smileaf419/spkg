@@ -316,16 +316,28 @@ fi
 # Check for updates against whats installed and build our list.
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
-	for f in $(find $PKG_CACHE -name CONTENTS | sed -e 's,/CONTENTS,,' -e "s,$PKG_CACHE/,,"); do
-		[ $VERBOSE -ge 2 ] && echo -n "$f : "
-		setupENV ${f%/*}
-		VER=${f##*/}
-		[ $VERBOSE -ge 2 ] && echo "Checking $PKG_NAME - $PKG_VR > $VER"
-		if version_gt $PKG_VR $VER ; then
+
+	# Create a list of all @system & @world packages and add in any missing from PKG_CACHE (Possibly report/auto clean?)
+	list=$(expandSets "@system @world")
+	getFullPkgList $list
+
+	## Build a list of all installed packages and compare them against our @world/@system list
+	#  As we register packages with qualified entries, we need to be sure to not override those with 
+	#  under-qualified installed package listings.
+	#  Exp: sys-kernel/linux-kernel:6.1 would get replaced by a sys-kernel/linux-kernel
+	#       This would result in installing a 6.2.* branch or whatever is most recent.
+#	find $PKG_CACHE -mindepth 3 -maxdepth 3 -type d | sed -e "s,$PKG_CACHE/,," > /tmp/installedPkgs
+#	list=$(cat /tmp/chart /tmp/installedPkgs | sed 's,^=,,' | sort -u -t: -k1 | sed 's,^,=,')
+	for p in $(cat /tmp/chart); do
+		setupENV $p
+		version_gt $PKG_VR $O_VER
+		if [[ $? == 0 ]]; then
 			list+=" $LENTRY"
 			echo $PKG_NAME :: $PKG_VR
+		elif [[ $VERBOSE -gt 1 ]]; then
+			echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 		fi
-	done	
+	done
 	# Has the potential to produce multiple entries for the same program.
 	# This filters out them out so we don't install them twice.
 	list=$(echo $list | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
@@ -433,8 +445,7 @@ if [[ $MODE != "search" ]]; then
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
-				list+=" $PKG_CAT/$PKG_NAME"
-				[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
+				list+=" $LENTRY"
 			elif [[ $VERBOSE -gt 1 ]]; then
 				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 			fi
@@ -445,8 +456,7 @@ if [[ $MODE != "search" ]]; then
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
-				list+=" $PKG_CAT/$PKG_NAME"
-				[[ $PKG_FLAGS != "" ]] && list+="[$PKG_FLAGS]"
+				list+=" $LENTRY"
 			fi
 		fi
 	done
@@ -461,9 +471,14 @@ if [[ $MODE == "search" ]]; then
 	for p in $list; do
 		# User supplied a category but the package wasn't found. Do a search on the package name without the category.
 		[[ $p == */* ]] && p=${p#*/}
+		[[ $p == *:* ]] && slot=${p#*:} && p=${p%:*} || slot=
 		echo "Searching: $p"
 		for r in $(find $PKG_DB_DIR -maxdepth 2 -iname *$p* | sed "s,$PKG_DB_DIR\(/*\)\?,,"); do
-			setupENV $r
+			if [[ -z $slot ]]; then
+				setupENV $r
+			else
+				setupENV $r:$slot
+			fi
 			if [[ $PKG_NAME != "" ]]; then
 				checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 				echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"

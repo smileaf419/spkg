@@ -53,11 +53,12 @@ setupENV() {
 	B="${PKG_NV}"
 	# Temp install root
 	D="${BUILD_PATH}/troot"
-	O_VER=$(getinstalledversion $PKG_CAT/$PKG_NAME)
+	# Match PKG_SLOT
+	O_VER=$(getpkgver $(getInstalledBySlot $PKG_CAT/$PKG_NAME $PKG_SLOT))
 
 	# Build a fully Qualified List Entry for data safe-keeping.
 	LENTRY="="$PKG_CAT/$PKG_NVR
-	if [[ $1 == *:* ]]; then
+	if [[ $PKG_SLOT != 0 ]]; then
 		LENTRY+=:$PKG_SLOT
 	fi
 	if [[ ! -z $PKG_FLAGS ]]; then
@@ -129,7 +130,7 @@ installList() {
 
 			TIMESTART=$(date "+%s.%N")
 
-			[[ $SILENT_BUILD == "no" ]] && installPackage | tee $LOG 2>&1 || installPackage > $LOG 2>&1
+			[[ $SILENT_BUILD == "no" ]] && installPackage 2>&1 | tee $LOG || installPackage > $LOG 2>&1
 
 			[[ -e /usr/bin/bc ]] && echo "Completed in $( echo $(date "+%s.%N") - $TIMESTART | bc ) seconds." | tee -a $LOG
 

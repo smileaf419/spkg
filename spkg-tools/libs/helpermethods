@@ -207,7 +207,7 @@ export -f getpkgname
 
 # 1: getpkg
 # Returns: Package Version
-getpkgver() { echo ${1##*/}|sed 's,-r[0-9]*$,,'; }
+getpkgver() { echo ${1##*/}|sed -e 's,-r[0-9]*$,,' -e 's,\.build$,,'; }
 export -f getpkgver
 
 # 1: getpkg

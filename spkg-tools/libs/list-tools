@@ -16,14 +16,16 @@ isDependedOn() {
 
 # Populates a /tmp/chart files
 getFullPkgList() {
-	echo > /tmp/chart
-	echo > /tmp/stack
+	# remove them if they exist to ensure an empty chart/stack
+	[[ -e /tmp/chart ]] && rm /tmp/chart
+	[[ -e /tmp/stack ]] && rm /tmp/stack
+	touch /tmp/chart /tmp/stack
+
 	local tlist=$@
 	local flist=
-	local rlist=
 	for d in $tlist; do
 		getdep $d
-		flist+=" $LENTRY" #$PKG_CAT/$PKG_NAME"
+		flist+=" $LENTRY"
 	done
 	echo
 }
@@ -111,14 +113,9 @@ getdep() {
 		fi
 
 		# Add our package
-		grep -E "^$PKG_CAT/$PKG_NAME$" /tmp/chart > /dev/null
+		grep -E "^=${PKG_CAT}.${PKG_NAME}.${PKG_VR}" /tmp/chart > /dev/null
 		if [ $? != 0 ]; then
 			echo $LENTRY >> /tmp/chart
-#			if [ ${p:0:1} == "=" ]; then
-#				echo "=$PKG_CAT/$PKG_NAME-${PKG_VR}"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
-#			else
-#				echo "$PKG_CAT/$PKG_NAME"$( [[ $PKG_FLAGS != "" ]] && echo "[$PKG_FLAGS]") >> /tmp/chart
-#			fi
 			sed "/^PKG_CAT.$PKG_NAME/d" -i /tmp/stack
 		fi
 		# Add our Post Dependency list here.
