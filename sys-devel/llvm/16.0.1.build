@@ -1,13 +1,12 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://llvm.org/docs/index.html"
+DESCRIPTION="A collection of modular and reusable compiler and toolchain technologies"
+LICENSE="Apache-2 LLVM"
 SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/llvm-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/compiler-rt-${PKG_VER}.src.tar.xz"
-"https://anduin.linuxfromscratch.org/BLFS/llvm/llvm-cmake-${PKG_VER}.src.tar.xz"
-"https://anduin.linuxfromscratch.org/BLFS/llvm/llvm-third-party-${PKG_VER}.src.tar.xz")
-
-PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/clang-${PKG_VER}-enable_default_ssp-1.patch")
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/cmake-${PKG_VER}.src.tar.xz"
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/third-party-${PKG_VER}.src.tar.xz")
+#PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/clang-${PKG_VER}-enable_default_ssp-1.patch")
 DEPS="app-arch/zstd dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
 BDEPS=""
 RDEPS=""
@@ -19,7 +18,7 @@ B=llvm-${PKG_VER}.src
 IUSE="doc"
 # FIXME: These dependencies are not available
 # use-enable doc && UDEPS="sphinx recommonmark doxygen"
-[[ $ENABLE_TESTS == 1 ]] && UDEPS+=" net-misc/rsync psutil"
+[[ $ENABLE_TESTS == 1 ]] && UDEPS+=" net-misc/rsync dev-python/psutil"
 
 src_unpack() {
 	SRC_URI=($SRC_URI)
@@ -34,10 +33,10 @@ src_unpack() {
 	mv -v third-party-${PKG_VER}.src third-party
 }
 
-src_patch() {
-	PATCHES=($1)
-	patch -Np2 -d tools/clang < $DISTFILES/${PATCHES[0]##*/}
-}
+#src_patch() {
+#	PATCHES=($1)
+#	patch -Np2 -d tools/clang < $DISTFILES/${PATCHES[0]##*/}
+#}
 
 src_configure() {
 	# Fix python scripts to use python3
