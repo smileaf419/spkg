@@ -1,14 +1,15 @@
 #!/bin/bash
 
 source /etc/spkg.conf
-source $INSTALL_PATH/libs/helpermethods
+source $INSTALL_PATH/libs/pkg-tools
+source $INSTALL_PATH/libs/pkg-utils
 GENTOO=${GENTOO:-$1}
 
 for cat in $(ls -1 $PKG_DB_DIR); do
 	[ ! -d $GENTOO/$cat ] && continue
 	for p in $(ls -1 $PKG_DB_DIR/$cat); do
-		P=$(getlatestversion $cat/$p)
-		PV=$(getpkgver $P)
+		P=$(DB-getPkg $cat/$p | getLatest)
+		PV=$(getVersion $P)
 		if [ -d $GENTOO/$cat/$p ]; then
 			GV=$(ls -1 $GENTOO/$cat/$p/*.ebuild | grep -Ev "p202|9999|_pre|_rc|_alpha" | sort -V | tail -n1 | sed -e 's,.*/,,' -e 's,.ebuild$,,' -e "s,${p}-,," -e 's,-.*$,,' -e 's,_,,')
 			if version_gt $GV $PV; then
