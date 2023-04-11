@@ -31,7 +31,7 @@ src_configure() { :; }
 
 src_compile() {
 	# Needed for Clang 16
-	append-flags -std=gnu89
+	append-cppflags -std=gnu89
 	# Linux Hosts
 	append-cppflags -DNO_LCHMOD
 	# Bzip2 support

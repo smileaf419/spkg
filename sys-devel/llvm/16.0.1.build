@@ -73,7 +73,7 @@ src_configure() {
 }
 
 src_compile() {
-	append-flags -flarge-source-files	
+	append-cppflags -flarge-source-files	
 	compile_default
 }
 

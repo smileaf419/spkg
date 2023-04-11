@@ -12,7 +12,7 @@ B=gtk+-$PKG_VER
 setBuildENV meson ninja
 
 src_configure() {
-	append-flags -DG_DISABLE_CAST_CHECKS
+	append-cppflags -DG_DISABLE_CAST_CHECKS
 
 	configure_default -Dbroadway_backend=true \
 					  -Dman=false \

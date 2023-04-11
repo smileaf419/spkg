@@ -11,7 +11,7 @@ SLOT=0
 TEST=test
 
 src_configure() {
-	append-flags -fno-strict-aliasing
+	append-cppflags -fno-strict-aliasing
 
 	[ -e /bin/env ] && sed -i 's,/usr/bin/env,/bin/env,' Configure
 

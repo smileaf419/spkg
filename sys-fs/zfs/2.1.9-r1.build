@@ -17,7 +17,7 @@ src_configure() {
 	checkKernelConfig "CONFIG_ZLIB_DEFLATE" 1 "ZLIB deflate"
 	checkKernelConfig "CONFIG_ZLIB_INFLATE" 1 "ZLIB inflate"
 
-	append-flags -fno-tree-vectorize
+	append-cppflags -fno-tree-vectorize
 	sh autogen.sh
 	./configure --prefix=/usr \
 				--bindir=/bin \

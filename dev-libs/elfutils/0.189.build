@@ -10,7 +10,7 @@ BDEPS="sys-devel/flex sys-devel/m4 sys-devel/gettext"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-append-flags -g
+append-cppflags -g
 
 src_configure() {
 	# Rather than PATCHES for auto patching, we need to unpack/patch an archive

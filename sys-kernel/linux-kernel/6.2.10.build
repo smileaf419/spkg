@@ -31,6 +31,8 @@ if [[ $MODE != "search" ]]; then
 			[[ $VERBOSE -gt 0 ]] && echo "Found Archive: ${MV}.${MiV}.${x}"
 			break
 		fi
+		# If this is enabled, it causes issues with hashing as we'd need to then hash all patches *and* all version source files.
+#		[[ $Z == 0 ]] && Z=$MicV
 	done
 	if [ $Z == 0 ]; then
 		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.tar.xz")

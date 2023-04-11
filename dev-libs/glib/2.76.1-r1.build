@@ -15,7 +15,7 @@ setBuildENV meson ninja
 src_configure() {
 	sed -i -e '/subdir.*fuzzing/d' ../meson.build
 	sed -i -e '/install_dir/d' ../gio/tests/meson.build
-	append-flags -DG_DISABLE_CAST_CHECKS # https://gitlab.gnome.org/GNOME/glib/issues/1833
+	append-cppflags -DG_DISABLE_CAST_CHECKS # https://gitlab.gnome.org/GNOME/glib/issues/1833
 	# Disable man pages till we can fix the docbook-xsl-nons package.
 	configure_default -Dman=true \
 					  -Dinstalled_tests=false \

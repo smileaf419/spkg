@@ -11,8 +11,8 @@ BDEPS="dev-perl/IO-Socket-SSL accounts/ntp"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-append-flags -fPIC -g
-append-cppflags -D_GNU_SOURCE
+append-cppflags -fPIC -g
+append-cxxflags -D_GNU_SOURCE
 
 src_configure() {
 	# Fix an issue with update-leap
