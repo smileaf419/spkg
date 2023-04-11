@@ -1,10 +1,8 @@
 fetch_list() {
 	# Output our message
-	[ ! -z $1 ] && echo $1
-	# local t as we can't string such a thing as ${!1[@]}
-	local t=$2[@]
+	[[ ! -z $1 ]] && echo $1
 	local IFS=$'\n'
-	local list=(${!t})
+	local list=($2)
 	local length=${#tlist[@]}
 	local update_sha=${4:-0}
 	local length=${#list[@]}
