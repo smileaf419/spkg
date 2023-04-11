@@ -50,7 +50,7 @@ rebuildModules() {
 	esac
 	for m in $(find ${PKG_CACHE} -iname $type | sed -e "s,/$type,," -e "s,${PKG_CACHE}/,,")
 	do
-		echo -n "$(getcategory $m)/$(getpkgname $m) "
+		echo -n "$(getCategory $m)/$(getName $m) "
 	done	
 }
 

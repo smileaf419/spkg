@@ -1,0 +1,68 @@
+#!/bin/bash
+####
+## Finds and updates sha1sums for all files
+## Author: Stephen Leaf <smileaf@me.com>
+## Date: 2023-04-10 (rewrite of the old updateallsha1.sh)
+
+# Set a few flags to ensure everything gets fetched and hashed.
+VERIFY_SIG=0
+ENABLE_TESTS=1
+IGNORE_SHA=0
+#VERBOSE=3
+[[ ${ARCH:0:1} != "~" ]] && ARCH="~$ARCH"
+
+hashdir() {
+	PKG=$@
+	echo
+	echo -n "    Updating: $PKG: [ "
+	local dir=${PKG_BLD%/*}
+	[[ -e $dir/sha1 ]] && rm $dir/sha1
+	PKG=$(DB-getPkg $PKG)
+	for p in $PKG; do
+		unset SRC_URI PATCHES
+		(
+			setupENV $p
+			echo -n $PKG_VR
+
+			sha1sum "$PKG_BLD" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
+			source "$PKG_BLD"
+			fetch_list "" SRC_URI 'src' 1
+			fetch_list "" PATCHES 'patch' 1
+		)
+	done
+	echo " ]"
+}
+
+updatesha1() {
+	list=$@
+
+	# Get a directory listing for the given package
+	# check the sha1sum of each file
+	# if any file fails, rehash the entire directory.
+	for l in $list; do
+		PKG=$(DB-getPkg $l)
+		for p in $PKG; do
+			unset SRC_URI PATCHES
+			setupENV $p
+
+			checkSha1 "${PKG_BLD%/*}" "$PKG_BLD"
+			if [[ $? != 0 ]]; then
+				hashdir $PKG_CAT/$PKG_NAME
+				break
+			fi
+			source "$PKG_BLD"
+			fetch_list "" SRC_URI 'src'
+			if [[ $? != 0 ]]; then
+				# A failed hash was found.
+				hashdir $PKG_CAT/$PKG_NAME
+				break
+			fi
+			fetch_list "" PATCHES 'patch'
+			if [[ $? != 0 ]]; then
+				# A failed hash was found.
+				hashdir $PKG_CAT/$PKG_NAME
+				break
+			fi
+		done
+	done
+}

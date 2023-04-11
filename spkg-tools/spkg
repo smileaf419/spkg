@@ -3,7 +3,7 @@
 # Author Stephen Leaf <smileaf@me.com>
 # Date started: 2022/06/17
 
-VERSION="20230315"
+VERSION="20230410"
 
 set +h -E
 umask 022
@@ -80,7 +80,8 @@ IGNORE_SHA1=0
 #set -e
 trap '[ "$?" -ne 0 ] && exit $?' EXIT
 
-source "${INSTALL_PATH}/libs/helpermethods"
+source "${INSTALL_PATH}/libs/pkg-tools"
+source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/builddefaults"
 source "${INSTALL_PATH}/libs/spkg-include"
 source "${INSTALL_PATH}/libs/utils"
@@ -121,6 +122,10 @@ parse_cmdline() {
 					MODE="bootstrap"
 					ROOT=$(readlink -f $2)
 					shift 2 ;;
+				-debug)
+					set -x
+					export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+					shift 1 ;;
 				-ignoresha)
 					IGNORE_SHA1=1
 					shift 1 ;;
@@ -219,6 +224,7 @@ parse_cmdline() {
 					echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
 					echo    "  --updatesha1         Creates or updates sha1sum for all packages."
 					echo    "  --bootstrap [path]   Generates a new install at [path]"
+					echo    "  --debug              Shows all commands as they are being ran"
 					echo    " Optional Arguments"
 					echo    "  --silentBuild, -Q    Hides all build output."
 					echo    "  --user [username]    Runs all build file commands as [username]"
@@ -262,6 +268,8 @@ populate_list() {
 			echo " * Found ${p#@} Set .. Expanding"
 			if [[ ${p#@} == "world" ]]; then
 				tlist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
+			elif [[ ${p#@} == "all" ]]; then
+				tlist=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -v spkg | tr '\n' ' ')
 			elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
 				tlist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
 			else
@@ -328,6 +336,7 @@ if [[ $MODE == "update" ]]; then
 	#       This would result in installing a 6.2.* branch or whatever is most recent.
 #	find $PKG_CACHE -mindepth 3 -maxdepth 3 -type d | sed -e "s,$PKG_CACHE/,," > /tmp/installedPkgs
 #	list=$(cat /tmp/chart /tmp/installedPkgs | sed 's,^=,,' | sort -u -t: -k1 | sed 's,^,=,')
+	list=
 	for p in $(cat /tmp/chart); do
 		setupENV $p
 		version_gt $PKG_VR $O_VER
@@ -354,12 +363,20 @@ fi
 # Update the sha1sum of all files for the given package.
 # Accept a list of 'all'; Not recommended as our repository is getting quite large =]
 if [[ $HASH_UPDATE ]]; then
-	echo " * Updating SHA1 hashes."
-	source "${INSTALL_PATH}/libs/updateallsha1.sh"
+	C=$(echo $list | tr ' ' '\n' | wc -l)
+	echo " * Updating sha1 of $C packages"
+	source "${INSTALL_PATH}/libs/updatesha1"
 	for p in $list; do
-		p=$(echo ${p#=} | sed -e 's,-[0-9].*$,,')
-		updatesha1 $p
+		PKG=$(DB-getPkg $p)
+		if [[ $PKG == "" ]]; then
+			echo -n "!"
+			continue
+		else
+			echo -n "."
+		fi
+		updatesha1 $(getCategory $PKG)/$(getName $PKG)
 	done
+	echo
 	exit 0
 fi
 

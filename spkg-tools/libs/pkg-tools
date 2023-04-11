@@ -1,0 +1,197 @@
+####
+## Package Tools
+## Author: Stephen Leaf <smileaf@me.com>
+## Date: 2023-04-08
+##
+## Methods are split-up into 3 segments:
+## (this file)
+## Installed - Used to retrieve data from installed packages
+## DB        - Used to retrieve current data from available packages.
+##
+## Utils     - Useful methods build files may need to perform commonly operations.
+##
+### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
+## All methods take a PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_SLOT/PKG_FLAGS
+## Even if one or more are missing, unless otherwise noted.
+
+### Misc Methods used by both Installed and DB versions.
+
+## Filters PKG_BLDs by ARCH
+# FIXME: This needs to be able to handle the ability to return x86 results if ARCH is set to ~x86 and no ~x86 results are available.
+filterArch() {
+	local arch=${1:-$ARCH}
+	[[ ${arch:0:1} != '~' ]] && f='[^~]'
+	arch=${arch#\~}
+	echo $(cat -) | xargs grep -H 'ARCHS=.*'$f$arch'[ "]' 2> /dev/null| sed 's,:.*,,'
+}
+export -f filterArch
+
+filterSlot() {
+	local p=$(cat -)
+	local slot=${1:-0}
+	if [[ $slot == 0 ]]; then
+		echo $p | tr ' ' '\n'
+	else
+		echo $p | xargs grep -H "SLOT=$slot" 2> /dev/null | sed 's,:.*,,'
+	fi
+}
+export -f filterSlot
+
+####
+## DB Methods (PKG_DB_DIR)
+## Returns the most recent data from our database/repository.
+
+## Accepts a LENTRY or a lesser qualified version of it.
+## Returns a list of PKG_CAT/PKG_NAME/PKG_VR/PKG_SLOT/PKG_FLAGS
+DB-getPkg() {
+	local p=$1
+	local path=${2:-$PKG_DB_DIR}
+
+	# Check for flags
+	if [[ $p == *[* ]]; then
+		flags=${p#*[}
+		flags=${flags%]}
+		p=${p%[*}
+	fi
+	# Check for slot
+	if [[ $p == *:* ]]; then
+		slot=${p#*:}
+		p=${p%:*}
+	fi
+
+	# If we have a = in the beginning a version is now required.
+	if [[ ${p:0:1} == "=" ]]; then
+		p=${p#=}
+		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
+	fi
+	for l in $(DB-getPkgList $p | filterArch | filterSlot $slot | sed -e "s,$path/\?,," -e 's,.build$,,'); do
+		if [[ $slot == "" ]]; then
+			slot=$(grep 'SLOT=' $path/${l}.build | sed 's,.*SLOT=,,')
+		fi
+		echo "$l/$slot/$flags"
+	done
+}
+export -f DB-getPkg
+
+## Returns a list of matching entries.
+DB-getPkgList() {
+	local IFS="/"
+	local p=($@)
+	local cat=${p[0]}/
+	local name=${p[1]}/
+	[[ $name == '/' ]] && name=
+	local ver=${p[2]}
+
+	find "$PKG_DB_DIR" -iwholename "*/${cat}${name}${ver}*.build" 
+}
+export -f DB-getPkgList
+
+####
+## Installed Methods (PKG_CACHE)
+## Returns information from our PKG_CACHE dirs
+
+## Accepts a LENTRY or a lesser qualified version of it.
+## Returns a list of PKG_CAT/PKG_NAME/PKG_VR/PKG_SLOT/PKG_FLAGS
+Installed-getPkg() {
+	local p=$1
+	local path=${2:-$PKG_CACHE}
+
+	# Check for flags
+	if [[ $p == *[* ]]; then
+		flags=${p#*[}
+		flags=${flags%]}
+		p=${p%[*}
+	fi
+	# Check for slot
+	if [[ $p == *:* ]]; then
+		slot=${p#*:}
+		p=${p%:*}
+	fi
+
+	# If we have a = in the beginning a version is now required.
+	if [[ ${p:0:1} == "=" ]]; then
+		p=${p#=}
+		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
+	fi
+	for l in $(Installed-getPkgList $p | filterSlot $slot | sed -e "s,$path/\?,," -e 's,/[^/]*.build$,,'); do
+		echo "$l/$slot/$flags"
+	done
+}
+export -f Installed-getPkg
+
+## Returns a list of matching entries.
+Installed-getPkgList() {
+	v=$(find "$PKG_CACHE" -iwholename "*/$1/*.build")
+	[[ $v == "" ]] && echo 0 || echo $v | tr ' ' '\n'
+}
+export -f Installed-getPkgList
+
+####
+## Helper methods to take whats returned from *-getPkg and split out the information.
+
+## Accepts a return from *-getPkg
+## Returns the value found in the given slot.
+getData() {
+	local IFS="/"
+	if [[ $2 == '' ]]; then
+		local p=($(cat -))
+		echo "${p[$1]}"
+	else
+		local p=($1)
+		echo "${p[$2]}"
+	fi
+}
+export -f getData
+
+## Returns only the most recent version
+getLatest() {
+	echo $(cat -) | tr ' ' '\n' |
+		sort -V | tail -n1
+}
+export -f getLatest
+
+####
+## Return data functions
+
+getCategory() {
+	local data=${1:-$(cat -)}
+	getData $data 0
+}
+export -f getCategory
+
+getName() {
+	local data=${1:-$(cat -)}
+	getData $data 1
+}
+export -f getName
+
+getVersion() {
+	local data=${1:-$(cat -)}
+	getData $data 2 | sed 's,-r[0-9]*$,,'
+}
+export -f getVersion
+
+getRevision() {
+	local data=${1:-$(cat -)}
+	local ver=$(getVersion $data)
+	local rev=$(echo $ver | sed 's,.*-r\([0-9]*\)$,\1,')
+	[[ $rev == $ver ]] && echo "0" || echo $rev
+}
+export -f getRevision
+
+getVerRev() {
+	local data=${1:-$(cat -)}
+	getData $data 2
+}
+
+getSlot() {
+	local data=${1:-$(cat -)}
+	getData $data 3
+}
+export -f getSlot
+
+getFlags() {
+	local data=${1:-$(cat -)}
+	getData $data 4
+}
+export -f getFlags

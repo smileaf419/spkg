@@ -103,7 +103,8 @@ getdep() {
 				# If its already in the list, ignore it and continue.
 				grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
 
-				[[ $(getinstalledversion $p) != 0 ]] && continue
+				# If its already installed, we don't need to install it twice.
+				[[ $(Installed-getPkgList $p) != 0 ]] && continue
 
 				getdep $p $PKG_CAT/$PKG_NAME
 

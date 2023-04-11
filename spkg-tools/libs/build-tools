@@ -1,21 +1,14 @@
 fetch_list() {
 	# Output our message
-	echo $1
+	[ ! -z $1 ] && echo $1
 	# local t as we can't string such a thing as ${!1[@]}
 	local t=$2[@]
-	local tlist=(${!t})
+	local IFS=$'\n'
+	local list=(${!t})
 	local length=${#tlist[@]}
-	local list=()
-	# Preprocess our list here, unless there was a bug elsewhere than this script its sadly required..
-	for (( l=0; l<${length}; l++ )); do
-		if [[ ${tlist[$l + 1]} == "=>" ]]; then
-			list+=("${tlist[$l]} => ${tlist[$l+2]}")
-			l+=2
-		else
-			list+=(${tlist[$l]})
-		fi
-	done
+	local update_sha=${4:-0}
 	local length=${#list[@]}
+	local ret=0
 	for (( l=0; l<${length}; l++ )); do
 		C=$(( $l + 1 ))
 		file=${list[$l]}
@@ -38,14 +31,27 @@ fetch_list() {
 			echo "Fetching ($C of $length) $SRC_FILE"
 			fetch_file "$SRC_FILE" "$SRC_OUTFILE"
 		fi
-		checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" || die
+		checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"
+		if [[ $? != 0 ]]; then
+			if [[ $IGNORE_SHA == 1 ]]; then
+				ret=2
+			else
+				if [[ $update_sha == 1 ]]; then
+					sha1sum "$DISTFILES/$SRC_OUTFILE" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
+				else
+					[[ $VERBOSE -gt 1 ]] && >&2 echo " !! Sha1sum failed for file: $SRC_OUTFILE"
+					ret=1
+				fi
+			fi
+		fi
 	done
+	return $ret
 }
 
 prepare_default() {
 	if [[ ! -z $SRC_URI ]]; then
-		fetch_list "Fetching Files" SRC_URI 'src'
-		fetch_list "Fetching Patches" PATCHES 'patch'
+		fetch_list "Fetching Files" "$(IFS=$'\n'; echo ${SRC_URI[@]})" 'src'
+		fetch_list "Fetching Patches" "$(IFS=$'\n'; echo ${PATCHES[@]})" 'patch'
 		# Check a sig file if it exists.
 		# FIXME: This code fails if there is no public key installed.
 		# Build files should depend on a public key package.
@@ -355,7 +361,7 @@ uninstall() {
 	## Compare Slots
 	# If slots differ we got the wrong version or the only other installed version is a different slot
 	# Either way, we need to ignore it.
-	[[ $(getInstalledBySlot $PKG $PKG_SLOT) != *build ]] && return
+	[[ $(Installed-getPkgList $PKG | filterSlot $PKG_SLOT) != *build ]] && return
 
 	if [[ "$O_VER" != "" ]]; then
 		# Grep to add the filename before the files as a cheap trick

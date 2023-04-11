@@ -1,39 +1,50 @@
-# .build file helper methods
-# Only functions which will be used in .build files
-# should be within this file. 
-# Any function that shouldn't be allowed within .build files
-# should be found within spkg-include.
-# Author: smileaf (smileaf@me.com)
+####
+## Package Utils
+## Author: Stephen Leaf <smileaf@me.com>
+## Date: 2023-04-08
+##
+## Methods are split-up into 3 segments:
+## Installed - Used to retrieve data from installed packages
+## Db        - Used to retrieve current data from available packages.
+##
+## (this file)
+## Utils     - Useful methods build files may need to perform commonly operations.
+##
+### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
 
+# Just like it sounds, End the program immediately.
+die() { echo "$*" 1>&2 ; exit 77; }
+export -f die
+
+# Utility method to unpack a variety of archives.
+# Currently supports: tar.*, .zip
 unpack() {
 	FILE=$1
 	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
-		tar -xf "${FILE}" || die "Failed to Extract!"
+		tar -xf "${FILE}" || die "Failed to extract!"
 	elif [ ${FILE##*.} == "zip" ]; then
-		unzip -o "${FILE}"
+		unzip -o "${FILE}" || die "Failed to extract!"
+	# TODO: Add rar support
+	# TODO: Add deb support
+	# TODO: Add rpm support
 	else
-		die "Cannot Extract!"
+		die "Cannot extract unknown type: $FILE"
 	fi
 }
 export -f unpack
 
-die() { echo "$*" 1>&2 ; exit 77; }
-export -f die
-
-inform() { echo "$*" | tee -a $INFORMLOG; }
-export -f inform
-
+# Applies a patch, optionally with a set of arguments.
 spatch() {
 	patch=$1
 	shift 1
 	patch_options=${@:--Np1}
 	echo -n " * Applying Patch: $patch ($patch_options)"
 	if [[ $patch == *gz ]]; then
-		gzip -cd $patch | patch $patch_options > /dev/null || die " .. Failed!"
+		gzip -cd "$patch" | patch $patch_options > /dev/null || die " .. Failed!"
 	elif [[ $patch == *xz ]]; then
-		xz -cd $patch | patch $patch_options > /dev/null || die " .. Failed!"
+		xz -cd "$patch" | patch $patch_options > /dev/null || die " .. Failed!"
 	elif [[ $patch == *bz2 ]]; then
-		bzip2 -cd $patch | patch $patch_options > /dev/null || die " .. Failed!"
+		bzip2 -cd "$patch" | patch $patch_options > /dev/null || die " .. Failed!"
 	else
 		patch $patch_options -i "$patch" > /dev/null || die " .. Failed!"
 	fi
@@ -41,13 +52,18 @@ spatch() {
 }
 export -f spatch
 
+# Applies a set of patches, within the array, a directory or an archive.
+# src_patch automatically calls this method using the PATCHES var.
 spatches() {
+	# TODO: default to using the global PATCHES
+	#       if an argument list is supplied, use that instead.
 	PATCHES=($@)
+	# FIXME: This cannot handle spaces within any patch path.
 	PATCH_FILES=($(echo ${PATCHES[@]} | tr ' ' '\n' | sed "s,^https\?://.*/,${DISTFILES}/,"))
 
 	for p in ${PATCH_FILES[@]}; do
 		if [[ $p == *.tar.* ]]; then
-			unpack $p
+			unpack "$p"
 			p=${p%.tar.*}
 			p=${p##*/}
 			echo " * p : $p"
@@ -76,10 +92,6 @@ export -f filter-flags
 append-ldflags() { export LDFLAGS+=" $@"; }
 export -f append-ldflags
 
-# Append Flags to CPPFLAGS so that it gets added to both C and C++
-append-flags() { append-cppflags $@; }
-export -f append-flags
-
 # Append C flags
 append-cflags() { export CFLAGS+=" $@"; }
 export -f append-cflags
@@ -92,150 +104,16 @@ export -f append-cxxflags
 append-cppflags() { export CPPFLAGS+=" $@"; }
 export -f append-cppflags
 
-# Requires the full path of the build dir.
-getlatestversion() {
-	getPkgVerList $1 | 
-		filterArch | getLatest
-}
-export -f getlatestversion
-
-getLatest() {
-	echo $(cat -) | tr ' ' '\n' |
-		sed -e "s,$PKG_DB_DIR/,," \
-			-e "s,.build$,," |
-		sort -V |
-		tail -n1
-}
-export -f getLatest
-
-# Requires the PKG_CAT/PKG_NAME
-# Returns: the latest installed version
-getinstalledversion() {
-	getInstalledVersions $1 | sort -V | sed -e 's,.*/,,' -e 's,\.build$,,' | tail -n1 
-}
-export -f getinstalledversion
-
-# Requires PKG_CAT/PKG_NAME
-getInstalledVersions() {
-	v=$(find "$PKG_CACHE" -iwholename "*/$1/*.build")
-	[[ $v == "" ]] && echo 0 || echo $v | tr ' ' '\n'
-}
-export -f getInstalledVersions
-
-# Requires a PKG_CAT/PKG_NAME and PKG_SLOT
-# Returns: Installed PKG_BLD filtered by PKG_SLOT
-getInstalledBySlot() {
-	getInstalledVersions $1 | filterSlot $2 | sort -V | tail -n1
-}
-export -f getInstalledBySlot
-
-getPkgVerList() {
-	find "$PKG_DB_DIR" -iwholename "*/$1/*.build"
-}
-export -f getPkgVerList
-
-## Filters PKG_BLDs by ARCH
-# FIXME: This needs to be able to handle the ability to return x86 results if ARCH is set to ~x86 and no ~x86 results are available.
-filterArch() {
-	echo $(cat -) | xargs grep -H 'ARCHS=.*[^~]'$ARCH'[ "]' 2> /dev/null| sed 's,:.*,,'
-}
-export -f filterArch
-
-filterSlot() {
-	local p=$(cat -)
-	local slot=${1:-0}
-	if [[ $slot == 0 ]]; then
-		echo $p
-	else
-		echo $p | xargs grep -H "SLOT=$slot" 2> /dev/null | sed 's,:.*,,'
-	fi
-}
-export -f filterSlot
-
-# 1: Name of package
-#    Minimum syntax: pkgname
-#    Ulitmately I want this to be able to handle such a complex name as: =pkg_cat/pkg-name-1.0-r1:0[flags]
-# 2: Archs accepted
-# Returns: PKG_CAT/PKG_NAME/PKG_VR (ex: category/package/1.0-r1)
-getpkg() {
-	p=$1
-	# Check for flags
-	if [[ $p == *[* ]]; then
-		flags=${p#*[}
-		flags=${flags%]}
-		p=${p%[*}
-	fi
-	# Check for slot
-	if [[ $p == *:* ]]; then
-		slot=${p#*:}
-		p=${p%:*}
-	fi
-
-	# If we have a = in the beginning a version is now required.
-	if [[ ${p:0:1} == "=" ]]; then
-		p=${p#=}
-		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
-		find "$PKG_DB_DIR" -wholename "*/${p}.build" |
-			sed -e "s,$PKG_DB_DIR/,," \
-				-e "s,.build$,," |
-			sort -V|
-			tail -n1
-	else
-		getPkgVerList $p | filterArch | filterSlot $slot | getLatest
-	fi
-}
-export -f getpkg
-
-# Requires a Build file
-getpkgslot() {
-	grep 'SLOT=' $1 2> /dev/null | sed 's,^SLOT=,,'
-}
-export -f getpkgslot
-
-# 1: getpkg
-# Returns Category
-getcategory() { echo ${1%%/*}; }
-export -f getcategory
-
-# 1: getpkg
-# Returns: Package Name
-getpkgname() {
-	local T=${1%/*}
-	echo ${T#*/}
-}
-export -f getpkgname
-
-# 1: getpkg
-# Returns: Package Version
-getpkgver() { echo ${1##*/}|sed -e 's,-r[0-9]*$,,' -e 's,\.build$,,'; }
-export -f getpkgver
-
-# 1: getpkg
-# Returns: Package Revision
-getpkgrev() {
-	local rev=$(echo ${PKG##*/}|sed 's,.*-r\([0-9]*\)$,\1,')
-	[[ $rev == $(getpkgver $1) ]] && echo "0" || echo $rev
-}
-export -f getpkgrev
-
-# 1: getpkg
-# Returns: version with revision; example: 1.0r2
-getpkgvr() {
-	REV=$(getpkgrev $1)
-	if [[ $REV != "0" ]]; then
-		echo $(getpkgver $1)-r$REV
-	else
-		echo $(getpkgver $1)
-	fi
-}
-export -f getpkgvr
-
+# Within a version string of x.y.z
+# This will return: x
 getMajorVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
 	echo $VER | tr '.' '\n'|head -n1
 }
 export -f getMajorVer
 
+# Within a version string of x.y.z
+# This will return: y
 getMinorVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
 	c=$(echo $VER | tr '.' '\n'|wc -l)
@@ -249,6 +127,8 @@ getMinorVer() {
 }
 export -f getMinorVer
 
+# Within a version string of x.y.z
+# This will return: z
 getMicroVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
 	n=$(echo $VER|tr '.' '\n'|wc -l)
@@ -260,7 +140,8 @@ getMicroVer() {
 }
 export -f getMicroVer
 
-# 1: http address
+# Fetch a file from a given address
+# Optionally save it under a given name.
 fetch_file() {
 	# Just Ignore Empty calls.
 	[[ $1 == "" ]] && return 0
@@ -268,30 +149,36 @@ fetch_file() {
 	OUTFILE=$2
 	# No custom outfile .. just save it as normal
 	[[ $OUTFILE == "" ]] && OUTFILE=$FILE
+	# If we already exist, ignore it
 	[ -e "${DISTFILES}/${OUTFILE}" ] && return 0
 	wget -c -O "${DISTFILES}/${OUTFILE}" "$1"
+	# If we encounter an Error, delete the file and error out.
 	if [ $? != 0 ]; then
-		rm "${DISTFILES}/${OUTFILE}"
-		echo ${FILE##.*\.}
-		[ ${FILE##*.} == "sig" ] ||
-			die "Error Downloading from: $1"; 
+		[[ -e "$DISTFILES/$OUTFILE" ]] && rm "${DISTFILES}/${OUTFILE}"
+		echo "   FILE: $FILE"
+		echo "OUTFILE: $OUTFILE"
+		echo "      1: $1"
+		echo "      2: $2"
+		die "Error Downloading";
 	fi
 }
 export fetch_file
 
+# Check a sha1sum of a given file within the package's sha1 file.
 checkSha1() {
 	[[ $IGNORE_SHA1 == 1 ]] && return 0
 	PKG=$1
 	FILE=$2
-	[[ $VERBOSE -ge 2 ]] && echo -n "Checking Sha1: $FILE ... "
+	[[ $FILE == "" ]] && return 0
+	[[ $VERBOSE -ge 1 ]] && >&2 echo -n "Checking Sha1: $FILE ... "
 	[ ! -e $FILE ] && echo "Failed checking $PKG sha1" && return 1
 	h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
-	[[ $VERBOSE -ge 2 ]] && echo -n $h
-	grep "$h" $PKG/sha1 > /dev/null
+	[[ $VERBOSE -ge 1 ]] && >&2 echo -n $h
+	grep "$h" $PKG/sha1 > /dev/null 2>&1
 	if [[ $? == 0 ]]; then
-		[[ $VERBOSE -ge 2 ]] && echo "Ok"
+		[[ $VERBOSE -ge 1 ]] && >&2 echo " ..Ok"
 	else
-		die "Failed Sha1 Checksum: FILE: $FILE; Hash: $h"
+		return 1
 	fi
 	return 0
 }
@@ -331,7 +218,7 @@ checkKernelConfig() {
 	DIALOG=$3
 	HAS_PROC=0
 	HAS_CONFIG=0
-	
+
 	if [ $NEEDS_MODULE == 0 ]; then
 		ERROR_DIALOG="$CONFIG Needs Disabled"
 	else
@@ -349,8 +236,7 @@ checkKernelConfig() {
 		grep -E "${CONFIG}=[ym]" /usr/src/linux/.config > /dev/null
 		[ $? != $NEEDS_MODULE ] && echo -n "Ok]" && HAS_CONFIG=1 || echo -n "No]"
 	fi
-	[[ $HAS_PROC == 1 || $HAS_CONFIG == 1 ]] && echo ||
-		die $ERR_DIALOG
+	[[ $HAS_PROC == 1 || $HAS_CONFIG == 1 ]] && echo || die $ERR_DIALOG
 }
 export -f checkKernelConfig
 
@@ -411,10 +297,10 @@ export -f delGroup
 install-init.d() {
 	(
 		d=$PWD
-		PKG=$(getpkg sys-boot/blfs-bootscripts)
-		PKG_NAME=$(getpkgname $PKG)
-		PKG_BLD="$PKG_DB_DIR/${PKG}.build"
-		PKG_VER=$(getpkgver $PKG)
+		PKG=$(DB-getPkg sys-boot/blfs-bootscripts)
+		PKG_NAME=$(getName $PKG)
+		PKG_VER=$(getVerRev $PKG)
+		PKG_BLD="$PKG_DB_DIR/$(getCategory $PKG)/${PKG_NAME}/${PKG_VER}.build"
 		unset PATCHES SRC_URI
 		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 		source "${PKG_BLD}"

@@ -34,27 +34,25 @@ getBDeps() {
 # Setup package name & version variables
 # 1: Package Name
 setupENV() {
-	if [[ $1 == *[* ]]; then
-		PKG_FLAGS=${1#*[}
-		PKG_FLAGS=${PKG_FLAGS%]}
-	fi
-	PKG=$(getpkg $1)
-	PKG_BLD=$PKG_DB_DIR/${PKG}.build
-	PKG_CAT=$(getcategory $PKG)
-	PKG_NAME=$(getpkgname $PKG)
-	PKG_VER=$(getpkgver $PKG)
-	PKG_REV=$(getpkgrev $PKG)
-	PKG_VR=$(getpkgvr $PKG)
+	PKG=$(DB-getPkg $1 | getLatest)
+	[[ $PKG == "" ]] && return 1
+	PKG_CAT=$(getCategory $PKG)
+	PKG_NAME=$(getName $PKG)
+	PKG_VER=$(getVersion $PKG)
+	PKG_REV=$(getRevision $PKG)
+	PKG_VR=$(getVerRev $PKG)
+	PKG_BLD=$PKG_DB_DIR/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build
 	PKG_NVR=${PKG_NAME}-${PKG_VR}
 	PKG_NV=${PKG_NAME}-${PKG_VER}
-	PKG_SLOT=$(getpkgslot $PKG_BLD)
+	PKG_SLOT=$(getSlot $PKG)
+	PKG_FLAGS=$(getFlags $PKG)
 	BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	# Default archive build directory
 	B="${PKG_NV}"
 	# Temp install root
 	D="${BUILD_PATH}/troot"
 	# Match PKG_SLOT
-	O_VER=$(getpkgver $(getInstalledBySlot $PKG_CAT/$PKG_NAME $PKG_SLOT))
+	O_VER=$(Installed-getPkg $PKG_CAT/$PKG_NAME | filterSlot $PKG_SLOT | getVerRev)
 
 	# Build a fully Qualified List Entry for data safe-keeping.
 	LENTRY="="$PKG_CAT/$PKG_NVR
@@ -150,9 +148,4 @@ sinstall() {
 	local d=
 	[ -d "$1" ] && d="-d"
 	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") \"$1\" \"$2\"
-}
-
-fetch_files() {
-	SRC_FILES=($1)
-	echo ${SRC_FILES[@]}
 }
