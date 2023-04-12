@@ -165,7 +165,7 @@ echo "You will now need to create a $ROOT/etc/spkg.conf"
 echo " A safe default is included within the spkg-tools subdir"
 echo "You should now run $ROOT/chroot.sh"
 echo "Afterwards: spkg @temptools ; Once complete its safe to remove the /tools dir"
-echo "And finally: spkg -e @system"
+echo "And finally: spkg -e @basicsystem"
 echo " Once a default system is created, feel free to alter the USE flag, and reinstall affected packages."
 echo " Altering the USE flag before a system is fully created may run into several problems, and all"
 echo " packages -- even already installed ones -- must be reinstalled for a final system to be created successfully.
