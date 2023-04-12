@@ -26,8 +26,8 @@ hashdir() {
 
 			sha1sum "$PKG_BLD" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
 			source "$PKG_BLD"
-			fetch_list "" SRC_URI 'src' 1
-			fetch_list "" PATCHES 'patch' 1
+			fetch_list "" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src' 1
+			fetch_list "" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch' 1
 		)
 	done
 	echo " ]"
@@ -51,13 +51,13 @@ updatesha1() {
 				break
 			fi
 			source "$PKG_BLD"
-			fetch_list "" SRC_URI 'src'
+			fetch_list "" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src'
 			if [[ $? != 0 ]]; then
 				# A failed hash was found.
 				hashdir $PKG_CAT/$PKG_NAME
 				break
 			fi
-			fetch_list "" PATCHES 'patch'
+			fetch_list "" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch'
 			if [[ $? != 0 ]]; then
 				# A failed hash was found.
 				hashdir $PKG_CAT/$PKG_NAME

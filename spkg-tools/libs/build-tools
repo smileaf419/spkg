@@ -48,8 +48,8 @@ fetch_list() {
 
 prepare_default() {
 	if [[ ! -z $SRC_URI ]]; then
-		fetch_list "Fetching Files" "$(IFS=$'\n'; echo ${SRC_URI[@]})" 'src'
-		fetch_list "Fetching Patches" "$(IFS=$'\n'; echo ${PATCHES[@]})" 'patch'
+		fetch_list "Fetching Files" "$(IFS=$'\n'; echo ${SRC_URI[*]})" 'src'
+		fetch_list "Fetching Patches" "$(IFS=$'\n'; echo ${PATCHES[*]})" 'patch'
 		# Check a sig file if it exists.
 		# FIXME: This code fails if there is no public key installed.
 		# Build files should depend on a public key package.
