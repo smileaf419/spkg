@@ -14,7 +14,7 @@ IGNORE_SHA=0
 hashdir() {
 	PKG=$@
 	echo
-	echo -n "    Updating: $PKG: [ "
+	echo -n "    Updating: $PKG: ["
 	local dir=${PKG_BLD%/*}
 	[[ -e $dir/sha1 ]] && rm $dir/sha1
 	PKG=$(DB-getPkg $PKG)
@@ -22,7 +22,7 @@ hashdir() {
 		unset SRC_URI PATCHES
 		(
 			setupENV $p
-			echo -n $PKG_VR
+			echo -n " $PKG_VR"
 
 			sha1sum "$PKG_BLD" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
 			source "$PKG_BLD"

@@ -210,7 +210,9 @@ parse_cmdline() {
 					exit $? ;;					
 				h|-help)
 					echo "spkg by Stephen Leaf version $VERSION"
-					echo "Usage: $0 [Arguments] [package]"
+					echo "Usage: $0 [Arguments] [package | @set]"
+					echo " @set can be any of: @all @system @world"
+					echo "  see spkg-sets, for a complete listing."
 					echo " Modes (Default: Install)"
 					echo    "  --search, -s         Search and list package information."
 					echo    "  --uninstall, -u      uninstall package."
@@ -222,7 +224,7 @@ parse_cmdline() {
 					echo    "  --sync               syncs the package database via: git pull"
 					echo    " Developer Options"
 					echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
-					echo    "  --updatesha1         Creates or updates sha1sum for all packages."
+					echo    "  --updatesha1 [pkg]   Creates or updates sha1sum for the given package."
 					echo    "  --bootstrap [path]   Generates a new install at [path]"
 					echo    "  --debug              Shows all commands as they are being ran"
 					echo    " Optional Arguments"
