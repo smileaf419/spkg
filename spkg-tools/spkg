@@ -1,25 +1,45 @@
 #!/bin/bash
-# SMiLeaf Package Manager
-# Author Stephen Leaf <smileaf@me.com>
-# Date started: 2022/06/17
+####
+## SMiLeaf Package Manager
+## Author Stephen Leaf <smileaf@me.com>
+## Date started: 2022/06/17
 
+####
+## Comment descriptions & formatting
+## Blocks of comments or sections of code will be split up with a ####
+## Comments will start with ##
+## Code meant to be ignored will start with #
+## Tab is set to 4 spaces
+
+## Versions will be concurrent, but this will get updated whenever a large amount of functionality gets added or fixed.
 VERSION="20230410"
 
-set +h -E
-umask 022
-trap '[ "$?" -ne 77 ] || exit 77' ERR
+## Set some bash options
+## +h - Disable hashing of commands, allows newer versions of programs to be located immediately used primarily for bootstrap
+##    * Should move this to the bootstrap code?
+## -E - Trap ERR codes
+set +h -Ee
 
+## Remove write bit from group/other
+umask 022
+
+## Trap Errors - Only exit out if we recieve an error code 77.
+##               Such as using the function die
+trap '[ "$?" == 77 ] && exit 77' ERR
+## TODO: Add SIGINT to clean-up
+#set -e
+#trap '[ "$?" -ne 0 ] && exit $?' EXIT
+
+## Ensure our config file exists
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
-elif [[ $(test -w /etc/ ) ]]; then
-	echo " * no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
 else
-	echo "Cannot write /etc/spkg.conf file!"
-	exit 1
+	echo " * no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
 fi
 
-# Taken from:
-# https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+## Function to figure out where this script is at so we can reference our libs directory.
+## Taken from:
+## https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
 whereAmI() {
 	SOURCE=${BASH_SOURCE[0]}
 	while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -31,12 +51,15 @@ whereAmI() {
 	echo $DIR
 }
 
-# Set Environmental Variables
+####
+## Set Environmental Variables
+## Sanitize our paths in case our environment may not be complete.
 export PKG_CONFIG_PATH=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig
 export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
-# Set some defaults if they don't exist.
+####
+## Set some defaults if they don't exist.
 MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
 CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
@@ -49,7 +72,7 @@ BUILD_PACKAGE=${BUILD_PACKAGE:-no}
 SILENT_BUILD=${SILENT_BUILD:-no}
 BUILD_USER=${BUILD_USER:-$(whoami)}
 TEST_USER=${TEST_USER:-$(whoami)}
-# Paths
+## Paths
 ROOT=${ROOT:-/}
 PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
 INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
@@ -67,19 +90,20 @@ export PKG_DB_DIR PKG_CACHE DISTFILES WORKDIR_BASE ROOT MAKEOPTS
 export CFLAGS CXXFLAGS PAGE USE ARCHS
 export ENABLE_TESTS INSTALL_DOCS BUILD_USER SILENT_BUILD
 
-# 0: Install; 1: Uninstall; 2: Search; 3: Update
+####
+## Set initial program defaults
+## 0 = false; 1 = true
 MODE="install"
 FORCE=0
 PRETEND=0
 ARCHIVE_INSTALL=0
 VERBOSE=0
 
-# For security reasons this shouldn't ever be used... But exists
+## For security reasons this shouldn't ever be used... But exists
 IGNORE_SHA1=0
 
-#set -e
-trap '[ "$?" -ne 0 ] && exit $?' EXIT
-
+####
+## Include our libraries
 source "${INSTALL_PATH}/libs/pkg-tools"
 source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/builddefaults"
@@ -88,30 +112,11 @@ source "${INSTALL_PATH}/libs/utils"
 source "${INSTALL_PATH}/libs/build-tools"
 source "${INSTALL_PATH}/libs/list-tools"
 
-if [ ! -d $PKG_ARCHIVE_DIR ]; 
-	then mkdir -p "$PKG_ARCHIVE_DIR" || die "Failed to create: PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"; fi
-test -w $PKG_ARCHIVE_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"
-if [ ! -d $PKG_CACHE ]; 
-	then mkdir -p "$PKG_CACHE" || die "Failed to create: PKG_CACHE: $PKG_CACHE"; fi
-test -w $PKG_CACHE || die "Cannot write to PKG_CACHE: $PKG_CACHE"
-if [ ! -d $DISTFILES ];
-	then mkdir -p "$DISTFILES" || die "Failed to create: DISTFILES: $DISTFILES"; fi
-test -w $DISTFILES || die "Cannot write to PKG_ARCHIVE_DIR: $DISTFILES"
-if [ ! -d $LOGDIR ];
-	then mkdir -p "$LOGDIR" || die "Failed to create: LOGDIR: $LOGDIR"; fi
-test -w $LOGDIR || die "Cannot write to PKG_ARCHIVE_DIR: $LOGDIR"
-if [ ! -d $WORKDIR_BASE ];
-	then mkdir -p "$WORKDIR_BASE" || die "Failed to create: WORKDIR_BASE: $WORKDIR_BASE"; fi
-test -w $WORKDIR_BASE || die "Cannot write to PKG_ARCHIVE_DIR: $WORKDIR_BASE"
-if [ ! -d $PKG_DB_DIR ]
-	then mkdir -p "$PKG_DB_DIR" || die "Failed to create: PKG_DB_DIR: $PKG_DB_DIR"; fi
-test -w $PKG_DB_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_DB_DIR"
-
-touch $INFORMLOG
-chmod 1777 $INFORMLOG
-
+####
+## Parse our command line
+## FIXME: it would be very nice to be able to string muliple short options together such as -vvv or -Up
+## Referenced mozilla-launcher script.
 parse_cmdline() {
-	# Referenced mozilla-launcher script.
 	while [[ $# -ne 0 ]] ; do
 		if [[ $1 == -* ]] ; then
 			case "${1#-}" in
@@ -249,8 +254,7 @@ parse_cmdline() {
 					echo    "  --help, -h           This Help Message."
 					exit $? ;;
 				*)
-					echo "Unknown option!"
-					exit 1 ;;
+					die "Unknown option: $1 ! see --help" ;;
 			esac
 		else
 			list=$@
@@ -259,13 +263,13 @@ parse_cmdline() {
 	done
 }
 
-# This function takes a list supplied on the command line and populates it with fully qualified entries
-# in the form:  =category/package_name-version:slot
+## This function takes a list supplied on the command line and populates it with fully qualified entries (LENTRY)
+## in the form:  =category/package_name-version:slot
 populate_list() {
 	tlist=
 	for p in $list; do
-		# Expand Sets
-		# This assumes all entries within a set are fully-qualified.
+		## Expand Sets
+		## This assumes all entries within a set are fully-qualified.
 		if [[ ${p:0:1} == "@" ]]; then
 			echo " * Found ${p#@} Set .. Expanding"
 			if [[ ${p#@} == "world" ]]; then
@@ -279,7 +283,7 @@ populate_list() {
 			fi
 		else
 			setupENV $p
-			# If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
+			## If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
 			if [[ $PKG_NAME == "" ]]; then
 				echo " !! $p Not found!"
 				list=$p
@@ -289,18 +293,47 @@ populate_list() {
 			tlist+=" $LENTRY"
 		fi
 	done
-	# Save a list of what was requested on the commandline.
+	## Save a list of what was requested on the commandline.
 	export REQUESTED_LIST=${tlist# }
 	list=${tlist# }
 }
 
 parse_cmdline $@
 
-# Ensure we can write to our LOGDIR.
-mkdir -p "${LOGDIR}" || die "Failed to mkdir ${LOGDIR}"
-test -w "${LOGDIR}/" || die "LOGDIR: ${LOGDIR} not writable"
+####
+## Ensure we can write to required directories
+if [[ $MODE != 'search' ]]; then
+	if [ ! -d $PKG_ARCHIVE_DIR ];
+		then mkdir -p "$PKG_ARCHIVE_DIR" || die "Failed to create: PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"; fi
+	test -w $PKG_ARCHIVE_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"
 
-# Sync our database to the repository.
+	if [ ! -d $PKG_CACHE ];
+		then mkdir -p "$PKG_CACHE" || die "Failed to create: PKG_CACHE: $PKG_CACHE"; fi
+	test -w $PKG_CACHE || die "Cannot write to PKG_CACHE: $PKG_CACHE"
+
+	if [ ! -d $DISTFILES ];
+		then mkdir -p "$DISTFILES" || die "Failed to create: DISTFILES: $DISTFILES"; fi
+	test -w $DISTFILES || die "Cannot write to DISTFILES: $DISTFILES"
+
+	if [ ! -d $LOGDIR ];
+		then mkdir -p "$LOGDIR" || die "Failed to create: LOGDIR: $LOGDIR"; fi
+	test -w $LOGDIR || die "Cannot write to LOGDIR: $LOGDIR"
+
+	if [ ! -d $WORKDIR_BASE ];
+		then mkdir -p "$WORKDIR_BASE" || die "Failed to create: WORKDIR_BASE: $WORKDIR_BASE"; fi
+	test -w $WORKDIR_BASE || die "Cannot write to WORKDIR_BASE: $WORKDIR_BASE"
+
+	if [ ! -d $PKG_DB_DIR ]
+		then mkdir -p "$PKG_DB_DIR" || die "Failed to create: PKG_DB_DIR: $PKG_DB_DIR"; fi
+	test -w $PKG_DB_DIR || die "Cannot write to PKG_DB_DIR: $PKG_DB_DIR"
+
+	[[ -e $INFORMLOG ]] && rm $INFORMLOG
+	touch $INFORMLOG
+	chmod 1777 $INFORMLOG
+fi
+
+####
+## Sync our database to the repository.
 if [[ $MODE == "sync" ]]; then
 	# If git is not installed, inform the user to install it.
 	if [[ ! -e /usr/bin/git ]]; then
@@ -312,58 +345,57 @@ if [[ $MODE == "sync" ]]; then
 	git pull || die " !! Sync Failed!"
 fi
 
-# Set a list to the bootstrap set.
+## Set a list to the bootstrap set.
 if [[ $MODE == "bootstrap" ]]; then
 	list="@bootstrap"
 fi
 
-# Populate our list with fully qualified entries so long as we're not searching.
-# We wouldn't want to destroy our search terms.
+## Populate our list with fully qualified entries so long as we're not searching.
+## We wouldn't want to destroy our search terms.
 if [[ $MODE != "search" ]]; then
 	populate_list
 fi
 
-# Check for updates against whats installed and build our list.
+## Check for updates against whats installed and build our list.
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
 
-	# Create a list of all @system & @world packages and add in any missing from PKG_CACHE (Possibly report/auto clean?)
+	## Create a list of all @system & @world packages and add in any missing from PKG_CACHE (Possibly report/auto clean?)
 	list=$(expandSets "@system @world")
 	getFullPkgList $list
 
 	## Build a list of all installed packages and compare them against our @world/@system list
-	#  As we register packages with qualified entries, we need to be sure to not override those with 
-	#  under-qualified installed package listings.
-	#  Exp: sys-kernel/linux-kernel:6.1 would get replaced by a sys-kernel/linux-kernel
-	#       This would result in installing a 6.2.* branch or whatever is most recent.
+	##  As we register packages with qualified entries, we need to be sure to not override those with
+	##  under-qualified installed package listings.
+	##  Exp: sys-kernel/linux-kernel:6.1 would get replaced by a sys-kernel/linux-kernel
+	##       This would result in installing a 6.2.* branch or whatever is most recent.
 #	find $PKG_CACHE -mindepth 3 -maxdepth 3 -type d | sed -e "s,$PKG_CACHE/,," > /tmp/installedPkgs
 #	list=$(cat /tmp/chart /tmp/installedPkgs | sed 's,^=,,' | sort -u -t: -k1 | sed 's,^,=,')
 	list=
 	for p in $(cat /tmp/chart); do
 		setupENV $p
-		version_gt $PKG_VR $O_VER
-		if [[ $? == 0 ]]; then
+		if [[ $(version_gt $PKG_VR $O_VER) == 0 ]]; then
 			list+=" $LENTRY"
 			echo $PKG_NAME :: $PKG_VR
 		elif [[ $VERBOSE -gt 1 ]]; then
 			echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 		fi
 	done
-	# Has the potential to produce multiple entries for the same program.
-	# This filters out them out so we don't install them twice.
+	## Has the potential to produce multiple entries for the same program.
+	## This filters out them out so we don't install them twice.
 	list=$(echo $list | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
 
-# Calculate Binary Dependencies and update the DEPS var within the build file.
+## Calculate Binary Dependencies and update the DEPS var within the build file.
 elif [[ $MODE == "buildbdeps" ]]; then
 	for p in $list; do
 		buildBDeps $p
 	done
 fi
 
-# Update the sha1sum of all files for the given package.
-# Accept a list of 'all'; Not recommended as our repository is getting quite large =]
+## Update the sha1sum of all files for the given package.
+## Using the set @all while useful is not recommended given the size of the repository.
 if [[ $HASH_UPDATE ]]; then
 	C=$(echo $list | tr ' ' '\n' | wc -l)
 	echo " * Updating sha1 of $C packages"
@@ -374,50 +406,49 @@ if [[ $HASH_UPDATE ]]; then
 			echo -n "!"
 			continue
 		else
-			echo -n "."
+			updatesha1 $(getCategory $PKG)/$(getName $PKG) && echo -n "."
 		fi
-		updatesha1 $(getCategory $PKG)/$(getName $PKG)
 	done
 	echo
 	exit 0
 fi
 
-# Build the installed kernel, will automatically rebuild all kernel modules afterwards.
+## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 if [[ $MODE == "buildKernel" ]]; then
 	buildKernel
 	MODE="rebuildKernelModules"
 fi
 
-# Build all kernel modules.
+## Build all kernel modules.
 if [[ $MODE == "rebuildKernelModules" ]]; then
 	list=$(rebuildModules kernel)
 	REQUESTED_LIST=$list
 	FORCE=1
 fi
-# Build all Python Modules
+## Build all Python Modules
 if [[ $MODE == "rebuildPythonModules" ]]; then
 	list=$(rebuildModules python)
 	echo $list
 	REQUESTED_LIST=$list
 	FORCE=1
 fi
-# Build all Perl Modules
+## Build all Perl Modules
 if [[ $MODE == "rebuildPerlModules" ]]; then
 	list=$(rebuildModules perl)
 	REQUESTED_LIST=$list
 	FORCE=1
 fi
 
-# Attempts to clean a system of all unessential packages.
-# This is done by building 2 lists:
-#  First we calculate a full list based on our @system and @world sets
-#  Aftwards we gather a list of installed packages
-# Finally compare the 2 lists and filter out the uniq entries.
-# The entries which only exist in 1 list, will be removed.
-#  In theory These entries exist installed, but not in the full list of required packages.
-#  Its possible however that it got installed, then a package is updated and the uniq entry is a new package.
-# FIXME: We should itterate over the list to ensure the uniq pkgs are installed, 
-#        if not, error out and tell the user to run: spkg @system @world
+## Attempts to clean a system of all unessential packages.
+## This is done by building 2 lists:
+##  First we calculate a full list based on our @system and @world sets
+##  Aftwards we gather a list of installed packages
+## Finally compare the 2 lists and filter out the uniq entries.
+## The entries which only exist in 1 list, will be removed.
+##  In theory These entries exist installed, but not in the full list of required packages.
+##  Its possible however that it got installed, then a package is updated and the uniq entry is a new package.
+## FIXME: We should itterate over the list to ensure the uniq pkgs are installed, 
+##        if not, error out and tell the user to run: spkg @system @world
 if [[ $MODE == "clean" ]]; then
 	ENABLE_TESTS=1
 	echo " * Deep Cleaning"
@@ -435,11 +466,12 @@ if [[ $MODE == "clean" ]]; then
 	# { output=$(command 2>&1 1>&3-) ;} 3>&1
 fi
 
+## Bootstrap a new system to the given directory.
 if [[ $MODE == "bootstrap" ]]; then
 	source "${INSTALL_PATH}/libs/bootstrap"
 fi
 
-# Get Dependencies and check if any require updates.
+## Get Dependencies and check if any require updates.
 if [[ $MODE != "search" ]]; then
 	echo " * Calculating Package Order..."
 	getFullPkgList $list
@@ -454,14 +486,14 @@ if [[ $MODE != "search" ]]; then
 		setupENV $p
 
 		if [[ $MODE != "uninstall" ]]; then
-			# By default we don't install already installed packages, even when requested
-			# check forced or empty world.
-			version_gt $PKG_VR $O_VER
-			if [[ $? == 0 ||
-				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ||
+			## By default we don't install already installed packages, even when requested
+			## check forced or empty world.
+			if [[ $(version_gt $PKG_VR $O_VER) == 0 ||
+				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ||
 				! -z $EMPTY_WORLD ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
-				[[ $FORCE == 1 ]] && echo -n " (forced)"
+				## Only mention it's been forced if its within the REQUESTED_LIST & FORCE
+				[[ $FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]]) ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 				list+=" $LENTRY"
@@ -469,7 +501,7 @@ if [[ $MODE != "search" ]]; then
 				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 			fi
 		else
-			if [[ $(getinstalledversion $PKG_CAT/$PKG_NAME) != 0 &&
+			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME | getVersion) != 0 &&
 				($REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
@@ -480,15 +512,18 @@ if [[ $MODE != "search" ]]; then
 		fi
 	done
 
+	## Should remove the /tmp/chart only when a run is completed successfully, otherwise retain it for use in a --resume ?
 #	rm /tmp/chart
 	[ $PRETEND == 1 ] && exit 0
 	[[ -z $list ]] && die "Nothing to upgrade."
 fi
 
-# Search
+## Search
 if [[ $MODE == "search" ]]; then
 	for p in $list; do
-		# User supplied a category but the package wasn't found. Do a search on the package name without the category.
+		## User supplied a category but the package either wasn't found or they actually did want to search for just that one...
+		## use REQUESTED_LIST instead?
+		## Do a search on the package name without the category.
 		[[ $p == */* ]] && p=${p#*/}
 		[[ $p == *:* ]] && slot=${p#*:} && p=${p%:*} || slot=
 		echo "Searching: $p"
@@ -527,6 +562,7 @@ if [[ $MODE == "search" ]]; then
 fi	
 installList $list
 
+## Files were preserved, process them here to ensure we don't break our system.
 if [ -e /tmp/preserved ]; then
 	echo " * Gathering list of packages to rebuild"
 	REQUESTED_LIST=
@@ -545,8 +581,7 @@ if [ -e /tmp/preserved ]; then
 	for p in $(cat /tmp/chart); do
 		setupENV $p
 
-		version_gt $PKG_VR $O_VER
-		if [[ $? == 0 || 
+		if [[ $(version_gt $PKG_VR $O_VER) == 0 || 
 			$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"($|[[:space:]]) ]]; then
 			echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 			[[ $FORCE == 1 ]] && echo -n " (forced)"
@@ -562,6 +597,7 @@ if [ -e /tmp/preserved ]; then
 	rm /tmp/preserved
 fi
 
+## Print out our INFORMLOG and clean-up.
 cat "$INFORMLOG" && rm "$INFORMLOG"
 
 # Can use this to find applications/init scripts to restart following an update.

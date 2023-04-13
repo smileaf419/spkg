@@ -35,7 +35,10 @@ getBDeps() {
 # 1: Package Name
 setupENV() {
 	PKG=$(DB-getPkg $1 | getLatest)
-	[[ $PKG == "" ]] && return 1
+	if [[ $PKG == "" ]]; then
+		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
+#		return 1
+	fi
 	PKG_CAT=$(getCategory $PKG)
 	PKG_NAME=$(getName $PKG)
 	PKG_VER=$(getVersion $PKG)
@@ -52,7 +55,7 @@ setupENV() {
 	# Temp install root
 	D="${BUILD_PATH}/troot"
 	# Match PKG_SLOT
-	O_VER=$(Installed-getPkg $PKG_CAT/$PKG_NAME | filterSlot $PKG_SLOT | getVerRev)
+	O_VER=$(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVerRev)
 
 	# Build a fully Qualified List Entry for data safe-keeping.
 	LENTRY="="$PKG_CAT/$PKG_NVR

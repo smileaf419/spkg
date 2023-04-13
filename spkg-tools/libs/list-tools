@@ -70,8 +70,7 @@ getdep() {
 	pkg-has-flag "nodep" && return
 
 	# Check if its on the stack, if not, add it. if so we'll get to it later.
-	grep "$1" /tmp/stack > /dev/null 2>&1
-	[[ $? == 0 ]] && return || echo $1 >> /tmp/stack
+	grep "$1" /tmp/stack > /dev/null 2>&1 && return || echo $1 >> /tmp/stack
 
 	# If we somehow call ourselves..
 	[[ $1 == $2 ]] && return 2
@@ -114,8 +113,7 @@ getdep() {
 		fi
 
 		# Add our package
-		grep -E "^=${PKG_CAT}.${PKG_NAME}.${PKG_VR}" /tmp/chart > /dev/null
-		if [ $? != 0 ]; then
+		if ! grep -E "^=${PKG_CAT}.${PKG_NAME}.${PKG_VR}" /tmp/chart > /dev/null; then
 			echo $LENTRY >> /tmp/chart
 			sed "/^PKG_CAT.$PKG_NAME/d" -i /tmp/stack
 		fi
@@ -136,7 +134,8 @@ doDeps() {
 
 		# Identify Circular Dependencies here so we can break out
 
-		getdep $d $PKG_CAT/$PKG_NAME
-		[[ $? == 2 ]] && break
+		if [[ $(getdep $d $PKG_CAT/$PKG_NAME) == 2 ]]; then
+			break
+		fi
 	done
 }

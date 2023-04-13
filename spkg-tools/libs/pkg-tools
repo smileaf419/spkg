@@ -37,6 +37,18 @@ filterSlot() {
 }
 export -f filterSlot
 
+fileToList() {
+	local list
+	[[ $1 != '' ]] && list=$@ || list=$(cat -)
+	for l in $list; do
+		path=${l%/*/*/*}/
+		l=${l/$path/}; l=${l%.build}
+		slot=$(grep 'SLOT=' $path/${l}.build | sed 's,.*SLOT=,,')
+		echo "$l/$slot"
+	done
+}
+export -f fileToList
+
 ####
 ## DB Methods (PKG_DB_DIR)
 ## Returns the most recent data from our database/repository.
@@ -64,11 +76,8 @@ DB-getPkg() {
 		p=${p#=}
 		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
 	fi
-	for l in $(DB-getPkgList $p | filterArch | filterSlot $slot | sed -e "s,$path/\?,," -e 's,.build$,,'); do
-		if [[ $slot == "" ]]; then
-			slot=$(grep 'SLOT=' $path/${l}.build | sed 's,.*SLOT=,,')
-		fi
-		echo "$l/$slot/$flags"
+	for l in $(DB-getPkgList $p | filterArch | filterSlot $slot); do
+		echo $(fileToList $l)/$flags
 	done
 }
 export -f DB-getPkg
@@ -181,7 +190,8 @@ export -f getRevision
 
 getVerRev() {
 	local data=${1:-$(cat -)}
-	getData $data 2
+	local vr=$(getData $data 2)
+	[[ $vr == '' ]] && echo 0 || echo $vr
 }
 
 getSlot() {
