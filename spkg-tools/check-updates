@@ -113,13 +113,13 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	FILE=${FILE/.orig/}
 	FILE=${FILE//_/-}
 
-	PKG=$(DB-getPkg $PK | getLatest)
+	PKG=$(DB-getPkgList $PK | fileToList | getLatest | getVersion)
 	PKG=${PKG##*/}
 	[[ ${FILE##*-} == "" ]] && echo "Checking $PK : $PKG : ${FILE##*-}"
 	if [[ ${FILE##*-} == $PKG ]]; then
 		continue
 	fi
-	if version_gt ${FILE##*-} $PKG; then 
+	if [[ $(version_gt ${FILE##*-} $PKG) == 0 ]]; then 
 		echo $FILE [ $PK-$PKG ] $FILE_O >> $UPDATE_LIST
 	fi
 done
