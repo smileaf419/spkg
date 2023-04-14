@@ -23,10 +23,11 @@ export -f inform
 # Currently supports: tar.*, .zip
 unpack() {
 	FILE=$1
+	DIR=${2:-.}
 	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
-		tar -xf "${FILE}" || die "Failed to extract!"
+		tar -xf "$FILE" -C "$DIR" || die "Failed to extract!"
 	elif [ ${FILE##*.} == "zip" ]; then
-		unzip -o "${FILE}" || die "Failed to extract!"
+		unzip -o "$FILE" -d "$DIR" || die "Failed to extract!"
 	# TODO: Add rar support
 	# TODO: Add deb support
 	# TODO: Add rpm support

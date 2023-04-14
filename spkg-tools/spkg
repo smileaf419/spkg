@@ -18,24 +18,55 @@ VERSION="20230410"
 ## +h - Disable hashing of commands, allows newer versions of programs to be located immediately used primarily for bootstrap
 ##    * Should move this to the bootstrap code?
 ## -E - Trap ERR codes
+## -e - Exit immediately on Error
 set +h -Ee
 
 ## Remove write bit from group/other
 umask 022
 
+####
 ## Trap Errors - Only exit out if we recieve an error code 77.
 ##               Such as using the function die
 trap '[ "$?" == 77 ] && exit 77' ERR
-## TODO: Add SIGINT to clean-up
-#set -e
+
+## Probably won't ever need this.
 #trap '[ "$?" -ne 0 ] && exit $?' EXIT
 
+## Trap SIGINT so we can properly clean-up and display information.
+trap "echo -ne '\nSIGINT caught, '; cleanup; exit 1" SIGINT
+
+####
 ## Ensure our config file exists
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
 else
 	echo " * no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
 fi
+
+## Clean-up all Temp files.
+cleanup() {
+	PKG_ONLY=$1
+	echo -n "Cleaning up..."
+
+	## For security purposes, validate our BUILD_PATH
+	BP=$(readlink -f $BUILD_PATH)
+	if [[ ! -z $BP && $BP != '/' && -e $BUILD_PATH ]]; then
+		echo -n " $BUILD_PATH .."
+		rm -rf "$BUILD_PATH"
+	fi
+	echo " Done"
+
+	if [ -e $INFORMLOG ]; then
+		cat "$INFORMLOG"
+		[[ ! -z $PKG_ONLY ]] && rm "$INFORMLOG"
+	fi
+
+	# TODO: automerge if files were not changed.
+	if [[ $CONFIG_PROTECTED == 'true' ]]; then
+		echo " * System configuration files were protected!"
+		find /etc/ -iname "*.cfg[0-9]*"
+	fi
+}
 
 ## Function to figure out where this script is at so we can reference our libs directory.
 ## Taken from:
@@ -596,9 +627,6 @@ if [ -e /tmp/preserved ]; then
 	done
 	rm /tmp/preserved
 fi
-
-## Print out our INFORMLOG and clean-up.
-cat "$INFORMLOG" && rm "$INFORMLOG"
 
 # Can use this to find applications/init scripts to restart following an update.
 # lsof / | awk '/deleted/ && !/tmp/{print $9}' | sort -u

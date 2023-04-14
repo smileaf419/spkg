@@ -336,14 +336,7 @@ installPackage() {
 			fi
 		fi
 
-		echo -n "Cleaning up..."
-		rm -rf "${BUILD_PATH}" && echo " Done"
-
-		# TODO: automerge if files were not changed.
-		if [ $CONFIG_PROTECTED == true ]; then
-			echo " * System configuration files were protected!"
-			find /etc/ -iname "*.cfg[0-9]*"
-		fi
+		cleanup 1
 	) || die "Error Building Package."
 }
 
