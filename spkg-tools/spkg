@@ -49,10 +49,12 @@ cleanup() {
 	echo -n "Cleaning up..."
 
 	## For security purposes, validate our BUILD_PATH
-	BP=$(readlink -f $BUILD_PATH)
-	if [[ ! -z $BP && $BP != '/' && -e $BUILD_PATH ]]; then
-		echo -n " $BUILD_PATH .."
-		rm -rf "$BUILD_PATH"
+	if [[ ! -z $BUILD_PATH ]]; then
+		BP=$(readlink -f $BUILD_PATH)
+		if [[ ! -z $BP && $BP != '/' && -e $BUILD_PATH ]]; then
+			echo -n " $BUILD_PATH .."
+			rm -rf "$BUILD_PATH"
+		fi
 	fi
 	echo " Done"
 
@@ -145,148 +147,136 @@ source "${INSTALL_PATH}/libs/list-tools"
 
 ####
 ## Parse our command line
-## FIXME: it would be very nice to be able to string muliple short options together such as -vvv or -Up
-## Referenced mozilla-launcher script.
 parse_cmdline() {
-	while [[ $# -ne 0 ]] ; do
-		if [[ $1 == -* ]] ; then
-			case "${1#-}" in
-				v|-verbose)
-					VERBOSE=$(( $VERBOSE + 1 ))
-					shift 1 ;;
-				-bootstrap)
-					MODE="bootstrap"
-					ROOT=$(readlink -f $2)
-					shift 2 ;;
-				-debug)
-					set -x
-					export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
-					shift 1 ;;
-				-ignoresha)
-					IGNORE_SHA1=1
-					shift 1 ;;
-				l|-logdir)
-					LOGDIR=$2
-					shift 2 ;;
-				u|-uninstall)
-					MODE="uninstall"
-					shift 1 ;;
-				s|-search)
-					MODE="search"
-					shift 1 ;;
-				U|-update)
-					MODE="update"
-					shift 1 ;;
-				D|-deepClean)
-					MODE="clean"
-					shift 1 ;;
-				-sync)
-					MODE="sync"
-					shift 1 ;;
-				f|-force)
-					FORCE=1
-					shift 1 ;;
-				-fetchOnly)
-					FETCH_ONLY=1
-					FORCE=1
-					shift 1 ;;
-				p|-pretend)
-					PRETEND=1
-					shift 1 ;;
-				A|-installArchive)
-					ARCHIVE_INSTALL="1"
-					shift 1 ;;
-				-archiveDir)
-					PKG_ARCHIVE_DIR=$2
-					shift 2 ;;
-				-enable-tests)
-					ENABLE_TESTS=1
-					shift 1 ;;
-				-disable-tests)
-					ENABLE_TESTS=0
-					shift 1 ;;
-				-buildbdeps)
-					MODE="buildbdeps"
-					shift 1 ;;
-				-updatesha1)
-					HASH_UPDATE=true
-					shift 1 ;;
-				-rebuildKernelMods)
-					MODE="rebuildKernelModules"
-					shift 1 ;;
-				-rebuildPythonMods)
-					MODE="rebuildPythonModules"
-					shift 1 ;;
-				-rebuildPerlMods)
-					MODE="rebuildPerlModules"
-					shift 1 ;;
-				-buildKernel)
-					MODE="buildKernel"
-					shift 1 ;;
-				-user)
-					BUILD_USER=$2
-					shift 2 ;;
-				-testUsr)
-					TEST_USER=$2
-					shift 2 ;;
-				-verify)
-					VERIFY_SIG=1
-					shift 1 ;;
-				1|-oneshot)
-					OMIT_RECORD_IN_WORLD=1
-					shift 1 ;;
-				Q|-silentBuild)
-					SILENT_BUILD=yes
-					shift 1 ;;
-				e|-empty)
-					EMPTY_WORLD=1
-					shift 1 ;;
-				-version)
-					echo "spkg by Stephen Leaf version $VERSION"
-					exit $? ;;					
-				h|-help)
-					echo "spkg by Stephen Leaf version $VERSION"
-					echo "Usage: $0 [Arguments] [package | @set]"
-					echo " @set can be any of: @all @system @world"
-					echo "  see spkg-sets, for a complete listing."
-					echo " Modes (Default: Install)"
-					echo    "  --search, -s         Search and list package information."
-					echo    "  --uninstall, -u      uninstall package."
-					echo    "  --rebuildKernelMods  Rebuilds all Kernel Modules."
-					echo    "  --rebuildPythonMods  Rebuilds all Python Modules."
-					echo    "  --rebuildPerlMods    Rebuilds all Perl Modules."
-					echo    "  --buildKernel        Builds a new kernel"
-					echo    "  --deepClean, -D      Compares the charts of the world file and packages installed."
-					echo    "  --sync               syncs the package database via: git pull"
-					echo    " Developer Options"
-					echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
-					echo    "  --updatesha1 [pkg]   Creates or updates sha1sum for the given package."
-					echo    "  --bootstrap [path]   Generates a new install at [path]"
-					echo    "  --debug              Shows all commands as they are being ran"
-					echo    " Optional Arguments"
-					echo    "  --silentBuild, -Q    Hides all build output."
-					echo    "  --user [username]    Runs all build file commands as [username]"
-					echo    "  --testUsr [username] Runs all build file test commands as [username]"
-					echo    "  --oneshot, -1        Omits adding any package requested to the world file."
-					echo    "  --empty, -e          Assumes an empty world file"
-					echo    "  --update, -U         Finds all updates for all installed packages."
-					echo    "  --force, -f          Forces install of already installed packages."
-					echo    "  --pretend, -p        Shows what will be done, without doing it."
-					echo    "  --fetchOnly          Fetches all files without installing."
-					echo    "  --verify             Verify PGP Signatures if available."
-					echo    "  --installArchive, -A Installs package(s) from a preprepared archive."
-					echo    "  --archiveDir [dir]   Sets the archive Directory (default: $PKG_ARCHIVE_DIR)"
-					echo -n "  --enable-tests       Enable package specific tests."
-					[ $ENABLE_TESTS == 1 ] && echo " (Default)" || echo
-					echo -n "  --disable-tests      Disables package specific tests."
-					[ $ENABLE_TESTS == 0 ] && echo " (Default)" || echo
-					echo    "  --logdir, -l [file]  Set the Log Directory (default: $LOGDIR)"
-					echo    "  --verbose, -v        Make the output more verbose. (add another for extra)"
-					echo    "  --help, -h           This Help Message."
-					exit $? ;;
-				*)
-					die "Unknown option: $1 ! see --help" ;;
-			esac
+	opts=($@)
+	for (( a=0; a<$#; a++ )); do
+		opt=${opts[$a]}
+		val=${opts[$a+1]}
+		if [[ $opt == -* ]] ; then
+			opt=${opt#-}
+			for i in $(seq 1 ${#opt}); do
+				if [[ $opt == -* ]]; then
+					o=$opt
+				else
+					o=${opt:$i-1:1}
+				fi
+				case "$o" in
+					v|-verbose)
+						VERBOSE=$(( $VERBOSE + 1 )) ;;
+					-bootstrap)
+						MODE="bootstrap"
+						a+=1
+						ROOT=$(readlink -f $val) ;;
+					-debug)
+						set -x
+						export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }' ;;
+					-ignoresha)
+						IGNORE_SHA1=1 ;;
+					l|-logdir)
+						a=$(( $a + 1 ))
+						LOGDIR=$val ;;
+					u|-uninstall)
+						MODE="uninstall" ;;
+					s|-search)
+						MODE="search" ;;
+					U|-update)
+						MODE="update" ;;
+					D|-deepClean)
+						MODE="clean" ;;
+					-sync)
+						MODE="sync" ;;
+					f|-force)
+						FORCE=1 ;;
+					-fetchOnly)
+						FETCH_ONLY=1
+						FORCE=1 ;;
+					p|-pretend)
+						PRETEND=1 ;;
+					A|-installArchive)
+						ARCHIVE_INSTALL="1" ;;
+					-archiveDir)
+						a=$(( $a + 1 ))
+						PKG_ARCHIVE_DIR=$val ;;
+					-enable-tests)
+						ENABLE_TESTS=1 ;;
+					-disable-tests)
+						ENABLE_TESTS=0 ;;
+					-buildbdeps)
+						MODE="buildbdeps" ;;
+					-updatesha1)
+						HASH_UPDATE=true ;;
+					-rebuildKernelMods)
+						MODE="rebuildKernelModules" ;;
+					-rebuildPythonMods)
+						MODE="rebuildPythonModules" ;;
+					-rebuildPerlMods)
+						MODE="rebuildPerlModules" ;;
+					-buildKernel)
+						MODE="buildKernel" ;;
+					-user)
+						a=$(( $a + 1 ))
+						BUILD_USER=$val ;;
+					-testUsr)
+						a=$(( $a + 1 ))
+						TEST_USER=$val ;;
+					-verify)
+						VERIFY_SIG=1 ;;
+					1|-oneshot)
+						OMIT_RECORD_IN_WORLD=1 ;;
+					Q|-silentBuild)
+						SILENT_BUILD=yes ;;
+					e|-empty)
+						EMPTY_WORLD=1 ;;
+					-version)
+						echo "spkg by Stephen Leaf version $VERSION"
+						exit $? ;;
+					h|-help)
+						echo "spkg by Stephen Leaf version $VERSION"
+						echo "Usage: $0 [Arguments] [package | @set]"
+						echo " @set can be any of: @all @system @world"
+						echo "  see spkg-sets, for a complete listing."
+						echo " Modes (Default: Install)"
+						echo    "  --search, -s         Search and list package information."
+						echo    "  --uninstall, -u      uninstall package."
+						echo    "  --rebuildKernelMods  Rebuilds all Kernel Modules."
+						echo    "  --rebuildPythonMods  Rebuilds all Python Modules."
+						echo    "  --rebuildPerlMods    Rebuilds all Perl Modules."
+						echo    "  --buildKernel        Builds a new kernel"
+						echo    "  --deepClean, -D      Compares the charts of the world file and packages installed."
+						echo    "  --sync               syncs the package database via: git pull"
+						echo    " Developer Options"
+						echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
+						echo    "  --updatesha1 [pkg]   Creates or updates sha1sum for the given package."
+						echo    "  --bootstrap [path]   Generates a new install at [path]"
+						echo    "  --debug              Shows all commands as they are being ran"
+						echo    " Optional Arguments"
+						echo    "  --silentBuild, -Q    Hides all build output."
+						echo    "  --user [username]    Runs all build file commands as [username]"
+						echo    "  --testUsr [username] Runs all build file test commands as [username]"
+						echo    "  --oneshot, -1        Omits adding any package requested to the world file."
+						echo    "  --empty, -e          Assumes an empty world file"
+						echo    "  --update, -U         Finds all updates for all installed packages."
+						echo    "  --force, -f          Forces install of already installed packages."
+						echo    "  --pretend, -p        Shows what will be done, without doing it."
+						echo    "  --fetchOnly          Fetches all files without installing."
+						echo    "  --verify             Verify PGP Signatures if available."
+						echo    "  --installArchive, -A Installs package(s) from a preprepared archive."
+						echo    "  --archiveDir [dir]   Sets the archive Directory (default: $PKG_ARCHIVE_DIR)"
+						echo -n "  --enable-tests       Enable package specific tests."
+						[ $ENABLE_TESTS == 1 ] && echo " (Default)" || echo
+						echo -n "  --disable-tests      Disables package specific tests."
+						[ $ENABLE_TESTS == 0 ] && echo " (Default)" || echo
+						echo    "  --logdir, -l [file]  Set the Log Directory (default: $LOGDIR)"
+						echo    "  --verbose, -v        Make the output more verbose. (add another for extra)"
+						echo    "  --help, -h           This Help Message."
+						exit $? ;;
+					*)
+						die "Unknown option: $1 ! see --help" ;;
+				esac
+				if [[ $opt == -* ]]; then
+					break
+				fi
+			done
 		else
 			list=$@
 			break
