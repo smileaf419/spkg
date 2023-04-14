@@ -16,7 +16,7 @@ SLOT=0
 
 src_configure() {
 	# if xdg-utils is not installed
-	if [[ $(getinstalledversion x11-misc/xdg-utils) == 0 ]]; then
+	if [[ $(Installed-getPkg x11-misc/xdg-utils | getVersion) == 0 ]]; then
 		sed -i 's#@CUPS_HTMLVIEW@#firefox#' desktop/cups.desktop.in
 		inform "x11-misc/xdg-utils is not installed, setting the default viewer to firefox"
 	fi

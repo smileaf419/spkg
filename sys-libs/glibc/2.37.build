@@ -58,7 +58,7 @@ src_install() {
 post_install() {
 	if [[ $MODE == "bootstrap" ]]; then
 		echo -n " * Running mkheaders: " &&
-		$ROOT/tools/libexec/gcc/$HOST_TGT/$(getpkgver $(getlatestversion sys-devel/gcc))/install-tools/mkheaders && echo Done
+		$ROOT/tools/libexec/gcc/$HOST_TGT/$(Installed-getPkg sys-devel/gcc | getVersion)/install-tools/mkheaders && echo Done
 	fi
 
 	echo " * Installing Locales"

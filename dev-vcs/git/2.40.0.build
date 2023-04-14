@@ -20,6 +20,6 @@ src_configure() {
 }
 
 src_install() {
-	PERL_VER=$(getinstalledversion dev-lang/perl)
+	PERL_VER=$(Installed-getPkg dev-lang/perl | getVersion)
 	install_default perllibdir=/usr/lib/perl5/${PERL_VER%.*}/site_perl
 }
