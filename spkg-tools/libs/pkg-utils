@@ -16,6 +16,9 @@
 die() { echo "$*" 1>&2 ; exit 77; }
 export -f die
 
+inform() { echo "$*" | tee -a $INFORMLOG; }
+export -f inform
+
 # Utility method to unpack a variety of archives.
 # Currently supports: tar.*, .zip
 unpack() {
