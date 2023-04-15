@@ -165,7 +165,7 @@ parse_cmdline() {
 						VERBOSE=$(( $VERBOSE + 1 )) ;;
 					-bootstrap)
 						MODE="bootstrap"
-						a+=1
+						a=$(($a + 1 ))
 						ROOT=$(readlink -f $val) ;;
 					-debug)
 						set -x
@@ -278,6 +278,7 @@ parse_cmdline() {
 				fi
 			done
 		else
+			shift $a
 			list=$@
 			break
 		fi
