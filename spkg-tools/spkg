@@ -293,15 +293,21 @@ populate_list() {
 		## Expand Sets
 		## This assumes all entries within a set are fully-qualified.
 		if [[ ${p:0:1} == "@" ]]; then
-			echo " * Found ${p#@} Set .. Expanding"
 			if [[ ${p#@} == "world" ]]; then
+				echo " * Found ${p#@} Set .. Expanding"
 				tlist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
 			elif [[ ${p#@} == "all" ]]; then
+				echo " * Found ${p#@} Set .. Expanding"
 				tlist=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -v spkg | tr '\n' ' ')
 			elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
+				echo " * Found ${p#@} Set .. Expanding"
 				tlist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
 			else
-				echo " * Unknown set: ${p#@}"
+				echo " !! Unknown set: ${p#@}"
+				echo " * Did you mean one of: "
+				find $PKG_DB_DIR/spkg-sets/* | sed "s,$PKG_DB_DIR/spkg-sets/,,"
+				echo "world"
+				die "all"
 			fi
 		else
 			setupENV $p
@@ -378,23 +384,24 @@ if [[ $MODE != "search" ]]; then
 	populate_list
 fi
 
+####
 ## Check for updates against whats installed and build our list.
+## Take everything installed and find upgrades for it, respecting explicitly installed slots within world.
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
 
-	## Create a list of all @system & @world packages and add in any missing from PKG_CACHE (Possibly report/auto clean?)
-	list=$(expandSets "@system @world")
-	getFullPkgList $list
-
-	## Build a list of all installed packages and compare them against our @world/@system list
-	##  As we register packages with qualified entries, we need to be sure to not override those with
-	##  under-qualified installed package listings.
-	##  Exp: sys-kernel/linux-kernel:6.1 would get replaced by a sys-kernel/linux-kernel
-	##       This would result in installing a 6.2.* branch or whatever is most recent.
-#	find $PKG_CACHE -mindepth 3 -maxdepth 3 -type d | sed -e "s,$PKG_CACHE/,," > /tmp/installedPkgs
-#	list=$(cat /tmp/chart /tmp/installedPkgs | sed 's,^=,,' | sort -u -t: -k1 | sed 's,^,=,')
-	list=
-	for p in $(cat /tmp/chart); do
+	list=$(find $PKG_CACHE -mindepth 2 -maxdepth 2 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
+	tlist=
+	for p in $list; do
+		rl=$(grep $p $PKG_WORLD || true)
+		if [[ $rl != '' ]]; then
+			tlist+=" $rl"
+		else
+			tlist+=" $p"
+		fi
+	done
+	list=$tlist
+	for p in $list; do
 		setupENV $p
 		if [[ $(version_gt $PKG_VR $O_VER) == 0 ]]; then
 			list+=" $LENTRY"
@@ -403,9 +410,6 @@ if [[ $MODE == "update" ]]; then
 			echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 		fi
 	done
-	## Has the potential to produce multiple entries for the same program.
-	## This filters out them out so we don't install them twice.
-	list=$(echo $list | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
 
