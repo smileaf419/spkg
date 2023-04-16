@@ -26,6 +26,7 @@ filterArch() {
 }
 export -f filterArch
 
+## Filter PKG_BLDs by PKG_SLOT
 filterSlot() {
 	local p=$(cat -)
 	local slot=${1:-0}
@@ -37,6 +38,7 @@ filterSlot() {
 }
 export -f filterSlot
 
+## Turns a file path into a / seperated list of data.
 fileToList() {
 	local list
 	[[ $1 != '' ]] && list=$@ || list=$(cat -)
@@ -44,9 +46,11 @@ fileToList() {
 		local IFS="/"
 		local p=($list)
 		unset IFS
+		## If our path contains 2 version entries, our path should be PKG_CACHE
 		if [[ ${p[-2]}.build == ${p[-1]} ]]; then
 			path=${l%/*/*/*/*}/
 			p=${l/$path/}; p=${p%/*.build}
+		## Our path should be PKG_DB_DIR
 		else
 			path=${l%/*/*/*}/
 			p=${l/$path/}; p=${p%.build}
@@ -57,6 +61,7 @@ fileToList() {
 }
 export -f fileToList
 
+## Turns a / seperated list of data into a list of LENTRY
 listToLEntry() {
 	local list
 	[[ $1 != '' ]] && list=$@ || list=$(cat -)

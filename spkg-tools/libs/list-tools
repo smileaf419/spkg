@@ -40,11 +40,23 @@ expandSets() {
 		for p in $list; do
 			if [ ${p:0:1} == "@" ]; then
 				if [[ ${p#@} == "world" ]]; then
-					slist="$slist $(cat $PKG_WORLD|tr '\n' ' ')"
+					slist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
+				elif [[ ${p#@} == "all" ]]; then
+					slist=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -v spkg | tr '\n' ' ')
+				elif [[ ${p#@} == "perlModules" ]]; then
+					slist+=" $(rebuildModules perl)"
+				elif [[ ${p#@} == "pythonModules" ]]; then
+					slist+=" $(rebuildModules python)"
+				elif [[ ${p#@} == "kernelModules" ]]; then
+					slist+=" $(rebuildModules kernel)"
 				elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
-					slist="$slist $(cat $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
+					slist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
 				else
-					>&2 echo " * Unknown set: ${p#@}"
+					>&2 echo " !! Unknown set: ${p#@}"
+					>&2 echo " * Did you mean one of: "
+					>&2 find $PKG_DB_DIR/spkg-sets/* | sed "s,$PKG_DB_DIR/spkg-sets/,,"
+					>&2 echo "world"
+					die "all"
 				fi
 			else
 				tlist="$tlist $p"

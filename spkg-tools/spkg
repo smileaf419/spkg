@@ -165,6 +165,7 @@ parse_cmdline() {
 						VERBOSE=$(( $VERBOSE + 1 )) ;;
 					-bootstrap)
 						MODE="bootstrap"
+						list="@bootstrap"
 						a=$(($a + 1 ))
 						ROOT=$(readlink -f $val) ;;
 					-debug)
@@ -206,10 +207,16 @@ parse_cmdline() {
 					-updatesha1)
 						HASH_UPDATE=true ;;
 					-rebuildKernelMods)
+						list+=" @kernelModules"
+						FORCE=1
 						MODE="rebuildKernelModules" ;;
 					-rebuildPythonMods)
+						list+=" @pythonModules"
+						FORCE=1
 						MODE="rebuildPythonModules" ;;
 					-rebuildPerlMods)
+						list+=" @perlModules"
+						FORCE=1
 						MODE="rebuildPerlModules" ;;
 					-buildKernel)
 						MODE="buildKernel" ;;
@@ -279,7 +286,7 @@ parse_cmdline() {
 			done
 		else
 			shift $a
-			list=$@
+			list=${list:-$@}
 			break
 		fi
 	done
@@ -289,37 +296,17 @@ parse_cmdline() {
 ## in the form:  =category/package_name-version:slot
 populate_list() {
 	tlist=
+	list=$(expandSets $list)
 	for p in $list; do
-		## Expand Sets
-		## This assumes all entries within a set are fully-qualified.
-		if [[ ${p:0:1} == "@" ]]; then
-			if [[ ${p#@} == "world" ]]; then
-				echo " * Found ${p#@} Set .. Expanding"
-				tlist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
-			elif [[ ${p#@} == "all" ]]; then
-				echo " * Found ${p#@} Set .. Expanding"
-				tlist=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -v spkg | tr '\n' ' ')
-			elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
-				echo " * Found ${p#@} Set .. Expanding"
-				tlist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
-			else
-				echo " !! Unknown set: ${p#@}"
-				echo " * Did you mean one of: "
-				find $PKG_DB_DIR/spkg-sets/* | sed "s,$PKG_DB_DIR/spkg-sets/,,"
-				echo "world"
-				die "all"
-			fi
-		else
-			setupENV $p
-			## If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
-			if [[ $PKG_NAME == "" ]]; then
-				echo " !! $p Not found!"
-				list=$p
-				MODE=search
-				return
-			fi
-			tlist+=" $LENTRY"
+		setupENV $p
+		## If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
+		if [[ $PKG_NAME == "" ]]; then
+			echo " !! $p Not found!"
+			list=$p
+			MODE=search
+			return
 		fi
+		tlist+=" $LENTRY"
 	done
 	## Save a list of what was requested on the commandline.
 	export REQUESTED_LIST=${tlist# }
@@ -358,6 +345,29 @@ if [[ $MODE != 'search' ]]; then
 	[[ -e $INFORMLOG ]] && rm $INFORMLOG
 	touch $INFORMLOG
 	chmod 1777 $INFORMLOG
+
+	## Populate our list with fully qualified entries so long as we're not searching.
+	## We wouldn't want to destroy our search terms.
+	populate_list
+fi
+
+## Update the sha1sum of all files for the given package.
+## Using the set @all while useful is not recommended given the size of the repository.
+if [[ $HASH_UPDATE ]]; then
+	C=$(echo $list | tr ' ' '\n' | wc -l)
+	echo " * Updating sha1 of $C packages"
+	source "${INSTALL_PATH}/libs/updatesha1"
+	for p in $list; do
+		PKG=$(DB-getPkg $p)
+		if [[ $PKG == "" ]]; then
+			echo -n "!"
+			continue
+		else
+			updatesha1 $(getCategory $PKG)/$(getName $PKG) && echo -n "."
+		fi
+	done
+	echo
+	exit 0
 fi
 
 ####
@@ -371,17 +381,6 @@ if [[ $MODE == "sync" ]]; then
 	fi
 	cd $PKG_DB_DIR
 	git pull || die " !! Sync Failed!"
-fi
-
-## Set a list to the bootstrap set.
-if [[ $MODE == "bootstrap" ]]; then
-	list="@bootstrap"
-fi
-
-## Populate our list with fully qualified entries so long as we're not searching.
-## We wouldn't want to destroy our search terms.
-if [[ $MODE != "search" ]]; then
-	populate_list
 fi
 
 ####
@@ -412,58 +411,18 @@ if [[ $MODE == "update" ]]; then
 	done
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
-
 ## Calculate Binary Dependencies and update the DEPS var within the build file.
 elif [[ $MODE == "buildbdeps" ]]; then
 	for p in $list; do
 		buildBDeps $p
 	done
-fi
-
-## Update the sha1sum of all files for the given package.
-## Using the set @all while useful is not recommended given the size of the repository.
-if [[ $HASH_UPDATE ]]; then
-	C=$(echo $list | tr ' ' '\n' | wc -l)
-	echo " * Updating sha1 of $C packages"
-	source "${INSTALL_PATH}/libs/updatesha1"
-	for p in $list; do
-		PKG=$(DB-getPkg $p)
-		if [[ $PKG == "" ]]; then
-			echo -n "!"
-			continue
-		else
-			updatesha1 $(getCategory $PKG)/$(getName $PKG) && echo -n "."
-		fi
-	done
-	echo
-	exit 0
-fi
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
-if [[ $MODE == "buildKernel" ]]; then
+elif [[ $MODE == "buildKernel" ]]; then
 	buildKernel
-	MODE="rebuildKernelModules"
-fi
-
-## Build all kernel modules.
-if [[ $MODE == "rebuildKernelModules" ]]; then
-	list=$(rebuildModules kernel)
-	REQUESTED_LIST=$list
+	list="@kernelModules"
 	FORCE=1
-fi
-## Build all Python Modules
-if [[ $MODE == "rebuildPythonModules" ]]; then
-	list=$(rebuildModules python)
-	echo $list
-	REQUESTED_LIST=$list
-	FORCE=1
-fi
-## Build all Perl Modules
-if [[ $MODE == "rebuildPerlModules" ]]; then
-	list=$(rebuildModules perl)
-	REQUESTED_LIST=$list
-	FORCE=1
-fi
+	populate_list
 
 ## Attempts to clean a system of all unessential packages.
 ## This is done by building 2 lists:
@@ -475,7 +434,7 @@ fi
 ##  Its possible however that it got installed, then a package is updated and the uniq entry is a new package.
 ## FIXME: We should itterate over the list to ensure the uniq pkgs are installed, 
 ##        if not, error out and tell the user to run: spkg @system @world
-if [[ $MODE == "clean" ]]; then
+elif [[ $MODE == "clean" ]]; then
 #	ENABLE_TESTS=1
 	echo " * Deep Cleaning"
 	echo " * Gathering a list of @system and @world"
@@ -492,10 +451,9 @@ if [[ $MODE == "clean" ]]; then
 	MODE="uninstall"
 	
 	# { output=$(command 2>&1 1>&3-) ;} 3>&1
-fi
 
 ## Bootstrap a new system to the given directory.
-if [[ $MODE == "bootstrap" ]]; then
+elif [[ $MODE == "bootstrap" ]]; then
 	source "${INSTALL_PATH}/libs/bootstrap"
 fi
 
@@ -540,8 +498,6 @@ if [[ $MODE != "search" ]]; then
 		fi
 	done
 
-	## Should remove the /tmp/chart only when a run is completed successfully, otherwise retain it for use in a --resume ?
-#	rm /tmp/chart
 	[ $PRETEND == 1 ] && exit 0
 	[[ -z $list ]] && die "Nothing to upgrade."
 fi
