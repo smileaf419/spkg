@@ -8,10 +8,9 @@ BDEPS="sys-devel/llvm accounts/dhcpcd"
 RDEPS="net-misc/ntp"
 ARCHS="~x86 ~x86_64"
 SLOT=0
+B=dhcpcd-dhcpcd-$PKG_VER
 
 src_configure() {
-	sed '/Deny everything else/i SECCOMP_ALLOW(__NR_getrandom),' -i src/privsep-linux.c
-    
 	./configure --prefix=/usr            \
 				--sbindir=/sbin          \
 				--libdir=/lib            \
