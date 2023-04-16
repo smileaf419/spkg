@@ -20,6 +20,7 @@
 # FIXME: This needs to be able to handle the ability to return x86 results if ARCH is set to ~x86 and no ~x86 results are available.
 filterArch() {
 	local arch=${1:-$ARCH}
+	local f=
 	[[ ${arch:0:1} != '~' ]] && f='[^~]'
 	arch=${arch#\~}
 	echo $(cat -) | xargs grep -H 'ARCHS=.*'$f$arch'[ "]' 2> /dev/null| sed 's,:.*,,'

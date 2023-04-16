@@ -579,7 +579,7 @@ if [ -e /tmp/preserved ]; then
 			[[ $FORCE == 1 ]] && echo -n " (forced)"
 			[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 			echo
-			list+=" $PKG_CAT/$PKG_NAME"
+			list+=" $LENTRY"
 		fi
 	done
 	installList $list
