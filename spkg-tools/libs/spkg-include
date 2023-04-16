@@ -37,7 +37,6 @@ setupENV() {
 	PKG=$(DB-getPkg $1 | getLatest)
 	if [[ $PKG == "" ]]; then
 		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
-#		return 1
 	fi
 	PKG_CAT=$(getCategory $PKG)
 	PKG_NAME=$(getName $PKG)

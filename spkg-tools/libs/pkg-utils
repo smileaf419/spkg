@@ -174,13 +174,13 @@ checkSha1() {
 	PKG=$1
 	FILE=$2
 	[[ $FILE == "" ]] && return 0
-	[[ $VERBOSE -ge 1 ]] && >&2 echo -n "Checking Sha1: $FILE ... "
+	[[ $VERBOSE -ge 2 ]] && >&2 echo -n "Checking Sha1: $FILE ... "
 	[ ! -e $FILE ] && echo "Failed checking $PKG sha1" && return 1
 	h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
-	[[ $VERBOSE -ge 1 ]] && >&2 echo -n $h
+	[[ $VERBOSE -ge 2 ]] && >&2 echo -n $h
 	grep "$h" $PKG/sha1 > /dev/null 2>&1
 	if [[ $? == 0 ]]; then
-		[[ $VERBOSE -ge 1 ]] && >&2 echo " ..Ok"
+		[[ $VERBOSE -ge 2 ]] && >&2 echo " ..Ok"
 	else
 		return 1
 	fi

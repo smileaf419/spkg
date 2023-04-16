@@ -41,13 +41,30 @@ fileToList() {
 	local list
 	[[ $1 != '' ]] && list=$@ || list=$(cat -)
 	for l in $list; do
-		path=${l%/*/*/*}/
-		l=${l/$path/}; l=${l%.build}
-		slot=$(grep 'SLOT=' $path/${l}.build | sed 's,.*SLOT=,,')
-		echo "$l/$slot"
+		local IFS="/"
+		local p=($list)
+		unset IFS
+		if [[ ${p[-2]}.build == ${p[-1]} ]]; then
+			path=${l%/*/*/*/*}/
+			p=${l/$path/}; p=${p%/*.build}
+		else
+			path=${l%/*/*/*}/
+			p=${l/$path/}; p=${p%.build}
+		fi
+		slot=$(grep 'SLOT=' "$l" | sed 's,.*SLOT=,,')
+		echo "$p/$slot"
 	done
 }
 export -f fileToList
+
+listToLEntry() {
+	local list
+	[[ $1 != '' ]] && list=$@ || list=$(cat -)
+	for l in $list; do
+		echo "=$(getCategory $l)/$(getName $l)-$(getVerRev $l):$(getSlot $l)"
+	done
+}
+export -f listToLEntry
 
 ####
 ## DB Methods (PKG_DB_DIR)
@@ -76,7 +93,7 @@ DB-getPkg() {
 		p=${p#=}
 		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
 	fi
-	for l in $(DB-getPkgList $p | filterArch | filterSlot $slot); do
+	for l in $(DB-getPkgList $p | filterArch | filterSlot $slot | sort -V); do
 		echo $(fileToList $l)/$flags
 	done
 }
@@ -122,7 +139,7 @@ Installed-getPkg() {
 		p=${p#=}
 		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
 	fi
-	for l in $(Installed-getPkgList $p | filterSlot $slot | sed -e "s,$path/\?,," -e 's,/[^/]*.build$,,'); do
+	for l in $(Installed-getPkgList $p | filterSlot $slot | sed -e "s,$path/\?,," -e 's,/[^/]*.build$,,' | sort -V); do
 		echo "$l/$slot/$flags"
 	done
 }

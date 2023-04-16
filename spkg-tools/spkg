@@ -476,16 +476,18 @@ fi
 ## FIXME: We should itterate over the list to ensure the uniq pkgs are installed, 
 ##        if not, error out and tell the user to run: spkg @system @world
 if [[ $MODE == "clean" ]]; then
-	ENABLE_TESTS=1
+#	ENABLE_TESTS=1
 	echo " * Deep Cleaning"
 	echo " * Gathering a list of @system and @world"
 	list=$(expandSets "@system @world")
 	echo " * Calculating Package List"
 	getFullPkgList $list
+	mv /tmp/chart /tmp/sysworldset
 	echo " * Getting a list of installed packages."
-	find $PKG_CACHE -mindepth 2 -maxdepth 2 -type d | sed "s,$PKG_CACHE/,," > /tmp/installedPkgs
+	find $PKG_CACHE -name \*.build | fileToList | listToLEntry > /tmp/installedPkgs
+	getFullPkgList $(cat /tmp/installedPkgs)
 	echo " * Gathering a list of targets to remove"
-	list=$(cat /tmp/chart /tmp/installedPkgs | sort | uniq -u)
+	list=$(cat /tmp/chart /tmp/sysworldset | sort | uniq -u)
 	REQUESTED_LIST=$list
 	MODE="uninstall"
 	
@@ -527,7 +529,7 @@ if [[ $MODE != "search" ]]; then
 				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 			fi
 		else
-			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME | getVersion) != 0 &&
+			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
 				($REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
@@ -561,8 +563,16 @@ if [[ $MODE == "search" ]]; then
 			fi
 			if [[ $PKG_NAME != "" ]]; then
 				checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
-				echo " * ${PKG_CAT}/${PKG_NAME}-${PKG_VR}"
-				echo "    Installed: ${O_VER}"
+				echo " * ${PKG_CAT}/${PKG_NAME}"
+				echo -n "    Available: "
+				for a in $(DB-getPkg $r); do
+					echo -n " $(echo $a | getVerRev)"
+				done; echo
+				echo -n "    Installed: "
+				for i in $(Installed-getPkg $r); do
+					echo -n " $(echo $i | getVerRev)"
+					[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
+				done; echo
 				(
 					source "${PKG_BLD}"
 					echo "    Homepage: ${HOMEPAGE}"
@@ -585,7 +595,7 @@ if [[ $MODE == "search" ]]; then
 		done
 	done
 	exit 0
-fi	
+fi
 installList $list
 
 ## Files were preserved, process them here to ensure we don't break our system.
