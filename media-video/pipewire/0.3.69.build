@@ -1,0 +1,17 @@
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://github.com/PipeWire/pipewire/archive/${PKG_VER}/pipewire-${PKG_VER}.tar.gz"
+DEPS="dev-libs/glib dev-libs/openssl media-libs/alsa-lib media-libs/fdk-aac media-libs/libsndfile media-libs/opus media-libs/sbc media-sound/pulseaudio net-wireless/bluez sys-apps/dbus sys-fs/eudev sys-libs/ncurses sys-libs/readline"
+BDEPS=""
+RDEPS="virtual/alsa"
+ARCHS="x86 x86_64"
+SLOT=0
+use-enable ffmpeg && UDEPS="media-video/ffmpeg"
+IUSE=ffmpeg
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default -Dsession-managers= $(use-enable ffmpeg && echo "--Dffmpeg=enabled")
+}
