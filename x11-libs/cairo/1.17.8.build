@@ -10,16 +10,31 @@ RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
 CDEPS="media-libs/harfbuzz"
+setBuildENV meson ninja
 
 src_configure() {
-	# Fix to build with binutils 2.39
-	sed 's/PTR/void */' -i util/cairo-trace/lookup-symbol.c
-
-	# Fix a pkg-config file that may fail later.
-	sed -e "/@prefix@/a exec_prefix=@exec_prefix@" \
-	    -i util/cairo-script/cairo-script-interpreter.pc.in
-
-	configure_default --enable-tee
+	## tee fails to build with error:
+	# ../src/cairo-tee-surface.c:382:55: error: incompatible type for argument 11 of '_cairo_surface_wrapper_show_text_glyphs'
+	#  382 |                                                       scaled_font,
+	#      |                                                       ^~~~~~~~~~~
+	#      |                                                       |
+	#      |                                                       cairo_scaled_font_t * {aka struct _cairo_scaled_font *}
+	#../src/cairo-surface-wrapper-private.h:171:70: note: expected 'cairo_text_cluster_flags_t' {aka 'enum _cairo_text_cluster_flags'} but argument is of type 'cairo_scaled_font_t *' {aka 'struct _cairo_scaled_font *'}
+	#  171 |                                          cairo_text_cluster_flags_t  cluster_flags,
+	#      |                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+	#../src/cairo-tee-surface.c:383:55: warning: passing argument 12 of '_cairo_surface_wrapper_show_text_glyphs' from incompatible pointer type [-Wincompatible-pointer-types]
+	#  383 |                                                       clip);
+	#      |                                                       ^~~~
+	#      |                                                       |
+	#      |                                                       const cairo_clip_t * {aka const struct _cairo_clip *}
+	#../src/cairo-surface-wrapper-private.h:172:70: note: expected 'cairo_scaled_font_t *' {aka 'struct _cairo_scaled_font *'} but argument is of type 'const cairo_clip_t *' {aka 'const struct _cairo_clip *'}
+	#  172 |                                          cairo_scaled_font_t        *scaled_font,
+	#      |                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+	#../src/cairo-tee-surface.c:376:14: error: too few arguments to function '_cairo_surface_wrapper_show_text_glyphs'
+	#  376 |     status = _cairo_surface_wrapper_show_text_glyphs (&surface->master, op,
+	#      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	#configure_default -Dtee=enabled
+	configure_default
 }
 
 src_test() { :; }
