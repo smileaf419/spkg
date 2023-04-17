@@ -511,7 +511,7 @@ if [[ $MODE == "search" ]]; then
 		[[ $p == */* ]] && p=${p#*/}
 		[[ $p == *:* ]] && slot=${p#*:} && p=${p%:*} || slot=
 		echo "Searching: $p"
-		for r in $(find $PKG_DB_DIR -maxdepth 2 -iname *$p* | sed "s,$PKG_DB_DIR\(/*\)\?,,"); do
+		for r in $(find $PKG_DB_DIR -maxdepth 2 -iname \*$p\* | sed "s,$PKG_DB_DIR\(/*\)\?,,"); do
 			if [[ -z $slot ]]; then
 				setupENV $r
 			else
@@ -520,23 +520,34 @@ if [[ $MODE == "search" ]]; then
 			if [[ $PKG_NAME != "" ]]; then
 				checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 				echo " * ${PKG_CAT}/${PKG_NAME}"
-				echo -n "    Available: "
+				echo -n "      Available:"
 				for a in $(DB-getPkg $r); do
-					echo -n " $(echo $a | getVerRev)"
+					echo -n " $(getVerRev $a)"
 				done; echo
-				echo -n "    Installed: "
-				for i in $(Installed-getPkg $r); do
-					echo -n " $(echo $i | getVerRev)"
-					[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
-				done; echo
+
+				## Run this in a subshell to avoid tainting the environment.
+				echo -n "      Installed:"
+				(
+					for i in $(Installed-getPkg $r); do
+						if [[ $i != '0//' ]]; then
+							echo -n " $(getVerRev $i)"
+							slot=$(getSlot $i)
+							[[ $slot != 0 ]] && echo -n ":$slot"
+						else
+							echo -n ' none'
+						fi
+					done; echo
+				)
+
+				## Ditto, avoid tainting the environment
 				(
 					source "${PKG_BLD}"
-					echo "    Homepage: ${HOMEPAGE}"
+					echo "       Homepage: ${HOMEPAGE}"
 					echo "    Description: ${DESCRIPTION}"
 					[[ -z $LICENSE ]] && LICENSE="Unknown"
-					echo "    License:  ${LICENSE}"
+					echo "        License: ${LICENSE}"
 					[[ ! -z $IUSE ]] && echo "    USE: ${IUSE}"
-					echo -n "    Deps: ${DEPS}"
+					echo -n "   Dependencies: ${DEPS}"
 					[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
 					[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
 					[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"

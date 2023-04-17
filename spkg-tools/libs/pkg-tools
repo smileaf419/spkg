@@ -127,6 +127,7 @@ export -f DB-getPkgList
 Installed-getPkg() {
 	local p=$1
 	local path=${2:-$PKG_CACHE}
+	local slot=
 
 	# Check for flags
 	if [[ $p == *[* ]]; then
@@ -145,7 +146,13 @@ Installed-getPkg() {
 		p=${p#=}
 		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
 	fi
-	for l in $(Installed-getPkgList $p | filterSlot $slot | sed -e "s,$path/\?,," -e 's,/[^/]*.build$,,' | sort -V); do
+	for l in $(Installed-getPkgList $p | filterSlot $slot | sort -V); do
+		local file=$l
+		l=$(echo $l | sed -e "s,$path/\?,," -e 's,/[^/]*.build$,,')
+		## Verify we don't actually have a slot.
+		if [[ $l != 0 ]]; then
+			slot=$(grep 'SLOT=' "$file" | sed 's,.*SLOT=,,')
+		fi
 		echo "$l/$slot/$flags"
 	done
 }

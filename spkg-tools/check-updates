@@ -61,10 +61,6 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 
 	# Alter the names for filename detection
 	case "$p" in
-		gtk+2) p="gtk\+-2" ;;
-		gtk+3) p="gtk\+-3" ;;
-		gtksourceview2) p=gtksourceview-2 ;;
-		gtksourceview3) p=gtksourceview-3 ;;
 		xz-utils) p=xz ;;
 		libpcre) p=pcre- ;;
 		libpcre2) p=pcre2 ;;
