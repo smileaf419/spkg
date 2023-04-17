@@ -89,10 +89,10 @@ getdep() {
 
 	# Print an interesting looking tree.
 	if [[ $VERBOSE -ge 1 ]]; then
-		echo "$SP$1"
+		>&2 echo "$SP$1"
 		SP+=" "
 	else
-		echo -n .
+		>&2 echo -n .
 	fi
 	# Don't taint the environment.
 	(
