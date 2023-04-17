@@ -70,7 +70,9 @@ buildBDeps() {
 	# Filter the tool-chain dependencies.
 	# These will always be installed and will only cause
 	# circular dependency issues.
-	for f in $(find "$PKG_CACHE/$1" -name BDEPS); do
+	P=$(Installed-getPkg $1 | sed 's,/[^/]*/$,,')
+	>&2 echo "P: $P"
+	for f in $(find "$PKG_CACHE/$P" -name BDEPS); do
 		# Filter out the Toolchain. These are always depended on,
 		# So we don't need it complicating the logic
 		PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
@@ -111,8 +113,7 @@ buildBDeps() {
 			# Filter out itself.
 			[[ "${PKG%/*}" == "$O" ]] && continue
 			# For some reason not all were filtered out in the previous line
-			echo $O | grep ${PKG%/*} > /dev/null
-			[[ $? == 0 ]] && continue
+			[[ $(echo $O | grep ${PKG%/*} > /dev/null) == 0 ]] && continue
 			# If its not within our filter, or already added, add it to the list.
 			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]])"$O"($|[[:space:]]) && 
 				  ! $OUT =~ (^|[[:space:]])"$O"($|[[:space:]]) ]]; then

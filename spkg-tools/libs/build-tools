@@ -123,7 +123,7 @@ buildPackage() {
 	# $HOME/.cache for example
 	export USER=$BUILD_USER
 	export LOGNAME=$BUILD_USER
-	export HOME=/tmp
+	export HOME=$PKG_CACHE
 	if [[ $MODE != "bootstrap" ]]; then
 		echo " * src_configure ($BUILD_USER)"
 		if [[ -e /bin/su || -e /usr/bin/su ]]; then
