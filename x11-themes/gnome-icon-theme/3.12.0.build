@@ -7,7 +7,7 @@ SRC_URI=("https://download.gnome.org/sources/gnome-icon-theme/${PKG_VER%.*}/gnom
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 DEPS=""
-BDEPS=""
+BDEPS="x11-misc/icon-naming-utils"
 RDEPS=""
 setBuildENV auto make
 ARCHS="x86 x86_64"

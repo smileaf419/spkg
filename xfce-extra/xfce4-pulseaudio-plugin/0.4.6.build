@@ -1,13 +1,13 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE="https://www.x.org/wiki/"
-DESCRIPTION=""
+HOMEPAGE="https://www.xfce.org"
+DESCRIPTION="PulseAudio Multimedia plugin for XFCE's panel"
 LICENSE=""
-SRC_URI=("http://tango.freedesktop.org/releases/icon-naming-utils-${PKG_VER}.tar.bz2")
+SRC_URI=("https://archive.xfce.org/src/panel-plugins/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 DEPS=""
-BDEPS="dev-perl/XML-Simple"
+BDEPS=""
 RDEPS=""
 setBuildENV auto make
 ARCHS="x86 x86_64"
