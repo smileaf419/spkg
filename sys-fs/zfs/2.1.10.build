@@ -2,7 +2,6 @@ HOMEPAGE="https://github.com/openzfs/zfs"
 DESCRIPTION="ZFS Userland tools & Kernel Module"
 LICENSE="BSD-2 CDDL MIT"
 SRC_URI=("https://github.com/openzfs/zfs/releases/download/zfs-${PKG_VER}/zfs-${PKG_VER}.tar.gz")
-PATCHES=("https://github.com/openzfs/zfs/pull/14668/commits/de2af4ec42fbacfb1917a86e049c25001c5e937c.patch => zfs-linux-6.2.8+-compile-fix.patch")
 DEPS="dev-libs/libaio dev-libs/openssl net-libs/libtirpc sys-fs/eudev sys-libs/zlib"
 BDEPS="sys-kernel/linux-kernel"
 RDEPS=""

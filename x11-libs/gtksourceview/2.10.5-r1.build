@@ -3,11 +3,11 @@ DESCRIPTION=""
 LICENSE="GPLv2+ LGPLv2.1+"
 SRC_URI=("https://download.gnome.org/sources/gtksourceview/${PKG_VER%.*}/gtksourceview-${PKG_VER}.tar.bz2")
 PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/x11-libs/gtksourceview/files/gtksourceview-2.10.5-G_CONST_RETURN.patch")
-DEPS="app-accessibility/at-spi2-core  dev-libs/glib dev-libs/libxml2 media-libs/fontconfig media-libs/freetype media-libs/harfbuzz x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+2 x11-libs/pango"
+DEPS="app-accessibility/at-spi2-core  dev-libs/glib dev-libs/libxml2 media-libs/fontconfig media-libs/freetype media-libs/harfbuzz x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+:2 x11-libs/pango"
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
-SLOT=0
+SLOT=2
 B=gtksourceview-$PKG_VER
 
 src_configure() {

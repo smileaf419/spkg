@@ -53,7 +53,7 @@ post_install() {
 	if [[ -e /usr/bin/gtk-update-icon-cache ]]; then
 		gtk-update-icon-cache -qtf /usr/share/icons/hicolor
 	else
-		inform "gtk-update-icon-cache is not available, gtk+2 or 3 needs be be installed for this."
+		inform "gtk-update-icon-cache is not available, gtk+:2 or 3 needs be be installed for this."
 		inform "Once installed consider running: gtk-update-icon-cache -qtf /usr/share/icons/hicolor"
 	fi
 }

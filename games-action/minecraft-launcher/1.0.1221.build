@@ -6,9 +6,9 @@ LICENSE="Mojang"
 SRC_URI=("https://launcher.mojang.com/v1/objects/4392471202bb9dff482db8a5551a7643da955ace/minecraft-launcher")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-RDEPS="app-crypt/libsecret x11-libs/gtk+2"
+RDEPS="app-crypt/libsecret"
 BDEPS=""
-DEPS="dev-libs/glib x11-libs/gtk+3"
+DEPS="dev-libs/glib x11-libs/gtk+:3"
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="x86 x86_64"

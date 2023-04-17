@@ -1,13 +1,13 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.gtk.org"
+DESCRIPTION="GTK is a multi-platform toolkit for creating graphical user interfaces."
+LICENSE="LGPLv2.1"
 SRC_URI=("https://download.gnome.org/sources/gtk+/${PKG_VER%.*}/gtk+-${PKG_VER}.tar.xz")
 PATCHES=()
-DEPS="app-accessibility/at-spi2-core app-arch/bzip2  dev-libs/glib media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/libpng net-print/cups sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXcursor x11-libs/libXdamage x11-libs/libXext x11-libs/libXfixes x11-libs/libXinerama x11-libs/libXrandr x11-libs/libXrender x11-libs/pango"
+DEPS="app-accessibility/at-spi2-core app-arch/bzip2 dev-libs/glib media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/libpng net-print/cups sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXcursor x11-libs/libXdamage x11-libs/libXext x11-libs/libXfixes x11-libs/libXinerama x11-libs/libXrandr x11-libs/libXrender x11-libs/pango"
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
-SLOT=0
+SLOT=2
 B=gtk+-$PKG_VER
 
 src_configure() {
@@ -33,7 +33,7 @@ src_install() {
 post_install() {
 	inform "gtk-update-icon-cache has been installed as 'gtk2-update-icon-cache' to avoid clobbering."
 	if [[ ! -e /usr/bin/gtk-update-icon-cache ]]; then
-		inform "A compatiblility symlink has been installed to this, however if x11-libs/gtk+3 is installed that version will be considered the default."
+		inform "A compatiblility symlink has been installed to this, however if x11-libs/gtk+:3 is installed that version will be considered the default."
 		ln -svf /usr/bin/gtk2-update-icon-cache gtk-update-icon-cache
 	fi
 	gtk-query-immodules-2.0 --update-cache

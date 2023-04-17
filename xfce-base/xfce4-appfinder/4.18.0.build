@@ -6,7 +6,7 @@ LICENSE=""
 SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="dev-libs/glib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+3 xfce-base/garcon xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf"
+DEPS="dev-libs/glib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+:3 xfce-base/garcon xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

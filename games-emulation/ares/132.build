@@ -5,7 +5,7 @@ DESCRIPTION="ares is a cross-platform, open source, multi-system emulator, focus
 LICENSE="GPLv3+ ISC"
 SRC_URI=("https://github.com/ares-emulator/ares/archive/refs/tags/v${PKG_VER}.tar.gz => ares-${PKG_VER}.tar.gz")
 PATCHES=()
-DEPS="app-accessibility/at-spi2-core  dev-libs/glib media-libs/alsa-lib media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/libao media-libs/libsdl2 media-libs/mesa media-libs/openal media-sound/pulseaudio sys-fs/eudev x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+2 x11-libs/libX11 x11-libs/libXext x11-libs/libXrandr x11-libs/libXv x11-libs/pango"
+DEPS="app-accessibility/at-spi2-core  dev-libs/glib media-libs/alsa-lib media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/libao media-libs/libsdl2 media-libs/mesa media-libs/openal media-sound/pulseaudio sys-fs/eudev x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+:2 x11-libs/libX11 x11-libs/libXext x11-libs/libXrandr x11-libs/libXv x11-libs/pango"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

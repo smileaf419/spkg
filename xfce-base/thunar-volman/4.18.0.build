@@ -7,7 +7,7 @@ SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 DEPS="xfce-base/exo"
-BDEPS="dev-libs/glib x11-libs/gtk+3 xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf x11-libs/libnotify"
+BDEPS="dev-libs/glib x11-libs/gtk+:3 xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf x11-libs/libnotify"
 RDEPS="xfce-base/thunar"
 setBuildENV auto make
 ARCHS="x86 x86_64"
