@@ -63,6 +63,9 @@ expandSets() {
 			fi
 		done
 		list="$tlist $slist"
+		if [[ $list == *@* ]]; then
+			list=$(expandSets $list)
+		fi
 	fi
 	echo $list
 }

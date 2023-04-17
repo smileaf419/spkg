@@ -1,0 +1,4 @@
+@xorg-base
+@xorg-apps
+@xorg-fonts
+@xorg-libs
