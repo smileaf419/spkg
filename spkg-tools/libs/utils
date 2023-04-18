@@ -86,12 +86,20 @@ buildBDeps() {
 	local OUT=
 	## Use our BDEPS file installed within PKG_CACHE
 	PKG=$(Installed-getPkg $1 | sed 's,/[^/]*/$,,')
+
+	[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
+
 	## Filter out the Toolchain. These are always depended on,
 	## So we don't need it complicating the logic
 	PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
 
 	(
 		source "$PKG_CACHE/$PKG/$(getVerRev $PKG).build"
+		if pkg-restricts "nobin"; then
+			[ $VERBOSE -ge 1 ] && echo " none )"
+			return
+		fi
+
 		PKG_FILTER+=(${CDEPS[@]})
 		## For this to work properly we need to save our USE flag and set it to this prior to sourcing
 		## If the user changes it after its been installed, it may skew the results.
@@ -102,7 +110,6 @@ buildBDeps() {
 			getBDeps "$PKG_CACHE/$PKG/CONTENTS"
 		fi
 
-		[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
 		## Itterate over it and find matching files within each package's CONTENTS
 		for dep in $(cat "$PKG_CACHE/$PKG/BDEPS"); do
 			## readlink to resolve relative paths that occationally show up.
@@ -125,7 +132,7 @@ buildBDeps() {
 			[[ "${PKG%/*}" == "$O" ]] && continue
 
 			## If its not within our filter, or already added, add it to the list.
-			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]])"$O"($|[[:space:]]) && 
+			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]]|=|>|<)"$O"($|[[:space:]]|:|-[0-9]) &&
 				  ! $OUT =~ (^|[[:space:]])"$O"($|[[:space:]]) ]]; then
 				OUT+=" $O"
 				[ $VERBOSE -ge 1 ] && echo -n "$O '$d' "
@@ -174,7 +181,9 @@ buildBDeps() {
 			echo " * Updating $PKG:"
 			[[ ! -z $AD ]] && echo " - Added:$AD"
 			[[ ! -z $RD ]] && echo " - Removed:$RD"
-			sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
+			if [[ $PRETEND != 1 ]]; then
+				sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
+			fi
 		fi
 	
 	)

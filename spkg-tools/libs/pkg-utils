@@ -191,14 +191,20 @@ export -f checkSha1
 # Check the USE flag for an option,
 # return 0 if found; 1 if not.
 # returns 2 if found and is disabled
-use-enable() { checkinlist $USE $1; }
+use-enable() { checkinlist "$USE" $1; }
 export -f use-enable
 
 # Check the PKG_FLAGS for an option,
 # return 0 if found; 1 if not.
 # returns 2 if found and is disabled
-pkg-has-flag() { checkinlist $PKG_FLAGS $1; }
+pkg-has-flag() { checkinlist "$PKG_FLAGS" $1; }
 export -f pkg-has-flag
+
+# Check the RESTRICT for an option,
+# return 0 if found; 1 if not.
+# returns 2 if found and is disabled
+pkg-restricts() { checkinlist "$RESTRICT" $1; }
+export -f pkg-restricts
 
 # 1: Variable to check
 # 2: what to check
