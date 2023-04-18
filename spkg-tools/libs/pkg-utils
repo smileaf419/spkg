@@ -144,50 +144,6 @@ getMicroVer() {
 }
 export -f getMicroVer
 
-# Fetch a file from a given address
-# Optionally save it under a given name.
-fetch_file() {
-	# Just Ignore Empty calls.
-	[[ $1 == "" ]] && return 0
-	FILE=${1##*/}
-	OUTFILE=$2
-	# No custom outfile .. just save it as normal
-	[[ $OUTFILE == "" ]] && OUTFILE=$FILE
-	# If we already exist, ignore it
-	[ -e "${DISTFILES}/${OUTFILE}" ] && return 0
-	wget -c -O "${DISTFILES}/${OUTFILE}" "$1"
-	# If we encounter an Error, delete the file and error out.
-	if [ $? != 0 ]; then
-		[[ -e "$DISTFILES/$OUTFILE" ]] && rm "${DISTFILES}/${OUTFILE}"
-		echo "   FILE: $FILE"
-		echo "OUTFILE: $OUTFILE"
-		echo "      1: $1"
-		echo "      2: $2"
-		die "Error Downloading";
-	fi
-}
-export fetch_file
-
-# Check a sha1sum of a given file within the package's sha1 file.
-checkSha1() {
-	[[ $IGNORE_SHA1 == 1 ]] && return 0
-	PKG=$1
-	FILE=$2
-	[[ $FILE == "" ]] && return 0
-	[[ $VERBOSE -ge 2 ]] && >&2 echo -n "Checking Sha1: $FILE ... "
-	[ ! -e $FILE ] && echo "Failed checking $PKG sha1" && return 1
-	h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
-	[[ $VERBOSE -ge 2 ]] && >&2 echo -n $h
-	grep "$h" $PKG/sha1 > /dev/null 2>&1
-	if [[ $? == 0 ]]; then
-		[[ $VERBOSE -ge 2 ]] && >&2 echo " ..Ok"
-	else
-		return 1
-	fi
-	return 0
-}
-export -f checkSha1
-
 # Check the USE flag for an option,
 # return 0 if found; 1 if not.
 # returns 2 if found and is disabled
