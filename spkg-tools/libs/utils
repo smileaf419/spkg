@@ -1,4 +1,12 @@
+####
+## This requires a /usr/src/linux symlink to our kernel
+## and either a .config within the directory OR /proc/config.gz to be enabled within our running kernel.
+##
+## Auto mounting of /boot is available
+## vmlinuz and System.map will be renamed to match the kernel version.
+## a grub config will also be automatically be generated.
 buildKernel() {
+	## Detect our config file
 	[ ! -e /usr/src/linux ] && die "you should set your /usr/src/linux symlink to a valid kernel source."
 	if [[ ! -e /usr/src/linux/.config && ! -e /proc/config.gz ]]; then
 		echo "Cannot Build kernel without either a /proc/config.gz or a /usr/src/linux/.config"
@@ -8,18 +16,25 @@ buildKernel() {
 		gzip -cd /proc/config.gz > /usr/src/linux/.config
 		echo " * Using current running kernel's config"
 	fi
+
+	## Get our kernel version from the symlink.
 	KERNEL_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
 	echo " * Building Kernel - $KERNEL_VER"
 	
 	cd /usr/src/linux
-	# Set the default init to OpenRC.
+
+	####
+	## Set some default config values here
+
+	## Set the default init to OpenRC.
 	#sed -i '/CONFIG_DEFAULT_INIT/ s,"","/sbin/openrc-init",' .config
-	
+
 	echo " * Running: make oldconfig"
 	make oldconfig
 	echo " * Compiling (using: $MAKEOPTS)"
 	make $MAKEOPTS
-	
+
+	## Mount /boot if it exists
 	if [[ ! -z $(grep /boot /etc/fstab) && -z $(mount | grep /boot) ]]; then
 		echo " * Mounting /boot"
 		mount /boot
@@ -38,6 +53,8 @@ buildKernel() {
 	fi
 }
 
+####
+## Gather a list of packages based on what type of module we're needing to rebuild.
 rebuildModules() {
 	local type=$1
 	case $type in
@@ -54,79 +71,73 @@ rebuildModules() {
 	done	
 }
 
-# Build Dependencies
-# There are 3 types of Dependencies
-# 1) Run time (RDEPS)
-# 2) Build time (BDEPS)
-# 3) Binary (DEPS)
-# For the sake of simplicity, Run time and Build time
-# Are contained within the same variable.
-# For any dependency listed and not found to be binary.
-# will be added to RDEPS. All other dependencies will be
-# contained within BDEPS.
-# Because dependencies can change across versions, This
-# will only update the BDEPS of the installed package.
+####
+## Build Dependencies
+## There are a few types of Dependencies
+## 1) Run time (RDEPS)
+## 2) Build time (BDEPS)
+## 3) Binary (DEPS)
+## 4) USE flag Dependencies (UDEPS)
+## 5) Circular Dependencies (CDEPS)
+##
+## Because dependencies can change across versions, This
+## will only update the BDEPS of the installed package.
 buildBDeps() {
-	# Filter the tool-chain dependencies.
-	# These will always be installed and will only cause
-	# circular dependency issues.
-	P=$(Installed-getPkg $1 | sed 's,/[^/]*/$,,')
-	>&2 echo "P: $P"
-	for f in $(find "$PKG_CACHE/$P" -name BDEPS); do
-		# Filter out the Toolchain. These are always depended on,
-		# So we don't need it complicating the logic
-		PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
-		OUT=
-		# Category/PKG Name/PKG Version
-		PKG=$(echo $f | sed -e "s,$PKG_CACHE/,," -e "s,/BDEPS,,")
-		[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
-		# Grab the static IUSE flag, and add the items to our filter.
-		IUSE=$(grep '^[\t ]*[^#]*[\t ]*IUSE'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*USE=",,'   -e 's,".*,,')
-		CDEPS=$(grep '^[\t ]*[^#]*[\t ]*CDEPS'   $PKG_DB_DIR/$PKG.build | sed -e 's,.*CDEPS=",,'   -e 's,".*,,')
-		PKG_FILTER+=(${IUSE[@]})
+	local OUT=
+	## Use our BDEPS file installed within PKG_CACHE
+	PKG=$(Installed-getPkg $1 | sed 's,/[^/]*/$,,')
+	## Filter out the Toolchain. These are always depended on,
+	## So we don't need it complicating the logic
+	PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
+
+	(
+		source "$PKG_CACHE/$PKG/$(getVerRev $PKG).build"
 		PKG_FILTER+=(${CDEPS[@]})
-		# Refresh BDEPS file
-#		getBDeps "${f%/*}/CONTENTS"
-		for d in $(cat "$f"); do
-			# readlink to resolve relative paths that
-			# occationally show up.
-			# use dirname first in case the file is a symlink
-			d=$(readlink -f $(dirname $d))/${d##*/}
-			# Not that it should happen, but filter out any directories 
-			# and empty results.
-			[[ -d $d || -z $d ]] && continue
-			# Grab a list of category/PKG names for each file.
-			# It is possible for multiple results to occur.
-			# However duplicates should be statically linked.
-			# Such as: /usr/lib/plexmediaserver/lib/libc.so 
-			# if /lib/libc.so is searched.
-			# But libc.so is installed within /usr/lib/libc.so which should
-			# Protect it from this.
-			# Other possibilities may occur
-			O=$(grep -r "$d\$" $PKG_CACHE/*/*/*/CONTENTS | 
+		## For this to work properly we need to save our USE flag and set it to this prior to sourcing
+		## If the user changes it after its been installed, it may skew the results.
+		PKG_FILTER+=(${UDEPS[@]})
+
+		## Force a refresh of the BDEPS file.
+		if [[ $FORCE == 1 ]]; then
+			getBDeps "$PKG_CACHE/$PKG/CONTENTS"
+		fi
+
+		[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
+		## Itterate over it and find matching files within each package's CONTENTS
+		for dep in $(cat "$PKG_CACHE/$PKG/BDEPS"); do
+			## readlink to resolve relative paths that occationally show up.
+			## use dirname first in case the file is a symlink
+			dep=$(readlink -f $(dirname $dep))/${dep##*/}
+
+			## Grab a list of category/PKG names for each file.
+			## It is possible for multiple results to occur.
+			O=$(grep -r "$dep\$" $PKG_CACHE/*/*/*/CONTENTS |
 				sed -e 's,:.*,,' \
 				    -e "s,$PKG_CACHE/,," \
 				    -e 's,/CONTENTS,,' \
 					-e 's,\(.*/.*\)/.*,\1,')
-			# No package found for the file.
-			[[ -z $O ]] && continue
-			# Filter out itself.
+			## No package found for the file.
+			if [[ -z $O ]]; then
+				>&2 echo " !! $dep Not found in any package"
+				continue
+			fi
+			## Filter out itself.
 			[[ "${PKG%/*}" == "$O" ]] && continue
-			# For some reason not all were filtered out in the previous line
-			[[ $(echo $O | grep ${PKG%/*} > /dev/null) == 0 ]] && continue
-			# If its not within our filter, or already added, add it to the list.
+
+			## If its not within our filter, or already added, add it to the list.
 			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]])"$O"($|[[:space:]]) && 
 				  ! $OUT =~ (^|[[:space:]])"$O"($|[[:space:]]) ]]; then
 				OUT+=" $O"
 				[ $VERBOSE -ge 1 ] && echo -n "$O '$d' "
 			fi
 		done
+
 		[ $VERBOSE -ge 1 ] && echo ")"
-		# Filter out duplicates we didn't catch earlier.
+		## Filter out duplicates we didn't catch earlier.
 		D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
-		# Trim the space at the end for cosmetic reasoning.
+		## Trim the space at the end for cosmetic reasoning.
 		D=${D%% }
-		# Dependencies
+		## Dependencies
 		grep '^DEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
 		if [ $? != 0 ]; then
 			echo -n "DEPS Missing - checking for BDEPS: "
@@ -140,12 +151,12 @@ buildBDeps() {
 			fi
 		fi
 		
-		# Theoretically speaking sorting is wasted if this is exclusively used
-		# to add DEPS, but this isn't always the case.
-		# sort things to avoid false-positives
+		## Theoretically speaking sorting is wasted if this is exclusively used
+		## to add DEPS, but this isn't always the case.
+		## sort things to avoid false-positives
 		LD=$(grep '^DEPS=' $PKG_DB_DIR/$PKG.build | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
 
-		# If any need updating
+		## If any need updating
 		if [[ ${LD%% } != $D ]]; then
 			AD=
 			for l in $D; do
@@ -165,7 +176,7 @@ buildBDeps() {
 			[[ ! -z $RD ]] && echo " - Removed:$RD"
 			sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
 		fi
-	done
 	
+	)
 	HASH_UPDATE=true
 }

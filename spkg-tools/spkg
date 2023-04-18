@@ -358,6 +358,13 @@ if [[ $MODE != 'search' ]]; then
 	populate_list
 fi
 
+## Calculate Binary Dependencies and update the DEPS var within the build file.
+if [[ $MODE == "buildbdeps" ]]; then
+	for p in $list; do
+		buildBDeps $p
+	done
+fi
+
 ## Update the sha1sum of all files for the given package.
 ## Using the set @all while useful is not recommended given the size of the repository.
 if [[ $HASH_UPDATE ]]; then
@@ -417,12 +424,6 @@ if [[ $MODE == "update" ]]; then
 		fi
 	done
 	[ $VERBOSE -ge 1 ] && echo list: $list
-
-## Calculate Binary Dependencies and update the DEPS var within the build file.
-elif [[ $MODE == "buildbdeps" ]]; then
-	for p in $list; do
-		buildBDeps $p
-	done
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 elif [[ $MODE == "buildKernel" ]]; then
