@@ -1,5 +1,5 @@
 stripPackage() {
-	[[ $RESTRICT == *strip* ]] && return
+	pkg-restricts strip && return
 	cd "${D}"
 	echo "Stripping..."
 	for s in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*"  ); do
@@ -18,7 +18,7 @@ archivePackage() {
 
 # Find all Binary deps
 getBDeps() {
-	[[ $RESTRICT == *nobin* ]] && return
+	pkg-restricts nobin && return
 	echo -n "Finding Binary Dependencies..."
 	for dep in $( cat $1 | grep -P 'bin/|/lib/|/lib64/|/lib32/|/libx32/'); do
 		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
