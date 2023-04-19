@@ -3,19 +3,25 @@
 source /etc/spkg.conf
 source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/pkg-tools"
+source "${INSTALL_PATH}/libs/updatesha1"
+source "${INSTALL_PATH}/libs/utils"
+source "${INSTALL_PATH}/libs/spkg-include"
+source "${INSTALL_PATH}/libs/build-tools"
 
 SRC_URI="https://gentoo.osuosl.org/distfiles/"
-DISTFILES_INDEX="/tmp/distindex"
-DISTFILES=/tmp/distfiles
-UPDATE_LIST=/tmp/checkupdates
+DFILES_INDEX="/tmp/distindex"
+DFILES=/tmp/DFILES
+UPDATE_LIST=/tmp/updatelist
 
-if [[ $(find "$DISTFILES_INDEX" -mtime +1 -print) || ! -e $DISTFILES_INDEX ]]; then
-	cd ${DISTFILES_INDEX%/*}
-	wget -O "$DISTFILES_INDEX" "$SRC_URI"
+VERBOSE=${VERBOSE:-0}
+
+if [[ $(find "$DFILES_INDEX" -mtime +1 -print) || ! -e $DFILES_INDEX ]]; then
+	cd ${DFILES_INDEX%/*}
+	wget -O "$DFILES_INDEX" "$SRC_URI"
 fi
-echo Original: $(cat $DISTFILES_INDEX | wc -l) entries
-grep "href=" $DISTFILES_INDEX | sed -e 's,.*href="\([^"]*\).*,\1,'> $DISTFILES
-echo URLS: $(wc -l $DISTFILES) entries
+echo Original: $(cat $DFILES_INDEX | wc -l) entries
+grep "href=" $DFILES_INDEX | sed -e 's,.*href="\([^"]*\).*,\1,'> $DFILES
+echo URLS: $(cat $DFILES | wc -l) entries
 
 FILTER=("\.patch"
 		"\.crate"
@@ -45,11 +51,11 @@ FILTER=("\.patch"
 		"zstd-[0-9]\.[0-9]\.[0-9]\.[0-9]"
 )
 for f in ${FILTER[@]}; do
-	grep -iv $f $DISTFILES > ${DISTFILES}.new
-	mv $DISTFILES{.new,}
+	grep -iv $f $DFILES > ${DFILES}.new
+	mv $DFILES{.new,}
 done
 
-echo Filtered: $(wc -l $DISTFILES) entries
+echo Filtered: $(cat $DFILES | wc -l) entries
 
 for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	p=$(echo $p | sed "s,$PKG_DB_DIR/,,")
@@ -57,7 +63,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	[[ $PK == accounts/* || $PK == spkg* || $PK == virtual/* || $PK == *git/* ]] && continue
 #	echo -n "Checking $PK : "
 	p=${p#*/}
-	# Check Gentoo Distfiles for latest versions.
+	# Check Gentoo DFILES for latest versions.
 
 	# Alter the names for filename detection
 	case "$p" in
@@ -81,15 +87,15 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		ghostscript-gpl) p=ghostscript ;;
 	esac
 
-	FILES=$(grep -P -i "^$p[-0-9\._]+(src|bin|orig|source)?.(tar|zip|tbz2|tgz)" $DISTFILES)
+	FILES=$(grep -P -i "^$p[-0-9\._]+(src|bin|orig|source)?.(tar|zip|tbz2|tgz)" $DFILES)
 
 	# Get the correct versions
 	case "$p" in
 		gcc) FILES=$(echo $FILES| tr ' ' '\n' | grep -E -v "202[0-9]{5}" | tail -n2 | head -n1) ;;
-		libopenmpt) FILES=$(grep -P -i "^$p-" $DISTFILES); FILES=${FILES//+release.autotools/} ;;
-		ntp|openssh) FILES=$(grep -P "^$p-[0-9p]+" $DISTFILES | grep -v 'manpages') ;;
-		timezone-data) FILES=$(grep -P "tzdata[0-9a-z]{5}" $DISTFILES) ;;
-		unzip) FILES=$(grep -P unzip[0-9]+ $DISTFILES | sed -e 's,unzip,unzip-,' -e 's,\([0-9]\),\1.,g' -e 's,\.\.,.,') ;;
+		libopenmpt) FILES=$(grep -P -i "^$p-" $DFILES); FILES=${FILES//+release.autotools/} ;;
+		ntp|openssh) FILES=$(grep -P "^$p-[0-9p]+" $DFILES | grep -v 'manpages') ;;
+		timezone-data) FILES=$(grep -P "tzdata[0-9a-z]{5}" $DFILES) ;;
+		unzip) FILES=$(grep -P unzip[0-9]+ $DFILES | sed -e 's,unzip,unzip-,' -e 's,\([0-9]\),\1.,g' -e 's,\.\.,.,') ;;
 	esac
 	FILE=$(echo $FILES | tr ' ' '\n' | sort -V | tail -n1)
 	FILE_O=$FILE
@@ -116,7 +122,13 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		continue
 	fi
 	if [[ $(version_gt ${FILE##*-} $PKG) == 0 ]]; then 
-		echo $FILE [ $PK-$PKG ] $FILE_O >> $UPDATE_LIST
+#		echo $FILE [ $PK-$PKG ] $FILE_O >> $UPDATE_LIST
+		echo " * Updating $PK : $PKG -> ${FILE##*-}" >> $UPDATE_LIST
+		cp "$PKG_DB_DIR/$PK/$PKG.build" "$PKG_DB_DIR/$PK/${FILE##*-}.build"
+		sed -e '/ARCH/ s, \([^~]\), ~\1,' \
+			-e '/ARCH/ s,="\([^~]\),="~\1,' \
+			-i "$PKG_DB_DIR/$PK/${FILE##*-}.build"
+		updatesha1 "$PK"
 	fi
 done
 if [ -e $UPDATE_LIST ]; then
