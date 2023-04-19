@@ -137,15 +137,15 @@ installList() {
 			####
 			## Set the log file
 			## Can alter this to use a LOGFILE using
-			## %v version  %c category  %d day   %D date (%Y%m%d)
-			## %n name     %r revision  %Y year  %m month
+			## %c category  %d day   %D date (%Y%m%d)  %s Unix Timestamp
+			## %n name      %Y year  %m month          %v version with revision
 			LOGFILE=${LOGFILE:-%D-%n%v%r.log}
 
 			LOG=$(echo $LOGDIR/$LOGFILE |
 				sed -e "s,%c,$PKG_CAT," \
-					-e "s,%n,$PKG_NAME,"\
-					-e "s,%r,$PKG_REV,"  \
-					-e "s,%v,$PKG_VER,"   \
+					-e "s,%n,$PKG_NAME," \
+					-e "s,%v,$PKG_VR,"    \
+					-e "s,%s,$(date +%s)," \
 					-e "s,%d,$(date +%d)," \
 					-e "s,%m,$(date +%m)," \
 					-e "s,%Y,$(date +%Y)," \
