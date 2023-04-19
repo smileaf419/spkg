@@ -37,8 +37,8 @@ parse_cmdline $@
 
 cd $LOGDIR
 if [[ $LIST == 1 ]]; then
-	ls -1 *$LOG* |sort -k2 -t- -V -r | uniq -s9
+	find * -iwholename \*$LOG\* -type f |sort -k2 -t- -V -r | uniq -s9
 else
-	bzcat $(ls -1 $LOGDIR/*$LOG* | sort | tail -n1) 2> /dev/null ||
-	  cat $(ls -1 $LOGDIR/*$LOG* | sort | tail -n1) 2> /dev/null
+	xzcat $(find -iwholename \*$LOG\* -type f | sort | tail -n1) 2> /dev/null ||
+	  cat $(find -iwholename \*$LOG\* -type f | sort | tail -n1) 2> /dev/null
 fi
