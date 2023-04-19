@@ -234,6 +234,8 @@ parse_cmdline() {
 						SILENT_BUILD=yes ;;
 					e|-empty)
 						EMPTY_WORLD=1 ;;
+					-preserved)
+						MODE="preserved" ;;
 					-version)
 						echo "spkg by Stephen Leaf version $VERSION"
 						exit $? ;;
@@ -250,7 +252,8 @@ parse_cmdline() {
 						echo    "  --rebuildPerlMods    Rebuilds all Perl Modules."
 						echo    "  --buildKernel        Builds a new kernel"
 						echo    "  --deepClean, -D      Compares the charts of the world file and packages installed."
-						echo    "  --sync               syncs the package database via: git pull"
+						echo    "  --sync               Syncs the package database via: git pull"
+						echo    "  --preserved          Checks for and initiates a rebuild of all packages requiring a rebuild."
 						echo    " Developer Options"
 						echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
 						echo    "  --updatesha1 [pkg]   Creates or updates sha1sum for the given package."
@@ -507,7 +510,7 @@ if [[ $MODE != "search" ]]; then
 	done
 
 	[ $PRETEND == 1 ] && exit 0
-	[[ -z $list ]] && die "Nothing to upgrade."
+	[[ -z $list && $MODE != "preserved" ]] && die "Nothing to upgrade."
 fi
 
 ## Search
