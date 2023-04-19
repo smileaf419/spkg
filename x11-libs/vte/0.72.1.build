@@ -1,0 +1,22 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://gitlab.gnome.org/GNOME/vte/-/archive/${PKG_VER}/vte-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="app-accessibility/at-spi2-core dev-libs/glib dev-libs/icu dev-libs/libpcre2 net-libs/gnutls sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+ x11-libs/pango"
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+ARCHS="x86 x86_64"
+SLOT=0
+#B=
+
+src_configure() {
+	configure_default -Dfribidi=false \
+					  -D_systemd=false
+}
+
+src_test() { :; }

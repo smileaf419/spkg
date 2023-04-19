@@ -1,0 +1,18 @@
+HOMEPAGE="https://wiki.x.org/wiki/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://www.x.org/pub/individual/lib/${PKG_NAME}-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="x11-libs/libX11 x11-libs/libXext x11-libs/libXt"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static \
+				--docdir=/usr/share/doc/${PKG_NAME}-${PKG_VER}
+}
