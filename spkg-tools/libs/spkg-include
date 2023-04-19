@@ -176,7 +176,7 @@ installList() {
 
 			## If bc is installed output how long it took to build
 			if [[ -e /usr/bin/bc ]]; then
-				printf "Completed in %.3f seconds." $( echo $(date "+%s.%N") - $TIMESTART | bc ) | tee -a $LOG
+				printf "Completed in %.3f seconds.\n" $( echo $(date "+%s.%N") - $TIMESTART | bc ) | tee -a $LOG
 			fi
 
 			## Compress our log.
