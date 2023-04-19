@@ -1,22 +1,27 @@
-stripPackage() {
-	pkg-restricts strip && return
-	cd "${D}"
-	echo "Stripping..."
-	for s in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*"  ); do
-		strip --strip-unneeded "$s" 2> /dev/null && echo " -- $s"
-	done
-}
-
+## Create an archive package of our build, could be useful if we decide to distribute binary copies
+## Enabled with BUILD_PACKAGE = yes
 archivePackage() {
 	# Package it up
 	if [[ $BUILD_PACKAGE == "yes" && $ARCHIVE_INSTALL != 1 && $MODE != "bootstrap" ]]; then
 		echo -n "Packaging up..."
 		mkdir -p "${PKG_ARCHIVE_DIR}/${PKG_CAT}"
-		tar -zcpf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" . && echo " Done"
+		tar -Jcpf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" . && echo " Done"
 	fi
 }
 
-# Find all Binary deps
+## Remove unneccessary symbols to reduce the filesize in binaries.
+## Packages may disable this with RESTRICT=strip
+stripPackage() {
+	pkg-restricts strip && return
+	cd "${D}"
+	echo "Stripping..."
+	for s in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*" ); do
+		strip --strip-unneeded "$s" 2> /dev/null && echo " -- $s"
+	done
+}
+
+## Find all binary dependencies
+## Packages may disable this with RESTRICT=nobin
 getBDeps() {
 	pkg-restricts nobin && return
 	echo -n "Finding Binary Dependencies..."
@@ -31,8 +36,8 @@ getBDeps() {
 	echo "Done"
 }
 
-# Setup package name & version variables
-# 1: Package Name
+## Setup package Environmental Variables
+## Requires a LENTRY or at minimum PKG_NAME
 setupENV() {
 	PKG=$(DB-getPkg $1 | getLatest)
 	if [[ $PKG == "" ]]; then
@@ -52,14 +57,15 @@ setupENV() {
 	PKG_SLOT=$(getSlot $PKG)
 	PKG_FLAGS=$(getFlags $PKG)
 	BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
-	# Default archive build directory
+	## Default archive build directory
 	B="${PKG_NV}"
-	# Temp install root
+	## Temp install root
 	D="${BUILD_PATH}/troot"
-	# Match PKG_SLOT
+	## Installed version filtered by PKG_SLOT
 	O_VER=$(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVerRev)
 
-	# Build a fully Qualified List Entry for data safe-keeping.
+	## Build a fully Qualified List Entry for data safe-keeping.
+	## Might change this to a / seperated list and use this for a nice display value.
 	LENTRY="="$PKG_CAT/$PKG_NVR
 	if [[ $PKG_SLOT != 0 ]]; then
 		LENTRY+=:$PKG_SLOT
@@ -88,67 +94,103 @@ setupENV() {
 	export BUILD_PATH B D O_VER LENTRY
 }
 
+####
+## Takes a list of LENTRY to (un)install
 installList() {
 	list=($@)
 	length=${#list[@]}
 	for (( l=0; l<${length}; l++ ));
 	do
-		# Current #
+		## Current #
 		C=$(( ${l} + 1 ))
+		## PKG entry
 		p=${list[$l]}
-		#TODO add a way to specify a certain version to allow for multiple slots/versions
-		#	  to be installed at the same time.
 		setupENV $p
 	
-		# Uninstall
+		## Uninstall
 		if [[ $MODE == "uninstall" ]]; then
 			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
 			d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
 	
-			# FIXME: If uninstalling will break packages Check Forced.
-			# Option 1: Uninstall just the requested, breaking other installed packages.
-			# Option 2: Uninstall all packages that would break, and any that would break if they were removed.
-			# Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
-			#			Under any circumstances
+			## FIXME: If uninstalling will break packages Check Forced.
+			## Option 1: Uninstall just the requested, breaking other installed packages.
+			## Option 2: Uninstall all packages that would break, and any that would break if they were removed.
+			## Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
+			##           removed under any circumstances.
 			if [[ $d != *$p && $d != "" && $FORCE == 0 ]]; then
 				echo "Uninstalling will break packages!"
 				echo $d
 			else
 				(
 					source "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VER}/${PKG_VER}.build"
+					## pre-uninstall code if needed/set
 					uninstall_default
+					## Uninstall the package
 					uninstall "${PKG_CAT}/${PKG_NAME}" $O_VER ""
+					## post-uninstall code if needed/set
 					src_post_uninstall
 				)
 			fi
 
-		# Install
+		## Install
 		else
-			set -o pipefail
-			LOG="${LOGDIR}/$(date +%Y%m%d)-${PKG_NVR}.log"
+			####
+			## Set the log file
+			## Can alter this to use a LOGFILE using
+			## %v version  %c category  %d day   %D date (%Y%m%d)
+			## %n name     %r revision  %Y year  %m month
+			LOGFILE=${LOGFILE:-%D-%n%v%r.log}
+
+			LOG=$(echo $LOGDIR/$LOGFILE |
+				sed -e "s,%c,$PKG_CAT," \
+					-e "s,%n,$PKG_NAME,"\
+					-e "s,%r,$PKG_REV,"  \
+					-e "s,%v,$PKG_VER,"   \
+					-e "s,%d,$(date +%d)," \
+					-e "s,%m,$(date +%m)," \
+					-e "s,%Y,$(date +%Y)," \
+					-e "s,%D,$(date +%Y%m%d),")
+
+			## Our LOG may contain a directory or 2
+			mkdir -p "${LOG%/*}"
+
+			## If the file exists, append a unix timestamp to the end.
+			[ -e $LOG ] && LOG="${LOG%.*}-$(date +%s).log"
+
 			CFG_PROTECT=true
+
 			export RESTRICT=
 
 			echo " * ${PKG_CAT}/${PKG_NVR} ($C of $length)"
 
+			## Save what time we started installing so we can output how long it took at the end.
 			TIMESTART=$(date "+%s.%N")
 
-			[[ $SILENT_BUILD == "no" ]] && installPackage 2>&1 | tee $LOG || installPackage > $LOG 2>&1
+			if [[ $SILENT_BUILD == "no" ]]; then
+				set -o pipefail
+				installPackage 2>&1 | tee $LOG
+				[ $PIPESTATUS != 0 ] && die "Error installing package: ${PKG_NVR}"
+			else
+				installPackage > $LOG 2>&1 || die "Error installing package: ${PKG_NVR}"
+			fi
 
-			[[ -e /usr/bin/bc ]] && echo "Completed in $( echo $(date "+%s.%N") - $TIMESTART | bc ) seconds." | tee -a $LOG
+			## If bc is installed output how long it took to build
+			if [[ -e /usr/bin/bc ]]; then
+				printf "Completed in %.3f seconds." $( echo $(date "+%s.%N") - $TIMESTART | bc ) | tee -a $LOG
+			fi
 
-			[ -e $LOG.bz2 ] && rm $LOG.bz2
-			bzip2 $LOG
-			[ $PIPESTATUS != 0 ] && die "Error installing package: ${PKG_NVR}"
+			## Compress our log.
+			xz "$LOG"
 		fi
 		echo -n " * Running ldconfig .."
 		ldconfig && echo "done!" || echo "failed!"
 	done
 }
 
-# install doesn't support preserving permissions
-# and ownership, so we need to get them and 
-# explicitly set them.
+####
+## install doesn't support preserving permissions
+## and ownership, so we need to get them and
+## explicitly set them.
 sinstall() {
 	local d=
 	[ -d "$1" ] && d="-d"
