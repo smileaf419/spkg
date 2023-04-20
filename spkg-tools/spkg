@@ -468,48 +468,6 @@ elif [[ $MODE == "bootstrap" ]]; then
 	source "${INSTALL_PATH}/libs/bootstrap"
 fi
 
-## Get Dependencies and check if any require updates.
-if [[ $MODE != "search" ]]; then
-	echo " * Calculating Package Order..."
-	getFullPkgList $list
-	if [[ $VERBOSE -ge 1 ]]; then
-		echo "Package Order (Full List):"
-		cat /tmp/chart
-		echo "Package Order:"
-	fi
-	list=
-	[[ $MODE == "uninstall" ]] && tac /tmp/chart > /tmp/chart2 && mv /tmp/chart{2,}
-	for p in $(cat /tmp/chart); do
-		setupENV $p
-
-		if [[ $MODE != "uninstall" ]]; then
-			## By default we don't install already installed packages, even when requested
-			## check forced or empty world.
-			if [[ $(version_gt $PKG_VR $O_VER) == 0 ||
-				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ||
-				! -z $EMPTY_WORLD ]]; then
-				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
-				## Only mention it's been forced if its within the REQUESTED_LIST & FORCE
-				[[ $FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]]) ]] && echo -n " (forced)"
-				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
-				echo
-				list+=" $LENTRY"
-			elif [[ $VERBOSE -gt 1 ]]; then
-				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
-			fi
-		else
-			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
-				($REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ]]; then
-				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
-				[[ $FORCE == 1 ]] && echo -n " (forced)"
-				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
-				echo
-				list+=" $LENTRY"
-			fi
-		fi
-	done
-fi
-
 ## Search
 if [[ $MODE == "search" ]]; then
 	for p in $list; do
@@ -570,11 +528,49 @@ if [[ $MODE == "search" ]]; then
 		done
 	done
 	exit 0
-fi
-
-if [[ $MODE == "preserved" ]]; then
+elif [[ $MODE == "preserved" ]]; then
 	preservedRebuild
 else
+	## Get Dependencies and check if any require updates.
+	echo " * Calculating Package Order..."
+	getFullPkgList $list
+	if [[ $VERBOSE -ge 1 ]]; then
+		echo "Package Order (Full List):"
+		cat /tmp/chart
+		echo "Package Order:"
+	fi
+	list=
+	[[ $MODE == "uninstall" ]] && tac /tmp/chart > /tmp/chart2 && mv /tmp/chart{2,}
+	for p in $(cat /tmp/chart); do
+		setupENV $p
+
+		if [[ $MODE != "uninstall" ]]; then
+			## By default we don't install already installed packages, even when requested
+			## check forced or empty world.
+			if [[ $(version_gt $PKG_VR $O_VER) == 0 ||
+				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ||
+				! -z $EMPTY_WORLD ]]; then
+				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
+				## Only mention it's been forced if its within the REQUESTED_LIST & FORCE
+				[[ $FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]]) ]] && echo -n " (forced)"
+				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
+				echo
+				list+=" $LENTRY"
+			elif [[ $VERBOSE -gt 1 ]]; then
+				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
+			fi
+		else
+			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
+				($REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ]]; then
+				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
+				[[ $FORCE == 1 ]] && echo -n " (forced)"
+				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
+				echo
+				list+=" $LENTRY"
+			fi
+		fi
+	done
+
 	[ $PRETEND == 1 ] && exit 0
 	[[ -z $list ]] && die "Nothing to upgrade."
 
