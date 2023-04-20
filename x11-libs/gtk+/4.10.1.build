@@ -7,7 +7,7 @@ BDEPS="x11-libs/libxkbcommon"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=4
-B=gtk+-$PKG_VER
+B=gtk-$PKG_VER
 setBuildENV meson ninja
 
 src_configure() {
