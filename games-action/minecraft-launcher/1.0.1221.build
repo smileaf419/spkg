@@ -13,8 +13,7 @@ setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="x86 x86_64"
 SLOT=0
-
-src_prepare() { :; }
+B=
 
 src_configure() { :; }
 

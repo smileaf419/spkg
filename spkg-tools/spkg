@@ -401,6 +401,8 @@ fi
 
 ####
 ## Sync our database to the repository.
+## In the future we may want to seperate our database from the package manager
+## Also can support such syncing methods as rsync.
 if [[ $MODE == "sync" ]]; then
 	# If git is not installed, inform the user to install it.
 	if [[ ! -e /usr/bin/git ]]; then
@@ -586,8 +588,10 @@ else
 	[ $PRETEND == 1 ] && exit 0
 	[[ -z $list ]] && die "Nothing to upgrade."
 
+	## Install our list
 	installList $list
 
+	## Check for any preserved files
 	preservedRebuild
 fi
 

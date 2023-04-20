@@ -1,6 +1,7 @@
 #!/bin/bash
 echo " * Bootstrapping .. This will take a while.."
 
+####
 ## Set Important Vars
 PKG_CACHE="${ROOT}/${PKG_CACHE}"
 DISTFILES="$ROOT/$DISTFILES"
@@ -9,49 +10,54 @@ PKG_WORLD="${ROOT}/${PKG_WORLD}"
 export HOST_TGT=$(uname -m)-leaf-linux-gnu
 export PATH="$ROOT/tools/bin:$PATH"
 
+####
 ## Create Essential Dirs.
 echo " * Creating directories ..."
-# Make a LSB compliant /
+## Make a LSB compliant /
 mkdir -p $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib{,32,64},media/{cdrom},mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
 mkdir -p $ROOT/lib/firmware
-# Create /usr hierachy
+## Create /usr hierachy
 mkdir -p $ROOT/usr/{bin,include,lib{,32,64},libexec,local,sbin,share,src}
-# Create /usr/local hierachy
+## Create /usr/local hierachy
 mkdir -p $ROOT/usr/local/{bin,etc,games,include,lib{,32,64},man,sbin,share,src}
 mkdir -p $ROOT/usr/{,local/}share/{color,dict,doc,info,locale,man}
 mkdir -p $ROOT/usr/{,local/}share/{misc,terminfo,zoneinfo}
 mkdir -p $ROOT/usr/{,local/}share/man/man{1..8}
 mkdir -p $ROOT/var/{cache,local,log,mail,opt,spool}
-# Create the /var Heirachy
+## Create the /var Heirachy
 mkdir -p $ROOT/var/{cache,db,lib,lock,log,opt,spool}
-# Create dirs for spkg
+## Create dirs for spkg
 mkdir -p $PKG_CACHE $DISTFILES
 mkdir -p $ROOT/{$PKG_DB_DIR,$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE}
 
+####
 ## Create Files
 echo " * Creating files ..."
 touch $PKG_WORLD
-# These files will be needed later.
+## These files will be needed later.
 cp /etc/ld.so.conf /etc/resolv.conf $ROOT/etc
 
+####
 ## Fix Permissions
 echo " * Fixing Permissions ..."
-# Fix permissions for our building user, we'll need to fully fix the permissions later.
+## Fix permissions for our building user, we'll need to fully fix the permissions later.
 chown -R $BUILD_USER $ROOT
 chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
 
+####
 ## Install all packages
 installList $list
 
-# Fix CONTENTS file, filter out our $ROOT
+## Fix CONTENTS file, filter out our $ROOT
 echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
-# This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
+## This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
 find $PKG_CACHE -name CONTENTS -exec sed -i "s,$ROOT,," {} \;
 
+####
 ## Fix Permissions (round 2)
 echo " * Finalizing ..."
-# Before we set everything so our BUILD_USER could work on it.
-# Now we need to fix everything for the final system.
+## Before we set everything so our BUILD_USER could work on it.
+## Now we need to fix everything for the final system.
 chown -R root:root $ROOT
 ln -sf /run $ROOT/var/run
 ln -sf /run/lock $ROOT/var/lock
@@ -65,6 +71,7 @@ chmod 600  $ROOT/var/log/btmp
 install -m755 -d -o 250 -g 250 $ROOT/var/tmp/spkg
 ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
 
+####
 ## Create Essential Files
 cat > $ROOT/etc/hosts << EOF
 127.0.0.1  localhost $(hostname)
@@ -134,22 +141,24 @@ umount -v $SPKG/{proc,sys,run}
 EOF
 chmod +x "$ROOT/chroot.sh"
 
-# Fetch all required packages as wget will not be available initially
+####
+## Fetch all required packages as wget will not be available initially
 echo " * Fetching all required files to finalize the install ..."
 list="@system"
 populate_list
 FETCH_ONLY=1
-# Attempt to catch the error so we can finish.
+## Attempt to catch the error so we can finish.
 installList $list || false
 if [[ $? != 0 ]]; then
 	echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
 	echo "    Finally move the downloaded files to: $DISTFILES"
 fi
 
+####
 ## Install our repository
 echo " * Cloning repository (if git is installed) ..."
-# if git is installed do this automatically.
-# Otherwise inform the user how to do it.
+## if git is installed do this automatically.
+## Otherwise inform the user how to do it.
 if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
 	P=${PKG_DB_DIR%/} # strip / at end if exists
 	cd $ROOT/${P%spkg} # strip toplevel dir.

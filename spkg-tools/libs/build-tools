@@ -46,34 +46,65 @@ fetch_list() {
 	return $ret
 }
 
+fetch_default() {
+	fetch_list "Fetching Files" "$(IFS=$'\n'; echo ${SRC_URI[*]})" 'src'
+	fetch_list "Fetching Patches" "$(IFS=$'\n'; echo ${PATCHES[*]})" 'patch'
+}
+export -f fetch_default
+
+verify_default() {
+# Check a sig file if it exists.
+# FIXME: This code fails if there is no public key installed.
+# Build files should depend on a public key package.
+#if [[ $VERIFY_SIG == 1 && $file == *.sig ]]; then
+#	echo -n "Checking Signature: ${DISTFILES}/${SRC_FILE%.*} ..."
+#	gpg --verify "${DISTFILES}/${SRC_FILE}" "${DISTFILES}/${SRC_FILE%.*}" 2>&1 | grep "Good signature" >/dev/null
+#	[ $? == 0 ] && echo "Ok" || die "Failed!"
+#fi
+	:;
+}
+export -f verify_default
+
+unpack_default() {
+	# We need to downgrade SRC_URI for scripts to access it properly
+	SRC=${SRC_URI[@]}
+	unset SRC_URI
+	export SRC_URI=${SRC[@]}
+	SRC_FILE=${SRC_URI%% *}
+
+	# We only unpack the first one, anything else will need to be done via the build file.
+	echo "Unpacking ${SRC_FILE##*/}"
+	if [[ -e /bin/su || -e /usr/bin/su ]]; then
+		su -p -c 'unpack "${DISTFILES}/${SRC_FILE##*/}"' $BUILD_USER
+	else
+		unpack "${DISTFILES}/${SRC_FILE##*/}"
+	fi
+}
+export -f unpack_default
+
+patch_default() {
+	P="${PATCHES[@]}"
+	# Export so we can use it, unset afterwards. Sad we can't export arrays.
+	export P
+	if [[ -e /bin/su || -e /usr/bin/su ]]; then
+		su -p -c 'spatches "$P"' $BUILD_USER
+	else
+		spatches "$P"
+	fi
+	unset P
+}
+export -f patch_default
+
 prepare_default() {
 	if [[ ! -z $SRC_URI ]]; then
-		fetch_list "Fetching Files" "$(IFS=$'\n'; echo ${SRC_URI[*]})" 'src'
-		fetch_list "Fetching Patches" "$(IFS=$'\n'; echo ${PATCHES[*]})" 'patch'
-		# Check a sig file if it exists.
-		# FIXME: This code fails if there is no public key installed.
-		# Build files should depend on a public key package.
-#		if [[ $VERIFY_SIG == 1 && $file == *.sig ]]; then
-#			echo -n "Checking Signature: ${DISTFILES}/${SRC_FILE%.*} ..."
-#			gpg --verify "${DISTFILES}/${SRC_FILE}" "${DISTFILES}/${SRC_FILE%.*}" 2>&1 | grep "Good signature" >/dev/null
-#			[ $? == 0 ] && echo "Ok" || die "Failed!"
-#		fi
+		src_fetch
+
+		# src_verify
 
 		[[ $FETCH_ONLY == 1 ]] && return
 
-		# We need to downgrade SRC_URI for scripts to access it properly
-		SRC=${SRC_URI[@]}
-		unset SRC_URI
-		export SRC_URI=${SRC[@]}
-		SRC_FILE=${SRC_URI%% *}
-		
-		# We only unpack the first one, anything else will need to be done via the build file.
-		echo "Unpacking ${SRC_FILE##*/}"
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_unpack "${DISTFILES}/${SRC_FILE##*/}"' $BUILD_USER
-		else
-			src_unpack "${DISTFILES}/${SRC_FILE##*/}"
-		fi
+		src_unpack
+
 		# In most cases archive directories are the name of the archive itself.
 		# This could be a better default for B.
 		if [ ! -d "${BUILD_PATH}/${B}" ]; then
@@ -84,22 +115,16 @@ prepare_default() {
 		cd "${BUILD_PATH}/${B}"
 	fi
 	if [[ ! -z $PATCHES ]]; then
-		P="${PATCHES[@]}"
-		# Export so we can use it, unset afterwards. Sad we can't export arrays.
-		export P
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_patch "$P"' $BUILD_USER
-		else
-			src_patch "$P"
-		fi
-		unset P
+		src_patch
 	fi
+
+	src_prepare
 }
 export -f prepare_default
 
 buildPackage() {
 	# Export this so packages can override the src_unpack.
-	export LDFLAGS CXXFLAGS CFLAGS
+	export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
 
 	# Download all files.
 	# If it fails, create it and try again.
@@ -110,9 +135,11 @@ buildPackage() {
 	else
 		chown $BUILD_USER "$BUILD_PATH"
 	fi
-	src_prepare
+
+	prepare_default
+
 	[[ $FETCH_ONLY == 1 ]] && return
-		
+
 	if [[ $BUILD_SEPERATE_DIR != no ]]; then
 		install -d -o $BUILD_USER build
 		cd build

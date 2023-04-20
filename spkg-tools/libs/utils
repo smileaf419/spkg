@@ -109,6 +109,7 @@ rebuildModules() {
 ## will only update the BDEPS of the installed package.
 buildBDeps() {
 	local OUT=
+
 	## Use our BDEPS file installed within PKG_CACHE
 	PKG=$(Installed-getPkg $1 | sed 's,/[^/]*/$,,')
 

@@ -1,31 +1,49 @@
-# .build file default methods
-# These methods shouldn't contain helper methods to make the code easier to read.
-# Exception would be src_unpack! This should be so rarely ever overridden its easy
-# to reference what it does.
-# The lack of helper methods makes them readable without having 
-# to referencing other files/methods.
-# This also reduces the chance that a later change to a helper method 
-# causes a build file to break.
-# This also brings about a problem of ugly code or non-standard 
-# actions and could be prone to breakage/other issues.
-# However this is the price to pay for "simplicity" and a crystal clear knowledge
-# of whats happening within the build.
+####
+## Build file default methods
+## The purpose of this file is to describe how packages are built.
+## a function-less build file by default will call:
+## src_fetch
+## src_verify
+## src_unpack
+## src_patch
+## src_prepare
+## src_configure
+## src_compile
+## src_test
+## src_install
+## post_install
+##
+## Overriding these functions allows you to customize what is ran at each step.
+## src_configure and src_compile are ran as BUILD_USER
+## src_test is ran as TEST_USER
+## src_install and post_install are ran as root.
+##
+## All overridden functions must be self-contained as environments will be reset between each function.
+## if a global variable is to be set for all functions, it should be done so at the top level, or within src_prepare.
 
-# auto, meson, cmake
+####
+## Set variables to the most common defaults
+
+## Set which configure tool we are using:  auto, meson, cmake, none
 export configTool=auto
 
-# make, ninja
+## Set which compile tool we are using:  make, ninja, pip
 export buildTool=make
 
-# no defaults to '.' yes to '..'
-# Alternatively you can set a path.
+## no defaults to '.' yes to '..'
+## Alternatively you can set a path.
 export BUILD_SEPERATE_DIR=no
 
-# If cross compiling, set this to an environment var
-# ABI=32
-# This will run ABI=32 ./configure ...
+## If cross compiling, set this to an environment var
+## SET_ABI='ABI=32'
+## This will run ABI=32 ./configure ...
+## Alternatively it maybe useful to use this to set other options which must be prepended to our configure call.
+## FIXME: should we rename this to another name which better describes the possibility of this variable?
 export SET_ABI=
 
+####
+## Setup the Build Environment
+## Depending on the configure and compile tool selected we need to set a few variables
 setBuildENV() {
 	[[ -z $1 ]] && configTool=auto || configTool=$1
 	[[ -z $2 ]] && buildTool=make || buildTool=$2
@@ -34,7 +52,7 @@ setBuildENV() {
 			BDEPS+=" sys-devel/autoconf" ;;
 		meson)
 			BDEPS+=" dev-util/meson"
-			[[ $BUILD_SEPERATE_DIR == no ]] && BUILD_SEPERATE_DIR=yes ;;
+			BUILD_SEPERATE_DIR=yes ;;
 		cmake)
 			BDEPS+=" dev-util/cmake" ;;
 	esac
@@ -47,16 +65,68 @@ setBuildENV() {
 			RESTRICT="nobin nostrip" ;;
 	esac
 }
+export -f setBuildENV
 
-src_unpack() { unpack $1; }
+####
+## Default empty functions
+
+## Like bootstrap prepare_default is called which then calls src_prepare
+## This code is useful for finishing setting up the environment before we start our build.
+src_prepare() { :; }
+export -f src_prepare
+
+## Will by default call a fetch_list on SRC_URI and PATCHES
+src_fetch() { fetch_default; }
+export -f src_fetch
+
+## use PGP to verify signatures
+src_verify() { verify_default; }
+export -f src_verify
+
+## By Default only unpack the first entry in our SRC_URI
+src_unpack() { unpack_default; }
+export -f src_unpack
+
+## call spatches on PATCHES
+src_patch() { patch_default; }
+export -f src_patch
+
+## Ran as BUILD_USER
 src_configure() { configure_default; }
-src_compile() { compile_default; }
-src_test() { test_default; }
-src_install() { install_default; }
-post_install() { :; }
-src_uninstall() { :; }
-src_post_uninstall() { :; }
+export -f src_configure
 
+## Ran as BUILD_USER
+src_compile() { compile_default; }
+export -f src_compile
+
+## Ran as TEST_USER
+src_test() { test_default; }
+export -f src_test
+
+## Ran as root
+src_install() { install_default; }
+export -f src_install
+
+## Ran as root
+post_install() { :; }
+export -f post_install
+
+## Ran as root before we remove files
+src_uninstall() { :; }
+export -f src_uninstall
+
+## Ran as root after we have removed all files
+src_post_uninstall() { :; }
+export -f src_post_uninstall
+
+####
+## Bootstrapping is done a bit backwards from how the functions are normally setup
+## this is because several variables *MUST* be set before the bootstrap code is ran.
+## As a result bootstrap_default is called and then bootstrap is called from within,
+## rather than bootstrap being called and bootstrap_default being called from within.
+## This is keeps the code a bit cleaner, while still enforcing the variables get set.
+## All bootstrap code is ran as BUILD_USER, so to simplify things its also all handled
+## Within the bootstrap() function.
 bootstrap_default() {
 	umask 022
 	set +h
@@ -70,21 +140,17 @@ bootstrap_default() {
 	# The above code *MUST* be ran
 	bootstrap
 }
+export -f bootstrap_default
 bootstrap() {
 	configure_default
 	compile_default
 	install_default
 }
+export -f bootstrap
 
-# 1: Any extra switches in addition to the defaults
-src_prepare() {
-	prepare_default
-}
-
-src_patch() {
-	spatches "$1" || die "Patching Failed!"
-}
-
+####
+## Configure our package using the set configure tool.
+## default options maybe reset with CONF_FLAGS= if the defaults conflict with desired ones.
 configure_default() {
 	# FIXME: Currently we default to x86_64 with no way for build files to change this.
 	HOST_TGT=${HOST_TGT:-x86_64-pc-linux-gnu}
@@ -115,7 +181,10 @@ configure_default() {
 		cmake ${CONF_FLAGS} "$@" $d || die "Configure Failed!"
 	fi
 }
+export -f configure_default
 
+####
+## Build our package using the set build-tool
 compile_default() {
 	if [[ $buildTool == "make" ]]; then
 		make $MAKEOPTS $@ || die "Compile Failed!"
@@ -123,7 +192,12 @@ compile_default() {
 		ninja || die "Compile Failed!"
 	fi
 }
+export -f compile_default
 
+####
+## Run the package's test suites
+## defaults to a: make check
+## to use `make test` use TEST=test
 test_default() {
 	# Some use check, others use test
 	TEST=${TEST:-check}
@@ -134,7 +208,10 @@ test_default() {
 		ninja test || die "Test Failed!"
 	fi
 }
+export -f test_default
 
+####
+## Install our package using the our set build-tool
 install_default() {
 	if [[ $buildTool == "make" ]]; then
 		make DESTDIR="${D}/$ROOT" $@ install || die "Install Failed!"
@@ -153,14 +230,13 @@ install_default() {
 		fi
 	fi
 }
+export -f install_default
 
+####
+## Uninstall the package using our set build-tool
 uninstall_default() {
 	if [[ $buildTool == "pip" ]]; then
 		python -m pip uninstall -y $PKG_NAME
 	fi
 }
-
-export -f src_unpack src_configure src_compile src_test \
-	configure_default compile_default test_default \
-	install_default src_install \
-	src_prepare src_patch bootstrap bootstrap_default
+export -f uninstall_default
