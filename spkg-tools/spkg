@@ -364,6 +364,18 @@ fi
 ## Calculate Binary Dependencies and update the DEPS var within the build file.
 if [[ $MODE == "buildbdeps" ]]; then
 	for p in $list; do
+		## our list is populated with LENTRY However as they contain a version,
+		## It conflicts with our ability to find the correct installed version.
+		## Strip off the version (Which maybe the most recent, wrong, version as a result)
+		## And preserve the slot.
+		p=${p#=}  ## Remove =
+		## Grab the slot if it exists
+		[[ $p == *:* ]] && slot=${p##*:} || slot=0
+		## Remove the Version
+		p=${p%-*}
+		## Append the slot if it exists
+		[[ $slot != 0 ]] && p+=":$slot"
+		echo "Finding Binary Dependencies: $p"
 		buildBDeps $p
 	done
 fi
