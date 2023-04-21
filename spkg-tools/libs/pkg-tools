@@ -185,7 +185,7 @@ export -f getData
 ## Returns only the most recent version
 getLatest() {
 	echo $(cat -) | tr ' ' '\n' |
-		sort -V | tail -n1
+		sort -V -t/ -k3,3| tail -n1
 }
 export -f getLatest
 
