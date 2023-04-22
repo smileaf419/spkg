@@ -8,7 +8,6 @@ BDEPS="sys-devel/llvm accounts/dhcpcd"
 RDEPS="net-misc/ntp"
 ARCHS="~x86 ~x86_64"
 SLOT=0
-B=dhcpcd-dhcpcd-$PKG_VER
 
 src_configure() {
 	./configure --prefix=/usr            \
