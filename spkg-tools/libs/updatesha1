@@ -4,13 +4,16 @@
 ## Author: Stephen Leaf <smileaf@me.com>
 ## Date: 2023-04-10 (rewrite of the old updateallsha1.sh)
 
-# Set a few flags to ensure everything gets fetched and hashed.
+## Set a few flags to ensure everything gets fetched and hashed.
 VERIFY_SIG=0
 ENABLE_TESTS=1
 IGNORE_SHA=0
 #VERBOSE=3
+## Set an unstable ARCH if its not already so we hash them too
 [[ ${ARCH:0:1} != "~" ]] && ARCH="~$ARCH"
 
+####
+## Hash the directory
 hashdir() {
 	PKG=$@
 	echo
@@ -33,16 +36,19 @@ hashdir() {
 	echo " ]"
 }
 
+####
+## Check packages for any failures, if we find any rehash the entire package.
 updatesha1() {
 	list=$@
 
-	# Get a directory listing for the given package
-	# check the sha1sum of each file
-	# if any file fails, rehash the entire directory.
+	## Get a directory listing for the given package
+	## check the sha1sum of each file
+	## if any file fails, rehash the entire directory.
 	local updated=0
 	for l in $list; do
 		PKG=$(DB-getPkgList $l | fileToList)
 		for p in $PKG; do
+			## Unset these as some packages don't set them and will cause issues checking hashes.
 			unset SRC_URI PATCHES
 			setupENV $p
 
