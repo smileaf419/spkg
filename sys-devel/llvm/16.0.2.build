@@ -80,7 +80,6 @@ src_unpack() {
 		[[ $file != llvm* ]] && mv "${file%.tar*}" "$dir/$P"
 	done
 	ln -sf */runtimes .
-	chown -R $BUILD_USER .
 }
 
 #src_patch() {

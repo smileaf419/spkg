@@ -84,7 +84,11 @@ src_verify() { verify_default; }
 export -f src_verify
 
 ## By Default only unpack the first entry in our SRC_URI
-src_unpack() { unpack_default; }
+src_unpack() {
+	# We only unpack the first one, anything else will need to be done via the build file.
+	echo "Unpacking ${SRC_FILE##*/}"
+    unpack "${DISTFILES}/${SRC_FILE##*/}"
+}
 export -f src_unpack
 
 ## call spatches on PATCHES

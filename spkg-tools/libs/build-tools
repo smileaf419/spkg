@@ -73,12 +73,10 @@ unpack_default() {
 	export SRC_URI=${SRC[@]}
 	SRC_FILE=${SRC_URI%% *}
 
-	# We only unpack the first one, anything else will need to be done via the build file.
-	echo "Unpacking ${SRC_FILE##*/}"
 	if [[ -e /bin/su || -e /usr/bin/su ]]; then
-		su -p -c 'unpack "${DISTFILES}/${SRC_FILE##*/}"' $BUILD_USER
+		su -p -c 'src_unpack' $BUILD_USER
 	else
-		unpack "${DISTFILES}/${SRC_FILE##*/}"
+		src_unpack
 	fi
 }
 export -f unpack_default
@@ -104,7 +102,7 @@ prepare_default() {
 
 		[[ $FETCH_ONLY == 1 ]] && return
 
-		src_unpack
+		unpack_default
 
 		# In most cases archive directories are the name of the archive itself.
 		# This could be a better default for B.
