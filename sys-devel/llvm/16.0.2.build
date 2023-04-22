@@ -52,14 +52,11 @@ src_prepare() {
 }
 
 src_unpack() {
-#	local IFS=$'\n'
-#	echo "SRC_URI $SRC_URI"
-#	SRC_URI=($SRC_URI)
-#	local length=${#SRC_URI[@]}
-#	for (( l=0; l<${length}; l++ )); do
-#		f=${SRC_URI[$l]}
-	for f in $SRC_URI; do
-		echo " * unpacking $f"
+	SRC_URI=(${SRC_URI[*]})
+	local length=${#SRC_URI[@]}
+	for (( l=0; l<${length}; l++ )); do
+		f=${SRC_URI[$l]}
+		echo " * Unpacking $(( $l + 1 )) of $length: $f"
 		file=${f##*/}
 		unpack ${DISTFILES}/${file}
 		P=${file%-*}
@@ -80,9 +77,10 @@ src_unpack() {
 			polly)             dir=$B/projects ;;
 			libunwind)         dir=$B/projects ;;
 		esac
-		[[ $file != llvm* ]] && mv -v "${file%.tar*}" "$dir/$P"
+		[[ $file != llvm* ]] && mv "${file%.tar*}" "$dir/$P"
 	done
 	ln -sf */runtimes .
+	chown -R $BUILD_USER .
 }
 
 #src_patch() {
@@ -102,7 +100,7 @@ src_configure() {
 	# Copy this LLVM libunwind header or it won't be found:
 	cp -a ../projects/libunwind/include/mach-o include
 	# Nuke LLVM libunwind as it conflicts with the one already on the system:
-	rm -r ../projects/libunwind
+	rm -fr ../projects/libunwind
 
 	CC=gcc CXX=g++                                \
 	configure_default                             \
