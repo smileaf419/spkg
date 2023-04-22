@@ -38,12 +38,28 @@ IUSE="doc"
 # use-enable doc && UDEPS="sphinx recommonmark doxygen"
 [[ $ENABLE_TESTS == 1 ]] && UDEPS+=" net-misc/rsync dev-python/psutil"
 
-PYTHON_VER=$(Installed-getPkg dev-lang/python | getLatest | getVersion)
-PYTHON_VER=${PYTHON_VER%.*}
+src_prepare() {
+	PYTHON_VER=$(Installed-getPkg dev-lang/python | getLatest | getVersion)
+	PYTHON_VER=${PYTHON_VER%.*}
+
+	[[ $ARCH == *x86_64 ]] && append-cflags -fPIC
+	# Used if we use the clang compiler?
+#	append-cflags -Wno-gnu-line-marker -Wno-gnu-anonymous-struct --Wno-unknown-warning-option
+
+	## Doesn't appear to be honored...
+	append-ldflags -lcursesw -lncursesw -ltinfow
+	append-cppflags -flarge-source-files
+}
 
 src_unpack() {
-	SRC_URI=($SRC_URI)
-	for f in ${SRC_URI[@]}; do
+#	local IFS=$'\n'
+#	echo "SRC_URI $SRC_URI"
+#	SRC_URI=($SRC_URI)
+#	local length=${#SRC_URI[@]}
+#	for (( l=0; l<${length}; l++ )); do
+#		f=${SRC_URI[$l]}
+	for f in $SRC_URI; do
+		echo " * unpacking $f"
 		file=${f##*/}
 		unpack ${DISTFILES}/${file}
 		P=${file%-*}
@@ -88,14 +104,6 @@ src_configure() {
 	# Nuke LLVM libunwind as it conflicts with the one already on the system:
 	rm -r ../projects/libunwind
 
-	[[ $ARCH == *x86_64 ]] && append-cflags -fPIC
-	# Used if we use the clang compiler?
-#	append-cflags -Wno-gnu-line-marker -Wno-gnu-anonymous-struct --Wno-unknown-warning-option
-	# Why doesn't -lncurses work? don't we have a link? :/
-
-	## Doesn't appear to be honored...
-#	append-ldflags -lcursesw -lncursesw -ltinfow
-
 	CC=gcc CXX=g++                                \
 	configure_default                             \
 		-DCMAKE_C_FLAGS:STRING="$CFLAGS"          \
@@ -135,12 +143,11 @@ src_configure() {
 	fi
 }
 
-src_compile() {
-	append-cppflags -flarge-source-files
+#src_compile() {
 	## Ahh the irritating ncursesw, here we have to enforce it as it doesn't seem to honor CFLAGS even when sent to cmake?
-	grep -r -- '-lcurses' . | sed 's,:.*,,' | uniq | xargs sed -i 's,-lcurses,-lcursesw -ltinfow,'
-	compile_default
-}
+	#grep -r -- '-lcurses' . | sed 's,:.*,,' | uniq | xargs sed -i 's,-lcurses,-lcursesw -ltinfow,'
+#	compile_default
+#}
 
 src_test() {
 	ninja check-all
