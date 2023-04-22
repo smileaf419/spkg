@@ -16,8 +16,6 @@ src_prepare() {
 	export PYTHON_LIBS=/usr/lib/python${PY_VER%.*}
 	echo "Set PYTHON_CFLAGS: $PYTHON_CFLAGS"
 	echo "Set PYTHON_LIBS: $PYTHON_LIBS"
-
-	prepare_default
 }
 
 src_configure() {
