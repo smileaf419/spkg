@@ -304,10 +304,15 @@ populate_list() {
 		setupENV $p
 		## If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
 		if [[ $PKG_NAME == "" ]]; then
-			echo " !! $p Not found!"
-			list=$p
-			MODE=search
-			return
+			if [[ $MODE == 'uninstall' ]]; then
+				echo " !! $p not installed!"
+				exit
+			else
+				echo " !! $p not found!"
+				list=$p
+				MODE=search
+				return
+			fi
 		fi
 		tlist+=" $LENTRY"
 	done

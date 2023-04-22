@@ -39,7 +39,11 @@ getBDeps() {
 ## Setup package Environmental Variables
 ## Requires a LENTRY or at minimum PKG_NAME
 setupENV() {
-	PKG=$(DB-getPkg $1 | getLatest)
+	if [[ $MODE == 'uninstall' ]]; then
+		PKG=$(Installed-getPkg $1)
+	else
+		PKG=$(DB-getPkg $1 | getLatest)
+	fi
 	if [[ $PKG == "" ]]; then
 		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
 		if [[ $PKG == "" ]]; then
@@ -51,7 +55,11 @@ setupENV() {
 	PKG_VER=$(getVersion $PKG)
 	PKG_REV=$(getRevision $PKG)
 	PKG_VR=$(getVerRev $PKG)
-	PKG_BLD=$PKG_DB_DIR/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build
+	if [[ $MODE == 'uninstall' ]]; then
+		PKG_BLD=$PKG_CACHE/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build
+	else
+		PKG_BLD=$PKG_DB_DIR/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build
+	fi
 	PKG_NVR=${PKG_NAME}-${PKG_VR}
 	PKG_NV=${PKG_NAME}-${PKG_VER}
 	PKG_SLOT=$(getSlot $PKG)
@@ -110,27 +118,27 @@ installList() {
 		## Uninstall
 		if [[ $MODE == "uninstall" ]]; then
 			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
-			d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
+			(
+				source "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VER}/${PKG_VER}.build"
+				d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
 	
-			## FIXME: If uninstalling will break packages Check Forced.
-			## Option 1: Uninstall just the requested, breaking other installed packages.
-			## Option 2: Uninstall all packages that would break, and any that would break if they were removed.
-			## Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
-			##           removed under any circumstances.
-			if [[ $d != *$p && $d != "" && $FORCE == 0 ]]; then
-				echo "Uninstalling will break packages!"
-				echo $d
-			else
-				(
-					source "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VER}/${PKG_VER}.build"
+				## FIXME: If uninstalling will break packages Check Forced.
+				## Option 1: Uninstall just the requested, breaking other installed packages.
+				## Option 2: Uninstall all packages that would break, and any that would break if they were removed.
+				## Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
+				##           removed under any circumstances.
+				if [[ $d != *$p && $d != "" && $FORCE == 0 ]]; then
+					echo "Uninstalling will break packages!"
+					echo $d
+				else
 					## pre-uninstall code if needed/set
 					uninstall_default
 					## Uninstall the package
 					uninstall "${PKG_CAT}/${PKG_NAME}" $O_VER ""
 					## post-uninstall code if needed/set
 					src_post_uninstall
-				)
-			fi
+				fi
+			)
 
 		## Install
 		else

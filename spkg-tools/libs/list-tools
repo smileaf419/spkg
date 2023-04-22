@@ -1,7 +1,7 @@
 # 1: File
 # Returns: list of files depending on a file.
 checkFileDep() {
-	grep -r --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || echo
+	grep -r --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || return 0
 }
 
 # 1: Category/Package 2: Version
@@ -9,9 +9,20 @@ checkFileDep() {
 isDependedOn() {
 	PKG=$1
 	PKG_VER=$2
+	pkg-restricts nobin && return
+	FC=$(wc -l "$PKG_CACHE/$PKG/$PKG_VER/CONTENTS")
+	if [[ ${FC% *} -gt 1000 ]]; then
+		>&2 echo -n " * Checking for packages which depend on any installed files (${FC% *}) ..."
+		LARGE_PKG=1
+	fi
+	C=0
 	for f in $(cat "${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS"); do
-		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort|uniq|grep -v $PKG
+		C=$(( $C + 1 ))
+		[[ $LARGE_PKG == 1 && $(echo $C % 1000 | bc) == 0 ]] && >&2 echo -n " $C .."
+		## Ignore failures
+		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort|uniq|grep -v $PKG || true
 	done
+	[[ $LARGE_PKG == 1 ]] && >&2 echo " done"
 }
 
 # Populates a /tmp/chart files

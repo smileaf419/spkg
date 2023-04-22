@@ -244,7 +244,7 @@ fetch_file() {
 
 ## Check a sha1sum of a given file within the package's sha1 file.
 checkSha1() {
-	[[ $IGNORE_SHA1 == 1 ]] && return 0
+	[[ $IGNORE_SHA1 == 1 || $MODE == 'uninstall' ]] && return 0
 	PKG=$1
 	FILE=$2
 
