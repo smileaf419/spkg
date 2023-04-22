@@ -10,7 +10,7 @@ fetch_list() {
 	for (( l=0; l<${length}; l++ )); do
 		C=$(( $l + 1 ))
 		file=${list[$l]}
-		echo " * Fetching $C of $length: $file"
+		[[ $VERBOSE -ge 2 ]] && echo " * Fetching $C of $length: $file"
 		[[ $file == "" ]] && continue
 		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
 			export SRC_OUTFILE=${file/*=> /}

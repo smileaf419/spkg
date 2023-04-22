@@ -7,6 +7,7 @@ source "${INSTALL_PATH}/libs/updatesha1"
 source "${INSTALL_PATH}/libs/utils"
 source "${INSTALL_PATH}/libs/spkg-include"
 source "${INSTALL_PATH}/libs/build-tools"
+source "${INSTALL_PATH}/libs/builddefaults"
 
 SRC_URI="https://gentoo.osuosl.org/distfiles/"
 DFILES_INDEX="/tmp/distindex"
@@ -124,7 +125,9 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	if [[ $(version_gt ${FILE##*-} $PKG) == 0 ]]; then 
 #		echo $FILE [ $PK-$PKG ] $FILE_O >> $UPDATE_LIST
 		echo " * Updating $PK : $PKG -> ${FILE##*-}" >> $UPDATE_LIST
-		cp "$PKG_DB_DIR/$PK/$PKG.build" "$PKG_DB_DIR/$PK/${FILE##*-}.build"
+#		IPKG=$(DB-getPkg $PKG | getLatest)
+		setupENV $PK
+		cp "$PKG_BLD" "$PKG_DB_DIR/$PK/${FILE##*-}.build"
 		sed -e '/ARCH/ s, \([^~]\), ~\1,' \
 			-e '/ARCH/ s,="\([^~]\),="~\1,' \
 			-i "$PKG_DB_DIR/$PK/${FILE##*-}.build"
