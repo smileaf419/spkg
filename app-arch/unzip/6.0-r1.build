@@ -3,8 +3,8 @@ DESCRIPTION="unzipper for pkzip-compressed files"
 LICENSE="Info-ZIP"
 SRC_URI=("https://downloads.sourceforge.net/infozip/unzip${PKG_VER/./}.tar.gz")
 PATCHES=(
-"https://www.linuxfromscratch.org/patches/blfs/svn/unzip-6.0-consolidated_fixes-1.patch"
 #"https://gentoo.osuosl.org/distfiles/unzip_6.0-27.debian.tar.xz"
+"https://www.linuxfromscratch.org/patches/blfs/svn/unzip-6.0-consolidated_fixes-1.patch"
 #"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-fix-false-overlap-detection-on-32bit-systems.patch"
 #"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-format-security.patch"
 #"https://cgit.gentoo.org/repo/gentoo.git/plain/app-arch/unzip/files/unzip-6.0-no-exec-stack.patch"
@@ -19,7 +19,6 @@ SLOT=0
 B=unzip${PKG_VER/./}
 
 #src_patch() {
-#	PATCHES=($@)
 #	unpack ${DISTFILES}/${PATCHES[0]##*/}
 	# Remove debian's branding patch
 #	rm $BUILD_PATH/$B/debian/patches/02*
@@ -54,7 +53,7 @@ src_compile() {
 
 	rm -r bzip2
 
-	LDFLAGS="$LDFLAGS" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" make $MAKEOPTS -f unix/Makefile generic
+	CPPFLAGS="$CPPFLAGS" compile_default -f unix/Makefile generic
 }
 
 src_test() { :; }
