@@ -57,8 +57,9 @@ fi
 }
 
 bootstrap() {
-	local glibc=$(Installed-getPkg sys-libs/glibc | getVersion)
-	if [[ $glibc == 0 ]]; then
+	local glibc=$(DB-getPkg sys-libs/glibc | getLatest | getVersion)
+	if [[ $glibc == 0 || $glibc == '' ]]; then
+		echo " * Expected version got:  $glibc"
 		die " !! Error getting installed glibc version!"
 	fi
 	echo " * Using glibc: $glibc"
