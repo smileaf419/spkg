@@ -3,13 +3,14 @@ fetch_list() {
 	[[ ! -z $1 ]] && echo $1
 	local IFS=$'\n'
 	local list=($2)
-	local length=${#tlist[@]}
 	local update_sha=${4:-0}
 	local length=${#list[@]}
+
 	local ret=0
 	for (( l=0; l<${length}; l++ )); do
 		C=$(( $l + 1 ))
 		file=${list[$l]}
+		echo " * Fetching $C of $length: $file"
 		[[ $file == "" ]] && continue
 		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
 			export SRC_OUTFILE=${file/*=> /}
@@ -47,8 +48,8 @@ fetch_list() {
 }
 
 fetch_default() {
-	fetch_list "Fetching Files" "$(IFS=$'\n'; echo ${SRC_URI[*]})" 'src'
-	fetch_list "Fetching Patches" "$(IFS=$'\n'; echo ${PATCHES[*]})" 'patch'
+	fetch_list "Fetching Files" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src'
+	fetch_list "Fetching Patches" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch'
 }
 export -f fetch_default
 

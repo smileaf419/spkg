@@ -62,10 +62,8 @@ spatches() {
 	# TODO: default to using the global PATCHES
 	#       if an argument list is supplied, use that instead.
 	PATCHES=($@)
-	# FIXME: This cannot handle spaces within any patch path.
-	PATCH_FILES=($(echo ${PATCHES[@]} | tr ' ' '\n' | sed "s,^https\?://.*/,${DISTFILES}/,"))
-
-	for p in ${PATCH_FILES[@]}; do
+	for p in ${PATCHES[*]}; do
+		p=$DISTFILES/${p##*/}
 		if [[ $p == *.tar.* ]]; then
 			unpack "$p"
 			p=${p%.tar.*}
