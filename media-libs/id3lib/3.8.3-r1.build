@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://id3lib.sourceforge.net/"
+DESCRIPTION="ID3 Library for C++"
+LICENSE="LGPLv2.1"
 SRC_URI="https://downloads.sourceforge.net/project/id3lib/id3lib/${PKG_VER}/id3lib-${PKG_VER}.tar.gz"
 PATCHES=(
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/media-libs/id3lib/files/id3lib-3.8.3-gcc-4.3.patch"
@@ -19,7 +19,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
-	# Fix some of the warnings
+	## Fix some of the warnings
 	mv configure.{in,ac}
 	find . -iname Makefile.am -exec sed -i 's,INCLUDES,AM_CPPFLAGS,' {} \;
 	autoreconf -fiv

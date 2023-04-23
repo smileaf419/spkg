@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://libsndfile.github.io/libsndfile/"
+DESCRIPTION="C library for reading and writing files containing sampled sound"
+LICENSE="LGPLv2.1"
 SRC_URI=("https://github.com/libsndfile/libsndfile/releases/download/${PKG_VER}/libsndfile-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS="media-libs/alsa-lib media-libs/flac media-libs/libogg media-libs/libvorbis media-libs/opus media-sound/lame"

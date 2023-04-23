@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.mesa3d.org/ https://mesa.freedesktop.org/"
+DESCRIPTION="OpenGL-like graphic library for Linux"
+LICENSE="MIT"
 SRC_URI=("https://mesa.freedesktop.org/archive/mesa-${PKG_VER}.tar.xz")
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/mesa-22.3.6-add_xdemos-1.patch")
 DEPS="app-arch/zstd dev-libs/elfutils dev-libs/expat dev-libs/wayland sys-apps/lm-sensors sys-devel/llvm sys-libs/zlib x11-libs/libdrm x11-libs/libX11 x11-libs/libxcb x11-libs/libXext x11-libs/libXfixes x11-libs/libxshmfence x11-libs/libXxf86vm"

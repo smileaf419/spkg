@@ -1,8 +1,8 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://libtiff.maptools.org"
+DESCRIPTION="Tag Image File Format (TIFF) library"
+LICENSE="libtiff"
 SRC_URI=("https://download.osgeo.org/libtiff/tiff-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()

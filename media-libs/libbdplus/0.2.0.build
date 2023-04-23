@@ -1,6 +1,6 @@
 HOMEPAGE="https://www.videolan.org/developers/libbdplus.html"
-DESCRIPTION="BD+ System Library"
-LICENSE=""
+DESCRIPTION="Blu-ray Library for BD+ Decryption"
+LICENSE="LGPLv2.1"
 SRC_URI="https://download.videolan.org/pub/videolan/libbdplus/${PKG_VER}/libbdplus-${PKG_VER}.tar.bz2"
 DEPS="dev-libs/libgcrypt dev-libs/libgpg-error"
 BDEPS=""

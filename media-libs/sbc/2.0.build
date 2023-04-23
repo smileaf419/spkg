@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://git.kernel.org/?p=bluetooth/sbc.git"
+DESCRIPTION="Audio codec to connect bluetooth HQ audio devices as headphones or loudspeakers"
+LICENSE="GPLv2 LGPLv2.1"
 SRC_URI=("https://www.kernel.org/pub/linux/bluetooth/sbc-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS=""

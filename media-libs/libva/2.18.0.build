@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://01.org/linuxmedia/vaapi"
+DESCRIPTION="Video Acceleration (VA) API for Linux"
+LICENSE="MIT"
 SRC_URI=("https://github.com/intel/libva/releases/download/${PKG_VER}/libva-${PKG_VER}.tar.bz2")
 PATCHES=()
 DEPS="dev-libs/wayland media-libs/mesa x11-libs/libdrm x11-libs/libX11 x11-libs/libxcb x11-libs/libXext x11-libs/libXfixes"

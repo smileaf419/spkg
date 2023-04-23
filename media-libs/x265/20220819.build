@@ -1,7 +1,10 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://x265.org/ https://bitbucket.org/multicoreware/x265_git/"
+DESCRIPTION="Library for encoding video streams into the H.265/HEVC format"
+LICENSE="GPLv2"
 SRC_URI="https://anduin.linuxfromscratch.org/BLFS/x265/x265-${PKG_VER}.tar.xz"
+## Can use this if we wanted to source our own v3.5 and patch it.
+#SRC_URI=("https://bitbucket.org/multicoreware/x265_git/downloads/x265_${PKG_VER}.tar.gz")
+#PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""

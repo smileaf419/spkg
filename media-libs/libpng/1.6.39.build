@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://www.libpng.org/"
+DESCRIPTION="Portable Network Graphics library"
+LICENSE="libpng2"
 SRC_URI=("https://downloads.sourceforge.net/libpng/libpng-${PKG_VER}.tar.xz")
 PATCHES=("https://downloads.sourceforge.net/sourceforge/libpng-apng/libpng-1.6.38-apng.patch.gz")
 DEPS="sys-libs/zlib"

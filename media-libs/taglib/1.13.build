@@ -1,6 +1,6 @@
 HOMEPAGE="http://taglib.org"
 DESCRIPTION="Audio File tag editing library."
-LICENSE=""
+LICENSE="LGPLv2.1 MPL-1.1"
 SRC_URI=("https://taglib.org/releases/taglib-${PKG_VER}.tar.gz")
 PATCHES=()
 DEPS="sys-libs/zlib"

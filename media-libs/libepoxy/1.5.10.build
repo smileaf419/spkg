@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://github.com/anholt/libepoxy"
+DESCRIPTION="Library for handling OpenGL function pointer management"
+LICENSE="MIT"
 SRC_URI=("https://download.gnome.org/sources/libepoxy/${PKG_VER%.*}/libepoxy-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS=""

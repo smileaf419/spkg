@@ -1,8 +1,8 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://gitlab.freedesktop.org/mesa/glu"
+DESCRIPTION="The OpenGL Utility Library"
+LICENSE="SGI-B-2.0"
 SRC_URI=("ftp://ftp.freedesktop.org/pub/mesa/glu/glu-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()

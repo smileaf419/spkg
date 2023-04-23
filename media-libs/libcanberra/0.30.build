@@ -1,8 +1,8 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://0pointer.de/lennart/projects/libcanberra/"
+DESCRIPTION="Portable sound event library"
+LICENSE="LGPLv2.1+"
 SRC_URI=("http://0pointer.de/lennart/projects/libcanberra/libcanberra-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/libcanberra-0.30-wayland-1.patch")

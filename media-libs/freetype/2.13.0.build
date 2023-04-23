@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.freetype.org/"
+DESCRIPTION="High-quality and portable font engine"
+LICENSE="FTL | GPLv2"
 SRC_URI=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz.sig")
 DEPS="app-arch/bzip2 media-libs/libpng sys-libs/zlib"

@@ -1,8 +1,8 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://libexif.github.io/"
+DESCRIPTION="Library for parsing, editing, and saving EXIF data"
+LICENSE="LGPLv2+"
 SRC_URI=("https://github.com/libexif/libexif/releases/download/v${PKG_VER}/libexif-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()

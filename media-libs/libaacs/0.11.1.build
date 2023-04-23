@@ -1,6 +1,6 @@
 HOMEPAGE="https://www.videolan.org/developers/libaacs.html"
 DESCRIPTION="Advanced Access Content System Library"
-LICENSE=""
+LICENSE="LGPLv2.1"
 SRC_URI="https://download.videolan.org/pub/videolan/libaacs/${PKG_VER}/libaacs-${PKG_VER}.tar.bz2"
 DEPS="dev-libs/libgcrypt dev-libs/libgpg-error"
 BDEPS=""

@@ -1,7 +1,7 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION="https://www.openal-soft.org/"
+HOMEPAGE="https://www.openal-soft.org/"
+DESCRIPTION="A software implementation of the OpenAL 3D audio API"
 LICENSE="LGPLv2+ BSD"
 SRC_URI=("https://www.openal-soft.org/openal-releases/openal-soft-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")

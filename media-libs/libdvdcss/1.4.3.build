@@ -1,6 +1,6 @@
 HOMEPAGE="https://www.videolan.org/developers/libdvdcss.html"
 DESCRIPTION="simple library designed for accessing DVDs like a block device without having to bother about the decryption."
-LICENSE=""
+LICENSE="GPLv2"
 SRC_URI="https://download.videolan.org/pub/libdvdcss/${PKG_VER}/libdvdcss-${PKG_VER}.tar.bz2"
 DEPS=""
 BDEPS=""

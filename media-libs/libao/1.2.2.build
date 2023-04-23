@@ -1,8 +1,8 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.xiph.org/ao/"
+DESCRIPTION="Audio Output Library"
+LICENSE="GPLv2"
 #SRC_URI=("https://downloads.xiph.org/releases/ao/libao-${PKG_VER}.tar.gz")
 SRC_URI=("https://github.com/xiph/libao/archive/${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
