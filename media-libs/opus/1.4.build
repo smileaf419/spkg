@@ -1,7 +1,7 @@
 HOMEPAGE="https://opus-codec.org/downloads/"
 DESCRIPTION="Open codec for interactive speech and music transmission over the Internet"
 LICENSE="BSD"
-SRC_URI="https://archive.mozilla.org/pub/opus/opus-${PKG_VER}.tar.gz"
+SRC_URI="https://github.com/xiph/opus/releases/download/v${PKG_VER}/opus-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS=""
