@@ -363,7 +363,9 @@ installPackage() {
 		fi
 
 		cleanup 1
-	) || die "Error Building Package."
+
+		echo " * $PKG_CAT/$PKG_NVR installed successfully!"
+	) || die " ! Error installing $PKG_CAT/$PKG_NVR"
 }
 
 # Arguments: Package (category/name) and version to remove.
