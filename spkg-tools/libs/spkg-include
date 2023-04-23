@@ -163,7 +163,7 @@ installList() {
 			mkdir -p "${LOG%/*}"
 
 			## If the file exists, append a unix timestamp to the end.
-			[ -e $LOG ] && LOG="${LOG%.*}-$(date +%s).log"
+			[ -e $LOG || -e $LOG.xz ] && LOG="${LOG%.*}-$(date +%s).log"
 
 			CFG_PROTECT=true
 
