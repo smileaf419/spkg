@@ -12,15 +12,21 @@
 ##
 ### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
 
-# Just like it sounds, End the program immediately.
+####
+## Output a dialog and exit immediately.
 die() { echo "$*" 1>&2 ; exit 77; }
 export -f die
 
+####
+## Output a dialog and append it to a log file.
+## This logfile will then be outputted again at the very end.
 inform() { echo "$*" | tee -a $INFORMLOG; }
 export -f inform
 
-# Utility method to unpack a variety of archives.
-# Currently supports: tar.*, .zip
+####
+## Utility method to unpack a variety of archives.
+## Optionally extract the archive to a certain directory.
+## Currently supports: tar.*, .zip, .deb and .rar
 unpack() {
 	FILE=$1
 	DIR=${2:-.}
@@ -28,16 +34,21 @@ unpack() {
 		tar -xf "$FILE" -C "$DIR" || die "Failed to extract!"
 	elif [ ${FILE##*.} == "zip" ]; then
 		unzip -o "$FILE" -d "$DIR" || die "Failed to extract!"
-	# TODO: Add rar support
-	# TODO: Add deb support
+	elif [ ${FILE##*.} == "deb" ]; then
+		ar x --output "$DIR" "$FILE"
+	elif [ ${FILE##*.} == "rar" ]; then
+		[ ! -e /usr/bin/unrar ] && die " ! 'app-arch/unrar' not installed! cannot extract archive"
+		unrar x "$FILE" "DIR"
 	# TODO: Add rpm support
+	#       https://stackoverflow.com/questions/18787375/how-do-i-extract-the-contents-of-an-rpm
 	else
 		die "Cannot extract unknown type: $FILE"
 	fi
 }
 export -f unpack
 
-# Applies a patch, optionally with a set of arguments.
+####
+## Applies a patch, optionally with a set of arguments.
 spatch() {
 	patch=$1
 	shift 1
@@ -56,12 +67,13 @@ spatch() {
 }
 export -f spatch
 
-# Applies a set of patches, within the array, a directory or an archive.
-# src_patch automatically calls this method using the PATCHES var.
+####
+## Applies a set of patches, within the array, a directory or an archive (tar only).
+## src_patch automatically calls this method using the PATCHES var.
 spatches() {
-	# TODO: default to using the global PATCHES
-	#       if an argument list is supplied, use that instead.
-	PATCHES=($@)
+	if [ ! -z $@ ]; then
+		PATCHES=($@)
+	fi
 	for p in ${PATCHES[*]}; do
 		p=$DISTFILES/${p##*/}
 		if [[ $p == *.tar.* ]]; then
@@ -80,6 +92,8 @@ spatches() {
 }
 export -f spatches
 
+####
+## Removes flags from CFLAGS, CXXFLAGS and CPPFLAGS
 filter-flags() {
 	flags=$@
 	for flag in $flags; do
@@ -91,31 +105,34 @@ filter-flags() {
 }
 export -f filter-flags
 
+## Append flags to LDFLAGS
 append-ldflags() { export LDFLAGS+=" $@"; }
 export -f append-ldflags
 
-# Append C flags
+## Append C flags
 append-cflags() { export CFLAGS+=" $@"; }
 export -f append-cflags
 
-# Append C++ flags
+## Append C++ flags
 append-cxxflags() { export CXXFLAGS+=" $@"; }
 export -f append-cxxflags
 
-# Append C Pre-processor Flags
+## Append C Pre-processor Flags
 append-cppflags() { export CPPFLAGS+=" $@"; }
 export -f append-cppflags
 
-# Within a version string of x.y.z
-# This will return: x
+####
+## Within a version string of x.y.z
+## This will return: x
 getMajorVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
 	echo $VER | tr '.' '\n'|head -n1
 }
 export -f getMajorVer
 
-# Within a version string of x.y.z
-# This will return: y
+####
+## Within a version string of x.y.z
+## This will return: y
 getMinorVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
 	c=$(echo $VER | tr '.' '\n'|wc -l)
@@ -129,8 +146,9 @@ getMinorVer() {
 }
 export -f getMinorVer
 
-# Within a version string of x.y.z
-# This will return: z
+####
+## Within a version string of x.y.z
+## This will return: z
 getMicroVer() {
 	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
 	n=$(echo $VER|tr '.' '\n'|wc -l)
@@ -142,26 +160,30 @@ getMicroVer() {
 }
 export -f getMicroVer
 
-# Check the USE flag for an option,
-# return 0 if found; 1 if not.
-# returns 2 if found and is disabled
+####
+## Check the USE flag for an option,
+## return 0 if found; 1 if not.
+## returns 2 if found and is disabled
 use-enable() { checkinlist "$USE" $1; }
 export -f use-enable
 
-# Check the PKG_FLAGS for an option,
-# return 0 if found; 1 if not.
-# returns 2 if found and is disabled
+####
+## Check the PKG_FLAGS for an option,
+## return 0 if found; 1 if not.
+## returns 2 if found and is disabled
 pkg-has-flag() { checkinlist "$PKG_FLAGS" $1; }
 export -f pkg-has-flag
 
-# Check the RESTRICT for an option,
-# return 0 if found; 1 if not.
-# returns 2 if found and is disabled
+####
+## Check the RESTRICT for an option,
+## return 0 if found; 1 if not.
+## returns 2 if found and is disabled
 pkg-restricts() { checkinlist "$RESTRICT" $1; }
 export -f pkg-restricts
 
-# 1: Variable to check
-# 2: what to check
+####
+## Checks for a String(2) within a Variable(1)
+## Returns 0 if found, 1 if not, and 2 if found and is disabled.
 checkinlist() {
 	V=$1
 	if [[ ${V[*]} =~ (^|[[:space:]])"$2"($|[[:space:]]) ]]; then
@@ -174,8 +196,9 @@ checkinlist() {
 }
 export -f checkinlist
 
-# 1: Config option; 2: needs at least module [0|1]
-# 3: Output dialog
+####
+## Check if a config option (1) is set to either Y/M(2)
+## Display a dialog describing the config option(3)
 checkKernelConfig() {
 	CONFIG=$1
 	NEEDS_MODULE=$2
@@ -204,6 +227,9 @@ checkKernelConfig() {
 }
 export -f checkKernelConfig
 
+####
+## Frontend to useradd
+## If the user is found, calls usermod instead.
 addUser() {
 	USER=$1
 	shift 1
@@ -218,6 +244,9 @@ addUser() {
 }
 export -f addUser
 
+####
+## Frontend to groupadd
+## If the group is found, calls groupmod instead.
 addGroup() {
 	GROUP=$1
 	shift 1
@@ -232,6 +261,7 @@ addGroup() {
 }
 export -f addGroup
 
+## Frontend to userdel, Displays an error if the user doesn't exist.
 delUser() {
 	USER=$1
 	shift 1
@@ -245,6 +275,7 @@ delUser() {
 }
 export -f delUser
 
+## Frontend to groupdel, Displays an error if the group doesn't exist.
 delGroup() {
 	GROUP=$1
 	shift 1
@@ -258,6 +289,11 @@ delGroup() {
 }
 export -f delGroup
 
+####
+## Provides an easy access to the init.d scripts within the sys-boot/blfs-bootscripts
+## For more information about what scripts are available and how to install them, refer to the
+## sys-boot/blfs-bootscripts package.
+## This function in essence calls: make install-[name here]
 install-init.d() {
 	(
 		d=$PWD
@@ -276,6 +312,9 @@ install-init.d() {
 }
 export -f install-init.d
 
+####
+## Functions to compare a version string, modified to print out the error code.
+## https://github.com/ruanyf/simple-bash-scripts/blob/master/scripts/versioncompare.sh
 function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; echo $?; }
 function version_le() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" == "$1"; echo $?; }
 function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; echo $?; }
