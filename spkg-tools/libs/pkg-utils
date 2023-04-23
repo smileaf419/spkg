@@ -306,7 +306,7 @@ install-init.d() {
 		source "${PKG_BLD}"
 		BUILD_PATH=$d
 		B="${PKG_NAME}-${PKG_VER}"
-		src_prepare
+		prepare_default
 		src_install install-$1
 	)
 }
