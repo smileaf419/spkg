@@ -506,14 +506,14 @@ if [[ $MODE == "search" ]]; then
 				checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 				echo " * ${PKG_CAT}/${PKG_NAME}"
 				echo -n "      Available:"
-				for a in $(DB-getPkg $r); do
+				for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
 					echo -n " $(getVerRev $a)"
 				done; echo
 
 				## Run this in a subshell to avoid tainting the environment.
 				echo -n "      Installed:"
 				(
-					for i in $(Installed-getPkg $r); do
+					for i in $(Installed-getPkg $PKG_CAT/$PKG_NAME); do
 						if [[ $i != '0//' ]]; then
 							echo -n " $(getVerRev $i)"
 							slot=$(getSlot $i)
