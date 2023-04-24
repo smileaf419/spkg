@@ -1,3 +1,4 @@
+#!/bin/bash
 fetch_list() {
 	# Output our message
 	[[ ! -z $1 ]] && echo $1

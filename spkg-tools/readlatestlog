@@ -9,11 +9,11 @@ die() { echo "$*" 1>&2 ; exit 77; }
 
 parse_cmdline() {
 	# Referenced mozilla-launcher script.
-	while [[ $# -ne 0 ]] ; do 
-		if [[ $1 == -* ]] ; then 
+	while [[ $# -ne 0 ]] ; do
+		if [[ $1 == -* ]] ; then
 			case "${1#-}" in
 				l|-list)
-					LIST=1 
+					LIST=1
 					shift 1 ;;
 				h|-help)
 					echo "readlatestlog $VERSION by smileaf"

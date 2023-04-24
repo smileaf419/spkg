@@ -1,3 +1,4 @@
+#!/bin/bash
 ####
 ## Build file default methods
 ## The purpose of this file is to describe how packages are built.

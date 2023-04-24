@@ -1,3 +1,4 @@
+#!/bin/bash
 ####
 ## Set a Kernel config file
 ## As we set this here, its possible to override it later.

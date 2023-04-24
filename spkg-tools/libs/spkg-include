@@ -1,3 +1,4 @@
+#!/bin/bash
 ## Create an archive package of our build, could be useful if we decide to distribute binary copies
 ## Enabled with BUILD_PACKAGE = yes
 archivePackage() {
@@ -44,9 +45,9 @@ setupENV() {
 	else
 		PKG=$(DB-getPkg $1 | getLatest)
 	fi
-	if [[ $PKG == "" ]]; then
+	if [[ $PKG == "" || $PKG == 0 ]]; then
 		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
-		if [[ $PKG == "" ]]; then
+		if [[ $PKG == "" || $PKG == 0 ]]; then
 			return
 		fi
 	fi

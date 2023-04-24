@@ -1,3 +1,4 @@
+#!/bin/bash
 # 1: File
 # Returns: list of files depending on a file.
 checkFileDep() {
@@ -34,8 +35,9 @@ getFullPkgList() {
 
 	local tlist=$@
 	local flist=
+	SP=
 	for d in $tlist; do
-		getdep $d
+		getdep $d || return $?
 		flist+=" $LENTRY"
 	done
 	echo
@@ -112,10 +114,14 @@ getdep() {
 	(
 		setupENV $1
 
-		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
-		unset BDEPS RDEPS UDEPS CDEPS DEPS
-		source "$PKG_BLD"
-		PDEPS=
+		if [ -e "$PKG_BLD" ]; then
+			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
+			unset BDEPS RDEPS UDEPS CDEPS DEPS
+			source "$PKG_BLD"
+			PDEPS=
+		else
+			return 1
+		fi
 
 		# Add our required now Dependencies
 		doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"
@@ -131,7 +137,7 @@ getdep() {
 				# If its already installed, we don't need to install it twice.
 				[[ $(Installed-getPkgList $p) != 0 ]] && continue
 
-				getdep $p $PKG_CAT/$PKG_NAME
+				getdep $p $PKG_CAT/$PKG_NAME || return $?
 
 				# Create a Post Dependency list.
 				PDEPS+=" $p"
@@ -160,7 +166,7 @@ doDeps() {
 
 		# Identify Circular Dependencies here so we can break out
 
-		if [[ $(getdep $d $PKG_CAT/$PKG_NAME) == 2 ]]; then
+		if [[ $(getdep $d $PKG_CAT/$PKG_NAME) != 0 ]]; then
 			break
 		fi
 	done
