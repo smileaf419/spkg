@@ -1,7 +1,7 @@
 #!/bin/sh
 source /etc/spkg.conf
 
-for d in $(find $PKG_ARCHIVE_DIR -mindepth 1 -type d); do 
+for d in $(find $PKG_ARCHIVE_DIR -mindepth 1 -type d); do
 	[[ $d == *spkg-tools* || $d == *spkg-sets* ]] && continue
 	for e in $(ls $d -1 | sed s,-[0-9.pre-]*.tar.gz,, | sort | uniq) ; do
 		NUM=$(ls -1 $d/$e-* | wc -l);

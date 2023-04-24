@@ -122,7 +122,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	if [[ ${FILE##*-} == $PKG ]]; then
 		continue
 	fi
-	if [[ $(version_gt ${FILE##*-} $PKG) == 0 ]]; then 
+	if [[ $(version_gt ${FILE##*-} $PKG) == 0 ]]; then
 #		echo $FILE [ $PK-$PKG ] $FILE_O >> $UPDATE_LIST
 		echo " * Updating $PK : $PKG -> ${FILE##*-}" >> $UPDATE_LIST
 #		IPKG=$(DB-getPkg $PKG | getLatest)

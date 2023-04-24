@@ -128,7 +128,7 @@ buildPackage() {
 
 	# Download all files.
 	# If it fails, create it and try again.
-	# Package may have overrode it.	
+	# Package may have overrode it.
 	cd "${BUILD_PATH}" > /dev/null 2>&1
 	if [[ $? != 0 ]]; then
 		install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}" || die "Failed to create Build Dir."
@@ -174,7 +174,7 @@ buildPackage() {
 		fi
 		echo " * src_install"
 		src_install		|| die "Error in src_install"
-		case $MODULE in 
+		case $MODULE in
 			kernel)
 				echo > ${BUILD_PATH}/KERNEL_MODULE ;;
 			perl)
@@ -198,9 +198,9 @@ installPackage() {
 		set -o pipefail
 		BUILD_SEPERATE_DIR=no
 		source "${PKG_BLD}"
-		
+
 		install -o $BUILD_USER -d "${D}"
-	
+
 		if [ $ARCHIVE_INSTALL == 1 ]; then
 			cd "${D}"
 			if [ -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]; then
@@ -219,13 +219,13 @@ installPackage() {
 			rm -r "${BUILD_PATH}"
 			return
 		fi
-	
+
 		# Archive it up before we do any post modifications.
 		archivePackage
 
 		echo " * Removing Libtool Archives (.la)"
 		find "${D}"/usr/lib{,exec,64,32} -name \*.la -delete -print 2> /dev/null # 2>&1
-	
+
 		if [[ $INSTALL_DOCS == 0 ]]; then
 			echo " * Removing Docs"
 			rm -r "${D}"/usr/share/doc > /dev/null 2>&1
@@ -243,9 +243,9 @@ installPackage() {
 				rm -r "${D}/usr/share/locale/$l"
 			done
 		fi
-		
+
 		stripPackage
-	
+
 		# Gather Contents
 		# This is sort of an awkward hack...
 		# If we're bootstrapping we install binutils twice and gcc 3 times!
@@ -256,7 +256,7 @@ installPackage() {
 		else
 			find . | sed "s,^\.,," | sort > "${BUILD_PATH}/CONTENTS"
 		fi
-	
+
 		echo " * Merging into ${ROOT}"
 		# Install New Files
 		local IFS=$'\n'   # Internal Field Sperator
@@ -266,8 +266,8 @@ installPackage() {
 			# to avoid installing a directory when a link
 			# was expected.
 			if [ -L "${D}/${file}" ]; then
-				ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null && 
-					echo " >> $file -> $(readlink ${file})" || 
+				ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null &&
+					echo " >> $file -> $(readlink ${file})" ||
 					echo "!>s $file -> $(readlink $file)"
 			# Skip installing already installed dirs.
 			# it overrides the user's permission customizations.
@@ -344,7 +344,7 @@ installPackage() {
 			echo -n " * Running depmod (${KERNEL_VER}) .. "
 			depmod -a $KERNEL_VER && echo "Ok" || echo "Failed"
 		fi
-	
+
 		# Check if its a system package
 		# Currently we don't use slots within the system set.
 		# So the most recent slot should always be used.
@@ -386,7 +386,7 @@ uninstall() {
 	if [[ "$O_VER" != "" ]]; then
 		# Grep to add the filename before the files as a cheap trick
 		# Sort it by 2nd field, add a space to induce a 2nd field for uniq
-		# grep again for the installed version and remove the file path 
+		# grep again for the installed version and remove the file path
 		# leaving only the installed files that do not exist in the to-be installed version.
 		grep / "${PKG_CACHE}/${PKG}/${O_VER}/CONTENTS" "${BUILD_PATH}/CONTENTS" |sort -t: -k2 | sed 's,:,: ,' | uniq -f1 -u | grep $PKG_CACHE | sed 's,.*: ,,' > /tmp/flist-$PKG_NAME
 		FLIST=$(tac /tmp/flist-$PKG_NAME)
@@ -405,7 +405,7 @@ uninstall() {
 			fi
 		else
 			# Check to see if its a versioned .so file
-			# Links can be made around this and the real file might be 
+			# Links can be made around this and the real file might be
 			# removed leaving dead links.
 			fd=
 			[[ $file == *\.so* ]] && fd=$(checkFileDep $file)
@@ -418,7 +418,7 @@ uninstall() {
 				fi
 			else
 				# This could be a link, we should check if it is, and protect
-				# the main file. otherwise it'll cause errors until the 
+				# the main file. otherwise it'll cause errors until the
 				# dependency is rebuilt.
 				echo " @! $file"
 				echo $file >> /tmp/preserved

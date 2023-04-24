@@ -18,7 +18,6 @@
 ### Misc Methods used by both Installed and DB versions.
 
 ## Filters PKG_BLDs by ARCH
-# FIXME: This needs to be able to handle the ability to return x86 results if ARCH is set to ~x86 and no ~x86 results are available.
 filterArch() {
 	local arch=${1:-$ARCH}
 	local f=
@@ -115,7 +114,7 @@ DB-getPkgList() {
 	[[ $name == '/' ]] && name=
 	local ver=${p[2]}
 
-	find "$PKG_DB_DIR" -iwholename "*/${cat}${name}${ver}*.build" 
+	find "$PKG_DB_DIR" -iwholename "*/${cat}${name}${ver}*.build"
 }
 export -f DB-getPkgList
 

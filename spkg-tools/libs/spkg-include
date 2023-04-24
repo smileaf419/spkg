@@ -115,14 +115,14 @@ installList() {
 		## PKG entry
 		p=${list[$l]}
 		setupENV $p
-	
+
 		## Uninstall
 		if [[ $MODE == "uninstall" ]]; then
 			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
 			(
 				source "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VER}/${PKG_VER}.build"
 				d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
-	
+
 				## FIXME: If uninstalling will break packages Check Forced.
 				## Option 1: Uninstall just the requested, breaking other installed packages.
 				## Option 2: Uninstall all packages that would break, and any that would break if they were removed.

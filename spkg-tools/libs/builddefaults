@@ -206,7 +206,7 @@ export -f compile_default
 test_default() {
 	# Some use check, others use test
 	TEST=${TEST:-check}
-	
+
 	if [[ $buildTool == "make" ]]; then
 		make $MAKEOPTS $@ $TEST || die "Test Failed!"
 	elif [[ $buildTool == "ninja" ]]; then

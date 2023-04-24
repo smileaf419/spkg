@@ -44,7 +44,7 @@ buildKernel() {
 	## Get our kernel version from the symlink.
 	KERNEL_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
 	echo " * Building Kernel - $KERNEL_VER"
-	
+
 	cd /usr/src/linux
 
 	####
@@ -70,7 +70,7 @@ buildKernel() {
 	make install modules_install
 	mv /boot/System.map{,-${KERNEL_VER}}
 	mv /boot/vmlinuz{,-${KERNEL_VER}}
-	
+
 	echo " * Generating grub config"
 	grub-mkconfig -o /boot/grub/grub.cfg
 	if [[ ! -z $BOOT_MOUNTED ]]; then
@@ -94,7 +94,7 @@ rebuildModules() {
 	for m in $(find ${PKG_CACHE} -iname $type | sed -e "s,/$type,," -e "s,${PKG_CACHE}/,,")
 	do
 		echo -n "$(getCategory $m)/$(getName $m) "
-	done	
+	done
 }
 
 ####
@@ -184,7 +184,7 @@ buildBDeps() {
 				continue
 			fi
 		fi
-		
+
 		## Theoretically speaking sorting is wasted if this is exclusively used
 		## to add DEPS, but this isn't always the case.
 		## sort things to avoid false-positives
@@ -204,7 +204,7 @@ buildBDeps() {
 					RD+=" $l"
 				fi
 			done
-		
+
 			echo " * Updating $PKG:"
 			[[ ! -z $AD ]] && echo "  - Added:$AD"
 			[[ ! -z $RD ]] && echo "  - Removed:$RD"
@@ -212,7 +212,7 @@ buildBDeps() {
 				sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
 			fi
 		fi
-	
+
 	)
 	HASH_UPDATE=true
 }
