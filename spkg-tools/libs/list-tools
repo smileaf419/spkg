@@ -123,9 +123,7 @@ getdep() {
 		fi
 
 		# Add our required now Dependencies
-		if [ ! $(pkg-has-flag "nodep") ]; then
-			doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"
-		fi
+		doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"
 
 		# Check CDEPS
 		if [[ ! -z $CDEPS ]]; then
@@ -160,6 +158,7 @@ getdep() {
 
 doDeps() {
 	local DEPS=($1)
+	[ -z $DEPS ] && return
 	for d in ${DEPS[@]}; do
 		pkg-has-flag "nodep" && break
 		# If its already in the list, ignore it and continue.
@@ -167,8 +166,6 @@ doDeps() {
 
 		# Identify Circular Dependencies here so we can break out
 
-		if [[ $(getdep $d $PKG_CAT/$PKG_NAME) != 0 ]]; then
-			break
-		fi
+		getdep $d $PKG_CAT/$PKG_NAME || break
 	done
 }
