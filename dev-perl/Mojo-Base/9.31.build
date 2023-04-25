@@ -1,0 +1,20 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="https://metacpan.org/pod/Mojo::Base"
+DESCRIPTION="Minimal base class for Mojo projects"
+LICENSE="Artistic-2.0"
+SRC_URI=("https://cpan.org/authors/id/S/SR/SRI/Mojolicious-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+ARCHS="x86 x86_64"
+SLOT=0
+MODULE=perl
+B=Mojolicious-$PKG_VER
+
+src_configure() {
+	perl Makefile.PL
+}
