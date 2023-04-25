@@ -34,7 +34,7 @@ src_install() {
 
 bootstrap() {
 	case $PKG_FLAGS in
-		pass1) ./configure --host=$HOST_TGT --build=$(config.guess) --prefix=/tools ;;
+		pass1) ./configure --host=$HOST_TGT --build=$(./config.guess) --prefix=/tools ;;
 		pass2) configure_default ;;
 	esac
 	compile_default
