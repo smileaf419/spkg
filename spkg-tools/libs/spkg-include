@@ -194,7 +194,7 @@ installList() {
 			fi
 
 			## Compress our log.
-			xz "$LOG"
+			[[ ! -e "${LOG}.xz" ]] && xz "$LOG" || echo " ! Log ${LOG}.xz exists"
 		fi
 		echo -n " * Running ldconfig .."
 		ldconfig && echo "done!" || echo "failed!"
