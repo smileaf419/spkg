@@ -425,7 +425,7 @@ fi
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
 
-	list=$(find $PKG_CACHE -mindepth 2 -maxdepth 2 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
+	list=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
 	tlist=
 	for p in $list; do
 		rl=$(grep $p $PKG_WORLD || true)
