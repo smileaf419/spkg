@@ -30,7 +30,7 @@ src_test() {
 
 src_install() {
 	install_default
-	
+
 	chown -v -R root:root \
 	    "${D}"/usr/lib/gcc/$(gcc -dumpmachine)/${PKG_VER}/include{,-fixed}
 	ln -svr "${D}"/usr/bin/cpp "${D}"/usr/lib
@@ -137,7 +137,7 @@ bootstrap() {
 post_install() {
 	if [[ $PKG_FLAGS == "pass1" ]]; then
 		echo " * Generating limits.h"
-		cd $BUILD_PATH/$B && 
+		cd $BUILD_PATH/$B &&
 		cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
 				`dirname $($HOST_TGT-gcc -print-libgcc-file-name)`/install-tools/include/limits.h || die "Error generating limits.h"
 	fi
