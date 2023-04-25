@@ -113,8 +113,9 @@ DB-getPkgList() {
 	local name=${p[1]}/
 	[[ $name == '/' ]] && name=
 	local ver=${p[2]}
+	[[ $ver == '' ]] && ver="*"
 
-	find "$PKG_DB_DIR" -iwholename "*/${cat}${name}${ver}*.build"
+	find "$PKG_DB_DIR" -iwholename "*/${cat}${name}${ver}.build"
 }
 export -f DB-getPkgList
 

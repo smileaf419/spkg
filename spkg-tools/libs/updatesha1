@@ -46,7 +46,7 @@ updatesha1() {
 	## if any file fails, rehash the entire directory.
 	local updated=0
 	for l in $list; do
-		PKG=$(DB-getPkgList $l | fileToList)
+		PKG=$(DB-getPkgList $l | fileToList | listToLEntry)
 		for p in $PKG; do
 			## Unset these as some packages don't set them and will cause issues checking hashes.
 			unset SRC_URI PATCHES

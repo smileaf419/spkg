@@ -552,7 +552,7 @@ elif [[ $MODE == "preserved" ]]; then
 else
 	## Get Dependencies and check if any require updates.
 	echo " * Calculating Package Order..."
-	getFullPkgList $list || echo " ! Error Calculating Dependencies: you may need to run: spkg -U"
+	getFullPkgList $list || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
 		cat /tmp/chart
