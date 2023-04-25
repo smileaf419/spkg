@@ -63,7 +63,7 @@ ln -sf /run $ROOT/var/run
 ln -sf /run/lock $ROOT/var/lock
 [[ ! -e /root ]] && install -d -m 0750 $ROOT/root || chmod 0750 $ROOT/root
 [[ ! -e $ROOT/tmp ]] && install -d -m 1777 $ROOT/tmp || chmod 1777 $ROOT/tmp
-ln -s /proc/self/mounts $ROOT/etc/mtab
+ln -sf /proc/self/mounts $ROOT/etc/mtab
 touch $ROOT/var/log/{btmp,lastlog,faillog,wtmp}
 chgrp 13 $ROOT/var/log/lastlog
 chmod 664  $ROOT/var/log/lastlog
