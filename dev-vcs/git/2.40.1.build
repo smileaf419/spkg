@@ -1,0 +1,25 @@
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://www.kernel.org/pub/software/scm/git/git-${PKG_VER}.tar.xz"
+DEPS="dev-libs/libpcre2 sys-libs/zlib"
+BDEPS="net-misc/curl"
+RDEPS="dev-lang/perl dev-lang/python"
+ARCHS="~x86 ~x86_64"
+SLOT=0
+TEST=test
+
+src_configure() {
+	./configure --prefix=/usr                   \
+				--with-gitconfig=/etc/gitconfig \
+				--with-python=python3           \
+				--with-openssl                  \
+				--with-libpcre2                 \
+				--with-expat                    \
+				--with-curl
+}
+
+src_install() {
+	PERL_VER=$(Installed-getPkg dev-lang/perl | getVersion)
+	install_default perllibdir=/usr/lib/perl5/${PERL_VER%.*}/site_perl
+}
