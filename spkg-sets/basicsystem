@@ -74,3 +74,4 @@ sys-fs/e2fsprogs
 app-admin/sysklogd
 sys-apps/sysvinit
 sys-boot/lfs-bootscripts
+sys-libs/timezone-data
