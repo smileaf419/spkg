@@ -365,6 +365,10 @@ installPackage() {
 
 		cleanup 1
 
+		## Trim the top package off and save our list of todos.
+		tail -n $(( $(wc -l /tmp/chart | sed 's, .*$,,') - 1 )) /tmp/chart >> /tmp/chart2
+		mv /tmp/chart{2,}
+
 		echo " * $PKG_CAT/$PKG_NVR installed successfully!"
 	) || die " ! Error installing $PKG_CAT/$PKG_NVR"
 }

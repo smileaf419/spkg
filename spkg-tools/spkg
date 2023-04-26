@@ -220,6 +220,8 @@ parse_cmdline() {
 						MODE="rebuildPerlModules" ;;
 					-buildKernel)
 						MODE="buildKernel" ;;
+					-resume)
+						MODE="resume" ;;
 					-user)
 						a=$(( $a + 1 ))
 						BUILD_USER=$val ;;
@@ -254,6 +256,7 @@ parse_cmdline() {
 						echo    "  --deepClean, -D      Compares the charts of the world file and packages installed."
 						echo    "  --sync               Syncs the package database via: git pull"
 						echo    "  --preserved          Checks for and initiates a rebuild of all packages requiring a rebuild."
+						echo    "  --resume             Continues where we left off."
 						echo    " Developer Options"
 						echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
 						echo    "  --updatesha1 [pkg]   Creates or updates sha1sum for the given package."
@@ -447,6 +450,15 @@ if [[ $MODE == "update" ]]; then
 	done
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
+## Continues off the previous list
+elif [[ $MODE == "resume" ]]; then
+	if [ ! -e /tmp/chart ]; then
+		echo " ! Error Cannot resume no list was found."
+	fi
+	echo " * Resuming..."
+	list=$(cat /tmp/chart)
+	REQUESTED_LIST=$list
+
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 elif [[ $MODE == "buildKernel" ]]; then
 	buildKernel
@@ -550,14 +562,17 @@ if [[ $MODE == "search" ]]; then
 elif [[ $MODE == "preserved" ]]; then
 	preservedRebuild
 else
-	## Get Dependencies and check if any require updates.
-	echo " * Calculating Package Order..."
-	getFullPkgList $list || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
+	if [[ $MODE != "resume" ]]; then
+		## Get Dependencies and check if any require updates.
+		echo " * Calculating Package Order..."
+		getFullPkgList $list || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
+	fi
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
 		cat /tmp/chart
 		echo "Package Order:"
 	fi
+
 	list=
 	[[ $MODE == "uninstall" ]] && tac /tmp/chart > /tmp/chart2 && mv /tmp/chart{2,}
 	for p in $(cat /tmp/chart); do
@@ -566,7 +581,7 @@ else
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
 			## check forced or empty world.
-			if [[ $(version_gt $PKG_VR $O_VER) == 0 ||
+			if [[ $MODE == "resume" ||  $(version_gt $PKG_VR $O_VER) == 0 ||
 				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ||
 				! -z $EMPTY_WORLD ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
