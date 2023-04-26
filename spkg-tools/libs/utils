@@ -30,6 +30,8 @@ setKernelConfig() {
 ## vmlinuz and System.map will be renamed to match the kernel version.
 ## a grub config will also be automatically be generated.
 buildKernel() {
+	local SPKG_ARCH=$ARCH
+	unset ARCH
 	## Detect our config file
 	[ ! -e /usr/src/linux ] && die "you should set your /usr/src/linux symlink to a valid kernel source."
 	if [[ ! -e $KERNEL_CONFIG_FILE && ! -e /proc/config.gz ]]; then
@@ -77,6 +79,7 @@ buildKernel() {
 		echo " * Unmounting /boot"
 		umount /boot
 	fi
+	export ARCH=$SPKG_ARCH
 }
 
 ####
