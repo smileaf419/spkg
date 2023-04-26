@@ -1,4 +1,11 @@
 #!/bin/bash
+####
+## List Tools
+## Defines a set of functions to build a list of packages.
+
+## Set the Stack file
+export STACK=$WORKDIR_BASE/stack
+
 # 1: File
 # Returns: list of files depending on a file.
 checkFileDep() {
@@ -26,12 +33,12 @@ isDependedOn() {
 	[[ $LARGE_PKG == 1 ]] && >&2 echo " done"
 }
 
-# Populates a /tmp/chart files
+# Populates a $CHART files
 getFullPkgList() {
 	# remove them if they exist to ensure an empty chart/stack
-	[[ -e /tmp/chart ]] && rm /tmp/chart
-	[[ -e /tmp/stack ]] && rm /tmp/stack
-	touch /tmp/chart /tmp/stack
+	[[ -e $CHART ]] && rm $CHART
+	[[ -e $STACK ]] && rm $STACK
+	touch $CHART $STACK
 
 	local tlist=$@
 	local flist=
@@ -97,7 +104,7 @@ getdep() {
 	p=$1
 
 	# Check if its on the stack, if not, add it. if so we'll get to it later.
-	grep "$1" /tmp/stack > /dev/null 2>&1 && return || echo $1 >> /tmp/stack
+	grep "$1" $STACK > /dev/null 2>&1 && return || echo $1 >> $STACK
 
 	# If we somehow call ourselves..
 	[[ $1 == $2 ]] && return 2
@@ -131,7 +138,7 @@ getdep() {
 				pkg-has-flag "nodep" && break
 
 				# If its already in the list, ignore it and continue.
-				grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
+				grep -E "^${d/+/\\+}\$" $CHART > /dev/null && continue
 
 				# If its already installed, we don't need to install it twice.
 				[[ $(Installed-getPkgList $p) != 0 ]] && continue
@@ -144,12 +151,12 @@ getdep() {
 		fi
 
 		# Add our package
-		if ! grep -E "^=${PKG_CAT}.${PKG_NAME}.${PKG_VR}" /tmp/chart > /dev/null; then
-			echo $LENTRY >> /tmp/chart
-			sed "/^PKG_CAT.$PKG_NAME/d" -i /tmp/stack
+		if ! grep -E "^=${PKG_CAT}.${PKG_NAME}.${PKG_VR}" $CHART > /dev/null; then
+			echo $LENTRY >> $CHART
+			sed "/^PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
 		# Add our Post Dependency list here.
-		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> /tmp/chart
+		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> $CHART
 
 		doDeps "${RDEPS[*]}"
 		SP=${SP# }
@@ -162,7 +169,7 @@ doDeps() {
 	for d in ${DEPS[@]}; do
 		pkg-has-flag "nodep" && break
 		# If its already in the list, ignore it and continue.
-		grep -E "^${d/+/\\+}\$" /tmp/chart > /dev/null && continue
+		grep -E "^${d/+/\\+}\$" $CHART > /dev/null && continue
 
 		# Identify Circular Dependencies here so we can break out
 

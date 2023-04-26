@@ -267,10 +267,10 @@ checkSha1() {
 
 preservedRebuild() {
 	## Files were preserved, process them here to ensure we don't break our system.
-	if [ -e /tmp/preserved ]; then
+	if [ -e $PRESERVED_LOG ]; then
 		echo " * Gathering list of packages to rebuild"
 		REQUESTED_LIST=
-		for f in $(cat /tmp/preserved); do
+		for f in $(cat $PRESERVED_LOG); do
 			echo -n "$f:"
 			pkgs=$(checkFileDep $f | sort|uniq|tr '\n' ' ')
 			echo " $pkgs"
@@ -284,7 +284,7 @@ preservedRebuild() {
 		done
 		list=
 		getFullPkgList $REQUESTED_LIST
-		for p in $(cat /tmp/chart); do
+		for p in $(cat $CHART); do
 			setupENV $p
 
 			if [[ $(version_gt $PKG_VR $O_VER) == 0 ||
@@ -299,9 +299,9 @@ preservedRebuild() {
 		[ $PRETEND == 1 ] && exit 0
 
 		installList $list
-		for f in $(cat /tmp/preserved); do
+		for f in $(cat $PRESERVED_LOG); do
 			rm "$f" 2> /dev/null && echo " << $f" || echo " <! $f"
 		done
-		rm /tmp/preserved
+		rm $PRESERVED_LOG
 	fi
 }

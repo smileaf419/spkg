@@ -93,44 +93,44 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
 ####
 ## Set some defaults if they don't exist.
-MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
-CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
-CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
-ARCH=${ARCH:-x86_64}
-USE=${USE:-}
-PAGE=${PAGE:-letter}
-ENABLE_TEST=${ENABLE_TESTS:-0}
-INSTALL_DOCS=${INSTALL_DOCS:-0}
-BUILD_PACKAGE=${BUILD_PACKAGE:-no}
-SILENT_BUILD=${SILENT_BUILD:-no}
-BUILD_USER=${BUILD_USER:-$(whoami)}
-TEST_USER=${TEST_USER:-$(whoami)}
+export MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
+export CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
+export CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
+export ARCH=${ARCH:-x86_64}
+export USE=${USE:-}
+export PAGE=${PAGE:-letter}
+export ENABLE_TEST=${ENABLE_TESTS:-0}
+export INSTALL_DOCS=${INSTALL_DOCS:-0}
+export BUILD_PACKAGE=${BUILD_PACKAGE:-no}
+export SILENT_BUILD=${SILENT_BUILD:-no}
+export BUILD_USER=${BUILD_USER:-$(whoami)}
+export TEST_USER=${TEST_USER:-$(whoami)}
 ## Paths
-ROOT=${ROOT:-/}
-PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
-INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
-LOGDIR=${LOGDIR:-/var/log/spkg}
-LOGFILE=${LOGFILE:-pkg-$(date +%Y%m%d).log}
-INFORMLOG=/tmp/inform.log
-WORKDIR_BASE=${WORKDIR_BASE:-/var/tmp/spkg}
-CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
-PKG_CACHE=${PKG_CACHE:-${CACHE_DIR}/data}
-DISTFILES=${DISTFILES:-${CACHE_DIR}/files}
-PKG_WORLD=${PKG_WORLD:-${CACHE_DIR}/world}
-PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-${CACHE_DIR}/archive}
-
-export PKG_DB_DIR PKG_CACHE DISTFILES WORKDIR_BASE ROOT MAKEOPTS
-export CFLAGS CXXFLAGS PAGE USE ARCHS
-export ENABLE_TESTS INSTALL_DOCS BUILD_USER SILENT_BUILD
+export ROOT=${ROOT:-/}
+export PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
+export INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
+export LOGDIR=${LOGDIR:-/var/log/spkg}
+export WORKDIR_BASE=${WORKDIR_BASE:-/var/tmp/spkg}
+export CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
+export PKG_CACHE=${PKG_CACHE:-$CACHE_DIR/data}
+export DISTFILES=${DISTFILES:-$CACHE_DIR/files}
+export PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-$CACHE_DIR/archive}
+## Files
+export LOGFILE=${LOGFILE:-%D-%n-%v.log}
+export PKG_WORLD=${PKG_WORLD:-$CACHE_DIR/world}
+export INFORMLOG=${INFORMLOG:-$WORKDIR_BASE/inform.log}
+export CHART=${CHART:-$WORKDIR_BASE/chart}
+export INSTALL_CHART=${INSTALL_CHART:-$WORKDIR_BASE/install_chart}
+export PRESERVED_LOG=${PRESERVED_LOG:-$WORKDIR_BASE/preserved}
 
 ####
 ## Set initial program defaults
 ## 0 = false; 1 = true
-MODE="install"
-FORCE=0
-PRETEND=0
-ARCHIVE_INSTALL=0
-VERBOSE=0
+export MODE="install"
+export FORCE=0
+export PRETEND=0
+export ARCHIVE_INSTALL=0
+export VERBOSE=0
 
 ## For security reasons this shouldn't ever be used... But exists
 IGNORE_SHA1=0
@@ -452,11 +452,14 @@ if [[ $MODE == "update" ]]; then
 
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
-	if [ ! -e /tmp/chart ]; then
-		echo " ! Error Cannot resume no list was found."
+	if [ ! -e $INSTALL_CHART ]; then
+		die " ! Error Cannot resume no list was found."
 	fi
 	echo " * Resuming..."
-	list=$(cat /tmp/chart)
+	list=$(cat $INSTALL_CHART)
+	## FIXME: This actually is a guess at what the REQUESTED_LIST actually was.
+	##        If for example: a package was request, and 2 dependencies brought in, then got cancelled and resumed.
+	##        all 3 packages would be set as requested and thus registered within WORLD.
 	REQUESTED_LIST=$list
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
@@ -483,14 +486,16 @@ elif [[ $MODE == "clean" ]]; then
 	list=$(expandSets "@system @world")
 	echo " * Calculating Package List"
 	getFullPkgList $list || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
-	mv /tmp/chart /tmp/sysworldset
+	mv $CHART $WORKDIR_BASE/sysworldset
 	echo " * Getting a list of installed packages."
-	find $PKG_CACHE -name \*.build | fileToList | listToLEntry > /tmp/installedPkgs
-	getFullPkgList $(cat /tmp/installedPkgs) || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
+	find $PKG_CACHE -name \*.build | fileToList | listToLEntry > $WORKDIR_BASE/installedPkgs
+	getFullPkgList $(cat $WORKDIR_BASE/installedPkgs) || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	echo " * Gathering a list of targets to remove"
-	list=$(cat /tmp/chart /tmp/sysworldset | sort | uniq -u)
+	list=$(cat $CHART $WORKDIR_BASE/sysworldset | sort | uniq -u)
 	REQUESTED_LIST=$list
 	MODE="uninstall"
+	## Clean-up
+	rm $WORKDIR_BASE/sysworldset $WORKDIR_BASE/installedPkgs
 
 	# { output=$(command 2>&1 1>&3-) ;} 3>&1
 
@@ -569,13 +574,13 @@ else
 	fi
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
-		cat /tmp/chart
+		cat $CHART
 		echo "Package Order:"
 	fi
 
 	list=
-	[[ $MODE == "uninstall" ]] && tac /tmp/chart > /tmp/chart2 && mv /tmp/chart{2,}
-	for p in $(cat /tmp/chart); do
+	[[ $MODE == "uninstall" ]] && tac $CHART > ${CHART}-2 && mv ${CHART}-2 $CHART
+	for p in $(cat $CHART); do
 		setupENV $p
 
 		if [[ $MODE != "uninstall" ]]; then
@@ -590,6 +595,7 @@ else
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 				list+=" $LENTRY"
+				echo $LENTRY >> $INSTALL_CHART
 			elif [[ $VERBOSE -gt 1 ]]; then
 				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 			fi
@@ -605,11 +611,11 @@ else
 		fi
 	done
 
-	[ $PRETEND == 1 ] && exit 0
 	[[ -z $list ]] && die "Nothing to upgrade."
+	[ $PRETEND == 1 ] && exit 0
 
 	## Install our list
-	installList $list
+	installList $list && rm $INSTALL_CHART $CHART
 
 	## Check for any preserved files
 	preservedRebuild

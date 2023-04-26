@@ -366,8 +366,8 @@ installPackage() {
 		cleanup 1
 
 		## Trim the top package off and save our list of todos.
-		tail -n $(( $(wc -l /tmp/chart | sed 's, .*$,,') - 1 )) /tmp/chart >> /tmp/chart2
-		mv /tmp/chart{2,}
+		tail -n $(( $(wc -l $INSTALL_CHART | sed 's, .*$,,') - 1 )) $INSTALL_CHART >> ${INSTALL_CHART}-2
+		mv ${INSTALL_CHART}-2 $INSTALL_CHART
 
 		echo " * $PKG_CAT/$PKG_NVR installed successfully!"
 	) || die " ! Error installing $PKG_CAT/$PKG_NVR"
@@ -425,7 +425,7 @@ uninstall() {
 				# the main file. otherwise it'll cause errors until the
 				# dependency is rebuilt.
 				echo " @! $file"
-				echo $file >> /tmp/preserved
+				echo $file >> $PRESERVED_LOG
 			fi
 		fi
     done
