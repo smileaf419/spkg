@@ -418,8 +418,9 @@ if [[ $MODE == "sync" ]]; then
 		echo "    Please install it via: spkg git; Or download a copy from: https://github.com/smileaf419/spkg"
 		exit 1
 	fi
+	echo " * Syncing database... "
 	cd $PKG_DB_DIR
-	git pull || die " !! Sync Failed!"
+	git pull && echo " * Sync Complete!" || die " !! Sync Failed!"
 fi
 
 ####

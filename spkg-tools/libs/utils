@@ -31,7 +31,8 @@ setKernelConfig() {
 ## a grub config will also be automatically be generated.
 buildKernel() {
 	local SPKG_ARCH=$ARCH
-	unset ARCH
+	local SPKG_INSTALL_PATH=$INSTALL_PATH
+	unset ARCH INSTALL_PATH
 	## Detect our config file
 	[ ! -e /usr/src/linux ] && die "you should set your /usr/src/linux symlink to a valid kernel source."
 	if [[ ! -e $KERNEL_CONFIG_FILE && ! -e /proc/config.gz ]]; then
@@ -80,6 +81,7 @@ buildKernel() {
 		umount /boot
 	fi
 	export ARCH=$SPKG_ARCH
+	export INSTALL_PATH=$SPKG_INSTALL_PATH
 }
 
 ####
