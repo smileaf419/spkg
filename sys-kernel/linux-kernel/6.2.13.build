@@ -3,7 +3,7 @@ DESCRIPTION="The Linux Kernel"
 LICENSE="GPLv2"
 PATCHES=()
 DEPS=""
-BDEPS=""
+BDEPS="sys-devel/gcc<13.1.0"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=6.2
@@ -37,6 +37,7 @@ fi
 
 src_unpack() {
 	mkdir -p "$D/usr/src"
+	echo " * Unpacking ${SRC_FILE##*/}"
 	unpack "${DISTFILES}/${SRC_FILE##*/}" "$D/usr/src"
 }
 
