@@ -6,7 +6,7 @@ PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/glib-${PKG_VER}-skip
 "https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/glib/files/glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch")
 DEPS="dev-libs/elfutils dev-libs/libffi dev-libs/libpcre2 sys-libs/zlib"
 BDEPS="dev-libs/libxslt"
-RDEPS="app-text/docbook-xml app-text/docbook-xsl-nons"
+RDEPS="app-text/docbook-xml:4.5 app-text/docbook-xsl-nons"
 ARCHS="x86 x86_64"
 SLOT=0
 

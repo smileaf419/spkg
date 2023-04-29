@@ -5,7 +5,7 @@ SRC_URI=("https://github.com/docbook/xslt10-stylesheets/releases/download/releas
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/docbook-xsl-nons-${PKG_VER}-stack_fix-1.patch")
 DEPS=""
 BDEPS=""
-RDEPS="dev-libs/libxml2 app-text/docbook-xml"
+RDEPS="dev-libs/libxml2 app-text/docbook-xml:4.5"
 ARCHS="x86 x86_64"
 SLOT=0
 
