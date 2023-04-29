@@ -45,7 +45,7 @@ buildKernel() {
 	fi
 
 	## Get our kernel version from the symlink.
-	KERNEL_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
+	KERNEL_VER=$(readlink -f /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
 	echo " * Building Kernel - $KERNEL_VER"
 
 	cd /usr/src/linux
