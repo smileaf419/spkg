@@ -303,8 +303,9 @@ parse_cmdline() {
 populate_list() {
 	tlist=
 	list=$(expandSets $list)
+	echo -n " * Populating list.."
 	for p in $list; do
-		setupENV $p
+		EntryParser $p > /dev/null
 		## If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
 		if [[ $PKG_NAME == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
@@ -319,6 +320,7 @@ populate_list() {
 		fi
 		tlist+=" $LENTRY"
 	done
+	echo " done"
 	## Save a list of what was requested on the commandline.
 	export REQUESTED_LIST=${tlist# }
 	list=${tlist# }
@@ -395,15 +397,24 @@ if [[ $HASH_UPDATE ]]; then
 	echo " * Updating sha1 of $C packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
 	for p in $list; do
-		PKG=$(DB-getPkg $p)
+		PKG=$(EntryParser $p)
 		if [[ $PKG == "" ]]; then
 			echo -n "!"
+			echo "$p" >> /tmp/hashfail
 			continue
 		else
-			updatesha1 $(getCategory $PKG)/$(getName $PKG) && echo -n "."
+			[[ $VERBOSE -gt 0 ]] && echo -n "$p ["
+			updatesha1 $(getCategory $PKG)/$(getName $PKG)
+			if [[ $? == 0 ]]; then
+				[[ $VERBOSE -gt 0 ]] && echo " ]" || echo -n '.'
+			fi
 		fi
 	done
 	echo
+	if [ -e /tmp/hashfail ]; then
+		cat /tmp/hashfail
+		rm /tmp/hashfail
+	fi
 	exit 0
 fi
 
@@ -508,13 +519,14 @@ fi
 ## Search
 if [[ $MODE == "search" ]]; then
 	for p in $list; do
-		## User supplied a category but the package either wasn't found or they actually did want to search for just that one...
-		## use REQUESTED_LIST instead?
-		## Do a search on the package name without the category.
-		[[ $p == */* ]] && p=${p#*/}
-		[[ $p == *:* ]] && slot=${p#*:} && p=${p%:*} || slot=
+		## Parse the Entry first and grab just the PKG_CAT/PKG_NAME
+		PKG=$(EntryParser $p)
 		echo "Searching: $p"
-		for r in $(find $PKG_DB_DIR -maxdepth 2 -iname \*$p\* | sed "s,$PKG_DB_DIR\(/*\)\?,,"); do
+		for r in $(find $PKG_DB_DIR -maxdepth 2 -iwholename \*$(getCategory $PKG)/$(getName $PKG)\* | sed "s,$PKG_DB_DIR\(/*\)\?,,"); do
+			PKG=$(EntryParser $r)
+			## Its possible for spkg-sets and spkg-tools to get returned.. filter them out.
+			[[ $r == spkg-*/* ]] && continue
+			slot=$(getSlot $PKG)
 			if [[ -z $slot ]]; then
 				setupENV $r
 			else
@@ -531,14 +543,12 @@ if [[ $MODE == "search" ]]; then
 				## Run this in a subshell to avoid tainting the environment.
 				echo -n "      Installed:"
 				(
-					for i in $(Installed-getPkg $PKG_CAT/$PKG_NAME); do
-						if [[ $i != '0//' ]]; then
-							echo -n " $(getVerRev $i)"
-							slot=$(getSlot $i)
-							[[ $slot != 0 ]] && echo -n ":$slot"
-						else
-							echo -n ' none'
-						fi
+					ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
+					[[ $ipkg == '' ]] && echo -n ' none'
+					for i in $ipkg; do
+						echo -n " $(getVerRev $i)"
+						slot=$(getSlot $i)
+						[[ $slot != 0 ]] && echo -n ":$slot"
 					done; echo
 				)
 

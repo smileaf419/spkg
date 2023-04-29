@@ -12,7 +12,7 @@
 ## Utils     - Useful methods build files may need to perform commonly operations.
 ##
 ### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
-## All methods take a PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_SLOT/PKG_FLAGS
+## All methods take a PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
 ## Even if one or more are missing, unless otherwise noted.
 
 ### Misc Methods used by both Installed and DB versions.
@@ -47,6 +47,7 @@ fileToList() {
 		local IFS="/"
 		local p=($list)
 		unset IFS
+
 		## If our path contains 2 version entries, our path should be PKG_CACHE
 		if [[ ${p[-2]}.build == ${p[-1]} ]]; then
 			path=${l%/*/*/*/*}/
@@ -56,8 +57,21 @@ fileToList() {
 			path=${l%/*/*/*}/
 			p=${l/$path/}; p=${p%.build}
 		fi
+		## Output the PKG_CAT/PKG_NAME
+		echo -n ${p%/*}/
+
+		## Output the Version
+		local ver=$(splitVersion ${p##*/})
+		echo -n ${ver%/*}/
+
+		## Output  the revision if it exists.
+		if [[ $ver == */* ]]; then
+			echo -n ${ver#*/}
+		fi
+
+		## Output the slot
 		slot=$(grep 'SLOT=' "$l" | sed 's,.*SLOT=,,')
-		echo "$p/$slot"
+		echo "//$slot//"
 	done
 }
 export -f fileToList
@@ -73,47 +87,207 @@ listToLEntry() {
 export -f listToLEntry
 
 ####
+## Takes a *-PKG_VER-rPKG_REV
+## Returns a PKG_VER/PKG_REV
+splitVersion() {
+	p=$1
+	## Check for Revision
+	local rev=
+	if [[ $p == *-r[0-9]* ]]; then
+		rev=${p##*-r}
+		p=${p%-r*}
+	fi
+
+	## Grab the version information
+	local ver=
+	if [[ $p == *-[0-9]* ]]; then
+		ver=${p##*-}
+	else
+		ver=$p
+	fi
+
+	echo -n "$ver"
+	[[ ! -z $rev ]] && echo "/$rev"
+}
+
+####
+## Entry Parser
+## This should be used by all functions which need to split up an LENTRY or user supplied input
+## This returns a list of / seperated entries.
+## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+##
+## Supports: =PKG_CAT/PKG_NAME-PKG_VER-rPKGREV:PKG_SLOT[PKG_FLAGS][USE:PKG_USE]
+## And any data maybe omitted.
+##
+## Restrictions maybe one or more of seperated by |: >1.0 >=1.0 <1.0 <=1.0 =1.0
+##
+## PKG_USE is used to store what a package may require of the package.
+## So if Package A Requires package B to have 'Flag' enabled, This can be used to store that requirement.
+## List must be seperated by ',' and no spaces.
+##
+## PKG_FLAGS is used to store build requirements utilized within @sets.
+EntryParser() {
+	local p=$1
+
+	local PKG_VER_EQ=0
+	export PKG_VER_RESTRICT=
+	export PKG_FLAGS=
+
+	## Add PKG_USE
+	if [[ $p == *[USE:* ]]; then
+		local flags=${p#*[USE:}
+		PKG_FLAGS=${flags%]}
+		p=${p%[USE:*}
+	fi
+
+	## Check for flags
+	if [[ $p == *[* ]]; then
+		local flags=${p#*[}
+		PKG_FLAGS=${flags%]}
+		p=${p%[*}
+	fi
+
+	## Check for slot
+	export PKG_SLOT=0
+	if [[ $p == *:* ]]; then
+		PKG_SLOT=${p#*:}
+		p=${p%:*}
+	fi
+	####
+	## Check for version filters
+	## examples: PKG=>1.0<3.0
+	##           PKG<3.0
+	##           PKG>=1.2.0
+	local VLT=
+	local VLTE=0
+	if [[ $p == *\<* ]]; then
+		VLT=${p#*<}
+		p=${p%<*}
+		if [[ $VLT == *=* ]]; then
+			VLTE=1
+			VLT=${VLT%=}
+			p=${p%=}
+			PKG_VER_RESTRICT="<=$VLT"
+		else
+			PKG_VER_RESTRICT="<$VLT"
+		fi
+	fi
+	local VGT=
+	local VGTE=0
+	if [[ $p == *\>* ]]; then
+		VGT=${p#*>}
+		p=${p%>*}
+		if [[ ! -z $PKG_VER_RESTRICT ]]; then
+			PKG_VER_RESTRICT+="|"
+		fi
+		if [[ $VGT == *=* ]]; then
+			VGTE=1
+			VGT=${VGT%=}
+			p=${p%=}
+			PKG_VER_RESTRICT+="<=$VGT"
+		else
+			PKG_VER_RESTRICT+="<$VGT"
+		fi
+	fi
+
+	## Split-up the Version
+	export PKG_VER=0
+	export PKG_REV=0
+	if [[ $p == *-[0-9]* ]]; then
+		local ver=$(splitVersion $p)
+		PKG_VER=${ver%/*}
+		## Set the Revision if it exists.
+		if [[ $ver == */* ]]; then
+			PKG_REV=${ver#*/}
+			p=${p%-r*}
+		fi
+		p=${p%-*}
+	fi
+
+	## Set our Convience PKG_VR
+	export PKG_VR=$PKG_VER
+	if [[ $PKG_REV != 0 ]]; then
+		PKG_VR+=-r$PKG_REV
+	fi
+
+	## If we have a = in the beginning a version is now required.
+	if [[ ${p:0:1} == "=" ]]; then
+		p=${p#=}
+		if [[ ! -z $PKG_VER_RESTRICT ]]; then
+			PKG_VER_RESTRICT+="|"
+		fi
+		PKG_VER_RESTRICT+="=$PKG_VER"
+		if [[ ! -z $PKG_REV ]]; then
+			PKG_VER_RESTRICT+="-r$PKG_REV"
+		fi
+	fi
+
+	## Check for a category
+	export PKG_CAT=
+	if [[ $p == */* ]]; then
+		PKG_CAT=${p%/*}
+		p=${p#*/}
+	fi
+
+	## Whatevers left *should* be the package name.
+	export PKG_NAME=$p
+
+	export LENTRY="="$PKG_CAT/$PKG_NAME-$PKG_VR
+	if [[ $PKG_SLOT != 0 ]]; then
+		LENTRY+=:$PKG_SLOT
+	fi
+	if [[ ! -z $PKG_FLAGS ]]; then
+		LENTRY+=[$PKG_FLAGS]
+	fi
+
+	if [[ $VERBOSE -gt 2 ]]; then
+		>&2 echo "PKG_CAT : $PKG_CAT"
+		>&2 echo "PKG_NAME : $PKG_NAME"
+		>&2 echo "PKG_VER : $PKG_VER"
+		>&2 echo "PKG_REV : $PKG_REV"
+		>&2 echo "PKG_VER_RESTRICT : $PKG_VER_RESTRICT"
+		>&2 echo "PKG_SLOT : $PKG_SLOT"
+		>&2 echo "PKG_FLAGS : $PKG_FLAGS"
+		>&2 echo "PKG_USE : $PKG_USE"
+	fi
+
+	echo "$PKG_CAT/$PKG_NAME/$PKG_VER/$PKG_REV/$PKG_VER_RESTRICT/$PKG_SLOT/$PKG_FLAGS/$PKG_USE"
+}
+
+####
 ## DB Methods (PKG_DB_DIR)
 ## Returns the most recent data from our database/repository.
 
 ## Accepts a LENTRY or a lesser qualified version of it.
-## Returns a list of PKG_CAT/PKG_NAME/PKG_VR/PKG_SLOT/PKG_FLAGS
+## Returns a list of PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
 DB-getPkg() {
 	local p=$1
 	local path=${2:-$PKG_DB_DIR}
 
-	# Check for flags
-	if [[ $p == *[* ]]; then
-		flags=${p#*[}
-		flags=${flags%]}
-		p=${p%[*}
-	fi
-	# Check for slot
-	if [[ $p == *:* ]]; then
-		slot=${p#*:}
-		p=${p%:*}
-	fi
+	EntryParser $p > /dev/null
 
-	# If we have a = in the beginning a version is now required.
-	if [[ ${p:0:1} == "=" ]]; then
-		p=${p#=}
-		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
-	fi
-	for l in $(DB-getPkgList $p | filterArch | filterSlot $slot | sort -V); do
-		echo $(fileToList $l)/$flags
+	for l in $(DB-getPkgList $PKG_CAT/$PKG_NAME/$PKG_VR | filterArch | filterSlot $PKG_SLOT | sort -V); do
+		lpkg=$(fileToList $l)
+		if [[ ! -z $PKG_VER_RESTRICT ]]; then
+			## TODO Filter out non-matching versions here.
+#			continue
+			:;
+		fi
+		echo $(getCategory $lpkg)/$(getName $lpkg)/$(getVersion $lpkg)/$(getRevision $lpkg)/$(getVerRestrict $lpkg)/$(getSlot $lpkg)/$(getFlags $lpkg)/$(getPkgUse $lpkg)
 	done
 }
 export -f DB-getPkg
 
 ## Returns a list of matching entries.
 DB-getPkgList() {
-	local IFS="/"
-	local p=($@)
-	local cat=${p[0]}/
-	local name=${p[1]}/
+	local p=$@
+	p=${p#/} ## In case a PKG_CAT was not supplied, filter out the / that would be passed in front of the PKG_NAME
+	p=($p)
+	local cat=$(getCategory $p)/
+	local name=$(getName $p)/
 	[[ $name == '/' ]] && name=
-	local ver=${p[2]}
-	[[ $ver == '' ]] && ver="*"
+	local ver=$(getVerRev $p)
+	[[ $ver == '' || $ver == 0 ]] && ver="*"
 
 	find "$PKG_DB_DIR" -iwholename "*/${cat}${name}${ver}.build"
 }
@@ -128,33 +302,16 @@ export -f DB-getPkgList
 Installed-getPkg() {
 	local p=$1
 	local path=${2:-$PKG_CACHE}
-	local slot=
 
-	# Check for flags
-	if [[ $p == *[* ]]; then
-		flags=${p#*[}
-		flags=${flags%]}
-		p=${p%[*}
-	fi
-	# Check for slot
-	if [[ $p == *:* ]]; then
-		slot=${p#*:}
-		p=${p%:*}
-	fi
+	EntryParser $p > /dev/null
 
-	# If we have a = in the beginning a version is now required.
-	if [[ ${p:0:1} == "=" ]]; then
-		p=${p#=}
-		p=$(echo $p | sed 's,-\([0-9]\),/\1,')
-	fi
-	for l in $(Installed-getPkgList $p | filterSlot $slot | sort -V); do
-		local file=$l
-		l=$(echo $l | sed -e "s,$path/\?,," -e 's,/[^/]*.build$,,')
-		## Verify we don't actually have a slot.
-		if [[ $l != 0 ]]; then
-			slot=$(grep 'SLOT=' "$file" | sed 's,.*SLOT=,,')
-		fi
-		echo "$l/$slot/$flags"
+	for l in $(Installed-getPkgList $PKG_CAT/$PKG_NAME | filterSlot $PKG_SLOT | sort -V); do
+		[[ $l == 0 ]] && continue
+		lpkg=$(fileToList $l)
+		PKG_VR=$(getVerRev $lpkg)
+		local file="$path/$PKG_CAT/$PKG_NAME/$PKG_VR/$PKG_VR.build"
+		PKG_SLOT=$(grep 'SLOT=' "$file" | sed 's,.*SLOT=,,')
+		echo $(getCategory $lpkg)/$(getName $lpkg)/$(getVersion $lpkg)/$(getRevision $lpkg)/$(getVerRestrict $lpkg)/$PKG_SLOT/$(getFlags $lpkg)/$(getPkgUse $lpkg)
 	done
 }
 export -f Installed-getPkg
@@ -192,6 +349,7 @@ export -f getLatest
 
 ####
 ## Return data functions
+## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
 
 getCategory() {
 	local data=${1:-$(cat -)}
@@ -213,26 +371,47 @@ export -f getVersion
 
 getRevision() {
 	local data=${1:-$(cat -)}
-	local ver=$(getVersion $data)
-	local rev=$(echo $ver | sed 's,.*-r\([0-9]*\)$,\1,')
+	local rev=$(getData $data 3)
 	[[ $rev == $ver ]] && echo "0" || echo $rev
 }
 export -f getRevision
 
 getVerRev() {
 	local data=${1:-$(cat -)}
-	local vr=$(getData $data 2)
-	[[ $vr == '' ]] && echo 0 || echo $vr
+	local ver=$(getVersion $data)
+	local rev=$(getRevision $data)
+	if [[ $ver != '' ]]; then
+		if [[ $rev != 0 && $rev != '' ]]; then
+			echo $ver-r$rev
+		else
+			echo $ver
+		fi
+	else
+		echo 0
+	fi
 }
+export -f getVerRev
+
+getVerRestrict() {
+	local data=${1:-$(cat -)}
+	getData $data 4
+}
+export -f getVerRestrict
 
 getSlot() {
 	local data=${1:-$(cat -)}
-	getData $data 3
+	getData $data 5
 }
 export -f getSlot
 
 getFlags() {
 	local data=${1:-$(cat -)}
-	getData $data 4
+	getData $data 6
 }
 export -f getFlags
+
+getPkgUse() {
+	local data=${1:-$(cat -)}
+	getData $data 7
+}
+export -f getPkgUse

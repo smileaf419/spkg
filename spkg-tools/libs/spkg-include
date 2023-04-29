@@ -40,6 +40,7 @@ getBDeps() {
 ## Setup package Environmental Variables
 ## Requires a LENTRY or at minimum PKG_NAME
 setupENV() {
+	local PKG=
 	## If we're uninstalling we need to report the installed version
 	if [[ $MODE == 'uninstall' ]]; then
 		PKG=$(Installed-getPkg $1)
@@ -49,10 +50,10 @@ setupENV() {
 	## If we didn't find a result, get the full list and grab the latest.
 	## This skips the filter* functions.
 	if [[ $PKG == "" || $PKG == 0 ]]; then
-		>&2 echo " * PKG ($1) not found, its possible all versions are marked as unstable for your arch."
+#		>&2 echo " * PKG ($1) not found, its possible all versions are marked as unstable for your arch."
 		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
 		if [[ $PKG == "" || $PKG == 0 ]]; then
-			>&2 echo " ! $1 not found for any arch/slot"
+#			>&2 echo " ! $1 not found for any arch/slot"
 			return
 		fi
 	fi

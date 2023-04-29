@@ -57,6 +57,8 @@ updatesha1() {
 				hashdir $PKG_CAT/$PKG_NAME
 				updated=1
 				break
+			elif [[ $VERBOSE -gt 0 ]]; then
+				echo -n " $PKG_VR"
 			fi
 			source "$PKG_BLD"
 			fetch_list "" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src'
@@ -65,6 +67,8 @@ updatesha1() {
 				hashdir $PKG_CAT/$PKG_NAME
 				updated=1
 				break
+			elif [[ $VERBOSE -gt 0 ]]; then
+				echo -n '.'
 			fi
 			fetch_list "" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch'
 			if [[ $? != 0 ]]; then
@@ -72,6 +76,8 @@ updatesha1() {
 				hashdir $PKG_CAT/$PKG_NAME
 				updated=1
 				break
+			elif [[ $VERBOSE -gt 0 ]]; then
+				echo -n ','
 			fi
 		done
 	done
