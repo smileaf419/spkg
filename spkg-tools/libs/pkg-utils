@@ -191,10 +191,10 @@ checkinlist() {
 	local var=$1
 	shift
 	local list=$@
-	if [[ ${V[*]} =~ (^|[[:space:]])"$var"($|[[:space:]]) ]]; then
+	if [[ $list =~ (^|[[:space:]])"$var"($|[[:space:]]) ]]; then
 		return 0
 	fi
-	if [[ ${V[*]} =~ (^|[[:space:]])-"$var"($|[[:space:]]) ]]; then
+	if [[ $list =~ (^|[[:space:]])-"$var"($|[[:space:]]) ]]; then
 		return 2
 	fi
 	return 1
