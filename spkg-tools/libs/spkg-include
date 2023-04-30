@@ -51,6 +51,7 @@ installList() {
 		C=$(( ${l} + 1 ))
 		## PKG entry
 		p=${list[$l]}
+		setPkgENV $p
 		setupENV $p
 
 		## Uninstall

@@ -44,7 +44,6 @@ getFullPkgList() {
 
 	SP=
 	for d in $@; do
-	    >&2 echo "getdep: $d"
 		getdep $d || return $?
 		flist+=" $LENTRY"
 	done
@@ -155,7 +154,6 @@ getdep() {
 
 		# Add our package
 		if ! grep -E "^${PKG_CAT}.${PKG_NAME}.${PKG_VER}" $CHART > /dev/null; then
-		    >&2 echo "Adding $(getPKG) to INSTALL_CHART"
 			getPKG >> $INSTALL_CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi

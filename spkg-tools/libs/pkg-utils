@@ -31,6 +31,8 @@ export -f inform
 unpack() {
 	FILE=$1
 	DIR=${2:-.}
+
+	echo " * Unpacking $FILE to $DIR"
 	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
 		tar -xf "$FILE" -C "$DIR" || die "Failed to extract!"
 	elif [ ${FILE##*.} == "zip" ]; then

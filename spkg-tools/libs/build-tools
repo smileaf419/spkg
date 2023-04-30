@@ -22,13 +22,23 @@ setupENV() {
 			return
 		fi
 	fi
+	setPkgENV $(getPKG)
 	export BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	## Default archive build directory
 	export B="${PKG_NV}"
 	## Temp install root
 	export D="${BUILD_PATH}/troot"
 	## Installed version filtered by PKG_SLOT
-	export O_VER=$(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVerRev)
+	export O_VER=$(Installed-getPkg $(getPKG) | getVerRev)
+
+	export PKG_BLD=$(getBldFile $(getPKG))
+	if [[ $VERBOSE -ge 2 ]]; then
+		>&2 echo "       PKG : $PKG"
+		>&2 echo "BUILD_PATH : $BUILD_PATH"
+		>&2 echo "         B : $B"
+		>&2 echo "         D : $D"
+		>&2 echo "     O_VER : $O_VER"
+	fi
 }
 
 fetch_default() {
@@ -55,7 +65,7 @@ unpack_default() {
 	SRC=${SRC_URI[@]}
 	unset SRC_URI
 	export SRC_URI=${SRC[@]}
-	SRC_FILE=${SRC_URI%% *}
+	export SRC_FILE=${SRC_URI%% *}
 
 	if [[ -e /bin/su || -e /usr/bin/su ]]; then
 		su -p -c 'src_unpack' $BUILD_USER

@@ -21,6 +21,8 @@
 filterArch() {
 	local arch=${1:-$ARCH}
 	local f=
+
+	## If we're using an unstable ARCH, we need to enable the ability for it to match packages marked as stable too.
 	[[ ${arch:0:1} != '~' ]] && f='[^~]'
 	arch=${arch#\~}
 	echo $(cat -) | xargs grep -H 'ARCHS=.*'$f$arch'[ "]' 2> /dev/null| sed 's,:.*,,'
@@ -31,6 +33,8 @@ export -f filterArch
 filterSlot() {
 	local p=$(cat -)
 	local slot=${1:-0}
+
+	## No slot, no filter
 	if [[ $slot == 0 ]]; then
 		echo $p | tr ' ' '\n'
 	else
@@ -343,7 +347,8 @@ export -f Installed-getPkg
 ## Requires a PKG_CAT/PKG_NAME
 ## Returns a list of matching entries.
 Installed-getPkgList() {
-	v=$(find "$PKG_CACHE" -iwholename "*/$1/*.build")
+	local p=${1#/}
+	local v=$(find "$PKG_CACHE" -iwholename "*/$p/*.build")
 	[[ $v == "" ]] && echo 0 || echo $v | tr ' ' '\n'
 }
 export -f Installed-getPkgList
