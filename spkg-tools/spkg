@@ -576,7 +576,8 @@ if [[ $MODE == "search" ]]; then
 				echo "    Description: ${DESCRIPTION}"
 				[[ -z $LICENSE ]] && LICENSE="Unknown"
 				echo "        License: ${LICENSE}"
-				[[ ! -z $IUSE ]] && echo "    USE: ${IUSE}"
+				[[ ! -z $IUSE ]] &&
+				echo "            USE: ${IUSE}"
 				echo -n "   Dependencies: ${DEPS}"
 				[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
 				[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
@@ -595,6 +596,9 @@ else
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
 		getFullPkgList $PKG_LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
+		LIST=$(cat $CHART)
+	else
+		LIST=$(cat $INSTALL_CHART)
 	fi
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
@@ -607,18 +611,18 @@ else
 		echo "Package Order:"
 	fi
 
-	for p in $(cat $CHART); do
+	for p in $LIST; do
 		setupENV $p
 
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
 			## check forced or empty world.
 			if [[ $MODE == "resume" ||  $(version_gt $PKG_VR $O_VER) == 0 ||
-				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ||
+				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
 				! -z $EMPTY_WORLD ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				## Only mention it's been forced if its within the REQUESTED_LIST & FORCE
-				[[ $FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]]) ]] && echo -n " (forced)"
+				[[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 
@@ -641,7 +645,6 @@ else
 		fi
 	done
 
-	PKG_LIST=$(cat $INSTALL_CHART)
 	[[ -z $PKG_LIST ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
 
