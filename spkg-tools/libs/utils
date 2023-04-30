@@ -1,5 +1,14 @@
 #!/bin/bash
 ####
+## Contains Utility functions used in all aspects of package management.
+## kernel utilities such as buildKernel, setKernelConfig
+## Fetching utilities: fetch_file, fetch_list
+## checkSha1
+## sinstall
+## preservedRebuild
+## buildBDeps
+
+####
 ## Set a Kernel config file
 ## As we set this here, its possible to override it later.
 KERNEL_CONFIG_FILE=/usr/src/linux/.config
@@ -82,6 +91,20 @@ buildKernel() {
 	fi
 	export ARCH=$SPKG_ARCH
 	export INSTALL_PATH=$SPKG_INSTALL_PATH
+}
+
+####
+## Check the WORLD file for a PKG
+## Returns nothing, if nothing is found.
+getPkgFromWorld() {
+    grep "$1" $WORLD 2> /dev/null || echo
+}
+
+####
+## Adds an Entry to our INSTALL_CHART
+Install-addPkg() {
+	PKG_LIST+="$1\n"
+	eval echo $1 >> $INSTALL_CHART
 }
 
 ####
@@ -177,11 +200,9 @@ buildBDeps() {
 		## Trim the space at the end for cosmetic reasoning.
 		D=${D%% }
 		## Dependencies
-		grep '^DEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
-		if [ $? != 0 ]; then
+		if ! grep '^DEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1; then
 			echo -n "DEPS Missing - checking for BDEPS: "
-			grep '^BDEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1
-			if [ $? == 0 ]; then
+			if grep '^BDEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1; then
 				echo "Updating."
 				sed -i 's,^BDEPS=["'\'']\(.*\)\["'\''],DEPS=\"\1\"\nBDEPS=\"\",' $PKG_DB_DIR/$PKG.build
 			else
@@ -248,26 +269,89 @@ fetch_file() {
 	fi
 }
 
+####
+## Fetch a list of files
+## Requires 1: A Message to output
+##          2: A \n seperated list of files to fetch
+##          3: Optionally if 'src' or 'patch' is supplied, it will update the variables altering their filename to the renamed value.
+##          4: Optionally supply 1 to update the sha1sum if the hash fails and save it within the package's sha1 file within its directory.
+##             Requires a PKG_BLD be set
+fetch_list() {
+	## Output our message
+	[[ ! -z $1 ]] && echo $1
+	local IFS=$'\n'
+	local list=($2)
+	## Used in --updatesha1
+	local update_sha=${4:-0}
+
+	local length=${#list[@]}
+	local ret=0
+	for (( l=0; l<${length}; l++ )); do
+		C=$(( $l + 1 ))
+		file=${list[$l]}
+		[[ $VERBOSE -ge 2 ]] && echo " * Fetching $C of $length: $file"
+		[[ $file == "" ]] && continue
+		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
+			local SRC_OUTFILE=${file/*=> /}
+			local SRC_FILE=${file/ =>*/}
+			# Once a fetch occurs we don't actually need the old filename.
+			# Rename it so as to avoid confusion later.
+			if [[ $3 == 'src' ]]; then
+				SRC_URI[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+			elif [[ $3 == 'patch' ]]; then
+				PATCHES[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
+			fi
+		else
+			local SRC_FILE=$file
+			local SRC_OUTFILE=${SRC_FILE##*/}
+		fi
+		if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
+			echo "Fetching ($C of $length) $SRC_FILE"
+			fetch_file "$SRC_FILE" "$SRC_OUTFILE"
+		fi
+		if ! checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"; then
+			if [[ $IGNORE_SHA == 1 ]]; then
+				ret=2
+			elif [[ $update_sha == 1 ]]; then
+				sha1sum "$DISTFILES/$SRC_OUTFILE" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
+			else
+				[[ $VERBOSE -gt 1 ]] && >&2 echo " !! Sha1sum failed for file: $SRC_OUTFILE"
+				ret=1
+			fi
+		fi
+	done
+	return $ret
+}
+
 ## Check a sha1sum of a given file within the package's sha1 file.
 checkSha1() {
 	[[ $IGNORE_SHA1 == 1 || $MODE == 'uninstall' ]] && return 0
-	PKG=$1
-	FILE=$2
+	local PKG=$1
+	local FILE=$2
 
 	## Ignore Empty calls
 	[[ $FILE == "" ]] && return 0
 
 	[[ $VERBOSE -ge 2 ]] && >&2 echo -n "Checking Sha1: $FILE ... "
 	[ ! -e $FILE ] && echo "Failed checking $PKG sha1" && return 1
-	h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
+	local h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
 	[[ $VERBOSE -ge 2 ]] && >&2 echo -n $h
-	grep "$h" $PKG/sha1 > /dev/null 2>&1
-	if [[ $? == 0 ]]; then
+	if grep "$h" $PKG/sha1 > /dev/null 2>&1; then
 		[[ $VERBOSE -ge 2 ]] && >&2 echo " ..Ok"
 	else
 		return 1
 	fi
 	return 0
+}
+
+####
+## install doesn't support preserving permissions
+## and ownership, so we need to get them and
+## explicitly set them.
+sinstall() {
+	local d=
+	[ -d "$1" ] && d="-d"
+	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") \"$1\" \"$2\"
 }
 
 preservedRebuild() {

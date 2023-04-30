@@ -1,4 +1,7 @@
 #!/bin/bash
+####
+## Defines functions not organized/categorized into other files
+
 ## Create an archive package of our build, could be useful if we decide to distribute binary copies
 ## Enabled with BUILD_PACKAGE = yes
 archivePackage() {
@@ -35,78 +38,6 @@ getBDeps() {
 		done
 	done | sort | uniq > "${PKG_CACHE}/$PKG_CAT/$PKG_NAME/$PKG_VER/BDEPS"
 	echo "Done"
-}
-
-## Setup package Environmental Variables
-## Requires a LENTRY or at minimum PKG_NAME
-setupENV() {
-	local PKG=
-	## If we're uninstalling we need to report the installed version
-	if [[ $MODE == 'uninstall' ]]; then
-		PKG=$(Installed-getPkg $1)
-	else
-		PKG=$(DB-getPkg $1 | getLatest)
-	fi
-	## If we didn't find a result, get the full list and grab the latest.
-	## This skips the filter* functions.
-	if [[ $PKG == "" || $PKG == 0 ]]; then
-#		>&2 echo " * PKG ($1) not found, its possible all versions are marked as unstable for your arch."
-		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
-		if [[ $PKG == "" || $PKG == 0 ]]; then
-#			>&2 echo " ! $1 not found for any arch/slot"
-			return
-		fi
-	fi
-	PKG_CAT=$(getCategory $PKG)
-	PKG_NAME=$(getName $PKG)
-	PKG_VER=$(getVersion $PKG)
-	PKG_REV=$(getRevision $PKG)
-	PKG_VR=$(getVerRev $PKG)
-	if [[ $MODE == 'uninstall' ]]; then
-		PKG_BLD=$PKG_CACHE/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build
-	else
-		PKG_BLD=$PKG_DB_DIR/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build
-	fi
-	PKG_NVR=${PKG_NAME}-${PKG_VR}
-	PKG_NV=${PKG_NAME}-${PKG_VER}
-	PKG_SLOT=$(getSlot $PKG)
-	PKG_FLAGS=$(getFlags $PKG)
-	BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
-	## Default archive build directory
-	B="${PKG_NV}"
-	## Temp install root
-	D="${BUILD_PATH}/troot"
-	## Installed version filtered by PKG_SLOT
-	O_VER=$(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVerRev)
-
-	## Build a fully Qualified List Entry for data safe-keeping.
-	## Might change this to a / seperated list and use this for a nice display value.
-	LENTRY="="$PKG_CAT/$PKG_NVR
-	if [[ $PKG_SLOT != 0 ]]; then
-		LENTRY+=:$PKG_SLOT
-	fi
-	if [[ ! -z $PKG_FLAGS ]]; then
-		LENTRY+=[$PKG_FLAGS]
-	fi
-	if [ $VERBOSE -ge 3 ]; then
-		echo "1          : $1"
-		echo "PKG        : $PKG"
-		echo "PKG_BLD    : $PKG_BLD"
-		echo "PKG_CAT    : $PKG_CAT"
-		echo "PKG_NAME   : $PKG_NAME"
-		echo "PKG_VER    : $PKG_VER"
-		echo "PKG_REV    : $PKG_REV"
-		echo "PKG_VR     : $PKG_VR"
-		echo "PKG_SLOT   : $PKG_SLOT"
-		echo "BUILD_PATH : $BUILD_PATH"
-		echo "B          : $B"
-		echo "O_VER      : $O_VER"
-		echo "PKG_CACHE  : $PKG_CACHE"
-		echo "PKG_FLAGS  : $PKG_FLAGS"
-		echo "LENTRY     : $LENTRY"
-	fi
-	export PKG PKG_FLAGS PKG_BLD PKG_CAT PKG_NAME PKG_VER PKG_REV PKG_VR PKG_NV PKG_NVR PKG_SLOT
-	export BUILD_PATH B D O_VER LENTRY
 }
 
 ####
@@ -200,14 +131,4 @@ installList() {
 		echo -n " * Running ldconfig .."
 		ldconfig && echo "done!" || echo "failed!"
 	done
-}
-
-####
-## install doesn't support preserving permissions
-## and ownership, so we need to get them and
-## explicitly set them.
-sinstall() {
-	local d=
-	[ -d "$1" ] && d="-d"
-	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") \"$1\" \"$2\"
 }

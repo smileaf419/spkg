@@ -1,4 +1,4 @@
-#!/bin/bash
+adfasdfasdg#!/bin/bash
 ####
 ## SMiLeaf Package Manager
 ## Author Stephen Leaf <smileaf@me.com>
@@ -105,41 +105,22 @@ export BUILD_PACKAGE=${BUILD_PACKAGE:-no}
 export SILENT_BUILD=${SILENT_BUILD:-no}
 export BUILD_USER=${BUILD_USER:-$(whoami)}
 export TEST_USER=${TEST_USER:-$(whoami)}
-
-####
 ## Paths
-## Install Root (only changed during bootstrapping)
 export ROOT=${ROOT:-/}
-## Directory all build files are installed into.
 export PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
-## Directory where script files are installed into.
 export INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
-## Logfile Directory
 export LOGDIR=${LOGDIR:-/var/log/spkg}
-## Directory where everything is built and temporary files are stored.
 export WORKDIR_BASE=${WORKDIR_BASE:-/var/tmp/spkg}
-## Database Directory for local data storage.
 export CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
-## Database directory where installed packages are recorded.
 export PKG_CACHE=${PKG_CACHE:-$CACHE_DIR/data}
-## Storage directory for all downloaded files
 export DISTFILES=${DISTFILES:-$CACHE_DIR/files}
-## Storage directory for all archive packages.
 export PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-$CACHE_DIR/archive}
-
-####
 ## Files
-## Logfile format
 export LOGFILE=${LOGFILE:-%D-%n-%v.log}
-## Database file used to store all packages explicitely installed not found within @system
 export PKG_WORLD=${PKG_WORLD:-$CACHE_DIR/world}
-## Informational File to output at the end.
 export INFORMLOG=${INFORMLOG:-$WORKDIR_BASE/inform.log}
-## Storage file of cached packages being operated on.
 export CHART=${CHART:-$WORKDIR_BASE/chart}
-## Chart of packages in order to be installed/uninstalled.
 export INSTALL_CHART=${INSTALL_CHART:-$WORKDIR_BASE/install_chart}
-## List of files preserved until packages that depend on them can be reinstalled.
 export PRESERVED_LOG=${PRESERVED_LOG:-$WORKDIR_BASE/preserved}
 
 ####
@@ -150,12 +131,6 @@ export FORCE=0
 export PRETEND=0
 export ARCHIVE_INSTALL=0
 export VERBOSE=0
-## Current loaded package
-export PKG=
-## User supplied list from the command line
-export REQUESTED_LIST=
-## Parsed list used to supply packages to be operated on.
-export PKG_LIST=
 
 ## For security reasons this shouldn't ever be used... But exists
 IGNORE_SHA1=0
@@ -317,46 +292,38 @@ parse_cmdline() {
 			done
 		else
 			shift $a
-			REQUESTED_LIST=${list:-$@}
+			list=${list:-$@}
 			break
 		fi
 	done
 }
 
-####
-## Takes a user supplied list and parse it and finding matches for packages.
-## Store the information within our CHART for easy reference.
+## This function takes a list supplied on the command line and populates it with fully qualified entries (LENTRY)
+## in the form:  =category/package_name-version:slot
 populate_list() {
-	local list=$(expandSets $REQUESTED_LIST)
+	tlist=
+	list=$(expandSets $list)
 	echo -n " * Populating list.."
 	for p in $list; do
-		PKG=$(EntryParser $p)
-		## EntryParser does not find packages within our Database
-		## Check our Mode and check for the presence of the package.
-		## If the file is not found or multiple packages are found, perform a search and show the results.
-		if [[ $MODE == 'uninstall' ]]; then
-			PKG=$(Installed-getPkg $PKG)
-		else
-			PKG=$(DB-getPkg $PKG | getLatest)
-		fi
-
-		if [[ $PKG == "" ]]; then
+		EntryParser $p > /dev/null
+		## If a PKG_NAME is not set the package was not found, run a search so the user can fix the issue.
+		if [[ $PKG_NAME == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
 				echo " !! $p not installed!"
 				exit
 			else
 				echo " !! $p not found!"
-				PKG_LIST=$p
+				list=$p
 				MODE=search
 				return
 			fi
 		fi
-		PKG_LIST+=" "$(eval echo $PKG)
-		## Save our Cache data.
-		eval echo $PKG >> $CHART
+		tlist+=" $ENTRY"
 	done
 	echo " done"
-	PKG_LIST=${PKG_LIST# }
+	## Save a list of what was requested on the commandline.
+	export REQUESTED_LIST=${tlist# }
+	list=${tlist# }
 }
 
 parse_cmdline $@
@@ -406,10 +373,9 @@ fi
 
 ## Calculate Binary Dependencies and update the DEPS var within the build file.
 if [[ $MODE == "buildbdeps" ]]; then
-	for l in $PKG_LIST; do
-		p=$(getCategory $l)/$(getName $l)
-		echo "Finding Binary Dependencies: $p"
-		buildBDeps $p
+	for p in $list; do
+		echo "Finding Binary Dependencies: $(getCategory $p)/$(getName $p)"
+		buildBDeps $(getCategory $p)/$(getName $p)
 	done
 fi
 
@@ -419,8 +385,8 @@ if [[ $HASH_UPDATE ]]; then
 	C=$(echo $list | tr ' ' '\n' | wc -l)
 	echo " * Updating sha1 of $C packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
-	for p in $PKG_LIST; do
-		PKG=$(DB-getPkg $p)
+	for p in $list; do
+		PKG=$(EntryParser $p)
 		if [[ $PKG == "" ]]; then
 			echo -n "!"
 			echo "$p" >> /tmp/hashfail
@@ -462,19 +428,28 @@ fi
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
 
-	## a REQUEST_LIST is not set as none of this has been explicitely requested.
-	## instead set a PKG_LIST
 	list=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
-	PKG_LIST=
+	tlist=
 	for p in $list; do
-		PKG=$(Installed-getPkg $(EntryParser $p))
-
-		setPkgENV $PKG
-		PKG=$(getPkgFromWorld $PKG_CAT/$PKG_NAME)
-
-		Install-addPkg $PKG
+		p=$(getLEntry $p)
+		## Read the world file for a match, use what we found as it may contain a slot.
+		rl=$(grep $p $PKG_WORLD || true)
+		if [[ $rl != '' ]]; then
+			tlist+=" $rl"
+		else
+			tlist+=" $p"
+		fi
 	done
-
+	list=$tlist
+	for p in $list; do
+		setupENV $p
+		if [[ $(version_gt $PKG_VR $O_VER) == 0 ]]; then
+			list+=" $ENTRY"
+			echo $PKG_NAME :: $PKG_VR
+		elif [[ $VERBOSE -gt 1 ]]; then
+			echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
+		fi
+	done
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
 ## Continues off the previous list
@@ -483,16 +458,16 @@ elif [[ $MODE == "resume" ]]; then
 		die " ! Error Cannot resume no list was found."
 	fi
 	echo " * Resuming..."
-	PKG_LIST=$(cat $INSTALL_CHART)
+	list=$(cat $INSTALL_CHART)
 	## FIXME: This actually is a guess at what the REQUESTED_LIST actually was.
 	##        If for example: a package was request, and 2 dependencies brought in, then got cancelled and resumed.
 	##        all 3 packages would be set as requested and thus registered within WORLD.
-	PKG_LIST=$list
+	REQUESTED_LIST=$list
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 elif [[ $MODE == "buildKernel" ]]; then
 	buildKernel
-	REQUESTED_LIST="@kernelModules"
+	list="@kernelModules"
 	FORCE=1
 	populate_list
 
@@ -510,15 +485,16 @@ elif [[ $MODE == "clean" ]]; then
 #	ENABLE_TESTS=1
 	echo " * Deep Cleaning"
 	echo " * Gathering a list of @system and @world"
-	PKG_LIST=$(expandSets "@system @world")
+	list=$(expandSets "@system @world")
 	echo " * Calculating Package List"
-	getFullPkgList $PKG_LIST || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
+	getFullPkgList $list || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	mv $CHART $WORKDIR_BASE/sysworldset
 	echo " * Getting a list of installed packages."
 	find $PKG_CACHE -name \*.build | fileToList | listToLEntry > $WORKDIR_BASE/installedPkgs
 	getFullPkgList $(cat $WORKDIR_BASE/installedPkgs) || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	echo " * Gathering a list of targets to remove"
-	PKG_LIST=$(cat $CHART $WORKDIR_BASE/sysworldset | sort | uniq -u)
+	list=$(cat $CHART $WORKDIR_BASE/sysworldset | sort | uniq -u)
+	REQUESTED_LIST=$list
 	MODE="uninstall"
 	## Clean-up
 	rm $WORKDIR_BASE/sysworldset $WORKDIR_BASE/installedPkgs
@@ -532,10 +508,9 @@ fi
 
 ## Search
 if [[ $MODE == "search" ]]; then
-	for p in $REQUESTED_LIST; do
+	for p in $list; do
 		## Parse the Entry first and grab just the PKG_CAT/PKG_NAME
 		EntryParser $p > /dev/null
-
 		PKG_CAT=${PKG_CAT:-*}
 		echo "Searching: $p ($PKG_CAT/$PKG_NAME)"
 		list=$(find $PKG_DB_DIR -maxdepth 2 -iwholename \*$PKG_CAT/$PKG_NAME\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
@@ -593,17 +568,18 @@ else
 	if [[ $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
-		getFullPkgList $PKG_LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
+		getFullPkgList $list || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
 	fi
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
-		## FIXME: Should format this for the user.
 		cat $CHART
 		echo "Package Order:"
 	fi
 
+	list=
+	[[ $MODE == "uninstall" ]] && tac $CHART > ${CHART}-2 && mv ${CHART}-2 $CHART
 	for p in $(cat $CHART); do
-		setPkgENV $p
+		setupENV $p
 
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
@@ -616,9 +592,8 @@ else
 				[[ $FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]]) ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
-
-				## Add to our INSTALL_CHART
-				Install-addPkg $PKG
+				list+=" $LENTRY"
+				echo $LENTRY >> $INSTALL_CHART
 			elif [[ $VERBOSE -gt 1 ]]; then
 				echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
 			fi
@@ -629,18 +604,16 @@ else
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
-
-				## Add to our INSTALL_CHART
-				Install-addPkg $PKG
+				list+=" $LENTRY"
 			fi
 		fi
 	done
 
-	[[ -z $PKG_LIST ]] && die "Nothing to upgrade."
+	[[ -z $list ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
 
 	## Install our list
-	installList $PKG_LIST && rm $INSTALL_CHART $CHART
+	installList $list && rm $INSTALL_CHART $CHART
 
 	## Check for any preserved files
 	preservedRebuild

@@ -2,6 +2,7 @@
 ####
 ## List Tools
 ## Defines a set of functions to build a list of packages.
+## All Lists should be in / seperated lists
 
 ## Set the Stack file
 export STACK=$WORKDIR_BASE/stack
@@ -37,13 +38,13 @@ isDependedOn() {
 getFullPkgList() {
 	# remove them if they exist to ensure an empty chart/stack
 	[[ -e $CHART ]] && rm $CHART
+	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
 	[[ -e $STACK ]] && rm $STACK
 	touch $CHART $STACK
 
-	local tlist=$@
-	local flist=
 	SP=
-	for d in $tlist; do
+	for d in $@; do
+	    >&2 echo "getdep: $d"
 		getdep $d || return $?
 		flist+=" $LENTRY"
 	done
@@ -52,25 +53,25 @@ getFullPkgList() {
 
 # Take a list and expand all @sets found within.
 expandSets() {
-	local list=$@
+	local REQUEST_LIST=$@
+	local PKG_LIST=
 	if [[ $list =~ (^|[[:space:]])"@" ]]; then
 		>&2 echo " * Found Set .. Expanding"
-		local slist=
-		local tlist=
-		for p in $list; do
+		for p in $REQUEST_LIST; do
 			if [ ${p:0:1} == "@" ]; then
 				if [[ ${p#@} == "world" ]]; then
-					slist+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
+					PKG_LIST+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
 				elif [[ ${p#@} == "all" ]]; then
-					slist=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -v spkg | tr '\n' ' ')
+					PKG_LIST=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -v spkg | tr '\n' ' ')
+					break
 				elif [[ ${p#@} == "perlModules" ]]; then
-					slist+=" $(rebuildModules perl)"
+					PKG_LIST+=" $(rebuildModules perl)"
 				elif [[ ${p#@} == "pythonModules" ]]; then
-					slist+=" $(rebuildModules python)"
+					PKG_LIST+=" $(rebuildModules python)"
 				elif [[ ${p#@} == "kernelModules" ]]; then
-					slist+=" $(rebuildModules kernel)"
+					PKG_LIST+=" $(rebuildModules kernel)"
 				elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
-					slist+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
+					PKG_LIST+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
 				else
 					>&2 echo " !! Unknown set: ${p#@}"
 					>&2 echo " * Did you mean one of: "
@@ -79,15 +80,16 @@ expandSets() {
 					die "all"
 				fi
 			else
-				tlist="$tlist $p"
+				PKG_LIST+=" $p"
 			fi
 		done
-		list="$tlist $slist"
-		if [[ $list == *@* ]]; then
-			list=$(expandSets $list)
+		if [[ $PKG_LIST == *@* ]]; then
+			PKG_LIST=$(expandSets $PKG_LIST)
 		fi
+		echo $PKG_LIST
+	else
+		echo $REQUEST_LIST
 	fi
-	echo $list
 }
 
 # 1: Package of deps to get.
@@ -101,25 +103,24 @@ expandSets() {
 # CDEPS: Circular Dependencies are a special case where a package should be installed before and after
 #        the package, but only if its not already installed.
 getdep() {
-	p=$1
+	setPkgENV $1
 
 	# Check if its on the stack, if not, add it. if so we'll get to it later.
-	grep "$1" $STACK > /dev/null 2>&1 && return || echo $1 >> $STACK
+	grep "$PKG_CAT/$PKG_NAME/*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return || eval echo $PKG >> $STACK
 
 	# If we somehow call ourselves..
-	[[ $1 == $2 ]] && return 2
+	[[ $2 == $PKG_CAT/$PKG_NAME/*/$PKG_SLOT/* ]] && return 2
 
 	# Print an interesting looking tree.
 	if [[ $VERBOSE -ge 1 ]]; then
-		>&2 echo "$SP$1"
+		>&2 echo "$SP$PKG_CAT/$PKG_NAME:$PKG_SLOT"
 		SP+=" "
 	else
 		>&2 echo -n .
 	fi
 	# Don't taint the environment.
 	(
-		setupENV $1
-
+		eval PKG_BLD=$(getBldFile $(getPKG))
 		if [ -e "$PKG_BLD" ]; then
 			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
 			unset BDEPS RDEPS UDEPS CDEPS DEPS
@@ -135,25 +136,28 @@ getdep() {
 		# Check CDEPS
 		if [[ ! -z $CDEPS ]]; then
 			for p in $CDEPS; do
+			    cpkg=$(EntryParser $p)
+        	    local cp=$(getCategory $cpkg)/$(getName $cpkg)/*/$(getSlot $cpkg)
 				pkg-has-flag "nodep" && break
 
 				# If its already in the list, ignore it and continue.
-				grep -E "^${d/+/\\+}\$" $CHART > /dev/null && continue
+				grep -E "^${cp}" $CHART > /dev/null && continue
 
 				# If its already installed, we don't need to install it twice.
-				[[ $(Installed-getPkgList $p) != 0 ]] && continue
+				[[ $(Installed-getPkgList $cn) != 0 ]] && continue
 
-				getdep $p $PKG_CAT/$PKG_NAME || return $?
+				getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
 
 				# Create a Post Dependency list.
-				PDEPS+=" $p"
+				PDEPS+=" $cpkg"
 			done
 		fi
 
 		# Add our package
-		if ! grep -E "^=${PKG_CAT}.${PKG_NAME}.${PKG_VR}" $CHART > /dev/null; then
-			echo $LENTRY >> $CHART
-			sed "/^PKG_CAT.$PKG_NAME/d" -i $STACK
+		if ! grep -E "^${PKG_CAT}.${PKG_NAME}.${PKG_VER}" $CHART > /dev/null; then
+		    >&2 echo "Adding $(getPKG) to INSTALL_CHART"
+			getPKG >> $INSTALL_CHART
+			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
 		# Add our Post Dependency list here.
 		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> $CHART
@@ -167,12 +171,14 @@ doDeps() {
 	local DEPS=($1)
 	[ -z $DEPS ] && return
 	for d in ${DEPS[@]}; do
+	    local dpkg=$(EntryParser $d)
+	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/*/$(getSlot $dpkg)
 		pkg-has-flag "nodep" && break
 		# If its already in the list, ignore it and continue.
-		grep -E "^${d/+/\\+}\$" $CHART > /dev/null && continue
+		grep -E "^${dp}" $CHART > /dev/null && continue
 
 		# Identify Circular Dependencies here so we can break out
 
-		getdep $d $PKG_CAT/$PKG_NAME || break
+		getdep $dpkg $PKG_CAT/$PKG_NAME || break
 	done
 }

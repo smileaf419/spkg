@@ -40,6 +40,7 @@ filterSlot() {
 export -f filterSlot
 
 ## Turns a file path into a / seperated list of data.
+## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
 fileToList() {
 	local list
 	[[ $1 != '' ]] && list=$@ || list=$(cat -)
@@ -204,12 +205,6 @@ EntryParser() {
 		p=${p%-*}
 	fi
 
-	## Set our Convience PKG_VR
-	export PKG_VR=$PKG_VER
-	if [[ $PKG_REV != 0 ]]; then
-		PKG_VR+=-r$PKG_REV
-	fi
-
 	## If we have a = in the beginning a version is now required.
 	if [[ ${p:0:1} == "=" ]]; then
 		p=${p#=}
@@ -232,14 +227,6 @@ EntryParser() {
 	## Whatevers left *should* be the package name.
 	export PKG_NAME=$p
 
-	export LENTRY="="$PKG_CAT/$PKG_NAME-$PKG_VR
-	if [[ $PKG_SLOT != 0 ]]; then
-		LENTRY+=:$PKG_SLOT
-	fi
-	if [[ ! -z $PKG_FLAGS ]]; then
-		LENTRY+=[$PKG_FLAGS]
-	fi
-
 	if [[ $VERBOSE -gt 2 ]]; then
 		>&2 echo "PKG_CAT : $PKG_CAT"
 		>&2 echo "PKG_NAME : $PKG_NAME"
@@ -255,41 +242,74 @@ EntryParser() {
 }
 
 ####
+## Sets Environmental Vars.
+setPkgENV() {
+	local data=$1
+
+	export PKG_CAT=$(getCategory $data)
+	export PKG_NAME=$(getName $data)
+	export PKG_VER=$(getVersion $data)
+	export PKG_REV=$(getRevision $data)
+	export PKG_VER_RESTRICT=$(getVerRestrict $data)
+	export PKG_SLOT=$(getSlot $data)
+	export PKG_FLAGS=$(getFlags $data)
+	export PKG_USE=$(getPkgUse $data)
+
+	## Set our Convience Vars
+	export PKG_VR=$PKG_VER
+	if [[ $PKG_REV != 0 ]]; then
+		PKG_VR+=-r$PKG_REV
+	fi
+	export PKG_NVR=${PKG_NAME}-${PKG_VR}
+	export PKG_NV=${PKG_NAME}-${PKG_VER}
+
+	export LENTRY="="$PKG_CAT/$PKG_NAME-$PKG_VR
+	if [[ $PKG_SLOT != 0 ]]; then
+		LENTRY+=:$PKG_SLOT
+	fi
+	if [[ ! -z $PKG_FLAGS ]]; then
+		LENTRY+=[$PKG_FLAGS]
+	fi
+
+	export PKG='$PKG_CAT/$PKG_NAME/$PKG_VER/$PKG_REV/$PKG_VER_RESTRICT/$PKG_SLOT/$PKG_FLAGS/$PKG_USE'
+}
+
+getPKG() {
+	eval echo $PKG
+}
+
+####
 ## DB Methods (PKG_DB_DIR)
 ## Returns the most recent data from our database/repository.
 
-## Accepts a LENTRY or a lesser qualified version of it.
+####
+## Matches and updates values from the given PKG from the Database
 ## Returns a list of PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## Returns nothing if nothing is found.
 DB-getPkg() {
-	local p=$1
 	local path=${2:-$PKG_DB_DIR}
 
-	EntryParser $p > /dev/null
+	## Set the environment with known values.
+	setPkgENV $1
 
 	for l in $(DB-getPkgList $PKG_CAT/$PKG_NAME/$PKG_VR | filterArch | filterSlot $PKG_SLOT | sort -V); do
-		lpkg=$(fileToList $l)
+		setPkgENV $(fileToList $l)
 		if [[ ! -z $PKG_VER_RESTRICT ]]; then
 			## TODO Filter out non-matching versions here.
 #			continue
 			:;
 		fi
-		echo $(getCategory $lpkg)/$(getName $lpkg)/$(getVersion $lpkg)/$(getRevision $lpkg)/$(getVerRestrict $lpkg)/$(getSlot $lpkg)/$(getFlags $lpkg)/$(getPkgUse $lpkg)
+		eval echo $PKG
 	done
 }
 export -f DB-getPkg
 
 ## Returns a list of matching entries.
 DB-getPkgList() {
-	local p=$@
-	p=${p#/} ## In case a PKG_CAT was not supplied, filter out the / that would be passed in front of the PKG_NAME
-	p=($p)
-	local cat=$(getCategory $p)/
-	local name=$(getName $p)/
-	[[ $name == '/' ]] && name=
-	local ver=$(getVerRev $p)
-	[[ $ver == '' || $ver == 0 ]] && ver="*"
-
-	find "$PKG_DB_DIR" -iwholename "*/${cat}${name}${ver}.build"
+	setPkgENV $1
+	[[ $PKG_CAT == '' ]] && PKG_CAT='*'
+	[[ $PKG_VR == '' || $PKG_VR == 0 ]] && PKG_VR='*'
+	find "$PKG_DB_DIR" -iwholename "*/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build"
 }
 export -f DB-getPkgList
 
@@ -297,25 +317,30 @@ export -f DB-getPkgList
 ## Installed Methods (PKG_CACHE)
 ## Returns information from our PKG_CACHE dirs
 
-## Accepts a LENTRY or a lesser qualified version of it.
-## Returns a list of PKG_CAT/PKG_NAME/PKG_VR/PKG_SLOT/PKG_FLAGS
+####
+## Matches and updates values from the given PKG from what is installed.
+## Requires a PKG
+## Returns a list of PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## Returns nothing if nothing is found.
 Installed-getPkg() {
-	local p=$1
 	local path=${2:-$PKG_CACHE}
 
-	EntryParser $p > /dev/null
+	## Set the environment with known values
+	setPkgENV $1
 
 	for l in $(Installed-getPkgList $PKG_CAT/$PKG_NAME | filterSlot $PKG_SLOT | sort -V); do
 		[[ $l == 0 ]] && continue
-		lpkg=$(fileToList $l)
-		PKG_VR=$(getVerRev $lpkg)
+		setPkgENV $(fileToList $l)
+
 		local file="$path/$PKG_CAT/$PKG_NAME/$PKG_VR/$PKG_VR.build"
 		PKG_SLOT=$(grep 'SLOT=' "$file" | sed 's,.*SLOT=,,')
-		echo $(getCategory $lpkg)/$(getName $lpkg)/$(getVersion $lpkg)/$(getRevision $lpkg)/$(getVerRestrict $lpkg)/$PKG_SLOT/$(getFlags $lpkg)/$(getPkgUse $lpkg)
+		eval echo $PKG
 	done
 }
 export -f Installed-getPkg
 
+####
+## Requires a PKG_CAT/PKG_NAME
 ## Returns a list of matching entries.
 Installed-getPkgList() {
 	v=$(find "$PKG_CACHE" -iwholename "*/$1/*.build")
@@ -415,3 +440,43 @@ getPkgUse() {
 	getData $data 7
 }
 export -f getPkgUse
+
+getLEntry() {
+	local data=${1:-$(cat -)}
+	local PKG_CAT=$(getCategory $data)
+	local PKG_NAME=$(getName $data)
+	local PKG_VR=$(getVerRev $data)
+	local PKG_SLOT=$(getSlot $data)
+	local PKG_FLAGS=$(getFlags $data)
+	local LENTRY=$PKG_CAT/$PKG_NAME
+	if [[ $PKG_VR != 0 ]]; then
+		LENTRY="=$LENTRY-$PKG_VR"
+	fi
+	if [[ $PKG_SLOT != 0 ]]; then
+		LENTRY+=:$PKG_SLOT
+	fi
+	if [[ ! -z $PKG_FLAGS ]]; then
+		LENTRY+=[$PKG_FLAGS]
+	fi
+}
+export -f getLEntry
+
+####
+## Get a Build file path.
+## Requires an ENTRY and a path.
+## path maybe 0 for DB or 1 or Installed.
+getBldFile() {
+	local data=${1:-$(cat -)}
+	local PKG_CAT=$(getCategory $data)
+	local PKG_NAME=$(getName $data)
+	local PKG_VR=$(getVerRev $data)
+	local Installed=${1:-0}
+
+	if [[ $Installed == 1 ]]; then
+		PKG_BLD=$PKG_CACHE/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build
+	else
+		PKG_BLD=$PKG_DB_DIR/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build
+	fi
+	echo $PKG_BLD
+}
+

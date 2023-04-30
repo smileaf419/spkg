@@ -1,5 +1,9 @@
 #!/bin/bash
 
+## Enable Debug
+#set -x
+#export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+
 source /etc/spkg.conf
 source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/pkg-tools"
@@ -116,22 +120,20 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	FILE=${FILE/.orig/}
 	FILE=${FILE//_/-}
 
-	PKG=$(DB-getPkgList $PK | fileToList | getLatest | getVersion)
-	PKG=${PKG##*/}
-	[[ ${FILE##*-} == "" ]] && echo "Checking $PK : $PKG : ${FILE##*-}"
-	if [[ ${FILE##*-} == $PKG ]]; then
+	PKG=$(DB-getPkgList $PK | fileToList | getLatest)
+	setPkgENV $PKG
+	PKG_BLD=$(getBldFile $(getPKG))
+	[[ ${FILE##*-} == "" ]] && echo "Checking $PK : $(getPKG) : ${FILE##*-}"
+	if [[ ${FILE##*-} == $PKG_VER ]]; then
 		continue
 	fi
-	if [[ $(version_gt ${FILE##*-} $PKG) == 0 ]]; then
-#		echo $FILE [ $PK-$PKG ] $FILE_O >> $UPDATE_LIST
-		echo " * Updating $PK : $PKG -> ${FILE##*-}" >> $UPDATE_LIST
-#		IPKG=$(DB-getPkg $PKG | getLatest)
-		setupENV $PK
-		cp "$PKG_BLD" "$PKG_DB_DIR/$PK/${FILE##*-}.build"
-		sed -e '/ARCH/ s, \([^~]\), ~\1,' \
-			-e '/ARCH/ s,="\([^~]\),="~\1,' \
-			-i "$PKG_DB_DIR/$PK/${FILE##*-}.build"
-		updatesha1 "$PK"
+	if [[ $(version_gt ${FILE##*-} $PKG_VER) == 0 ]]; then
+		echo " * Updating $PKG_CAT/$PKG_NAME : $PKG_VER -> ${FILE##*-}" >> $UPDATE_LIST
+#		cp "$PKG_BLD" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
+#		sed -e '/ARCH/ s, \([^~]\), ~\1,' \
+#			-e '/ARCH/ s,="\([^~]\),="~\1,' \
+#			-i "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
+#		updatesha1 $(getPKG)
 	fi
 done
 if [ -e $UPDATE_LIST ]; then

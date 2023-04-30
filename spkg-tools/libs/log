@@ -1,0 +1,10 @@
+ * Populating list.. !! linux-kernel not found!
+Searching: linux-kernel (*/linux-kernel)
+ * sys-kernel/linux-kernel
+      Available: 6.1.26 6.2.13 6.3
+      Installed: 6.2.12:6.2 6.3:6.3
+       Homepage: https://kernel.org
+    Description: The Linux Kernel
+        License: GPLv2
+   Dependencies: 
+

@@ -148,8 +148,7 @@ list="@system"
 populate_list
 FETCH_ONLY=1
 ## Attempt to catch the error so we can finish.
-installList $list || false
-if [[ $? != 0 ]]; then
+if installList $list; then
 	echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
 	echo "    Finally move the downloaded files to: $DISTFILES"
 fi

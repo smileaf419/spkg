@@ -223,10 +223,8 @@ install_default() {
 	elif [[ $buildTool == "ninja" ]]; then
 		DESTDIR="${D}/$ROOT" ninja install || die "Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
-		python -m pip install --upgrade $PKG_NAME
-
 		# FIXME: This seems to happen too frequently.. like even once is too many times. Why?
-		if [[ $? != 0 ]]; then
+		if ! python -m pip install --upgrade $PKG_NAME; then
 			echo " !! Assuming pip is broken. Reinstalling and trying again."
 			fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
 			python $DISTFILES/get-pip.py

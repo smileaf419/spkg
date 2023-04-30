@@ -1,51 +1,34 @@
 #!/bin/bash
-fetch_list() {
-	# Output our message
-	[[ ! -z $1 ]] && echo $1
-	local IFS=$'\n'
-	local list=($2)
-	local update_sha=${4:-0}
-	local length=${#list[@]}
 
-	local ret=0
-	for (( l=0; l<${length}; l++ )); do
-		C=$(( $l + 1 ))
-		file=${list[$l]}
-		[[ $VERBOSE -ge 2 ]] && echo " * Fetching $C of $length: $file"
-		[[ $file == "" ]] && continue
-		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
-			export SRC_OUTFILE=${file/*=> /}
-			export SRC_FILE=${file/ =>*/}
-			# Once a fetch occurs we don't actually need the old filename.
-			# Rename it so as to avoid confusion later.
-			if [[ $3 == 'src' ]]; then
-				SRC_URI[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
-			elif [[ $3 == 'patch' ]]; then
-				PATCHES[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
-			fi
-		else
-			export SRC_FILE=$file
-			export SRC_OUTFILE=${SRC_FILE##*/}
+####
+## Setup package Environmental Variables for building
+## Requires a LENTRY or at minimum PKG_NAME
+setupENV() {
+	EntryParser $1 > /dev/null
+	## If we're uninstalling we need to report the installed version
+	export PKG
+	if [[ $MODE == 'uninstall' ]]; then
+		PKG=$(Installed-getPkg $PKG)
+	else
+		PKG=$(DB-getPkg $PKG | getLatest)
+	fi
+	## If we didn't find a result, get the full list and grab the latest.
+	## This skips the filter* functions.
+	if [[ $PKG == "" || $PKG == 0 ]]; then
+#       >&2 echo " * PKG ($1) not found, its possible all versions are marked as unstable for your arch."
+		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
+		if [[ $PKG == "" || $PKG == 0 ]]; then
+#           >&2 echo " ! $1 not found for any arch/slot"
+			return
 		fi
-		if [ ! -f "${DISTFILES}/${SRC_OUTFILE}" ]; then
-			echo "Fetching ($C of $length) $SRC_FILE"
-			fetch_file "$SRC_FILE" "$SRC_OUTFILE"
-		fi
-		checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"
-		if [[ $? != 0 ]]; then
-			if [[ $IGNORE_SHA == 1 ]]; then
-				ret=2
-			else
-				if [[ $update_sha == 1 ]]; then
-					sha1sum "$DISTFILES/$SRC_OUTFILE" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
-				else
-					[[ $VERBOSE -gt 1 ]] && >&2 echo " !! Sha1sum failed for file: $SRC_OUTFILE"
-					ret=1
-				fi
-			fi
-		fi
-	done
-	return $ret
+	fi
+	export BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
+	## Default archive build directory
+	export B="${PKG_NV}"
+	## Temp install root
+	export D="${BUILD_PATH}/troot"
+	## Installed version filtered by PKG_SLOT
+	export O_VER=$(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVerRev)
 }
 
 fetch_default() {
@@ -129,8 +112,7 @@ buildPackage() {
 	# Download all files.
 	# If it fails, create it and try again.
 	# Package may have overrode it.
-	cd "${BUILD_PATH}" > /dev/null 2>&1
-	if [[ $? != 0 ]]; then
+	if ! cd "${BUILD_PATH}" > /dev/null 2>&1; then
 		install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}" || die "Failed to create Build Dir."
 	else
 		chown $BUILD_USER "$BUILD_PATH"
@@ -288,8 +270,7 @@ installPackage() {
 					# Check if the file is different
 					# If the file hasn't change, we can safely ignore it.
 					# If the file has changed however, protect it and report it at the end.
-					diff "$D/$file" "$file" > /dev/null 2>&1
-					if [[ $? != 0 ]]; then
+					if ! diff "$D/$file" "$file" > /dev/null 2>&1; then
 						pfile="${file}.cfg$(date +%s)"
 						cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
 						CONFIG_PROTECTED=true
@@ -303,12 +284,10 @@ installPackage() {
 					# if cp fails the file might be busy, but to cp is faster than sinstall due to
 					# having to read permissions and then install
 					# fallback on sinstall if it fails.
-					cp -p "${D}/${file}" "${file}" 2> /dev/null
-					if [[ $? == 0 ]]; then
+					if cp -p "${D}/${file}" "${file}" 2> /dev/null; then
 						echo " >> $file"
 					else
-						sinstall "${D}/${file}" "${file}"
-						if [[ $? == 0 ]]; then
+						if sinstall "${D}/${file}" "${file}"; then
 							echo "i>> $file"
 						else
 							echo "!>c $file"
@@ -348,14 +327,14 @@ installPackage() {
 		# Check if its a system package
 		# Currently we don't use slots within the system set.
 		# So the most recent slot should always be used.
-		grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1
-		if [ $? != 0 ]; then
+		if ! grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 			# If it didn't find it as a system package, check if its already in the world set.
 			# FIXME: We need a way to check if this is an explicitly requested install.
 			#        Or the result of a dependency.
-			grep "^$PKG_CAT/$PKG_NAME:$PKG_SLOT\$" $PKG_WORLD > /dev/null 2>&1
+
 			# Only add to world requested packages.
-			if [[ $? != 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$LENTRY"($|[[:space:]]) ]]; then
+			grep "^$PKG_CAT/$PKG_NAME:$PKG_SLOT\$" $PKG_WORLD > /dev/null 2>&1
+			if [[ $? == 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$LENTRY"($|[[:space:]]) ]]; then
 				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
 					echo " * Registering into World."
 					echo "$PKG_CAT/$PKG_NAME:$PKG_SLOT" >> $PKG_WORLD
