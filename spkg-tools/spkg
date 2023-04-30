@@ -468,6 +468,7 @@ if [[ $MODE == "update" ]]; then
 	list=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
 	PKG_LIST=
 	for p in $list; do
+		echo -n '.'
 		PKG=$(Installed-getPkg $(EntryParser $p))
 
 		setPkgENV $PKG
@@ -475,6 +476,7 @@ if [[ $MODE == "update" ]]; then
 
 		Install-addPkg $PKG
 	done
+	echo
 
 	[ $VERBOSE -ge 1 ] && echo list: $list
 
@@ -595,8 +597,8 @@ else
 	if [[ $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
-		getFullPkgList $PKG_LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
 		LIST=$(cat $CHART)
+		getFullPkgList $LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
 	else
 		LIST=$(cat $INSTALL_CHART)
 	fi
@@ -645,7 +647,7 @@ else
 		fi
 	done
 
-	[[ -z $PKG_LIST ]] && die "Nothing to upgrade."
+	[[ -z $LIST ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
 
 	## Install our list

@@ -105,8 +105,7 @@ expandSets() {
 getdep() {
 	# Don't taint the environment.
 	(
-		PKG=$(DB-getPkg $1 | getLatest)
-		setPkgENV $PKG
+		setPkgENV $1
 
 		# Check if its on the stack, if not, add it. if so we'll get to it later.
 		grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return || eval echo $PKG >> $STACK
@@ -138,7 +137,7 @@ getdep() {
 		# Check CDEPS
 		if [[ ! -z $CDEPS ]]; then
 			for p in $CDEPS; do
-			    cpkg=$(EntryParser $p)
+			    local cpkg=$(EntryParser $p)
         	    local cp=$(getCategory $cpkg)/$(getName $cpkg)/*/$(getSlot $cpkg)
 				pkg-has-flag "nodep" && break
 
@@ -148,6 +147,7 @@ getdep() {
 				# If its already installed, we don't need to install it twice.
 				[[ $(Installed-getPkgList $cn) != 0 ]] && continue
 
+				cpkg=$(DB-getPkg $cpkg | getLatest)
 				getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
 
 				# Create a Post Dependency list.
