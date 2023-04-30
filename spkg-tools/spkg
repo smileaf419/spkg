@@ -328,8 +328,9 @@ parse_cmdline() {
 ## Store the information within our CHART for easy reference.
 populate_list() {
 	local list=$(expandSets $REQUESTED_LIST)
-	echo -n " * Populating list.."
+	echo -n " * Populating list"
 	for p in $list; do
+		echo -n '.'
 		PKG=$(EntryParser $p)
 		## EntryParser does not find packages within our Database
 		## Check our Mode and check for the presence of the package.
@@ -598,12 +599,16 @@ else
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
 		## FIXME: Should format this for the user.
-		cat $CHART
+		for p in $(cat $CHART); do
+			setPkgENV $p
+			echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
+		done
+		echo
 		echo "Package Order:"
 	fi
 
 	for p in $(cat $CHART); do
-		setPkgENV $p
+		setupENV $p
 
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
@@ -636,6 +641,7 @@ else
 		fi
 	done
 
+	PKG_LIST=$(cat $INSTALL_CHART)
 	[[ -z $PKG_LIST ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
 

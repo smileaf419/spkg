@@ -40,7 +40,7 @@ getFullPkgList() {
 	[[ -e $CHART ]] && rm $CHART
 	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
 	[[ -e $STACK ]] && rm $STACK
-	touch $CHART $STACK
+	touch $CHART $STACK $INSTALL_CHART
 
 	SP=
 	for d in $@; do
@@ -48,13 +48,14 @@ getFullPkgList() {
 		flist+=" $LENTRY"
 	done
 	echo
+	rm $STACK
 }
 
 # Take a list and expand all @sets found within.
 expandSets() {
 	local REQUEST_LIST=$@
 	local PKG_LIST=
-	if [[ $list =~ (^|[[:space:]])"@" ]]; then
+	if [[ $REQUEST_LIST =~ (^|[[:space:]])"@" ]]; then
 		>&2 echo " * Found Set .. Expanding"
 		for p in $REQUEST_LIST; do
 			if [ ${p:0:1} == "@" ]; then
@@ -102,23 +103,25 @@ expandSets() {
 # CDEPS: Circular Dependencies are a special case where a package should be installed before and after
 #        the package, but only if its not already installed.
 getdep() {
-	setPkgENV $1
-
-	# Check if its on the stack, if not, add it. if so we'll get to it later.
-	grep "$PKG_CAT/$PKG_NAME/*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return || eval echo $PKG >> $STACK
-
-	# If we somehow call ourselves..
-	[[ $2 == $PKG_CAT/$PKG_NAME/*/$PKG_SLOT/* ]] && return 2
-
-	# Print an interesting looking tree.
-	if [[ $VERBOSE -ge 1 ]]; then
-		>&2 echo "$SP$PKG_CAT/$PKG_NAME:$PKG_SLOT"
-		SP+=" "
-	else
-		>&2 echo -n .
-	fi
 	# Don't taint the environment.
 	(
+		PKG=$(DB-getPkg $1 | getLatest)
+		setPkgENV $PKG
+
+		# Check if its on the stack, if not, add it. if so we'll get to it later.
+		grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return || eval echo $PKG >> $STACK
+
+		# If we somehow call ourselves..
+		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/$PKG_SLOT/ ]] && return 2
+
+		# Print an interesting looking tree.
+		if [[ $VERBOSE -ge 1 ]]; then
+			>&2 echo "$SP$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
+			SP+=" "
+		else
+			>&2 echo -n .
+		fi
+
 		eval PKG_BLD=$(getBldFile $(getPKG))
 		if [ -e "$PKG_BLD" ]; then
 			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
@@ -153,8 +156,8 @@ getdep() {
 		fi
 
 		# Add our package
-		if ! grep -E "^${PKG_CAT}.${PKG_NAME}.${PKG_VER}" $CHART > /dev/null; then
-			getPKG >> $INSTALL_CHART
+		if ! grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $CHART > /dev/null; then
+			getPKG >> $CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
 		# Add our Post Dependency list here.
@@ -170,7 +173,7 @@ doDeps() {
 	[ -z $DEPS ] && return
 	for d in ${DEPS[@]}; do
 	    local dpkg=$(EntryParser $d)
-	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/*/$(getSlot $dpkg)
+	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/.*/$(getSlot $dpkg)
 		pkg-has-flag "nodep" && break
 		# If its already in the list, ignore it and continue.
 		grep -E "^${dp}" $CHART > /dev/null && continue
