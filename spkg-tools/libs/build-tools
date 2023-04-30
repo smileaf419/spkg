@@ -62,7 +62,7 @@ export -f verify_default
 
 unpack_default() {
 	# We need to downgrade SRC_URI for scripts to access it properly
-	SRC=${SRC_URI[@]}
+	local SRC=${SRC_URI[@]}
 	unset SRC_URI
 	export SRC_URI=${SRC[@]}
 	export SRC_FILE=${SRC_URI%% *}
@@ -227,7 +227,7 @@ installPackage() {
 		if [[ -e "${D}/usr/share/locale" ]]; then
 			echo " * Cleaning locales"
 			# Create an Exclude list
-			LIST=$(ls -1 "${D}/usr/share/locale")
+			export LIST=$(ls -1 "${D}/usr/share/locale")
 			for l in $LANG ${LANG%.*} ${LANG%_*}; do
 				LIST=$(grep -v $l <<< $LIST)
 			done
@@ -252,7 +252,7 @@ installPackage() {
 		echo " * Merging into ${ROOT}"
 		# Install New Files
 		local IFS=$'\n'   # Internal Field Sperator
-		CONFIG_PROTECTED=false
+		local CONFIG_PROTECTED=false
 		for file in $(cat "${BUILD_PATH}/CONTENTS"); do
 			# Check for links before anything else
 			# to avoid installing a directory when a link
@@ -328,8 +328,8 @@ installPackage() {
 		post_install || die "Error in post_install"
 
 		if [[ $MODULE == kernel ]]; then
-			K_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
-			KERNEL_VER=$(getMajorVer $K_VER).$(getMinorVer $K_VER).$(getMicroVer $K_VER)
+			local K_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
+			local KERNEL_VER=$(getMajorVer $K_VER).$(getMinorVer $K_VER).$(getMicroVer $K_VER)
 			echo -n " * Running depmod (${KERNEL_VER}) .. "
 			depmod -a $KERNEL_VER && echo "Ok" || echo "Failed"
 		fi
@@ -343,11 +343,11 @@ installPackage() {
 			#        Or the result of a dependency.
 
 			# Only add to world requested packages.
-			grep "^$PKG_CAT/$PKG_NAME:$PKG_SLOT\$" $PKG_WORLD > /dev/null 2>&1
-			if [[ $? == 0 && $REQUESTED_LIST =~ (^|[[:space:]])"$LENTRY"($|[[:space:]]) ]]; then
+			grep "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
+			if [[ $? != 0 && $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/$PKG_SLOT/ ]]; then
 				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
 					echo " * Registering into World."
-					echo "$PKG_CAT/$PKG_NAME:$PKG_SLOT" >> $PKG_WORLD
+					getPKG >> $PKG_WORLD
 				fi
 			fi
 		fi
@@ -365,10 +365,10 @@ installPackage() {
 # Arguments: Package (category/name) and version to remove.
 #			 if 3rd argument is supplied diff versions and remove the old files.
 uninstall() {
-	PKG=$1
-	PKG_VER=$2
-	O_VER=$3
-	FLIST=""
+	local PKG=$1
+	local PKG_VER=$2
+	local O_VER=$3
+	local FLIST=""
 	[[ "$O_VER" == "0" ]] && return
 
 	## Compare Slots
@@ -400,7 +400,7 @@ uninstall() {
 			# Check to see if its a versioned .so file
 			# Links can be made around this and the real file might be
 			# removed leaving dead links.
-			fd=
+			local fd=
 			[[ $file == *\.so* ]] && fd=$(checkFileDep $file)
 
 			if [[ -z $fd ]]; then
@@ -420,11 +420,11 @@ uninstall() {
     done
 	[ "${O_VER}" != "${PKG_VER}" ] && rm -r "${PKG_CACHE}/${PKG}/${O_VER}"
 	if [ "$O_VER" == "" ]; then
-		if grep "^$PKG\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+		if grep "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 			echo "WARNING: You've removed a package within the system set!"
 			echo "         This may cause undesired consequences!"
 		else
-			grep -E -v "^$PKG\$" $PKG_WORLD > $PKG_WORLD.old
+			grep -Ev "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_WORLD > $PKG_WORLD.old
 			mv $PKG_WORLD.old $PKG_WORLD
 		fi
 	fi
