@@ -242,7 +242,7 @@ EntryParser() {
 		>&2 echo "PKG_USE : $PKG_USE"
 	fi
 
-	echo "$PKG_CAT/$PKG_NAME/$PKG_VER/$PKG_REV/$PKG_VER_RESTRICT/$PKG_SLOT/$PKG_FLAGS/$PKG_USE"
+	getPKG
 }
 
 ####
@@ -275,11 +275,17 @@ setPkgENV() {
 		LENTRY+=[$PKG_FLAGS]
 	fi
 
-	export PKG='$PKG_CAT/$PKG_NAME/$PKG_VER/$PKG_REV/$PKG_VER_RESTRICT/$PKG_SLOT/$PKG_FLAGS/$PKG_USE'
+	getPKG
 }
 
+## Output the most recent PKG with the most recent values.
+## And save back to our PKG.
 getPKG() {
-	eval echo $PKG
+	## Save the format if any value changes we can reference it with getPKG
+	export OUT_PKG='$PKG_CAT/$PKG_NAME/$PKG_VER/$PKG_REV/$PKG_VER_RESTRICT/$PKG_SLOT/$PKG_FLAGS/$PKG_USE'
+
+	PKG=$(eval echo $OUT_PKG)
+	echo $PKG
 }
 
 ####
@@ -479,7 +485,7 @@ getBldFile() {
 	local PKG_CAT=$(getCategory $data)
 	local PKG_NAME=$(getName $data)
 	local PKG_VR=$(getVerRev $data)
-	local Installed=${1:-0}
+	local Installed=${2:-0}
 
 	if [[ $Installed == 1 ]]; then
 		PKG_BLD=$PKG_CACHE/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build
@@ -488,4 +494,3 @@ getBldFile() {
 	fi
 	echo $PKG_BLD
 }
-

@@ -7,7 +7,7 @@ setupENV() {
 	EntryParser $1 > /dev/null
 	## If we're uninstalling we need to report the installed version
 	export PKG
-	if [[ $MODE == 'uninstall' ]]; then
+	if [[ $MODE == 'uninstall' || $MODE == 'rebuild' ]]; then
 		PKG=$(Installed-getPkg $PKG)
 	else
 		PKG=$(DB-getPkg $PKG | getLatest)
@@ -22,16 +22,16 @@ setupENV() {
 			return
 		fi
 	fi
-	setPkgENV $(getPKG)
+	setPkgENV $(getPKG) > /dev/null
 	export BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	## Default archive build directory
 	export B="${PKG_NV}"
 	## Temp install root
 	export D="${BUILD_PATH}/troot"
 	## Installed version filtered by PKG_SLOT
-	export O_VER=$(Installed-getPkg $(getPKG) | getVerRev)
+	export O_VER=$(Installed-getPkg $PKG | getVerRev)
 
-	export PKG_BLD=$(getBldFile $(getPKG))
+	export PKG_BLD=$(getBldFile $PKG)
 	if [[ $VERBOSE -ge 2 ]]; then
 		>&2 echo "       PKG : $PKG"
 		>&2 echo "BUILD_PATH : $BUILD_PATH"

@@ -10,6 +10,8 @@
 ## Comments will start with ##
 ## Code meant to be ignored will start with #
 ## Tab is set to 4 spaces
+## GLOBAL vars will be in CAPS
+## local vars will be lower case
 
 ## Versions will be concurrent, but this will get updated whenever a large amount of functionality gets added or fixed.
 VERSION="20230422"

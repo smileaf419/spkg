@@ -41,25 +41,29 @@ getBDeps() {
 }
 
 ####
-## Takes a list of LENTRY to (un)install
+## Takes a list of PKG to (un)install
 installList() {
-	list=($@)
-	length=${#list[@]}
-	for (( l=0; l<${length}; l++ ));
-	do
+	local list=($@)
+	local length=${#list[@]}
+
+	## Linux-kernel uses the ARCH environment var, rename it and unset the ARCH to avoid issues.
+	## FIXME: This should probably be changed internally rather than be arbitrarily renamed.
+	export SARCH=$ARCH
+	unset ARCH
+
+	for (( l=0; l<${length}; l++ )); do
 		## Current #
-		C=$(( ${l} + 1 ))
+		local C=$(( ${l} + 1 ))
 		## PKG entry
-		p=${list[$l]}
-		setPkgENV $p
+		local p=${list[$l]}
 		setupENV $p
 
 		## Uninstall
 		if [[ $MODE == "uninstall" ]]; then
 			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
 			(
-				source "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VER}/${PKG_VER}.build"
-				d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
+				source $(getBldFile $p 1)
+				local d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
 
 				## FIXME: If uninstalling will break packages Check Forced.
 				## Option 1: Uninstall just the requested, breaking other installed packages.
@@ -88,7 +92,7 @@ installList() {
 			## %n name      %Y year  %m month          %v version with revision
 			LOGFILE=${LOGFILE:-%D-%n%v%r.log}
 
-			LOG=$(echo $LOGDIR/$LOGFILE |
+			local log=$(echo $LOGDIR/$LOGFILE |
 				sed -e "s,%c,$PKG_CAT," \
 					-e "s,%n,$PKG_NAME," \
 					-e "s,%v,$PKG_VR,"    \
@@ -98,11 +102,11 @@ installList() {
 					-e "s,%Y,$(date +%Y)," \
 					-e "s,%D,$(date +%Y%m%d),")
 
-			## Our LOG may contain a directory or 2
-			mkdir -p "${LOG%/*}"
+			## Our log may contain a directory or 2
+			mkdir -p "${log%/*}"
 
 			## If the file exists, append a unix timestamp to the end.
-			[[ -e $LOG || -e $LOG.xz ]] && LOG="${LOG%.*}-$(date +%s).log"
+			[[ -e $log || -e $log.xz ]] && log="${log%.*}-$(date +%s).log"
 
 			CFG_PROTECT=true
 
@@ -111,23 +115,23 @@ installList() {
 			echo " * ${PKG_CAT}/${PKG_NVR} ($C of $length)"
 
 			## Save what time we started installing so we can output how long it took at the end.
-			TIMESTART=$(date "+%s.%N")
+			local timestart=$(date "+%s.%N")
 
 			if [[ $SILENT_BUILD == "no" ]]; then
 				set -o pipefail
-				installPackage 2>&1 | tee $LOG
+				installPackage 2>&1 | tee $log
 				[ $PIPESTATUS != 0 ] && die "Error installing package: ${PKG_NVR}"
 			else
-				installPackage > $LOG 2>&1 || die "Error installing package: ${PKG_NVR}"
+				installPackage > $log 2>&1 || die "Error installing package: ${PKG_NVR}"
 			fi
 
 			## If bc is installed output how long it took to build
 			if [[ -e /usr/bin/bc ]]; then
-				printf "Completed in %.3f seconds.\n" $( echo $(date "+%s.%N") - $TIMESTART | bc ) | tee -a $LOG
+				printf "Completed in %.3f seconds.\n" $( echo $(date "+%s.%N") - $timestart | bc ) | tee -a $log
 			fi
 
 			## Compress our log.
-			[[ ! -e "${LOG}.xz" ]] && xz "$LOG" || echo " ! Log ${LOG}.xz exists"
+			[[ ! -e "${log}.xz" ]] && xz "$log" || echo " ! Log ${log}.xz exists"
 		fi
 		echo -n " * Running ldconfig .."
 		ldconfig && echo "done!" || echo "failed!"
