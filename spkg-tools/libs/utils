@@ -328,17 +328,18 @@ fetch_list() {
 ## Check a sha1sum of a given file within the package's sha1 file.
 checkSha1() {
 	[[ $IGNORE_SHA1 == 1 || $MODE == 'uninstall' ]] && return 0
-	local PKG=$1
+	local PKG_DIR=$1
 	local FILE=$2
 
 	## Ignore Empty calls
 	[[ $FILE == "" ]] && return 0
+	[[ ! -e $PKG_DIR/sha1 ]] && return 1
 
 	[[ $VERBOSE -ge 2 ]] && >&2 echo -n "Checking Sha1: $FILE ... "
 	[ ! -e $FILE ] && echo "Failed checking $PKG sha1" && return 1
 	local h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
 	[[ $VERBOSE -ge 2 ]] && >&2 echo -n $h
-	if grep "$h" $PKG/sha1 > /dev/null 2>&1; then
+	if grep "$h" $PKG_DIR/sha1 > /dev/null 2>&1; then
 		[[ $VERBOSE -ge 2 ]] && >&2 echo " ..Ok"
 	else
 		return 1

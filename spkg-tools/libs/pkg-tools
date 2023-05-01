@@ -308,7 +308,7 @@ DB-getPkg() {
 
 	for l in $(DB-getPkgList $PKG_CAT/$PKG_NAME/$PKG_VR | filterArch | filterSlot $PKG_SLOT | sort -V); do
 		## Update Values
-		setPkgENV $(fileToList $l)
+		setPkgENV $(fileToList $l) > /dev/null
 		if [[ ! -z $PKG_VER_RESTRICT ]]; then
 			## TODO Filter out non-matching versions here.
 #			continue
@@ -321,7 +321,7 @@ export -f DB-getPkg
 
 ## Returns a list of matching entries.
 DB-getPkgList() {
-	setPkgENV $1
+	setPkgENV $1 > /dev/null
 	[[ $PKG_CAT == '' ]] && PKG_CAT='*'
 	[[ $PKG_VR == '' || $PKG_VR == 0 ]] && PKG_VR='*'
 	find "$PKG_DB_DIR" -iwholename "*/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build"
@@ -341,11 +341,11 @@ Installed-getPkg() {
 	local path=${2:-$PKG_CACHE}
 
 	## Set the environment with known values
-	setPkgENV $1
+	setPkgENV $1 > /dev/null
 
 	for l in $(Installed-getPkgList $PKG_CAT/$PKG_NAME | filterSlot $PKG_SLOT | sort -V); do
 		[[ $l == 0 ]] && continue
-		setPkgENV $(fileToList $l)
+		setPkgENV $(fileToList $l) > /dev/null
 
 		local file="$path/$PKG_CAT/$PKG_NAME/$PKG_VR/$PKG_VR.build"
 		PKG_SLOT=$(grep 'SLOT=' "$file" | sed 's,.*SLOT=,,')

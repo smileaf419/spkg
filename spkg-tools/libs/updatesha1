@@ -15,12 +15,12 @@ IGNORE_SHA=0
 ####
 ## Hash the directory
 hashdir() {
-	PKG=$@
+	local PKG=$@
 	echo
-	echo -n "    Updating: $PKG: ["
+	echo -n "    Updating: $PKG_CAT/$PKG_NAME: ["
 	local dir=${PKG_BLD%/*}
 	[[ -e $dir/sha1 ]] && rm $dir/sha1
-	PKG=$(DB-getPkgList $PKG | fileToList)
+	PKG=$(DB-getPkg $PKG_CAT/$PKG_NAME)
 	for p in $PKG; do
 		unset SRC_URI PATCHES
 		(
@@ -46,15 +46,14 @@ updatesha1() {
 	## if any file fails, rehash the entire directory.
 	local updated=0
 	for l in $list; do
-		PKG=$(DB-getPkg $l)
-		for p in $PKG; do
+		PKGs=$(DB-getPkg $l)
+		for p in $PKGs; do
 			## Unset these as some packages don't set them and will cause issues checking hashes.
 			unset SRC_URI PATCHES
 			setPkgENV $p > /dev/null
 
-			PKG_BLD=$(getBldFile $PKG)
 			if ! checkSha1 "${PKG_BLD%/*}" "$PKG_BLD"; then
-				hashdir $PKG_CAT/$PKG_NAME
+				hashdir $PKG
 				updated=1
 				break
 			elif [[ $VERBOSE -gt 0 ]]; then
@@ -63,7 +62,7 @@ updatesha1() {
 			source "$PKG_BLD"
 			if ! fetch_list "" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src'; then
 				# A failed hash was found.
-				hashdir $PKG_CAT/$PKG_NAME
+				hashdir $PKG
 				updated=1
 				break
 			elif [[ $VERBOSE -gt 0 ]]; then
@@ -71,7 +70,7 @@ updatesha1() {
 			fi
 			if ! fetch_list "" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch'; then
 				# A failed hash was found.
-				hashdir $PKG_CAT/$PKG_NAME
+				hashdir $PKG
 				updated=1
 				break
 			elif [[ $VERBOSE -gt 0 ]]; then

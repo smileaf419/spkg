@@ -473,7 +473,7 @@ if [[ $MODE == "update" ]]; then
 		echo -n '.'
 		PKG=$(Installed-getPkg $(EntryParser $p))
 
-		setPkgENV $PKG
+		setPkgENV $PKG > /dev/null
 		PKG=$(getPkgFromWorld $PKG_CAT/$PKG_NAME)
 
 		Install-addPkg $PKG
@@ -608,7 +608,7 @@ else
 		echo "Package Order (Full List):"
 		## FIXME: Should format this for the user.
 		for p in $(cat $CHART); do
-			setPkgENV $p
+			setPkgENV $p > /dev/null
 			echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
 		done
 		echo
