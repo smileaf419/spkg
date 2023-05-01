@@ -12,6 +12,9 @@ ARCHS="~x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 [[ ${ARCH#\~} == "x86" ]] && SET_ABI="ABI=32"
+IUSE="java"
+## Should add an opensource java and depend on a virtual or something that supplies that instead of this.
+use-enable java && UDEPS="dev-java/sun-jdk"
 
 src_configure() {
 	configure_default \
@@ -21,11 +24,11 @@ src_configure() {
 				--enable-plugins    \
 				--disable-werror    \
 				--enable-64-bit-bfd \
-				--with-jdk=$JAVA_HOME \
+				$(use-enable java && echo --with-jdk=$JAVA_HOME || echo --without-jdk) \
 				--with-system-zlib
 }
 
-src_compile() { 
+src_compile() {
 	compile_default tooldir=/usr
 }
 
@@ -40,7 +43,7 @@ src_install() {
 }
 
 bootstrap() {
-	case $PKG_FLAGS in 
+	case $PKG_FLAGS in
 	pass1)
 		../configure --prefix=$ROOT/tools \
 		             --with-sysroot=$ROOT \
