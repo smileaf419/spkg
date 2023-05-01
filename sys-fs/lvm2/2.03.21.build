@@ -11,6 +11,7 @@ B="LVM2.${PKG_VER}"
 
 src_configure() {
 	# Device Drivers --->
+	#   Multiple devices driver support (RAID and LVM) --->
 	checkKernelConfig CONFIG_MD                   1 "Multiple devices driver support (RAID and LVM)"
 	checkKernelConfig CONFIG_BLK_DEV_DM           1 "Device mapper support"
 	checkKernelConfig CONFIG_DM_CRYPT             1 "Crypt target support"
@@ -20,7 +21,7 @@ src_configure() {
 	checkKernelConfig CONFIG_DM_MIRROR            1 "Mirror target"
 	checkKernelConfig CONFIG_DM_ZERO              1 "Zero target"
 	checkKernelConfig CONFIG_DM_DELAY             1 "I/O delaying target"
-	# [*] Block Devices --->
+	#   [*] Block Devices --->
 	checkKernelConfig CONFIG_BLK_DEV_RAM          1 "RAM block device support"
 	# Kernel hacking --->
 	#   Generic Kernel Debugging Instruments --->
