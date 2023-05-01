@@ -615,8 +615,9 @@ else
 		echo "Package Order:"
 	fi
 
+	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
 	for p in $LIST; do
-		setupENV $p
+		setPkgENV $p > /dev/null
 
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested

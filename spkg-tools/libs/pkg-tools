@@ -276,6 +276,7 @@ setPkgENV() {
 	fi
 
 	getPKG
+	export PKG_BLD=$(getBldFile $PKG)
 }
 
 ## Output the most recent PKG with the most recent values.

@@ -22,7 +22,7 @@ setupENV() {
 			return
 		fi
 	fi
-	setPkgENV $(getPKG) > /dev/null
+	setPkgENV $PKG > /dev/null
 	export BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	## Default archive build directory
 	export B="${PKG_NV}"
@@ -31,7 +31,6 @@ setupENV() {
 	## Installed version filtered by PKG_SLOT
 	export O_VER=$(Installed-getPkg $PKG | getVerRev)
 
-	export PKG_BLD=$(getBldFile $PKG)
 	if [[ $VERBOSE -ge 2 ]]; then
 		>&2 echo "       PKG : $PKG"
 		>&2 echo "BUILD_PATH : $BUILD_PATH"
