@@ -104,7 +104,7 @@ getPkgFromWorld() {
 ####
 ## Adds an Entry to our INSTALL_CHART
 Install-addPkg() {
-	PKG_LIST+=" $1"
+#	PKG_LIST+=" $1"
 	eval echo $1 >> $INSTALL_CHART
 }
 

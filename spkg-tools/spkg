@@ -488,11 +488,10 @@ elif [[ $MODE == "resume" ]]; then
 		die " ! Error Cannot resume no list was found."
 	fi
 	echo " * Resuming..."
-	PKG_LIST=$(cat $INSTALL_CHART)
 	## FIXME: This actually is a guess at what the REQUESTED_LIST actually was.
 	##        If for example: a package was request, and 2 dependencies brought in, then got cancelled and resumed.
 	##        all 3 packages would be set as requested and thus registered within WORLD.
-	PKG_LIST=$list
+	mv "$INSTALL_CHART" "$CHART"
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 elif [[ $MODE == "buildKernel" ]]; then
@@ -599,14 +598,10 @@ else
 	if [[ $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
-		LIST=$(cat $CHART)
-		getFullPkgList $LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
-	else
-		LIST=$(cat $INSTALL_CHART)
+		getFullPkgList $PKG_LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
 	fi
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
-		## FIXME: Should format this for the user.
 		for p in $(cat $CHART); do
 			setPkgENV $p > /dev/null
 			echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
@@ -616,7 +611,7 @@ else
 	fi
 
 	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
-	for p in $LIST; do
+	for p in $(cat $CHART); do
 		setPkgENV $p > /dev/null
 
 		if [[ $MODE != "uninstall" ]]; then
@@ -638,7 +633,7 @@ else
 			fi
 		else
 			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
-				($REQUESTED_LIST =~ (^|[[:space:]])"=$PKG_CAT/$PKG_NAME"(-|:|$|[[:space:]])) ]]; then
+				$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
@@ -650,7 +645,7 @@ else
 		fi
 	done
 
-	[[ -z $LIST ]] && die "Nothing to upgrade."
+	[[ -z $PKG_LIST ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
 
 	## Install our list
