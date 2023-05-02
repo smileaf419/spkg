@@ -108,7 +108,7 @@ getdep() {
 		setPkgENV $1 > /dev/null
 
 		# Check if its on the stack, if not, add it. if so we'll get to it later.
-		grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return || eval echo $PKG >> $STACK
+		grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return || eval echo \"$PKG\" >> $STACK
 
 		# If we somehow call ourselves..
 		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/$PKG_SLOT/ ]] && return 2
