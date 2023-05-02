@@ -301,12 +301,9 @@ DB-getPkg() {
 	local path=${2:-$PKG_DB_DIR}
 
 	## Set the environment with known values.
-	local PKG_CAT=$(getCategory $1)
-	local PKG_NAME=$(getName $1)
-	local PKG_VR=$(getVerRev $1)
 	local PKG_SLOT=$(getSlot $1)
 
-	for l in $(DB-getPkgList $PKG_CAT/$PKG_NAME/$PKG_VR | filterArch | filterSlot $PKG_SLOT | sort -V); do
+	for l in $(DB-getPkgList $1 | filterArch | filterSlot $PKG_SLOT | sort -V); do
 		## Update Values
 		setPkgENV $(fileToList $l) > /dev/null
 		if [[ ! -z $PKG_VER_RESTRICT ]]; then
