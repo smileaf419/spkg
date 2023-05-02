@@ -599,6 +599,8 @@ else
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
 		getFullPkgList $PKG_LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
+	else
+		PKG_LIST=$(cat $CHART)
 	fi
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
