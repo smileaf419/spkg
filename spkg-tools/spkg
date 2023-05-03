@@ -329,7 +329,7 @@ parse_cmdline() {
 ## Takes a user supplied list and parse it and finding matches for packages.
 ## Store the information within our CHART for easy reference.
 populate_list() {
-	rm $CHART
+	[ -e $CHART ] && rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
 	echo -n " * Populating list"
 	for p in $list; do
@@ -359,7 +359,8 @@ populate_list() {
 		eval echo $PKG >> $CHART
 	done
 	echo " done"
-	REQUESTED_LIST=$(cat $CHART)
+	[ -e $CHART ] && REQUESTED_LIST=$(cat $CHART)
+	return 0
 }
 
 parse_cmdline $@
