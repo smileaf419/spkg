@@ -47,8 +47,9 @@ getFullPkgList() {
 		getdep $d || return $?
 		flist+=" $LENTRY"
 	done
-	echo
+	>&2 echo
 	rm $STACK
+	cat $CHART
 }
 
 # Take a list and expand all @sets found within.

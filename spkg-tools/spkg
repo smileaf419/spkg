@@ -154,9 +154,9 @@ export ARCHIVE_INSTALL=0
 export VERBOSE=0
 ## Current loaded package
 export PKG=
-## User supplied list from the command line
+## User supplied list from the command line (Parsed)
 export REQUESTED_LIST=
-## Parsed list used to supply packages to be operated on.
+## List of all packages with dependencies to work on.
 export PKG_LIST=
 
 ## For security reasons this shouldn't ever be used... But exists
@@ -329,6 +329,7 @@ parse_cmdline() {
 ## Takes a user supplied list and parse it and finding matches for packages.
 ## Store the information within our CHART for easy reference.
 populate_list() {
+	rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
 	echo -n " * Populating list"
 	for p in $list; do
@@ -349,17 +350,16 @@ populate_list() {
 				exit
 			else
 				echo " !! $p not found!"
-				PKG_LIST=$p
+				REQUESTED_LIST=$p
 				MODE=search
 				return
 			fi
 		fi
-		PKG_LIST+=" "$(eval echo $PKG)
 		## Save our Cache data.
 		eval echo $PKG >> $CHART
 	done
 	echo " done"
-	PKG_LIST=${PKG_LIST# }
+	REQUESTED_LIST=$(cat $CHART)
 }
 
 parse_cmdline $@
@@ -409,7 +409,7 @@ fi
 
 ## Calculate Binary Dependencies and update the DEPS var within the build file.
 if [[ $MODE == "buildbdeps" ]]; then
-	for l in $PKG_LIST; do
+	for l in $REQUESTED_LIST; do
 		p=$(getCategory $l)/$(getName $l)
 		echo "Finding Binary Dependencies: $p"
 		buildBDeps $p
@@ -422,7 +422,7 @@ if [[ $HASH_UPDATE ]]; then
 	C=$(echo $list | tr ' ' '\n' | wc -l)
 	echo " * Updating sha1 of $C packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
-	for p in $PKG_LIST; do
+	for p in $REQUESTED_LIST; do
 		PKG=$(DB-getPkg $p)
 		if [[ $PKG == "" ]]; then
 			echo -n "!"
@@ -465,7 +465,7 @@ fi
 if [[ $MODE == "update" ]]; then
 	echo " * Checking for updates"
 
-	## a REQUEST_LIST is not set as none of this has been explicitely requested.
+	## a REQUESTED_LIST is not set as none of this has been explicitely requested.
 	## instead set a PKG_LIST
 	list=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
 	PKG_LIST=
@@ -516,13 +516,13 @@ elif [[ $MODE == "clean" ]]; then
 	echo " * Gathering a list of @system and @world"
 	PKG_LIST=$(expandSets "@system @world")
 	echo " * Calculating Package List"
-	getFullPkgList $PKG_LIST || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
+	getFullPkgList $PKG_LIST > /dev/null || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	mv $CHART $WORKDIR_BASE/sysworldset
 	echo " * Getting a list of installed packages."
 	find $PKG_CACHE -name \*.build | fileToList | listToLEntry > $WORKDIR_BASE/installedPkgs
-	getFullPkgList $(cat $WORKDIR_BASE/installedPkgs) || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
+	getFullPkgList $(cat $WORKDIR_BASE/installedPkgs) > /dev/null|| die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	echo " * Gathering a list of targets to remove"
-	PKG_LIST=$(cat $CHART $WORKDIR_BASE/sysworldset | sort | uniq -u)
+	REQUESTED_LIST=$(cat $CHART $WORKDIR_BASE/sysworldset | sort | uniq -u)
 	MODE="uninstall"
 	## Clean-up
 	rm $WORKDIR_BASE/sysworldset $WORKDIR_BASE/installedPkgs
@@ -598,10 +598,9 @@ else
 	if [[ $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
-		getFullPkgList $PKG_LIST || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
-	else
-		PKG_LIST=$(cat $CHART)
+		getFullPkgList $REQUESTED_LIST > /dev/null || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
 	fi
+	PKG_LIST=$(cat $CHART)
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
 		for p in $(cat $CHART); do
@@ -614,7 +613,7 @@ else
 
 	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
 	for p in $(cat $CHART); do
-		setPkgENV $p > /dev/null
+		setupENV $p > /dev/null
 
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
