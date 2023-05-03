@@ -13,8 +13,7 @@ src_configure() {
 	# SELinux test fails if defined in /proc/filesystem
 	sed -i '/^  LC_ALL=C/ s,\\$,\\\n  CONFIG_HEADER=config.h \\,' testsuite/local.mk
 
-	aclocal
-	automake
+	autoreconf -fiv
 	configure_default --bindir=/bin
 }
 
