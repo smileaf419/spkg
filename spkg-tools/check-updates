@@ -128,11 +128,10 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	fi
 	if [[ $(version_gt ${FILE##*-} $PKG_VER) == 0 ]]; then
 		echo " * Updating $PKG_CAT/$PKG_NAME : $PKG_VER -> ${FILE##*-}" >> $UPDATE_LIST
-#		cp "$PKG_BLD" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
-#		sed -e '/ARCH/ s, \([^~]\), ~\1,' \
-#			-e '/ARCH/ s,="\([^~]\),="~\1,' \
-#			-i "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
-#		updatesha1 $(getPKG)
+		cp "$PKG_BLD" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
+		sed -e '/ARCH/ s,\( |="\)\([^~]\),\1~\2,' \
+			-i "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
+		updatesha1 $PKG
 	fi
 done
 if [ -e $UPDATE_LIST ]; then
