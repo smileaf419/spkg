@@ -1,0 +1,20 @@
+HOMEPAGE="https://savannah.nongnu.org/projects/sysvinit"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/slicer69/sysvinit/releases/download/${PKG_VER}/sysvinit-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/slicer69/sysvinit/releases/download/${PKG_VER}/sysvinit-${PKG_VER}.tar.xz.sig")
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/sysvinit-3.06-consolidated-1.patch")
+DEPS="sys-libs/libxcrypt"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+append-ldflags -lcrypt
+
+src_configure() { :; }
+
+src_test() { :; }
+
+src_install() {
+	install_default ROOT="${D}"
+}

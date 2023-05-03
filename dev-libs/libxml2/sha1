@@ -4,3 +4,5 @@ dd841f463ba99523fe811e3ca03db5784d8ed937  libxml2-2.10.3.tar.xz
 2de0962273e6938a4667969be10fed4507558b4d  libxml2-2.10.3-python3-unicode-errors.patch
 2d2a4dd2ae6996a97a68d03acf8d25b93fbed7ed  2.10.4.build
 bb5754302b08086e6824dfe350b61523b238a11e  libxml2-2.10.4.tar.xz
+2d2a4dd2ae6996a97a68d03acf8d25b93fbed7ed  2.11.1.build
+4b3e69b4012170b8fe65e61d786981c86a73fd3e  libxml2-2.11.1.tar.xz

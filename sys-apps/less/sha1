@@ -2,3 +2,5 @@
 94493a15bed80574cefc30153a10ceebab6824a0  less-608.tar.gz
 41e82ee1acaeff13abbba3d83825778e7bea95db  less-608-procfs.patch
 cde58ed6b0b0d9930af5c0f61d5b7ac19e1bdc4d  less-608-CVE-2022-46663.patch
+98b79a8da18db32af0e8a0f22570d6d1455787cf  632.build
+5dd5c91635c89c1c3c5a8a2696ef202639c94af7  less-632.tar.gz
