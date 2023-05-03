@@ -478,6 +478,7 @@ if [[ $MODE == "update" ]]; then
 		PKG=$(getPkgFromWorld $PKG_CAT/$PKG_NAME)
 
 		Install-addPkg $PKG
+		PKG_LIST+=" $PKG"
 	done
 	echo
 

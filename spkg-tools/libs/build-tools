@@ -342,8 +342,8 @@ installPackage() {
 			#        Or the result of a dependency.
 
 			# Only add to world requested packages.
-			grep "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
-			if [[ $? != 0 && $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/$PKG_SLOT/ ]]; then
+			grep "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
+			if [[ $? != 0 && $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT/ ]]; then
 				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
 					echo " * Registering into World."
 					getPKG >> $PKG_WORLD

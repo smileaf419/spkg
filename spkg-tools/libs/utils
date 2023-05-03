@@ -98,7 +98,7 @@ buildKernel() {
 ## Returns nothing, if nothing is found.
 getPkgFromWorld() {
 	[ -z $PKG_WORLD ] && die "Error: World File not set"
-    grep "$1" $PKG_WORLD 2> /dev/null || echo
+    grep "^$1" $PKG_WORLD 2> /dev/null || echo $PKG
 }
 
 ####
