@@ -464,21 +464,32 @@ fi
 ## Check for updates against whats installed and build our list.
 ## Take everything installed and find upgrades for it, respecting explicitly installed slots within world.
 if [[ $MODE == "update" ]]; then
-	echo " * Checking for updates"
+	echo -n " * Checking for updates"
 
 	## a REQUESTED_LIST is not set as none of this has been explicitely requested.
 	## instead set a PKG_LIST
 	list=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
 	PKG_LIST=
+#	spinner=('|' '|' '/' '/' '-' '-' '\\' '\\')
+#	s=0
 	for p in $list; do
+#		echo -ne "\r * Checking for updates ${spinner[$s]}"
 		echo -n '.'
 		PKG=$(Installed-getPkg $(EntryParser $p))
 
 		setPkgENV $PKG > /dev/null
-		PKG=$(getPkgFromWorld $PKG_CAT/$PKG_NAME)
-
-		Install-addPkg $PKG
-		PKG_LIST+=" $PKG"
+		## This may return multiple packages if multiple slots are installed.
+		WPKG=$(getPkgFromWorld $PKG_CAT/$PKG_NAME)
+		for w in $WPKG; do
+			## We only need to grab the slot information.
+			PKG_VER=0
+			PKG_REV=0
+			PKG_SLOT=$(getSlot $w)
+			PKG=$(getPKG)
+			echo $PKG >> $CHART
+#			s=$(( $s + 1 ))
+#			[[ $s -gt ${#spinner} ]] && s=0
+		done
 	done
 	echo
 
@@ -597,12 +608,12 @@ if [[ $MODE == "search" ]]; then
 elif [[ $MODE == "preserved" ]]; then
 	preservedRebuild
 else
-	if [[ $MODE != "resume" ]]; then
+	if [[ $MODE != "update" &&  $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
 		getFullPkgList $REQUESTED_LIST > /dev/null || die " ! Error Calculating Dependencies: you may need to run: spkg -U"
+		PKG_LIST=$(cat $CHART)
 	fi
-	PKG_LIST=$(cat $CHART)
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
 		for p in $(cat $CHART); do
@@ -648,11 +659,11 @@ else
 		fi
 	done
 
-	[[ -z $PKG_LIST ]] && die "Nothing to upgrade."
+	[[ ! -e $INSTALL_CHART ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
 
 	## Install our list
-	installList $PKG_LIST && rm $INSTALL_CHART $CHART
+	installList $(cat $INSTALL_CHART) && rm $INSTALL_CHART $CHART
 
 	## Check for any preserved files
 	preservedRebuild
