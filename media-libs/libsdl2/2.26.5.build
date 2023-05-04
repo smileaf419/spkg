@@ -1,0 +1,44 @@
+HOMEPAGE="https://www.libsdl.org/"
+DESCRIPTION="The Simple DirectMedia Layer Version 2"
+LICENSE="ZLIB"
+SRC_URI=("https://www.libsdl.org/release/SDL2-${PKG_VER}.tar.gz")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+B=SDL2-$PKG_VER
+
+src_configure() {
+	CONF_FLAGS="--prefix=/usr --docdir=/usr/share/doc/${PKG_NAME}-${PKG_VR}"
+	configure_default
+}
+
+src_compile() {
+	compile_default
+	if [[ $INSTALL_DOCS == 1 ]]; then
+		pushd docs
+			doxygen
+		popd
+	fi
+}
+
+src_test() {
+	cd test &&
+	./configure &&
+	make
+}
+
+src_install() {
+	install_default
+	# Static libraries cannot be disabled by this package without breaking the build.
+	# Remove them now that we're done with them.
+	rm -v $D/usr/lib/libSDL2*.a
+	if [[ $INSTALL_DOCS == 1 ]]; then
+		install -v -m755 -d       $D/usr/share/doc/SDL2-${PKG_VER}/html
+		cp -Rv docs/output/html/* $D/usr/share/doc/SDL2-${PKG_VER}/html
+	fi
+}

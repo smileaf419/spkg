@@ -1,0 +1,19 @@
+HOMEPAGE="https://www.greenwoodsoftware.com/less/"
+DESCRIPTION="Excellent text file viewer"
+LICENSE="GPLv3 BSD-2"
+SRC_URI=("https://www.greenwoodsoftware.com/less/less-${PKG_VER}.tar.gz")
+DEPS="sys-libs/ncurses"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+IUSE="pcre2"
+use-enable pcre2 && UDEPS="dev-libs/libpcre2"
+
+src_configure() {
+	autoupdate
+	autoreconf -fiv
+	./configure --prefix=/usr --sysconfdir=/etc $(use-enable pcre2 && echo "--with-regex=pcre2")
+}
+
+src_test() { :; }
