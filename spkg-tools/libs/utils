@@ -23,7 +23,7 @@ setKernelConfig() {
 	local var=$1
 	local val=$2
 
-	if grep -E "(^|[[:space:]])${var}(=|[[:space:]])" $KERNEL_CONFIG_FILE; then
+	if grep -E "(^|[[:space:]])${var}(=|[[:space:]])" $KERNEL_CONFIG_FILE > /dev/null; then
 		sed -i "/\(^\| \)$var\(=\| \)/ s,^.*$,$var=$val," $KERNEL_CONFIG_FILE
 	else
 		## We need to append the var=val
@@ -362,6 +362,8 @@ preservedRebuild() {
 	## Files were preserved, process them here to ensure we don't break our system.
 	if [ -e $PRESERVED_LOG ]; then
 		echo " * Gathering list of packages to rebuild"
+		[ -e $INSTALL_CHART ] && rm $INSTALL_CHART
+		PKG_LIST=
 		REQUESTED_LIST=
 		for f in $(cat $PRESERVED_LOG); do
 			echo -n "$f:"
