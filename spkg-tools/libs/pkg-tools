@@ -300,18 +300,23 @@ getPKG() {
 DB-getPkg() {
 	local path=${2:-$PKG_DB_DIR}
 
+	## Save our flags
+	local flags=$(getFlags $1)
+
 	## Set the environment with known values.
 	local PKG_SLOT=$(getSlot $1)
 
 	for l in $(DB-getPkgList $1 | filterArch | filterSlot $PKG_SLOT | sort -V); do
 		## Update Values
 		setPkgENV $(fileToList $l) > /dev/null
+		## Ensure we use our saved flags
+		PKG_FLAGS=$flags
 		if [[ ! -z $PKG_VER_RESTRICT ]]; then
 			## TODO Filter out non-matching versions here.
 #			continue
 			:;
 		fi
-		eval echo $PKG
+		getPKG
 	done
 }
 export -f DB-getPkg
@@ -346,7 +351,7 @@ Installed-getPkg() {
 
 		local file="$path/$PKG_CAT/$PKG_NAME/$PKG_VR/$PKG_VR.build"
 		PKG_SLOT=$(grep 'SLOT=' "$file" | sed 's,.*SLOT=,,')
-		eval echo $PKG
+		getPKG
 	done
 }
 export -f Installed-getPkg
