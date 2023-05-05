@@ -114,6 +114,7 @@ splitVersion() {
 	echo -n "$ver"
 	[[ ! -z $rev ]] && echo "/$rev"
 }
+export splitVersion
 
 ####
 ## Entry Parser
@@ -244,6 +245,7 @@ EntryParser() {
 
 	getPKG
 }
+export -f EntryParser
 
 ####
 ## Sets Environmental Vars.
@@ -278,6 +280,7 @@ setPkgENV() {
 	getPKG
 	export PKG_BLD=$(getBldFile $PKG)
 }
+export -f setPkgENV
 
 ## Output the most recent PKG with the most recent values.
 ## And save back to our PKG.
@@ -288,6 +291,7 @@ getPKG() {
 	PKG=$(eval echo $OUT_PKG)
 	echo $PKG
 }
+export -f getPKG
 
 ####
 ## DB Methods (PKG_DB_DIR)
