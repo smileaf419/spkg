@@ -46,7 +46,7 @@ chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
 
 ####
 ## Install all packages
-installList $list
+installList $REQUESTED_LIST
 
 ## Fix CONTENTS file, filter out our $ROOT
 echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
@@ -148,7 +148,7 @@ list="@system"
 populate_list
 FETCH_ONLY=1
 ## Attempt to catch the error so we can finish.
-if installList $list; then
+if installList $REQUESTED_LIST; then
 	echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
 	echo "    Finally move the downloaded files to: $DISTFILES"
 fi
@@ -176,5 +176,5 @@ echo "Afterwards: spkg @temptools ; Once complete its safe to remove the /tools 
 echo "And finally: spkg -e @basicsystem"
 echo " Once a default system is created, feel free to alter the USE flag, and reinstall affected packages."
 echo " Altering the USE flag before a system is fully created may run into several problems, and all"
-echo " packages -- even already installed ones -- must be reinstalled for a final system to be created successfully.
+echo " packages -- even already installed ones -- must be reinstalled for a final system to be created successfully."
 exit 0
