@@ -23,12 +23,9 @@ src_compile() {
 	## https://github.com/ares-emulator/ares/issues/1100
 	## Reported upstream:
 	## https://github.com/rtissera/libchdr/issues/92
-	compile_default hiro=gtk3 build=release compiler=g++
+	compile_default hiro=gtk3 build=release compiler=g++ prefix="$D/usr" install
 }
 
 src_test() { :; }
 
-src_install() {
-	# Required as they don't like it to be installed as root
-	su -p -c "make prefix=${D}/usr install" $BUILD_USER
-}
+src_install() { :; }
