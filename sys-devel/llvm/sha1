@@ -27,7 +27,7 @@ ffaa46057204115bbaf31308208b1e9455c83a56  compiler-rt-16.0.2.src.tar.xz
 b2abcf5f652b41d3ed65feb2d45131265f8cf7e4  libcxxabi-16.0.2.src.tar.xz
 53067310a7279cd8a0b30aa407729211631701f5  polly-16.0.2.src.tar.xz
 334f3f8b3b57061c1bae44673a491f187abffeed  libunwind-16.0.2.src.tar.xz
-0d1a40b6df305004e785c2f9305dae23d40da444  16.0.3.build
+4945f9e98defa7cd816e33f68e78efa7583e3edd  16.0.3.build
 e3d35863f004ca010444883f2576269ca5fe3c7b  llvm-16.0.3.src.tar.xz
 50deae51690987610825dbc5e89d6b05decb98e3  cmake-16.0.3.src.tar.xz
 2546c4d11bf906d1d95a5c0ba8fa04b41681010c  third-party-16.0.3.src.tar.xz
@@ -41,3 +41,4 @@ fa168570bf56abd9e4203389a6f6f54b443ba0a2  libcxx-16.0.3.src.tar.xz
 d927ce48e2e9b8224562272629314b264a516c3a  libcxxabi-16.0.3.src.tar.xz
 09152a33109ddec60ae987a524f3f106e6b40cd5  polly-16.0.3.src.tar.xz
 87895b29fec34f7f883aa0717dd3022141128724  libunwind-16.0.3.src.tar.xz
+64063ad28e4c70552b3a6735c4153fba776fcb75  llvm-16.0.3-gcc-13.patch
