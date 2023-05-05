@@ -114,7 +114,7 @@ splitVersion() {
 	echo -n "$ver"
 	[[ ! -z $rev ]] && echo "/$rev"
 }
-export splitVersion
+export -f splitVersion
 
 ####
 ## Entry Parser
@@ -501,3 +501,4 @@ getBldFile() {
 	fi
 	echo $PKG_BLD
 }
+export -f getBldFile
