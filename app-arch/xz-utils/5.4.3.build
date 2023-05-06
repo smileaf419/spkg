@@ -1,0 +1,26 @@
+HOMEPAGE="https://tukaani.org/xz"
+DESCRIPTION="General-purpose data compression software with a high compression ratio."
+LICENSE="LGPLv2.1 GPLv2 GPLv3 Public Domain"
+SRC_URI=("https://tukaani.org/xz/xz-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://tukaani.org/xz/xz-${PKG_VER}.tar.xz.sig")
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+B=xz-${PKG_VER}
+
+src_configure() {
+	configure_default --bindir=/bin --libdir=/lib
+}
+
+bootstrap() {
+	./configure --prefix=/usr                     \
+				--bindir=/bin                     \
+				--libdir=/lib                     \
+				--host=$HOST_TGT                  \
+				--build=$(build-aux/config.guess) \
+				--disable-static                  \
+				--disable-doc
+	compile_default && install_default
+}
