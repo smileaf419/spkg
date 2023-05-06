@@ -1,10 +1,13 @@
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
+####
+## Ares Emulator
 HOMEPAGE="https://github.com/ares-emulator/ares https://ares-emu.net/"
 DESCRIPTION="ares is a cross-platform, open source, multi-system emulator, focusing on accuracy and preservation."
 LICENSE="GPLv3+ ISC"
 SRC_URI=("https://github.com/ares-emulator/ares/archive/refs/tags/v${PKG_VER}.tar.gz => ares-${PKG_VER}.tar.gz")
-PATCHES=("https://github.com/ares-emulator/ares/pull/1102/commits/2c31bc1d2dd6babdf9745b691d38c23788c92029 => ares-gcc-13.patch")
+## https://github.com/ares-emulator/ares/issues/1100
+PATCHES=("https://github.com/ares-emulator/ares/pull/1102/commits/2c31bc1d2dd6babdf9745b691d38c23788c92029.patch => ares-132-gcc-13.patch"
+## https://github.com/rtissera/libchdr/issues/92
+"https://github.com/ares-emulator/ares/pull/1106/commits/bb58670cde0c84b4ee0fc16c5e36e071b73dc105.patch => ares-132-declare-fseeko-ftello.patch")
 DEPS="app-accessibility/at-spi2-core  dev-libs/glib media-libs/alsa-lib media-libs/fontconfig media-libs/freetype media-libs/harfbuzz media-libs/libao media-libs/libsdl2 media-libs/mesa media-libs/openal media-sound/pulseaudio sys-fs/eudev x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+:2 x11-libs/libX11 x11-libs/libXext x11-libs/libXrandr x11-libs/libXv x11-libs/pango"
 BDEPS=""
 RDEPS=""
@@ -19,11 +22,10 @@ src_compile() {
 	# Fix a compile time error introduced by LLVM 16
 	sed '/POST/ s,$, -Wno-error=implicit-function-declaration,' -i thirdparty/GNUmakefile
 
-	## Force GCC due to a bug in libchdr
-	## https://github.com/ares-emulator/ares/issues/1100
-	## Reported upstream:
-	## https://github.com/rtissera/libchdr/issues/92
-	compile_default hiro=gtk3 build=release compiler=g++ prefix="$D/usr" install
+	## force GCC build
+#	compile_default hiro=gtk3 build=release compiler=g++ prefix="$D/usr" install
+	## clang build (falls back on gcc) - default
+	compile_default hiro=gtk3 build=release prefix="$D/usr" install
 }
 
 src_test() { :; }
