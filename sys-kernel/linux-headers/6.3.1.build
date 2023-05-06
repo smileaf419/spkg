@@ -5,7 +5,8 @@ PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+## No ARCHS set until zfs can update their API or PKG_VER_RESTRICT is fully implemented, whichever comes first.
+ARCHS="-"
 SLOT=0
 B=linux-$PKG_VER
 RESTRICT="strip nobin"
