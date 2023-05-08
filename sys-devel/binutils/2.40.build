@@ -50,10 +50,13 @@ bootstrap() {
 		             --target=$HOST_TGT  \
 		             --disable-nls       \
 		             --enable-gprofng=no \
-		             --enable-multilib \
+		             --enable-multilib   \
 		             --disable-werror &&
 		compile_default &&
-		make DESTDIR=$D install ;;
+		## As we set a ROOT/tools, we cannot use install_default or it'd install into ROOT/ROOT/tools
+		## But we require the prefix to be the actual install.
+		make DESTDIR=$D install
+		;;
 	pass2)
 		sed '6009s/$add_dir//' -i ../ltmain.sh &&
 		../configure                   \
