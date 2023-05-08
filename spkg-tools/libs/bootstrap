@@ -3,12 +3,14 @@ echo " * Bootstrapping .. This will take a while.."
 
 ####
 ## Set Important Vars
-PKG_CACHE="${ROOT}/${PKG_CACHE}"
+PKG_CACHE="$ROOT/$PKG_CACHE"
 DISTFILES="$ROOT/$DISTFILES"
-PKG_WORLD="${ROOT}/${PKG_WORLD}"
+PKG_WORLD="$ROOT/$PKG_WORLD"
+LOGDIR="$ROOT/$LOGDIR"
 
 export HOST_TGT=$(uname -m)-leaf-linux-gnu
 export PATH="$ROOT/tools/bin:$PATH"
+export LD_LIBRARY_PATH=$ROOT/lib:$ROOT/lib64:$ROOT/usr/lib:$ROOT/usr/lib64:$LD_LIBRARY_PATH
 
 ####
 ## Create Essential Dirs.
