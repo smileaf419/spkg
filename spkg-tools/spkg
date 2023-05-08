@@ -63,6 +63,9 @@ cleanup() {
 	if [ -e $INFORMLOG ]; then
 		cat "$INFORMLOG"
 		[[ ! -z $PKG_ONLY ]] && rm "$INFORMLOG"
+	else
+		touch $INFORMLOG
+		chmod 1777 $INFORMLOG
 	fi
 
 	# TODO: automerge if files were not changed.
