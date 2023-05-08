@@ -1,0 +1,39 @@
+HOMEPAGE="https://www.mpfr.org/"
+DESCRIPTION="Library for multiple-precision floating-point computations with exact rounding"
+LICENSE="LGPLv2.1"
+SRC_URI=("https://www.mpfr.org/mpfr-${PKG_VER}/mpfr-${PKG_VER}.tar.xz")
+PATCHES=(
+"https://www.mpfr.org/mpfr-4.2.0/patch01 => mpfr-$PKG_VER-1.patch"
+"https://www.mpfr.org/mpfr-4.2.0/patch02 => mpfr-$PKG_VER-2.patch"
+"https://www.mpfr.org/mpfr-4.2.0/patch03 => mpfr-$PKG_VER-3.patch"
+"https://www.mpfr.org/mpfr-4.2.0/patch04 => mpfr-$PKG_VER-4.patch"
+)
+DEPS="dev-libs/gmp"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default \
+	            --enable-thread-safe
+}
+
+src_compile() {
+	compile_default
+	make html
+}
+
+src_install() {
+	install_default
+	make DESTDIR="${D}" install-html
+}
+
+bootstrap() {
+	case $PKG_FLAGS in
+		pass1) ./configure --host=$HOST_TGT --build=$(../config.guess) --prefix=/tools ;;
+		pass2) ./configure --host=$HOST_TGT --target=$HOST_TGT --build=$(../config.guess) ;;
+	esac
+	compile_default
+	install_default
+}
