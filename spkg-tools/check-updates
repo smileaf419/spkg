@@ -122,7 +122,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 
 	PKG=$(DB-getPkgList $PK | fileToList | getLatest)
 	setPkgENV $PKG > /dev/null
-	[[ ${FILE##*-} == "" ]] && echo "Checking $PK : $(getPKG) : ${FILE##*-}"
+	[[ ${FILE##*-} == "" ]] && echo "Checking $PK : $(getVerRev $(getPKG)) : ${FILE}"
 	if [[ ${FILE##*-} == $PKG_VER ]]; then
 		continue
 	fi
