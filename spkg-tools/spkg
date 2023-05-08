@@ -321,10 +321,10 @@ parse_cmdline() {
 				fi
 			done
 		else
-			shift $a
 			break
 		fi
 	done
+	shift $a
 	REQUESTED_LIST=${list:-$@}
 }
 
