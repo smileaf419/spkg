@@ -79,9 +79,9 @@ patch_default() {
 	# Export so we can use it, unset afterwards. Sad we can't export arrays.
 	export P
 	if [[ -e /bin/su || -e /usr/bin/su ]]; then
-		su -p -c 'spatches "$P"' $BUILD_USER
+		su -p -c 'spatches "$P"' $BUILD_USER || die "Patching Failed"
 	else
-		spatches "$P"
+		spatches "$P" || die "Patching Failed"
 	fi
 	unset P
 }
