@@ -1,14 +1,13 @@
 ## Pass 1
 sys-devel/binutils[pass1]
-## Pass 1
 dev-libs/gmp[pass1]
 dev-libs/mpfr[pass1]
 dev-libs/mpc[pass1]
 sys-devel/gcc[pass1]
 sys-kernel/linux-headers
 sys-libs/glibc
-## Libstdc++ pass
 sys-devel/gcc[libstdc++]
+## Temporary Tools
 sys-devel/m4
 sys-libs/ncurses
 app-shells/bash

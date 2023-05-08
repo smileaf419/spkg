@@ -92,6 +92,8 @@ bootstrap() {
 			    --disable-libvtv            \
 			    --disable-libstdcxx         \
 			    --enable-languages=c,c++ &&
+			## As we set a ROOT/tools, we cannot use install_default or it'd install into ROOT/ROOT/tools
+			## But we require the prefix to be the actual install.
 			compile_default && make DESTDIR="$D" install
 		;;
 		libstdc++)
@@ -136,9 +138,9 @@ bootstrap() {
 
 post_install() {
 	if [[ $PKG_FLAGS == "pass1" ]]; then
-		echo " * Generating limits.h"
+		echo " * Generating limits.h ($HOST_TGT)"
 		cd $BUILD_PATH/$B &&
 		cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
-				`dirname $($HOST_TGT-gcc -print-libgcc-file-name)`/install-tools/include/limits.h || die "Error generating limits.h"
+				`dirname $($HOST_TGT-gcc -print-libgcc-file-name)`/include/limits.h || die "Error generating limits.h"
 	fi
 }
