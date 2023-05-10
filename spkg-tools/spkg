@@ -191,51 +191,20 @@ parse_cmdline() {
 					o=${opt:$i-1:1}
 				fi
 				case "$o" in
-					v|-verbose)
-						VERBOSE=$(( $VERBOSE + 1 )) ;;
+					## Modes
 					-bootstrap)
 						MODE="bootstrap"
 						list="@bootstrap"
 						a=$(($a + 1 ))
 						ROOT=$(readlink -f $val) ;;
-					-debug)
-						set -x
-						export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }' ;;
-					-ignoresha)
-						IGNORE_SHA1=1 ;;
-					l|-logdir)
-						a=$(( $a + 1 ))
-						LOGDIR=$val ;;
-					u|-uninstall)
-						MODE="uninstall" ;;
-					s|-search)
-						MODE="search" ;;
-					U|-update)
-						MODE="update" ;;
-					D|-deepClean)
-						MODE="clean" ;;
-					-sync)
-						MODE="sync" ;;
-					f|-force)
-						FORCE=1 ;;
-					-fetchOnly)
-						FETCH_ONLY=1
-						FORCE=1 ;;
-					p|-pretend)
-						PRETEND=1 ;;
-					A|-installArchive)
-						ARCHIVE_INSTALL="1" ;;
-					-archiveDir)
-						a=$(( $a + 1 ))
-						PKG_ARCHIVE_DIR=$val ;;
-					-enable-tests)
-						ENABLE_TESTS=1 ;;
-					-disable-tests)
-						ENABLE_TESTS=0 ;;
 					-buildbdeps)
 						MODE="buildbdeps" ;;
-					-updatesha1)
-						HASH_UPDATE=true ;;
+					-buildKernel)
+						MODE="buildKernel" ;;
+					D|-deepClean)
+						MODE="clean" ;;
+					-preserved)
+						MODE="preserved" ;;
 					-rebuildKernelMods)
 						list+=" @kernelModules"
 						FORCE=1
@@ -248,16 +217,47 @@ parse_cmdline() {
 						list+=" @perlModules"
 						FORCE=1
 						MODE="rebuildPerlModules" ;;
-					-buildKernel)
-						MODE="buildKernel" ;;
 					-resume)
 						MODE="resume" ;;
-					-user)
+					s|-search)
+						MODE="search" ;;
+					-sync)
+						MODE="sync" ;;
+					u|-uninstall)
+						MODE="uninstall" ;;
+					U|-update)
+						MODE="update" ;;
+					-updatesha1)
+						HASH_UPDATE=true ;;
+
+					## Configuration options
+					-archiveDir)
 						a=$(( $a + 1 ))
-						BUILD_USER=$val ;;
+						PKG_ARCHIVE_DIR=$val ;;
+					A|-installArchive)
+						ARCHIVE_INSTALL="1" ;;
+					l|-logdir)
+						a=$(( $a + 1 ))
+						LOGDIR=$val ;;
 					-testUsr)
 						a=$(( $a + 1 ))
 						TEST_USER=$val ;;
+					-user)
+						a=$(( $a + 1 ))
+						BUILD_USER=$val ;;
+					-enable-tests)
+						ENABLE_TESTS=1 ;;
+					-disable-tests)
+						ENABLE_TESTS=0 ;;
+
+					## Flow Control
+					f|-force)
+						FORCE=1 ;;
+					-fetchOnly)
+						FETCH_ONLY=1
+						FORCE=1 ;;
+					p|-pretend)
+						PRETEND=1 ;;
 					-verify)
 						VERIFY_SIG=1 ;;
 					1|-oneshot)
@@ -266,8 +266,15 @@ parse_cmdline() {
 						SILENT_BUILD=yes ;;
 					e|-empty)
 						EMPTY_WORLD=1 ;;
-					-preserved)
-						MODE="preserved" ;;
+					-ignoresha)
+						IGNORE_SHA1=1 ;;
+
+					## Output & Debug options
+					v|-verbose)
+						VERBOSE=$(( $VERBOSE + 1 )) ;;
+					-debug)
+						set -x
+						export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }' ;;
 					-version)
 						echo "spkg by Stephen Leaf version $VERSION"
 						exit $? ;;
