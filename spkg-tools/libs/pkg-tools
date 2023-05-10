@@ -22,7 +22,7 @@ export PKG_REV
 export PKG_VER_RESTRICT
 export PKG_SLOT
 export PKG_FLAGS
-export PKG_ARCH
+export PKG_ARCHS
 export PKG_USE
 
 ### Misc Methods used by both Installed and DB versions.
