@@ -12,8 +12,18 @@
 ## Utils     - Useful methods build files may need to perform commonly operations.
 ##
 ### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
-## All methods take a PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## All methods take a PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCH/PKG_USE
 ## Even if one or more are missing, unless otherwise noted.
+
+export PKG_CAT
+export PKG_NAME
+export PKG_VER
+export PKG_REV
+export PKG_VER_RESTRICT
+export PKG_SLOT
+export PKG_FLAGS
+export PKG_ARCH
+export PKG_USE
 
 ### Misc Methods used by both Installed and DB versions.
 
@@ -44,7 +54,7 @@ filterSlot() {
 export -f filterSlot
 
 ## Turns a file path into a / seperated list of data.
-## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCH/PKG_USE
 fileToList() {
 	local list
 	[[ $1 != '' ]] && list=$@ || list=$(cat -)
@@ -76,7 +86,11 @@ fileToList() {
 
 		## Output the slot
 		slot=$(grep 'SLOT=' "$l" | sed 's,.*SLOT=,,')
-		echo "//$slot//"
+		echo -n "//$slot//"
+
+		## Output the Archs
+		arch=$(grep 'ARCHS=' "$l" | sed -e 's,.*ARCHS=",,' -e 's,".*$,,' -e 's/ /,/g')
+		echo "${arch[*]}/"
 	done
 }
 export -f fileToList
@@ -136,8 +150,8 @@ EntryParser() {
 	local p=$1
 
 	local PKG_VER_EQ=0
-	export PKG_VER_RESTRICT=
-	export PKG_FLAGS=
+	PKG_VER_RESTRICT=
+	PKG_FLAGS=
 
 	## Add PKG_USE
 	if [[ $p == *[USE:* ]]; then
@@ -154,7 +168,7 @@ EntryParser() {
 	fi
 
 	## Check for slot
-	export PKG_SLOT=0
+	PKG_SLOT=0
 	if [[ $p == *:* ]]; then
 		PKG_SLOT=${p#*:}
 		p=${p%:*}
@@ -197,8 +211,8 @@ EntryParser() {
 	fi
 
 	## Split-up the Version
-	export PKG_VER=0
-	export PKG_REV=0
+	PKG_VER=0
+	PKG_REV=0
 	if [[ $p == *-[0-9]* ]]; then
 		local ver=$(splitVersion $p)
 		PKG_VER=${ver%/*}
@@ -223,14 +237,14 @@ EntryParser() {
 	fi
 
 	## Check for a category
-	export PKG_CAT=
+	PKG_CAT=
 	if [[ $p == */* ]]; then
 		PKG_CAT=${p%/*}
 		p=${p#*/}
 	fi
 
 	## Whatevers left *should* be the package name.
-	export PKG_NAME=$p
+	PKG_NAME=$p
 
 	if [[ $VERBOSE -gt 2 ]]; then
 		>&2 echo "PKG_CAT : $PKG_CAT"
@@ -259,6 +273,7 @@ setPkgENV() {
 	export PKG_VER_RESTRICT=$(getVerRestrict $data)
 	export PKG_SLOT=$(getSlot $data)
 	export PKG_FLAGS=$(getFlags $data)
+	export PKG_ARCHS=$(getArchs $data)
 	export PKG_USE=$(getPkgUse $data)
 
 	## Set our Convience Vars
@@ -286,7 +301,7 @@ export -f setPkgENV
 ## And save back to our PKG.
 getPKG() {
 	## Save the format if any value changes we can reference it with getPKG
-	export OUT_PKG='$PKG_CAT/$PKG_NAME/$PKG_VER/$PKG_REV/$PKG_VER_RESTRICT/$PKG_SLOT/$PKG_FLAGS/$PKG_USE'
+	export OUT_PKG='$PKG_CAT/$PKG_NAME/$PKG_VER/$PKG_REV/$PKG_VER_RESTRICT/$PKG_SLOT/$PKG_FLAGS/${PKG_ARCHS[*]}/$PKG_USE'
 
 	PKG=$(eval echo $OUT_PKG)
 	echo $PKG
@@ -377,13 +392,14 @@ export -f Installed-getPkgList
 ## Returns the value found in the given slot.
 getData() {
 	local IFS="/"
-	if [[ $2 == '' ]]; then
-		local p=($(cat -))
-		echo "${p[$1]}"
+	local pos=$1
+	if [[ $2 != '' ]]; then
+		shift
+		local data=($@)
 	else
-		local p=($1)
-		echo "${p[$2]}"
+		local data=($(cat -))
 	fi
+	echo "${data[$pos]}"
 }
 export -f getData
 
@@ -399,32 +415,32 @@ export -f getLatest
 ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
 
 getCategory() {
-	local data=${1:-$(cat -)}
-	getData $data 0
+	local data=${@:-$(cat -)}
+	getData 0 $data
 }
 export -f getCategory
 
 getName() {
-	local data=${1:-$(cat -)}
-	getData $data 1
+	local data=${@:-$(cat -)}
+	getData 1 $data
 }
 export -f getName
 
 getVersion() {
-	local data=${1:-$(cat -)}
-	getData $data 2 | sed 's,-r[0-9]*$,,'
+	local data=${@:-$(cat -)}
+	getData 2 $data | sed 's,-r[0-9]*$,,'
 }
 export -f getVersion
 
 getRevision() {
-	local data=${1:-$(cat -)}
-	local rev=$(getData $data 3)
+	local data=${@:-$(cat -)}
+	local rev=$(getData 3 $data)
 	[[ $rev == $ver ]] && echo "0" || echo $rev
 }
 export -f getRevision
 
 getVerRev() {
-	local data=${1:-$(cat -)}
+	local data=${@:-$(cat -)}
 	local ver=$(getVersion $data)
 	local rev=$(getRevision $data)
 	if [[ $ver != '' ]]; then
@@ -440,31 +456,53 @@ getVerRev() {
 export -f getVerRev
 
 getVerRestrict() {
-	local data=${1:-$(cat -)}
-	getData $data 4
+	local data=${@:-$(cat -)}
+	getData 4 $data
 }
 export -f getVerRestrict
 
 getSlot() {
-	local data=${1:-$(cat -)}
-	getData $data 5
+	local data=${@:-$(cat -)}
+	getData 5 $data
 }
 export -f getSlot
 
 getFlags() {
-	local data=${1:-$(cat -)}
-	getData $data 6
+	local data=${@:-$(cat -)}
+	getData 6 $data
 }
 export -f getFlags
 
+getArchs() {
+	local data=${@:-$(cat -)}
+	getData 7 $data
+}
+export -f getArchs
+
+####
+## This function will return 1 if marked stable for the system's arch
+## and 0 if unstable
+pkgArch() {
+	local data=${@:-$(cat -)}
+	local IFS=','
+	local archs=($(getArchs $data))
+	unset IFS
+	for a in $archs; do
+		if [[ ${a#\~} == ${ARCH#\~} ]]; then
+			[[ ${a:0:1} == '~' ]]; return $?
+		fi
+	done
+	return 0
+}
+
 getPkgUse() {
-	local data=${1:-$(cat -)}
-	getData $data 7
+	local data=${@:-$(cat -)}
+	getData 8 $data
 }
 export -f getPkgUse
 
 getLEntry() {
-	local data=${1:-$(cat -)}
+	local data=${@:-$(cat -)}
 	local PKG_CAT=$(getCategory $data)
 	local PKG_NAME=$(getName $data)
 	local PKG_VR=$(getVerRev $data)
@@ -488,7 +526,7 @@ export -f getLEntry
 ## Requires an ENTRY and a path.
 ## path maybe 0 for DB or 1 or Installed.
 getBldFile() {
-	local data=${1:-$(cat -)}
+	local data=${@:-$(cat -)}
 	local PKG_CAT=$(getCategory $data)
 	local PKG_NAME=$(getName $data)
 	local PKG_VR=$(getVerRev $data)

@@ -282,7 +282,7 @@ parse_cmdline() {
 						echo    "  --rebuildKernelMods  Rebuilds all Kernel Modules."
 						echo    "  --rebuildPythonMods  Rebuilds all Python Modules."
 						echo    "  --rebuildPerlMods    Rebuilds all Perl Modules."
-						echo    "  --buildKernel        Builds a new kernel"
+						echo    "  --buildKernel        Builds a kernel found at /usr/src/linux"
 						echo    "  --deepClean, -D      Compares the charts of the world file and packages installed."
 						echo    "  --sync               Syncs the package database via: git pull"
 						echo    "  --preserved          Checks for and initiates a rebuild of all packages requiring a rebuild."
@@ -574,6 +574,9 @@ if [[ $MODE == "search" ]]; then
 			echo -n "      Available:"
 			for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
 				echo -n " $(getVerRev $a)"
+				if pkgArch $a; then
+					echo -n "~"
+				fi
 			done; echo
 
 			## Run this in a subshell to avoid tainting the environment.
