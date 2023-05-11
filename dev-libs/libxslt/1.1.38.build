@@ -1,0 +1,15 @@
+HOMEPAGE="https://gitlab.gnome.org/GNOME/libxslt"
+DESCRIPTION="XSLT libraries and tools"
+LICENSE="MIT"
+SRC_URI="https://download.gnome.org/sources/libxslt/${PKG_VER%.*}/libxslt-${PKG_VER}.tar.xz"
+DEPS="dev-libs/libgcrypt dev-libs/libgpg-error dev-libs/libxml2"
+BDEPS=""
+RDEPS="app-text/docbook-xml:4.5 app-text/docbook-xsl-nons"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml}
+
+	configure_default --without-python
+}
