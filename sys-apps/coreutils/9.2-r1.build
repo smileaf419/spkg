@@ -33,7 +33,7 @@ src_install() {
 
 	mkdir -pv "${D}/$ROOT"/sbin
 	mkdir -pv "${D}/$ROOT"/usr/share/man/man8
-	mv -v "${D}/$ROOT"/usr/{,s}bin/chroot 
+	mv -v "${D}/$ROOT"/usr/{,s}bin/chroot
 	mv -v "${D}/$ROOT"/usr/share/man/man1/chroot.1 "${D}/$ROOT"/usr/share/man/man8/chroot.8
 	sed -i 's/"1"/"8"/' "${D}/$ROOT"/usr/share/man/man8/chroot.8
 
