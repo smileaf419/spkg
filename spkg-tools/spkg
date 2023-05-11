@@ -203,6 +203,8 @@ parse_cmdline() {
 						MODE="buildKernel" ;;
 					D|-deepClean)
 						MODE="clean" ;;
+					-list)
+						MODE="list";;
 					-preserved)
 						MODE="preserved" ;;
 					-rebuildKernelMods)
@@ -377,7 +379,7 @@ parse_cmdline $@
 
 ####
 ## Ensure we can write to required directories
-if [[ $MODE != 'search' ]]; then
+if [[ $MODE != 'search' && $MODE != 'list' ]]; then
 	if [ ! -d $PKG_ARCHIVE_DIR ];
 		then mkdir -p "$PKG_ARCHIVE_DIR" || die "Failed to create: PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"; fi
 	test -w $PKG_ARCHIVE_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"
@@ -558,13 +560,14 @@ elif [[ $MODE == "bootstrap" ]]; then
 fi
 
 ## Search
-if [[ $MODE == "search" ]]; then
+if [[ $MODE == "search" || $MODE == "list" ]]; then
+	[[ $MODE == 'list' ]] && printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
 	for p in $REQUESTED_LIST; do
 		## Parse the Entry first and grab just the PKG_CAT/PKG_NAME
 		EntryParser $p > /dev/null
 
 		PKG_CAT=${PKG_CAT:-*}
-		echo "Searching: $p ($PKG_CAT/$PKG_NAME)"
+		[[ $MODE == 'search' ]] && echo "${MODE^}ing: $p ($PKG_CAT/$PKG_NAME)"
 		list=$(find $PKG_DB_DIR -maxdepth 2 -iwholename \*$PKG_CAT/$PKG_NAME\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
 		[[ $list == '' ]] && echo " ! $p not found!"
 		for r in $list; do
@@ -577,44 +580,67 @@ if [[ $MODE == "search" ]]; then
 			PKG_CAT=$(getCategory $PKG)
 			PKG_NAME=$(getName $PKG)
 			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
-			echo " * ${PKG_CAT}/${PKG_NAME}"
-			echo -n "      Available:"
-			for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
-				echo -n " $(getVerRev $a)"
-				if pkgArch $a; then
-					echo -n "~"
-				fi
-			done; echo
-
-			## Run this in a subshell to avoid tainting the environment.
-			echo -n "      Installed:"
-			(
-				ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
-				[[ $ipkg == '' ]] && echo -n ' none'
-				for i in $ipkg; do
-					echo -n " $(getVerRev $i)"
-					slot=$(getSlot $i)
-					[[ $slot != 0 ]] && echo -n ":$slot"
+			if [[ $MODE == 'search' ]]; then
+				echo " * ${PKG_CAT}/${PKG_NAME}"
+				echo -n "      Available:"
+				for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
+					echo -n " $(getVerRev $a)"
+					if pkgArch $a; then
+						echo -n "~"
+					fi
 				done; echo
-			)
 
-			## Ditto, avoid tainting the environment
-			(
-				source "${PKG_BLD}"
-				echo "       Homepage: ${HOMEPAGE}"
-				echo "    Description: ${DESCRIPTION}"
-				[[ -z $LICENSE ]] && LICENSE="Unknown"
-				echo "        License: ${LICENSE}"
-				[[ ! -z $IUSE ]] &&
-				echo "            USE: ${IUSE}"
-				echo -n "   Dependencies: ${DEPS}"
-				[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
-				[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
-				[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
-				[[ ! -z "$CDEPS" ]] && echo -n " [C:${CDEPS}]"
+				## Run this in a subshell to avoid tainting the environment.
+				echo -n "      Installed:"
+				(
+					ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
+					[[ $ipkg == '' ]] && echo -n ' none'
+					for i in $ipkg; do
+						echo -n " $(getVerRev $i)"
+						slot=$(getSlot $i)
+						[[ $slot != 0 ]] && echo -n ":$slot"
+					done; echo
+				)
+
+				## Ditto, avoid tainting the environment
+				(
+					source "${PKG_BLD}"
+					echo "       Homepage: ${HOMEPAGE}"
+					echo "    Description: ${DESCRIPTION}"
+					[[ -z $LICENSE ]] && LICENSE="Unknown"
+					echo "        License: ${LICENSE}"
+					[[ ! -z $IUSE ]] &&
+					echo "            USE: ${IUSE}"
+					echo -n "   Dependencies: ${DEPS}"
+					[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
+					[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
+					[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
+					[[ ! -z "$CDEPS" ]] && echo -n " [C:${CDEPS}]"
+					echo
+				)
 				echo
-			)
-			echo
+			else
+				## Output a listing of whats found in the results
+				curDate=$(date +%s)
+				for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
+					PKG_VR=$(getVerRev $a)
+					fileDate=$(git log --format=%ad --date unix "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | head -n1)
+					age=$(( $curDate - $fileDate ))
+					if pkgArch $a; then
+						printf "| %17s/%-23s | %-15s | %12s | %31s | %3d days | %s\n" $PKG_CAT $PKG_NAME $PKG_VR $(getArchs $a) "$(date --date="@$fileDate")" $(( $age / 86400 )) \
+							$(
+								PKG_SLOT=$(getSlot $a)
+								ipkg=$(Installed-getPkg $(getPKG))
+								[[ $ipkg == '' ]] && echo -n ' none'
+								for i in $ipkg; do
+									echo -n " $(getVerRev $i)"
+									slot=$(getSlot $i)
+									[[ $slot != 0 ]] && echo -n ":$slot"
+								done; echo
+							)
+					fi
+				done
+			fi
 		done
 	done
 	exit 0

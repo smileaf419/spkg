@@ -487,6 +487,7 @@ pkgArch() {
 	local IFS=','
 	local archs=($(getArchs $data))
 	unset IFS
+	local a
 	for a in $archs; do
 		if [[ ${a#\~} == ${ARCH#\~} ]]; then
 			[[ ${a:0:1} == '~' ]]; return $?
