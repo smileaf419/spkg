@@ -347,8 +347,11 @@ parse_cmdline() {
 			break
 		fi
 	done
-	shift $a
-	REQUESTED_LIST=${list:-$@}
+	[[ ! -z $list ]] && REQUESTED_LIST=$list && a=0
+	return $a
+#	shift $a
+	#REQUESTED_LIST="${list:-"$@"}"
+#	[[ -z $list ]] && REQUESTED_LIST="$@" || REQUESTED_LIST=$list
 }
 
 ####
@@ -389,7 +392,11 @@ populate_list() {
 	return 0
 }
 
-parse_cmdline $@
+parse_cmdline $@ || S=$?
+if [[ $S != 0 ]]; then
+	shift $S
+	REQUESTED_LIST="$@"
+fi
 
 ####
 ## Ensure we can write to required directories
@@ -575,14 +582,21 @@ fi
 
 ## Search
 if [[ $MODE == "search" || $MODE == "list" ]]; then
-	[[ $MODE == 'list' ]] && printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
+	## Alter the list so we don't expand the list prematurely causing an ugly output.
+	[[ $REQUESTED_LIST == '*/*' ]] && REQUESTED_LIST="@all"
 	for p in $REQUESTED_LIST; do
 		## Parse the Entry first and grab just the PKG_CAT/PKG_NAME
-		EntryParser $p > /dev/null
+		if [[ ${p:0:1} == '@' ]] then
+			PKG_CAT=''
+			PKG_NAME=''
+			list=$(expandSets $p)
+		else
+			EntryParser $p > /dev/null
+			list=$(find $PKG_DB_DIR -maxdepth 2 -mindepth 2 -iwholename \*$PKG_CAT/$PKG_NAME\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
+		fi
 
-		PKG_CAT=${PKG_CAT:-*}
-		[[ $MODE == 'search' ]] && echo "${MODE^}ing: $p ($PKG_CAT/$PKG_NAME)"
-		list=$(find $PKG_DB_DIR -maxdepth 2 -iwholename \*$PKG_CAT/$PKG_NAME\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
+		echo "${MODE^}ing: $p (${PKG_CAT:-*}/${PKG_NAME:-*})"
+		[[ $MODE == 'list' ]] && printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
 		[[ $list == '' ]] && echo " ! $p not found!"
 		for r in $list; do
 			## Parse the entry again to get more information that was not supplied in the search.
