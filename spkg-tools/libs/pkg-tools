@@ -372,6 +372,7 @@ Installed-getPkg() {
 		PKG_SLOT=$(grep 'SLOT=' "$file" | sed 's,.*SLOT=,,')
 		getPKG
 	done
+	echo
 }
 export -f Installed-getPkg
 

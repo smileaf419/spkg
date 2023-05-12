@@ -126,7 +126,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	if [[ ${FILE##*-} == $PKG_VER ]]; then
 		continue
 	fi
-	if [[ $(version_gt ${FILE##*-} $PKG_VER) == 0 ]]; then
+	if version_gt ${FILE##*-} $PKG_VER; then
 		echo " * Updating $PKG_CAT/$PKG_NAME : $PKG_VER -> ${FILE##*-}" | tee -a $UPDATE_LIST
 		cp -v "$PKG_BLD" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
 		sed -e '/ARCH/ s,\( |="\)\([^~]\),\1~\2,' \

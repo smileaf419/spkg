@@ -12,7 +12,7 @@ for cat in $(ls -1 $PKG_DB_DIR); do
 		PV=$(getVersion $P)
 		if [ -d $GENTOO/$cat/$p ]; then
 			GV=$(ls -1 $GENTOO/$cat/$p/*.ebuild | grep -Ev "p202|9999|_pre|_rc|_alpha" | sort -V | tail -n1 | sed -e 's,.*/,,' -e 's,.ebuild$,,' -e "s,${p}-,," -e 's,-.*$,,' -e 's,_,,')
-			if [[ $(version_gt $GV $PV) == 0 ]]; then
+			if version_gt $GV $PV; then
 				echo -n " ** "
 				echo "$cat/$p $PV [$GV]"
 #			else
