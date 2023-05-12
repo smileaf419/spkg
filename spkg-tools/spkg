@@ -192,10 +192,12 @@ source "${INSTALL_PATH}/libs/list-tools"
 ####
 ## Parse our command line
 parse_cmdline() {
-	opts=($@)
+	local opts=($@)
+	local a=0
+	local o=
 	for (( a=0; a<$#; a++ )); do
 		opt=${opts[$a]}
-		val=${opts[$a+1]}
+		local val=${opts[$a+1]}
 		if [[ $opt == -* ]] ; then
 			opt=${opt#-}
 			for i in $(seq 1 ${#opt}); do
@@ -209,7 +211,7 @@ parse_cmdline() {
 					-bootstrap)
 						MODE="bootstrap"
 						list="@bootstrap"
-						a=$(($a + 1 ))
+						let a=++a
 						ROOT=$(readlink -f $val) ;;
 					-buildbdeps)
 						MODE="buildbdeps" ;;
@@ -248,18 +250,18 @@ parse_cmdline() {
 
 					## Configuration options
 					-archiveDir)
-						a=$(( $a + 1 ))
+						let a=++a
 						PKG_ARCHIVE_DIR=$val ;;
 					A|-installArchive)
 						ARCHIVE_INSTALL="1" ;;
 					l|-logdir)
-						a=$(( $a + 1 ))
+						let a=++a
 						LOGDIR=$val ;;
 					-testUsr)
-						a=$(( $a + 1 ))
+						let a=++a
 						TEST_USER=$val ;;
 					-user)
-						a=$(( $a + 1 ))
+						let a=++a
 						BUILD_USER=$val ;;
 					-enable-tests)
 						ENABLE_TESTS=1 ;;
@@ -347,11 +349,8 @@ parse_cmdline() {
 			break
 		fi
 	done
-	[[ ! -z $list ]] && REQUESTED_LIST=$list && a=0
-	return $a
-#	shift $a
-	#REQUESTED_LIST="${list:-"$@"}"
-#	[[ -z $list ]] && REQUESTED_LIST="$@" || REQUESTED_LIST=$list
+	shift $a
+	REQUESTED_LIST=${list:-"$@"}
 }
 
 ####
@@ -392,11 +391,7 @@ populate_list() {
 	return 0
 }
 
-parse_cmdline $@ || S=$?
-if [[ $S != 0 ]]; then
-	shift $S
-	REQUESTED_LIST="$@"
-fi
+parse_cmdline $@
 
 ####
 ## Ensure we can write to required directories
@@ -582,8 +577,6 @@ fi
 
 ## Search
 if [[ $MODE == "search" || $MODE == "list" ]]; then
-	## Alter the list so we don't expand the list prematurely causing an ugly output.
-	[[ $REQUESTED_LIST == '*/*' ]] && REQUESTED_LIST="@all"
 	for p in $REQUESTED_LIST; do
 		## Parse the Entry first and grab just the PKG_CAT/PKG_NAME
 		if [[ ${p:0:1} == '@' ]] then
@@ -667,7 +660,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 				curDate=$(date +%s)
 				for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
 					PKG_VR=$(getVerRev $a)
-					fileDate=$(git log --format=%ad --date unix "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | head -n1)
+					fileDate=$(cd $PKG_DB_DIR; git log --format=%ad --date unix "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | head -n1)
 					## If the file is not added to git yet, don't error out.
 					[[ -z $fileDate ]] && fileDate=$curDate
 					age=$(( $curDate - $fileDate ))
