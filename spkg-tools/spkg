@@ -654,6 +654,8 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 				for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
 					PKG_VR=$(getVerRev $a)
 					fileDate=$(git log --format=%ad --date unix "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | head -n1)
+					## If the file is not added to git yet, don't error out.
+					[[ -z $fileDate ]] && fileDate=$curDate
 					age=$(( $curDate - $fileDate ))
 					installed=$(
 						PKG_SLOT=$(getSlot $a)
