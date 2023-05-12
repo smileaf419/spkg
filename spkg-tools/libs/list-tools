@@ -44,7 +44,14 @@ getFullPkgList() {
 
 	SP=
 	for d in $@; do
-		getdep $d || return $?
+		getdep $d || local ERR=$?
+		if [[ $ERR == 1 ]]; then
+			>&2 echo "Err: $d called self while calculating deps"
+		elif [[ $ERR == 2 ]]; then
+			die "Package $d Not found!"
+		elif [[ $ERR == 77 ]]; then
+			die
+		fi
 		flist+=" $LENTRY"
 	done
 	>&2 echo
@@ -93,16 +100,22 @@ expandSets() {
 	fi
 }
 
-# 1: Package of deps to get.
-# 2: if calling itself: the package which called it.
-# Several Variables to describe how a dependency should be added and why its needed.
-#  DEPS: Binary dependencies found via: readelf -d
-# BDEPS: Build dependencies: Required for building, but not for running.
-# RDEPS: Runtime Dependencies: Required for running, but not for building.
-#        These should be added after the package.
-# UDEPS: Optional Dependencies as required via USE
-# CDEPS: Circular Dependencies are a special case where a package should be installed before and after
-#        the package, but only if its not already installed.
+####
+## 1: Package of deps to get.
+## 2: if calling itself: the package which called it.
+## Several Variables to describe how a dependency should be added and why its needed.
+##  DEPS: Binary dependencies found via: readelf -d
+## BDEPS: Build dependencies: Required for building, but not for running.
+## RDEPS: Runtime Dependencies: Required for running, but not for building.
+##        These should be added after the package.
+## UDEPS: Optional Dependencies as required via USE
+## CDEPS: Circular Dependencies are a special case where a package should be installed before and after
+##        the package, but only if its not already installed.
+##
+## Return Status:
+## 0 - success
+## 1 - file/package not found
+## 2 - Called self
 getdep() {
 	# Don't taint the environment.
 	(
@@ -124,7 +137,7 @@ getdep() {
 
 		eval PKG_BLD=$(getBldFile $(getPKG))
 		if [ -e "$PKG_BLD" ]; then
-			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "$PKG_BLD within $1"
+			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "Sha1sum failed for $PKG_BLD within $PKG_CAT/$PKG_NAME"
 			unset BDEPS RDEPS UDEPS CDEPS DEPS
 			source "$PKG_BLD"
 			PDEPS=

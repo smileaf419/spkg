@@ -698,8 +698,7 @@ else
 			setPkgENV $p > /dev/null
 			echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
 		done
-		echo
-		echo "Package Order:"
+		echo -e "\nPackage Order:"
 	fi
 
 	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
