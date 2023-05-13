@@ -7,6 +7,8 @@ PKG_CACHE="$ROOT/$PKG_CACHE"
 DISTFILES="$ROOT/$DISTFILES"
 PKG_WORLD="$ROOT/$PKG_WORLD"
 LOGDIR="$ROOT/$LOGDIR"
+## Set a stable arch
+ARCH=$(uname -m)
 
 export HOST_TGT=$(uname -m)-leaf-linux-gnu
 export PATH="$ROOT/tools/bin:$PATH"
@@ -53,7 +55,7 @@ installList $REQUESTED_LIST
 ## Fix CONTENTS file, filter out our $ROOT
 echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
 ## This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
-find $PKG_CACHE -name CONTENTS -exec sed -i "s,$ROOT,," {} \;
+find $PKG_CACHE -name CONTENTS -exec sed -i "s,^$ROOT,," {} \;
 
 ####
 ## Fix Permissions (round 2)
@@ -146,7 +148,7 @@ chmod +x "$ROOT/chroot.sh"
 ####
 ## Fetch all required packages as wget will not be available initially
 echo " * Fetching all required files to finalize the install ..."
-list="@system"
+REQUESTED_LIST="@system"
 populate_list
 FETCH_ONLY=1
 ## Attempt to catch the error so we can finish.
