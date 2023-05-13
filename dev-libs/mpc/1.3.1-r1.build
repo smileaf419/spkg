@@ -9,10 +9,6 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 
-src_configure() {
-	configure_default
-}
-
 src_compile() {
 	compile_default
 	make html
