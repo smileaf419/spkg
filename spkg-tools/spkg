@@ -359,6 +359,10 @@ parse_cmdline() {
 populate_list() {
 	[ -e $CHART ] && rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
+	if [[ -z $list ]]; then
+		REQUESTED_LIST=
+		return 0
+	fi
 	echo -n " * Populating list"
 	for p in $list; do
 		echo -n '.'
