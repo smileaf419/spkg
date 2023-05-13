@@ -37,7 +37,6 @@ fi
 
 src_unpack() {
 	mkdir -p "$D/usr/src"
-	echo " * Unpacking ${SRC_FILE##*/}"
 	unpack "${DISTFILES}/${SRC_FILE##*/}" "$D/usr/src"
 }
 
