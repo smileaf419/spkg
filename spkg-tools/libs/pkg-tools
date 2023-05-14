@@ -33,7 +33,7 @@ filterArch() {
 	local f=
 
 	## If we're using an unstable ARCH, we need to enable the ability for it to match packages marked as stable too.
-	[[ ${arch:0:1} != '~' ]] && f='[^~]'
+	[[ ${arch:0:1} != '~' ]] && f='[^~-]'
 	arch=${arch#\~}
 	echo $(cat -) | xargs grep -H 'ARCHS=.*'$f$arch'[ "]' 2> /dev/null| sed 's,:.*,,'
 }
