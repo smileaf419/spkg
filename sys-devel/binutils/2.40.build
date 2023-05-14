@@ -17,6 +17,11 @@ IUSE="java"
 use-enable java && UDEPS="dev-java/sun-jdk"
 
 src_configure() {
+	## Using --without-jdk or --with-jdk=no seems to enforce a JDK
+	## Resulting in:
+	## ../../../gprofng/libcollector/jprofile.c:32:10: fatal error: jni.h: No such file or directory
+	## Omiting and unsetting JAVA_HOME should in theory result in a having java not found and thus not have support built.
+	use-enable java || unset JAVA_HOME
 	configure_default \
 				--sysconfdir=/etc   \
 				--enable-gold       \
@@ -24,7 +29,8 @@ src_configure() {
 				--enable-plugins    \
 				--disable-werror    \
 				--enable-64-bit-bfd \
-				$(use-enable java && echo --with-jdk=$JAVA_HOME || echo --without-jdk) \
+				$(use-enable java && echo --with-jdk=$JAVA_HOME) \
+				--enable-multilib   \
 				--with-system-zlib
 }
 
