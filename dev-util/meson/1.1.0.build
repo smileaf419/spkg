@@ -3,8 +3,8 @@ DESCRIPTION="The Meson Building System"
 LICENSE="Apache-2.0"
 SRC_URI=()
 DEPS=""
-BDEPS=""
-RDEPS="dev-lang/python dev-python/pip dev-python/wheel"
+RDEPS=""
+BDEPS="dev-lang/python dev-python/pip dev-python/wheel"
 ARCHS="x86 x86_64"
 SLOT=0
 
