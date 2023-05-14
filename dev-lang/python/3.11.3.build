@@ -1,6 +1,6 @@
 HOMEPAGE="https://www.python.org/"
-DESCRIPTION=""
-LICENSE=""
+DESCRIPTION="Python Programming Language"
+LICENSE="PSF"
 SRC_URI=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz")
 [[ $INSTALL_DOCS == 1 ]] && SRC_URI+="https://www.python.org/ftp/python/doc/${PKG_VER}/python-${PKG_VER}-docs-html.tar.bz2"
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz.sig")
@@ -15,6 +15,7 @@ SLOT=0
 TEST=test
 
 src_configure() {
+	## Used in @temptools
 	if [[ $PKG_FLAGS == *nodep* ]]; then
 		./configure --prefix=/usr --enable-shared --without-ensurepip
 	else
@@ -29,7 +30,7 @@ src_configure() {
 }
 
 # test test_curses failed -- Traceback (most recent call last):
-# File "/var/tmp/pkg/python/Python-3.10.6/Lib/test/test_curses.py", line 291, in test_output_string func(s) 
+# File "/var/tmp/pkg/python/Python-3.10.6/Lib/test/test_curses.py", line 291, in test_output_string func(s)
 #      _curses.error: inswstr() returned ERR
 
 src_install() {
