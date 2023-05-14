@@ -11,8 +11,7 @@ SLOT=0
 append-ldflags -ltinfow
 
 src_configure() {
-	./configure --prefix=/usr        \
-	            --bindir=/bin        \
+	configure_default --bindir=/bin  \
 	            --localstatedir=/var \
 	            --disable-logger     \
 	            --disable-whois      \
