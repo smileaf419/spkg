@@ -380,6 +380,10 @@ populate_list() {
 			if [[ $MODE == 'uninstall' ]]; then
 				echo " $ERROR_DIALOG $p not installed!"
 				exit
+			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
+			elif [[ $HASH_UPDATE ]]; then
+				echo " $ERROR_DIALOG $p not found!"
+				continue
 			else
 				echo " $ERROR_DIALOG $p not found!"
 				REQUESTED_LIST=$p
@@ -451,7 +455,7 @@ fi
 
 ## Update the sha1sum of all files for the given package.
 ## Using the set @all while useful is not recommended given the size of the repository.
-if [[ $HASH_UPDATE ]]; then
+if [[ $MODE != 'search' &&  $HASH_UPDATE ]]; then
 	C=$(echo $list | tr ' ' '\n' | wc -l)
 	echo " * Updating sha1 of $C packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
@@ -598,6 +602,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 		for r in $list; do
 			## Parse the entry again to get more information that was not supplied in the search.
 			PKG=$(DB-getPkg $r | getLatest)
+			[[ -z $PKG ]] && >&2 echo " $DIALOG_ERROR No available builds available for $r" && continue
 			## Its possible for spkg-sets and spkg-tools to get returned.. filter them out.
 			[[ $r == spkg-*/* ]] && continue
 
