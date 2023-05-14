@@ -175,6 +175,7 @@ configure_default() {
 		CFLAGS="$CFLAGS"     \
 		CPPFLAGS="$CPPFLAGS" \
 		CXXFLAGS="$CXXFLAGS" \
+		LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
 		$SET_ABI             \
 			$d/configure ${CONF_FLAGS} "$@" || die "Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then

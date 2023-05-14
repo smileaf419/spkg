@@ -12,7 +12,7 @@
 ## Utils     - Useful methods build files may need to perform commonly operations.
 ##
 ### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
-## All methods take a PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCH/PKG_USE
+## All methods take a PKG: PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 ## Even if one or more are missing, unless otherwise noted.
 
 export PKG_CAT
@@ -54,7 +54,7 @@ filterSlot() {
 export -f filterSlot
 
 ## Turns a file path into a / seperated list of data.
-## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCH/PKG_USE
+## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 fileToList() {
 	local list
 	[[ $1 != '' ]] && list=$@ || list=$(cat -)
@@ -134,9 +134,9 @@ export -f splitVersion
 ## Entry Parser
 ## This should be used by all functions which need to split up an LENTRY or user supplied input
 ## This returns a list of / seperated entries.
-## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 ##
-## Supports: =PKG_CAT/PKG_NAME-PKG_VER-rPKGREV:PKG_SLOT[PKG_FLAGS][USE:PKG_USE]
+## Supports: =PKG_CAT/PKG_NAME-PKG_VER-rPKG_REV:PKG_SLOT[PKG_FLAGS][USE:PKG_USE]
 ## And any data maybe omitted.
 ##
 ## Restrictions maybe one or more of seperated by |: >1.0 >=1.0 <1.0 <=1.0 =1.0
@@ -314,7 +314,7 @@ export -f getPKG
 
 ####
 ## Matches and updates values from the given PKG from the Database
-## Returns a list of PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## Returns a list of PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 ## Returns nothing if nothing is found.
 DB-getPkg() {
 	local path=${2:-$PKG_DB_DIR}
@@ -356,7 +356,7 @@ export -f DB-getPkgList
 ####
 ## Matches and updates values from the given PKG from what is installed.
 ## Requires a PKG
-## Returns a list of PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## Returns a list of PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 ## Returns nothing if nothing is found.
 Installed-getPkg() {
 	local path=${2:-$PKG_CACHE}
@@ -413,7 +413,7 @@ export -f getLatest
 
 ####
 ## Return data functions
-## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_USE
+## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 
 getCategory() {
 	local data=${@:-$(cat -)}

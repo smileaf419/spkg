@@ -122,7 +122,7 @@ getdep() {
 		setPkgENV $1 > /dev/null
 
 		# Check if its on the stack, if not, add it. if so we'll get to it later.
-		grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return || eval echo \"$PKG\" >> $STACK
+		grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return 0 || eval echo \"$PKG\" >> $STACK
 
 		# If we somehow call ourselves..
 		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/$PKG_SLOT/ ]] && return 2
@@ -152,7 +152,7 @@ getdep() {
 		if [[ ! -z $CDEPS ]]; then
 			for p in $CDEPS; do
 			    local cpkg=$(EntryParser $p)
-        	    local cp=$(getCategory $cpkg)/$(getName $cpkg)/*/$(getSlot $cpkg)
+				local cp=$(getCategory $cpkg)/$(getName $cpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $cpkg)
 				pkg-has-flag "nodep" && break
 
 				# If its already in the list, ignore it and continue.
@@ -170,7 +170,7 @@ getdep() {
 		fi
 
 		# Add our package
-		if ! grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $CHART > /dev/null; then
+		if ! grep -E "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART > /dev/null; then
 			getPKG >> $CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
@@ -183,17 +183,23 @@ getdep() {
 }
 
 doDeps() {
-	local DEPS=($1)
+	local DEPS=($@)
+
 	[ -z $DEPS ] && return
 	for d in ${DEPS[@]}; do
-	    local dpkg=$(EntryParser $d)
-	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/.*/$(getSlot $dpkg)
+	    local dpkg=$(DB-getPkg $d)
+	    ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
+	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $dpkg)
 		pkg-has-flag "nodep" && break
 		# If its already in the list, ignore it and continue.
 		grep -E "^${dp}" $CHART > /dev/null && continue
 
 		# Identify Circular Dependencies here so we can break out
 
-		getdep $dpkg $PKG_CAT/$PKG_NAME || break
+		getdep $dpkg $PKG_CAT/$PKG_NAME || local e=$?
+		if [[ ! $e ]]; then
+			echo "Got return $e in $d"
+			break
+		fi
 	done
 }
