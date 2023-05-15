@@ -56,6 +56,11 @@ src_install() {
 }
 
 post_install() {
+	if [[ $MODE == "bootstrap" ]]; then
+		echo -n " * Running mkheaders: " &&
+		$ROOT/tools/libexec/gcc/$HOST_TGT/$(Installed-getPkg sys-devel/gcc | getVersion)/install-tools/mkheaders && echo Done
+	fi
+
 	echo " * Installing Locales"
 	mkdir -p /usr/lib/locale
 
@@ -157,6 +162,7 @@ bootstrap32() {
 				 --enable-multi-arch                \
 				 --libdir=/libx32                   \
 				 --libexecdir=/libx32               \
+                 --disable-crypt                    \
 				 libc_cv_slibdir=/libx32 &&
 	compile_default &&
 	make DESTDIR=$PWD/DESTDIR install &&
