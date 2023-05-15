@@ -146,9 +146,9 @@ bootstrap_default() {
 }
 export -f bootstrap_default
 bootstrap() {
-	configure_default
-	compile_default
-	install_default
+	src_configure
+	src_compile
+	src_install
 }
 export -f bootstrap
 
