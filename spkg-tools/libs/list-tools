@@ -140,7 +140,7 @@ getdep() {
 			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "Sha1sum failed for $PKG_BLD within $PKG_CAT/$PKG_NAME"
 			unset BDEPS RDEPS UDEPS CDEPS DEPS
 			source "$PKG_BLD"
-			PDEPS=
+			local PDEPS=
 		else
 			return 1
 		fi
@@ -150,6 +150,7 @@ getdep() {
 
 		# Check CDEPS
 		if [[ ! -z $CDEPS ]]; then
+			local p
 			for p in $CDEPS; do
 			    local cpkg=$(EntryParser $p)
 				local cp=$(getCategory $cpkg)/$(getName $cpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $cpkg)
@@ -174,6 +175,7 @@ getdep() {
 			getPKG >> $CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
+
 		# Add our Post Dependency list here.
 		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> $CHART
 
@@ -185,7 +187,8 @@ getdep() {
 doDeps() {
 	local DEPS=($@)
 
-	[ -z $DEPS ] && return
+	[ -z $DEPS ] && return 0
+	local d
 	for d in ${DEPS[@]}; do
 	    local dpkg=$(DB-getPkg $d)
 	    ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
@@ -195,10 +198,9 @@ doDeps() {
 		grep -E "^${dp}" $CHART > /dev/null && continue
 
 		# Identify Circular Dependencies here so we can break out
-
 		getdep $dpkg $PKG_CAT/$PKG_NAME || local e=$?
-		if [[ ! $e ]]; then
-			echo "Got return $e in $d"
+		if [[ ! -z $e && ! $e ]]; then
+			>&2 echo "Got return $e in $d"
 			break
 		fi
 	done
