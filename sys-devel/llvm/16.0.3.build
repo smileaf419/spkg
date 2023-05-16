@@ -57,7 +57,6 @@ src_unpack() {
 	local length=${#SRC_URI[@]}
 	for (( l=0; l<${length}; l++ )); do
 		f=${SRC_URI[$l]}
-		echo " * Unpacking $(( $l + 1 )) of $length: $f"
 		file=${f##*/}
 		unpack ${DISTFILES}/${file}
 		P=${file%-*}
