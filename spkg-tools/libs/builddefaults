@@ -23,107 +23,6 @@
 ## if a global variable is to be set for all functions, it should be done so at the top level, or within src_prepare.
 
 ####
-## Set variables to the most common defaults
-
-## Set which configure tool we are using:  auto, meson, cmake, none
-export configTool=auto
-
-## Set which compile tool we are using:  make, ninja, pip
-export buildTool=make
-
-## no defaults to '.' yes to '..'
-## Alternatively you can set a path.
-export BUILD_SEPERATE_DIR=no
-
-## If cross compiling, set this to an environment var
-## SET_ABI='ABI=32'
-## This will run ABI=32 ./configure ...
-## Alternatively it maybe useful to use this to set other options which must be prepended to our configure call.
-## FIXME: should we rename this to another name which better describes the possibility of this variable?
-export SET_ABI=
-
-####
-## Setup the Build Environment
-## Depending on the configure and compile tool selected we need to set a few variables
-setBuildENV() {
-	[[ -z $1 ]] && configTool=auto || configTool=$1
-	[[ -z $2 ]] && buildTool=make || buildTool=$2
-	case $configTool in
-		auto)
-			BDEPS+=" sys-devel/autoconf" ;;
-		meson)
-			BDEPS+=" dev-util/meson"
-			BUILD_SEPERATE_DIR=yes ;;
-		cmake)
-			BDEPS+=" dev-util/cmake" ;;
-	esac
-	case $buildTool in
-		make)
-			BDEPS+=" sys-devel/automake" ;;
-		ninja)
-			BDEPS+=" dev-util/ninja" ;;
-		pip)
-			RESTRICT="nobin nostrip" ;;
-	esac
-}
-export -f setBuildENV
-
-####
-## Default empty functions
-
-## Like bootstrap prepare_default is called which then calls src_prepare
-## This code is useful for finishing setting up the environment before we start our build.
-src_prepare() { :; }
-export -f src_prepare
-
-## Will by default call a fetch_list on SRC_URI and PATCHES
-src_fetch() { fetch_default; }
-export -f src_fetch
-
-## use PGP to verify signatures
-src_verify() { verify_default; }
-export -f src_verify
-
-## By Default only unpack the first entry in our SRC_URI
-src_unpack() {
-	# We only unpack the first one, anything else will need to be done via the build file.
-    unpack "${DISTFILES}/${SRC_FILE##*/}"
-}
-export -f src_unpack
-
-## call spatches on PATCHES
-src_patch() { patch_default; }
-export -f src_patch
-
-## Ran as BUILD_USER
-src_configure() { configure_default; }
-export -f src_configure
-
-## Ran as BUILD_USER
-src_compile() { compile_default; }
-export -f src_compile
-
-## Ran as TEST_USER
-src_test() { test_default; }
-export -f src_test
-
-## Ran as root
-src_install() { install_default; }
-export -f src_install
-
-## Ran as root
-post_install() { :; }
-export -f post_install
-
-## Ran as root before we remove files
-src_uninstall() { :; }
-export -f src_uninstall
-
-## Ran as root after we have removed all files
-src_post_uninstall() { :; }
-export -f src_post_uninstall
-
-####
 ## Bootstrapping is done a bit backwards from how the functions are normally setup
 ## this is because several variables *MUST* be set before the bootstrap code is ran.
 ## As a result bootstrap_default is called and then bootstrap is called from within,
@@ -131,6 +30,13 @@ export -f src_post_uninstall
 ## This is keeps the code a bit cleaner, while still enforcing the variables get set.
 ## All bootstrap code is ran as BUILD_USER, so to simplify things its also all handled
 ## Within the bootstrap() function.
+bootstrap() {
+	src_configure
+	src_compile
+	src_install
+}
+export -f bootstrap
+
 bootstrap_default() {
 	umask 022
 	set +h
@@ -145,12 +51,9 @@ bootstrap_default() {
 	bootstrap
 }
 export -f bootstrap_default
-bootstrap() {
-	src_configure
-	src_compile
-	src_install
-}
-export -f bootstrap
+
+####
+## *_default Functions
 
 ####
 ## Configure our package using the set configure tool.
@@ -243,3 +146,94 @@ uninstall_default() {
 	fi
 }
 export -f uninstall_default
+
+## Function called by src_fetch
+fetch_default() {
+	fetch_list "Fetching Files" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src'
+	fetch_list "Fetching Patches" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch'
+}
+export -f fetch_default
+
+####
+## Function called by src_verify
+## Currently disabled until a better design can be implemented for properly verifying signatures and installing keys.
+verify_default() {
+## Check a sig file if it exists.
+## FIXME: This code fails if there is no public key installed.
+## Build files should depend on a public key package.
+#if [[ $VERIFY_SIG == 1 && $file == *.sig ]]; then
+#	echo -n "Checking Signature: ${DISTFILES}/${SRC_FILE%.*} ..."
+#	gpg --verify "${DISTFILES}/${SRC_FILE}" "${DISTFILES}/${SRC_FILE%.*}" 2>&1 | grep "Good signature" >/dev/null
+#	[ $? == 0 ] && echo "Ok" || die "Failed!"
+#fi
+	:;
+}
+export -f verify_default
+
+## Sort of a backwards function, this function calls src_unpack
+## FIXME: We should call src_unpack and then this function called.
+##        su code should happen when calling src_unpack.
+unpack_default() {
+	# We only unpack the first one, anything else will need to be done via the build file.
+    unpack "${DISTFILES}/${SRC_FILE##*/}"
+}
+export -f unpack_default
+
+## Function called by src_patch
+## FIXME: This code should only contain a call to spatches rather than su code
+##        changing to our BUILD_USER should happen while calling src_patch
+patch_default() {
+	spatches "$1" || die "Patching failed"
+}
+export -f patch_default
+
+####
+## Default empty functions (src_*)
+
+## This is useful for finishing setting up the environment before we start our build.
+src_prepare() { :; }
+export -f src_prepare
+
+## Will by default call a fetch_list on SRC_URI and PATCHES
+src_fetch() { fetch_default; }
+export -f src_fetch
+
+## use PGP to verify signatures
+src_verify() { verify_default; }
+export -f src_verify
+
+## By Default only unpack the first entry in our SRC_URI
+src_unpack() { unpack_default; }
+export -f src_unpack
+
+## call spatches on PATCHES
+src_patch() { patch_default; }
+export -f src_patch
+
+## Ran as BUILD_USER
+src_configure() { configure_default; }
+export -f src_configure
+
+## Ran as BUILD_USER
+src_compile() { compile_default; }
+export -f src_compile
+
+## Ran as TEST_USER
+src_test() { test_default; }
+export -f src_test
+
+## Ran as root
+src_install() { install_default; }
+export -f src_install
+
+## Ran as root
+post_install() { :; }
+export -f post_install
+
+## Ran as root before we remove files
+src_uninstall() { :; }
+export -f src_uninstall
+
+## Ran as root after we have removed all files
+src_post_uninstall() { :; }
+export -f src_post_uninstall

@@ -47,12 +47,12 @@ fi
 
 ## Clean-up all Temp files.
 cleanup() {
-	PKG_ONLY=$1
+	local PKG_ONLY=$1
 	echo -n "Cleaning up..."
 
 	## For security purposes, validate our BUILD_PATH
 	if [[ ! -z $BUILD_PATH ]]; then
-		BP=$(readlink -f $BUILD_PATH)
+		local BP=$(readlink -f $BUILD_PATH)
 		if [[ ! -z $BP && $BP != '/' && -e $BUILD_PATH ]]; then
 			echo -n " $BUILD_PATH .."
 			rm -rf "$BUILD_PATH"
@@ -79,13 +79,13 @@ cleanup() {
 ## Taken from:
 ## https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
 whereAmI() {
-	SOURCE=${BASH_SOURCE[0]}
+	local SOURCE=${BASH_SOURCE[0]}
 	while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-		DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+		local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 		SOURCE=$(readlink "$SOURCE")
 		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 	done
-	DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+	local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 	echo $DIR
 }
 
@@ -184,7 +184,6 @@ export DIALOG_ERROR="$RED!!$NORMAL"
 source "${INSTALL_PATH}/libs/pkg-tools"
 source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/builddefaults"
-source "${INSTALL_PATH}/libs/spkg-include"
 source "${INSTALL_PATH}/libs/utils"
 source "${INSTALL_PATH}/libs/build-tools"
 source "${INSTALL_PATH}/libs/list-tools"
@@ -727,7 +726,7 @@ else
 			## By default we don't install already installed packages, even when requested
 			## check forced or empty world.
 			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
-				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
+				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
 				! -z $EMPTY_WORLD ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				## Only mention it's been forced if its within the REQUESTED_LIST & FORCE

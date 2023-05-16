@@ -25,6 +25,46 @@ export PKG_FLAGS
 export PKG_ARCHS
 export PKG_USE
 
+####
+## Setup package Environmental Variables for building
+## Requires a LENTRY or at minimum PKG_NAME
+setupENV() {
+	EntryParser $1 > /dev/null
+	## If we're uninstalling we need to report the installed version
+	export PKG
+	if [[ $MODE == 'uninstall' || $MODE == 'rebuild' ]]; then
+		PKG=$(Installed-getPkg $PKG)
+	else
+		PKG=$(DB-getPkg $PKG | getLatest)
+	fi
+	## If we didn't find a result, get the full list and grab the latest.
+	## This skips the filter* functions.
+	if [[ $PKG == "" || $PKG == 0 ]]; then
+#       >&2 echo " * PKG ($1) not found, its possible all versions are marked as unstable for your arch."
+		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
+		if [[ $PKG == "" || $PKG == 0 ]]; then
+#           >&2 echo " ! $1 not found for any arch/slot"
+			return
+		fi
+	fi
+	setPkgENV $PKG > /dev/null
+	export BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
+	## Default archive build directory
+	export B="${PKG_NV}"
+	## Temp install root
+	export D="${BUILD_PATH}/troot"
+	## Installed version filtered by PKG_SLOT
+	export O_VER=$(Installed-getPkg $PKG | getVerRev)
+
+	if [[ $VERBOSE -ge 2 ]]; then
+		>&2 echo "       PKG : $PKG"
+		>&2 echo "BUILD_PATH : $BUILD_PATH"
+		>&2 echo "         B : $B"
+		>&2 echo "         D : $D"
+		>&2 echo "     O_VER : $O_VER"
+	fi
+}
+
 ### Misc Methods used by both Installed and DB versions.
 
 ## Filters PKG_BLDs by ARCH

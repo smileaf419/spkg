@@ -9,7 +9,6 @@ source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/pkg-tools"
 source "${INSTALL_PATH}/libs/updatesha1"
 source "${INSTALL_PATH}/libs/utils"
-source "${INSTALL_PATH}/libs/spkg-include"
 source "${INSTALL_PATH}/libs/build-tools"
 source "${INSTALL_PATH}/libs/builddefaults"
 
@@ -22,7 +21,7 @@ VERBOSE=${VERBOSE:-0}
 
 if [[ $(find "$DFILES_INDEX" -mtime +1 -print) || ! -e $DFILES_INDEX ]]; then
 	cd ${DFILES_INDEX%/*}
-	wget -O "$DFILES_INDEX" "$SRC_URI"
+	wget -O "$DFILES_INDEX" "$SRC_URI" || die "Error getting list"
 fi
 echo Original: $(cat $DFILES_INDEX | wc -l) entries
 grep "href=" $DFILES_INDEX | sed -e 's,.*href="\([^"]*\).*,\1,'> $DFILES

@@ -1,118 +1,49 @@
 #!/bin/bash
+####
+## Set variables to the most common defaults
+
+## Set which configure tool we are using:  auto, meson, cmake, none
+export configTool=auto
+
+## Set which compile tool we are using:  make, ninja, pip
+export buildTool=make
+
+## no defaults to '.' yes to '..'
+## Alternatively you can set a path.
+export BUILD_SEPERATE_DIR=no
+
+## If cross compiling, set this to an environment var
+## SET_ABI='ABI=32'
+## This will run ABI=32 ./configure ...
+## Alternatively it maybe useful to use this to set other options which must be prepended to our configure call.
+## FIXME: should we rename this to another name which better describes the possibility of this variable?
+export SET_ABI=
 
 ####
-## Setup package Environmental Variables for building
-## Requires a LENTRY or at minimum PKG_NAME
-setupENV() {
-	EntryParser $1 > /dev/null
-	## If we're uninstalling we need to report the installed version
-	export PKG
-	if [[ $MODE == 'uninstall' || $MODE == 'rebuild' ]]; then
-		PKG=$(Installed-getPkg $PKG)
-	else
-		PKG=$(DB-getPkg $PKG | getLatest)
-	fi
-	## If we didn't find a result, get the full list and grab the latest.
-	## This skips the filter* functions.
-	if [[ $PKG == "" || $PKG == 0 ]]; then
-#       >&2 echo " * PKG ($1) not found, its possible all versions are marked as unstable for your arch."
-		PKG=$(DB-getPkgList $1 | fileToList | getLatest)
-		if [[ $PKG == "" || $PKG == 0 ]]; then
-#           >&2 echo " ! $1 not found for any arch/slot"
-			return
-		fi
-	fi
-	setPkgENV $PKG > /dev/null
-	export BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
-	## Default archive build directory
-	export B="${PKG_NV}"
-	## Temp install root
-	export D="${BUILD_PATH}/troot"
-	## Installed version filtered by PKG_SLOT
-	export O_VER=$(Installed-getPkg $PKG | getVerRev)
-
-	if [[ $VERBOSE -ge 2 ]]; then
-		>&2 echo "       PKG : $PKG"
-		>&2 echo "BUILD_PATH : $BUILD_PATH"
-		>&2 echo "         B : $B"
-		>&2 echo "         D : $D"
-		>&2 echo "     O_VER : $O_VER"
-	fi
+## Setup the Build Environment
+## Depending on the configure and compile tool selected we need to set a few variables
+setBuildENV() {
+	[[ -z $1 ]] && configTool=auto || configTool=$1
+	[[ -z $2 ]] && buildTool=make || buildTool=$2
+	case $configTool in
+		auto)
+			BDEPS+=" sys-devel/autoconf" ;;
+		meson)
+			BDEPS+=" dev-util/meson"
+			BUILD_SEPERATE_DIR=yes ;;
+		cmake)
+			BDEPS+=" dev-util/cmake" ;;
+	esac
+	case $buildTool in
+		make)
+			BDEPS+=" sys-devel/automake" ;;
+		ninja)
+			BDEPS+=" dev-util/ninja" ;;
+		pip)
+			RESTRICT="nobin nostrip" ;;
+	esac
 }
-
-fetch_default() {
-	fetch_list "Fetching Files" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src'
-	fetch_list "Fetching Patches" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch'
-}
-export -f fetch_default
-
-verify_default() {
-# Check a sig file if it exists.
-# FIXME: This code fails if there is no public key installed.
-# Build files should depend on a public key package.
-#if [[ $VERIFY_SIG == 1 && $file == *.sig ]]; then
-#	echo -n "Checking Signature: ${DISTFILES}/${SRC_FILE%.*} ..."
-#	gpg --verify "${DISTFILES}/${SRC_FILE}" "${DISTFILES}/${SRC_FILE%.*}" 2>&1 | grep "Good signature" >/dev/null
-#	[ $? == 0 ] && echo "Ok" || die "Failed!"
-#fi
-	:;
-}
-export -f verify_default
-
-unpack_default() {
-	# We need to downgrade SRC_URI for scripts to access it properly
-	local SRC=${SRC_URI[@]}
-	unset SRC_URI
-	export SRC_URI=${SRC[@]}
-	export SRC_FILE=${SRC_URI%% *}
-
-	if [[ -e /bin/su || -e /usr/bin/su ]]; then
-		su -p -c 'src_unpack' $BUILD_USER
-	else
-		src_unpack
-	fi
-}
-export -f unpack_default
-
-patch_default() {
-	P="${PATCHES[@]}"
-	# Export so we can use it, unset afterwards. Sad we can't export arrays.
-	export P
-	if [[ -e /bin/su || -e /usr/bin/su ]]; then
-		su -p -c 'spatches "$P"' $BUILD_USER || die "Patching Failed"
-	else
-		spatches "$P" || die "Patching Failed"
-	fi
-	unset P
-}
-export -f patch_default
-
-prepare_default() {
-	if [[ ! -z $SRC_URI ]]; then
-		src_fetch
-
-		# src_verify
-
-		[[ $FETCH_ONLY == 1 ]] && return
-
-		unpack_default
-
-		# In most cases archive directories are the name of the archive itself.
-		# This could be a better default for B.
-		if [ ! -d "${BUILD_PATH}/${B}" ]; then
-			echo "Build Directory ($BUILD_PATH/$B) not found! Directory listing of BUILD_PATH:"
-			ls "${BUILD_PATH}"
-			die "exiting.."
-		fi
-		cd "${BUILD_PATH}/${B}"
-	fi
-	if [[ ! -z $PATCHES ]]; then
-		src_patch
-	fi
-
-	src_prepare
-}
-export -f prepare_default
+export -f setBuildENV
 
 buildPackage() {
 	# Export this so packages can override the src_unpack.
@@ -127,7 +58,49 @@ buildPackage() {
 		chown $BUILD_USER "$BUILD_PATH"
 	fi
 
-	prepare_default
+	if [[ ! -z $SRC_URI ]]; then
+		src_fetch
+
+		# src_verify
+
+		[[ $FETCH_ONLY == 1 ]] && return
+
+		## We need to downgrade SRC_URI for scripts to access it properly
+		local IFS=$'\n'
+		local SRC="${SRC_URI[*]}"
+		IFS=
+		export SRC_FILE=${SRC_URI[0]}
+		unset SRC_URI
+		export SRC_URI=$SRC
+		unset SRC
+
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_unpack' $BUILD_USER
+		else
+			src_unpack
+		fi
+		unset SRC_FILE
+
+		# In most cases archive directories are the name of the archive itself.
+		# This could be a better default for B.
+		if [ ! -d "${BUILD_PATH}/${B}" ]; then
+			echo "Build Directory ($BUILD_PATH/$B) not found! Directory listing of BUILD_PATH:"
+			ls "${BUILD_PATH}"
+			die "exiting.."
+		fi
+		cd "${BUILD_PATH}/${B}"
+	fi
+	if [[ ! -z $PATCHES ]]; then
+		export P="${PATCHES[@]}"
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_patch' $BUILD_USER
+		else
+			src_patch
+		fi
+		unset P
+	fi
+
+	src_prepare
 
 	[[ $FETCH_ONLY == 1 ]] && return
 
@@ -429,4 +402,143 @@ uninstall() {
 			mv $PKG_WORLD.old $PKG_WORLD
 		fi
 	fi
+}
+
+## Create an archive package of our build, could be useful if we decide to distribute binary copies
+## Enabled with BUILD_PACKAGE = yes
+archivePackage() {
+	# Package it up
+	if [[ $BUILD_PACKAGE == "yes" && $ARCHIVE_INSTALL != 1 && $MODE != "bootstrap" ]]; then
+		echo -n "Packaging up..."
+		mkdir -p "${PKG_ARCHIVE_DIR}/${PKG_CAT}"
+		tar -Jcpf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" . && echo " Done"
+	fi
+}
+
+## Remove unneccessary symbols to reduce the filesize in binaries.
+## Packages may disable this with RESTRICT=strip
+stripPackage() {
+	pkg-restricts strip && return
+	cd "${D}"
+	echo "Stripping..."
+	for s in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*" ); do
+		strip --strip-unneeded "$s" 2> /dev/null && echo " -- $s"
+	done
+}
+
+## Find all binary dependencies
+## Packages may disable this with RESTRICT=nobin
+getBDeps() {
+	pkg-restricts nobin && return
+	echo -n "Finding Binary Dependencies..."
+	for dep in $( cat $1 | grep -P 'bin/|/lib/|/lib64/|/lib32/|/libx32/'); do
+		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
+		for d in $deps; do
+			for p in $(cat /etc/ld.so.conf); do
+				[ -e $p/$d ] && echo $p/$d
+			done
+		done
+	done | sort | uniq > "${PKG_CACHE}/$PKG_CAT/$PKG_NAME/$PKG_VR/BDEPS"
+	echo "Done"
+}
+
+####
+## Takes a list of PKG to (un)install
+installList() {
+	local list=($@)
+	local length=${#list[@]}
+
+	## Linux-kernel uses the ARCH environment var, rename it and unset the ARCH to avoid issues.
+	## FIXME: This should probably be changed internally rather than be arbitrarily renamed.
+	export SARCH=$ARCH
+	unset ARCH
+
+	for (( l=0; l<${length}; l++ )); do
+		## Current #
+		local C=$(( ${l} + 1 ))
+		## PKG entry
+		local p=${list[$l]}
+		setupENV $p
+
+		## Uninstall
+		if [[ $MODE == "uninstall" ]]; then
+			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
+			(
+				source $(getBldFile $p 1)
+				local d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
+
+				## FIXME: If uninstalling will break packages Check Forced.
+				## Option 1: Uninstall just the requested, breaking other installed packages.
+				## Option 2: Uninstall all packages that would break, and any that would break if they were removed.
+				## Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
+				##           removed under any circumstances.
+				if [[ $d != *$p && $d != "" && $FORCE == 0 ]]; then
+					echo "Uninstalling will break packages!"
+					echo $d
+				else
+					## pre-uninstall code if needed/set
+					uninstall_default
+					## Uninstall the package
+					uninstall "${PKG_CAT}/${PKG_NAME}" $O_VER ""
+					## post-uninstall code if needed/set
+					src_post_uninstall
+				fi
+			)
+
+		## Install
+		else
+			####
+			## Set the log file
+			## Can alter this to use a LOGFILE using
+			## %c category  %d day   %D date (%Y%m%d)  %s Unix Timestamp
+			## %n name      %Y year  %m month          %v version with revision
+			LOGFILE=${LOGFILE:-%D-%n%v%r.log}
+
+			local log=$(echo $LOGDIR/$LOGFILE |
+				sed -e "s,%c,$PKG_CAT," \
+					-e "s,%n,$PKG_NAME," \
+					-e "s,%v,$PKG_VR,"    \
+					-e "s,%s,$(date +%s)," \
+					-e "s,%d,$(date +%d)," \
+					-e "s,%m,$(date +%m)," \
+					-e "s,%Y,$(date +%Y)," \
+					-e "s,%D,$(date +%Y%m%d),")
+
+			## Our log may contain a directory or 2
+			mkdir -p "${log%/*}"
+
+			## If the file exists, append a unix timestamp to the end.
+			[[ -e $log || -e $log.xz ]] && log="${log%.*}-$(date +%s).log"
+
+			CFG_PROTECT=true
+
+			export RESTRICT=
+
+			echo " * ${PKG_CAT}/${PKG_NVR} ($C of $length)"
+
+			## Save what time we started installing so we can output how long it took at the end.
+			local timestart=$(date "+%s.%N")
+
+			if [[ $SILENT_BUILD == "no" ]]; then
+				set -o pipefail
+				installPackage 2>&1 | tee $log
+				[ $PIPESTATUS != 0 ] && die "Error installing package: ${PKG_NVR}"
+			else
+				installPackage > $log 2>&1 || die "Error installing package: ${PKG_NVR}"
+			fi
+
+			## If bc is installed output how long it took to build
+			if [[ -e /usr/bin/bc ]]; then
+				printf "Completed in %.3f seconds.\n" $( echo $(date "+%s.%N") - $timestart | bc ) | tee -a $log
+			## Log when we started and when we finished if we can't calculate how long it took.
+			else
+				printf "Started at %.3f ended at %.3f.\n" $timestart $(date "+%s.%N") | tee -a $log
+			fi
+
+			## Compress our log.
+			[[ ! -e "${log}.xz" ]] && xz "$log" || echo " ! Log ${log}.xz exists"
+		fi
+		echo -n " * Running ldconfig .."
+		ldconfig && echo "done!" || echo "failed!"
+	done
 }
