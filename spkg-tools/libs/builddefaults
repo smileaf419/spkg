@@ -170,9 +170,7 @@ verify_default() {
 }
 export -f verify_default
 
-## Sort of a backwards function, this function calls src_unpack
-## FIXME: We should call src_unpack and then this function called.
-##        su code should happen when calling src_unpack.
+## Function called by src_unpack
 unpack_default() {
 	# We only unpack the first one, anything else will need to be done via the build file.
     unpack "${DISTFILES}/${SRC_FILE##*/}"
@@ -180,8 +178,6 @@ unpack_default() {
 export -f unpack_default
 
 ## Function called by src_patch
-## FIXME: This code should only contain a call to spatches rather than su code
-##        changing to our BUILD_USER should happen while calling src_patch
 patch_default() {
 	spatches "$1" || die "Patching failed"
 }
