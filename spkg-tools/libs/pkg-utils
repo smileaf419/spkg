@@ -74,16 +74,14 @@ export -f spatch
 ## Applies a set of patches, within the array, a directory or an archive (tar only).
 ## src_patch automatically calls this method using the PATCHES var.
 spatches() {
-	if [ ! -z "$@" ]; then
-		PATCHES=($@)
-	fi
-	for p in ${PATCHES[*]}; do
+	local PATCHES=(${PATCHES[@]:-$@})
+
+	for p in ${PATCHES[@]}; do
 		[[ $p == http* ]] && p=$DISTFILES/${p##*/}
 		if [[ $p == *.tar.* ]]; then
 			unpack "$p"
 			p=${p%.tar.*}
 			p=${p##*/}
-			echo " * p : $p"
 		fi
 		if [ -d "$p" ]; then
 			echo " * Applying All patches within: $p"

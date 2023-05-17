@@ -59,7 +59,9 @@ export -f bootstrap_default
 ## Configure our package using the set configure tool.
 ## default options maybe reset with CONF_FLAGS= if the defaults conflict with desired ones.
 configure_default() {
-	# FIXME: Currently we default to x86_64 with no way for build files to change this.
+	## FIXME: Currently we default to x86_64 with no way for build files to change this.
+	##        Earlier we should examine the ARCH and set it appropriately.
+	##        x86 set default to HOST_TGT32
 	HOST_TGT=${HOST_TGT:-x86_64-pc-linux-gnu}
 	HOST_TGT32=${HOST_TGT32:-i686-pc-linux-gnu}
 	HOST_TGTx32=${HOST_TGTx32:-x86_64-pc-linux-gnux32}
@@ -203,7 +205,9 @@ src_unpack() { unpack_default; }
 export -f src_unpack
 
 ## call spatches on PATCHES
-src_patch() { patch_default; }
+src_patch() {
+	patch_default "$P"
+}
 export -f src_patch
 
 ## Ran as BUILD_USER
