@@ -316,6 +316,12 @@ setPkgENV() {
 	export PKG_ARCHS=$(getArchs $data)
 	export PKG_USE=$(getPkgUse $data)
 
+	## Within packages *DEPS a Restriction maybe present, Split it out
+	if [[ $PKG_NAME =~ (=|<|>) && -z $PKG_VER_RESTRICT ]]; then
+		PKG_VER_RESTRICT=${PKG_NAME/${PKG_NAME%%[><=]*}/}
+		PKG_NAME=${PKG_NAME%%[><=]*}
+	fi
+
 	## Set our Convience Vars
 	export PKG_VR=$PKG_VER
 	if [[ $PKG_REV != 0 ]]; then
