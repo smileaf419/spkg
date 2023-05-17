@@ -12,10 +12,11 @@ RESTRICT="strip nobin"
 
 URL_BASE="https://cdn.kernel.org/pub/linux/kernel/v6.x"
 
+unset ARCH
+
 # Check for the main archive all the way back to a 6.0
 # If One exists download the incr patches up to the current and apply those.
 # if none exist, download the most recent.
-
 if [[ $MODE != "search" ]]; then
 	MV=$(getMajorVer $PKG_VER)
 	MiV=$(getMinorVer $PKG_VER)

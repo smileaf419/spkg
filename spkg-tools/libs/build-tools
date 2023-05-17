@@ -311,8 +311,6 @@ installPackage() {
 		# So the most recent slot should always be used.
 		if ! grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 			# If it didn't find it as a system package, check if its already in the world set.
-			# FIXME: We need a way to check if this is an explicitly requested install.
-			#        Or the result of a dependency.
 
 			# Only add to world requested packages.
 			grep "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
@@ -447,11 +445,6 @@ getBDeps() {
 installList() {
 	local list=($@)
 	local length=${#list[@]}
-
-	## Linux-kernel uses the ARCH environment var, rename it and unset the ARCH to avoid issues.
-	## FIXME: This should probably be changed internally rather than be arbitrarily renamed.
-	export SARCH=$ARCH
-	unset ARCH
 
 	for (( l=0; l<${length}; l++ )); do
 		## Current #
