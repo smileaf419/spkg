@@ -93,9 +93,9 @@ buildPackage() {
 	if [[ ! -z $PATCHES ]]; then
 		export P="${PATCHES[@]}"
 		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_patch' $BUILD_USER
+			su -p -c 'src_patch' $BUILD_USER || die "Error While Patching"
 		else
-			src_patch
+			src_patch || die "Error While Patching"
 		fi
 		unset P
 	fi
