@@ -1,0 +1,98 @@
+HOMEPAGE="https://kernel.org"
+DESCRIPTION="The Linux Kernel"
+LICENSE="GPLv2"
+PATCHES=()
+DEPS=""
+BDEPS="sys-devel/gcc<13.1.0"
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=6.2
+RESTRICT="strip nobin"
+
+URL_BASE="https://cdn.kernel.org/pub/linux/kernel/v$(getMajorVer $PKG_VER).x"
+
+## Download the Incr patches rather than the full source for each version.
+if [[ $MODE != "search" ]]; then
+	MV=$(getMajorVer $PKG_VER)
+	MiV=$(getMinorVer $PKG_VER)
+	MicV=$(getMicroVer $PKG_VER)
+	VerIncr=10
+	VerStart=1
+
+	## If our MicV becomes too high, it becomes too time consuming to download all the patches
+	## Grab every 20 version's archive, and patch up.
+	if [ $(( $MicV % $VerIncr )) == 0 ]; then
+		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.${MicV}.tar.xz")
+		B=troot/usr/src/linux-$MV.$MiV.$MicV
+	## If we've not reach our threshold yet, grab the original
+	elif [ $MicV -lt $VerIncr ]; then
+		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.tar.xz")
+		B=troot/usr/src/linux-$MV.$MiV
+	## Otherwise, we need to grab the archive closest to our current version.
+	else
+		VerStart=$(( $(( $MicV / $VerIncr )) * $VerIncr ))
+		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.${VerStart}.tar.xz")
+		B=linux-${MV}.${MiV}.${VerStart}
+		B=troot/usr/src/linux-$MV.$MiV.$VerStart
+	fi
+	[[ $VERBOSE -gt 0 ]] && echo "Found Archive: ${MV}.${MiV}"
+	if [[ $MicV -gt 0 && $MicV -lt $VerIncr ]]; then
+		PATCHES=("$URL_BASE/patch-${MV}.${MiV}.1.xz")
+	fi
+
+	if [[ $(( $MicV % $VerIncr )) -gt 1 ]]; then
+		[[ $VERBOSE -gt 0 ]] && echo "Getting Patches from $VerStart to $MicV"
+		for x in $(seq $VerStart $(( ${MicV}-1 ))); do
+			N=$(( ${x}+1 ))
+			[[ $VERBOSE -gt 0 ]] && echo "Adding Incr Patch: ${MV}.${MiV}.${x}-${N}"
+			PATCHES+=("$URL_BASE/incr/patch-${MV}.${MiV}.${x}-${N}.xz")
+		done
+	fi
+fi
+
+src_unpack() {
+	mkdir -p "$D/usr/src"
+	unpack "${DISTFILES}/${SRC_FILE##*/}" "$D/usr/src"
+}
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	if [[ $(getMicroVer $PKG_VER) != 0 ]]; then
+		mv -v "$BUILD_PATH/$B" "$D/usr/src/linux-${PKG_VER}"
+	fi
+}
+
+post_install() {
+	## Set our slot's symlink
+	[ ! -e /usr/src/linux-$PKG_SLOT ] && ln -sfv /usr/src/linux-$PKG_VER /usr/src/linux-$PKG_SLOT
+	## If we just installed the most recent slot, update the symlink to the current kernel to our slot's symlink.
+	if [[ $(Installed-getPkg sys-kernel/linux-kernel | getLatest | getSlot) == $PKG_SLOT && ! -e /usr/src/linux ]]; then
+		inform " * Updating Kernel symlink to Linux ${PKG_VER}"
+		ln -sfv /usr/src/linux-$PKG_SLOT /usr/src/linux
+	fi
+}
+
+src_post_uninstall() {
+	## We need to ensure we didn't just break a symlink
+	## Check if any versions are installed for our slot, if so, update it otherwise remove it.
+	local IVer=$(Installed-getPkg sys-kernel/linux-kernel:$PKG_SLOT | getLatest | getVersion)
+	if [[ $IVer != 0 ]]; then
+		[ -e /usr/src/linux-$PKG_SLOT ] && rm /usr/src/linux-$PKG_SLOT
+		echo " * Updating Kernel Symlink for slot $PKG_SLOT to $IVER"
+		ln -sv /usr/src/linux-$IVER /usr/src/linux-$PKG_SLOT
+	## If no version exists for our slot, get the latest installed slot and set our main link to that.
+	else
+		rm /usr/src/linux-$PKG_SLOT
+		local ISlot=$(Installed-getPkg sys-kernel/linux-kernel | getLatest | getSlot)
+		## If our Main link exists and is currently linked to a now dead slot, remove it and link it to the latest slot.
+		if [[ -e /usr/src/linux && $(readlink $/usr/src/linux) == "/usr/src/linux-$PKG_SLOT" ]]; then
+			rm /usr/src/linux
+			ln -sf /usr/src/linux-$ISlot /usr/src/linux
+		fi
+	fi
+}
