@@ -190,7 +190,7 @@ doDeps() {
 	[ -z $DEPS ] && return 0
 	local d
 	for d in ${DEPS[@]}; do
-	    local dpkg=$(DB-getPkg $d)
+	    local dpkg=$(DB-getPkg $(EntryParser $d))
 	    ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $dpkg)
 		pkg-has-flag "nodep" && break
