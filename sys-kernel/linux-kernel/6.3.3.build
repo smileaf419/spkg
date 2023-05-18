@@ -68,6 +68,10 @@ src_install() {
 }
 
 post_install() {
+	echo " * Preparing modules"
+	cd /usr/src/linux-$PKG_VER
+	make modules_prepare
+
 	## Set our slot's symlink
 	[ ! -e /usr/src/linux-$PKG_SLOT ] && ln -sfv /usr/src/linux-$PKG_VER /usr/src/linux-$PKG_SLOT
 	## If we just installed the most recent slot, update the symlink to the current kernel to our slot's symlink.
