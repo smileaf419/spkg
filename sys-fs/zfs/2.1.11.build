@@ -8,6 +8,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 MODULE=kernel
+unset ARCH
 
 src_configure() {
 	checkKernelConfig "CONFIG_MODULES" 1 "Loadable Modules Support"
