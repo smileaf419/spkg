@@ -42,3 +42,17 @@ d927ce48e2e9b8224562272629314b264a516c3a  libcxxabi-16.0.3.src.tar.xz
 09152a33109ddec60ae987a524f3f106e6b40cd5  polly-16.0.3.src.tar.xz
 87895b29fec34f7f883aa0717dd3022141128724  libunwind-16.0.3.src.tar.xz
 64063ad28e4c70552b3a6735c4153fba776fcb75  llvm-16.0.3-gcc-13.patch
+be93b6c17b42da38a1f7bd1bb8c756c444f5abeb  16.0.4.build
+90c3e2ba2855eae6997e4074347417b93786838d  llvm-16.0.4.src.tar.xz
+4d042fe6ccff719da5bcf8bab977050a1f2b3c77  cmake-16.0.4.src.tar.xz
+8f9d78078cbf9b7ec9f5e1c29068d98447e65c03  third-party-16.0.4.src.tar.xz
+32a497da79d7d19dd48e840128423f8b68c3b1b7  clang-16.0.4.src.tar.xz
+27b235b0802f29eb75a1e75f85d4d8d02d6c890e  lldb-16.0.4.src.tar.xz
+e8f6ebb6bb7ec276204da9c8469a29acae3e548c  lld-16.0.4.src.tar.xz
+9115491127500d6913e4f042293f088f522f8aea  clang-tools-extra-16.0.4.src.tar.xz
+d19f56f8bd675f496d78c63ac4011795bc1eafe0  compiler-rt-16.0.4.src.tar.xz
+7df61886c9b96aa929de034b79d04ae18fcaee72  openmp-16.0.4.src.tar.xz
+e0c3532dcff7e1e0bccc83f61ac2eb5381cde9ac  libcxx-16.0.4.src.tar.xz
+a1f798cbef6cab6c3c13595e009c3d5cddc693b7  libcxxabi-16.0.4.src.tar.xz
+da6cd214a2d8f1a690f03f4cf5f69b677172a57d  polly-16.0.4.src.tar.xz
+19929cb4718363925ad18670854161f6f7b44e3e  libunwind-16.0.4.src.tar.xz

@@ -1,0 +1,73 @@
+HOMEPAGE="https://kernel.org"
+DESCRIPTION="Linux Kernel Headers"
+LICENSE="GPLv2"
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+## No ARCHS set until zfs can update their API or PKG_VER_RESTRICT is fully implemented, whichever comes first.
+ARCHS="-"
+SLOT=0
+B=linux-$PKG_VER
+RESTRICT="strip nobin"
+
+URL_BASE="https://cdn.kernel.org/pub/linux/kernel/v6.x"
+
+unset ARCH
+
+# Check for the main archive all the way back to a 6.0
+# If One exists download the incr patches up to the current and apply those.
+# if none exist, download the most recent.
+if [[ $MODE != "search" ]]; then
+	MV=$(getMajorVer $PKG_VER)
+	MiV=$(getMinorVer $PKG_VER)
+	MicV=$(getMicroVer $PKG_VER)
+	Z=0
+	for x in $(seq $MicV -1 1); do
+		if [ -e "${DISTFILES}/linux-${MV}.${MiV}.${x}.tar.xz" ]; then
+			Z=$x
+			SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.${x}.tar.xz")
+			B=linux-${MV}.${MiV}.${x}
+			[[ $VERBOSE -gt 0 ]] && echo "Found Archive: ${MV}.${MiV}.${x}"
+			break
+		fi
+	done
+	if [ $Z == 0 ]; then
+		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.tar.xz")
+		[[ $VERBOSE -gt 0 ]] && echo "Found Archive: ${MV}.${MiV}"
+		B=linux-${MV}.${MiV}
+		if [[ $MicV != 0 ]]; then
+			PATCHES=("$URL_BASE/patch-${MV}.${MiV}.1.xz")
+		fi
+		Z=1
+	fi
+	[[ $VERBOSE -gt 0 ]] && echo "Getting Patches from $Z to $MicV"
+	for x in $(seq $Z $(( ${MicV}-1 ))); do
+		N=$(( ${x}+1 ))
+		[[ $VERBOSE -gt 0 ]] && echo "Adding Incr Patch: ${MV}.${MiV}.${x}-${N}"
+		PATCHES+=("$URL_BASE/incr/patch-${MV}.${MiV}.${x}-${N}.xz")
+	done
+fi
+
+src_configure() {
+	make mrproper
+}
+
+src_compile() {
+	make headers
+}
+
+src_test() { :; }
+
+src_install() {
+	find usr/include -type f ! -name '*.h' -delete
+	rm usr/include/Makefile
+	mkdir -pv "${D}/${ROOT}/usr"
+	cp -rv usr/include "${D}/${ROOT}/usr"
+}
+
+bootstrap() {
+	src_configure
+	src_compile
+	src_install
+}

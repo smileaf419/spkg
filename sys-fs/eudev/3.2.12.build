@@ -2,15 +2,14 @@ HOMEPAGE="https://github.com/eudev-project/eudev"
 DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
 LICENSE="LGPLv2.1 MIT GPLv2"
 LFSRULEVER=20171102
-#"https://github.com/eudev-project/eudev/releases/download/v${PKG_VER}/eudev-${PKG_VER}.tar.gz"
-SRC_URI=("https://github.com/eudev-project/eudev/archive/refs/heads/master.zip => eudev-master-$PKG_VER.zip"
+#"https://github.com/eudev-project/eudev/archive/refs/heads/master.zip => eudev-master-$PKG_VER.zip"
+SRC_URI=("https://github.com/eudev-project/eudev/releases/download/v${PKG_VER}/eudev-${PKG_VER}.tar.gz"
 "https://anduin.linuxfromscratch.org/LFS/udev-lfs-${LFSRULEVER}.tar.xz")
 DEPS="sys-apps/kmod"
 BDEPS="dev-util/gperf app-arch/unzip"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-B=eudev-master
 
 src_test() {
 	# These directories are required for the tests
@@ -22,8 +21,6 @@ src_test() {
 
 src_configure() {
 	./autogen.sh || true
-	# Fix location of udev rules in the .pc file
-#	sed -i '/udevdir/a udev_dir=${udevdir}' src/udev/udev.pc.in
 
 	configure_default \
 				--bindir=/bin     \
@@ -38,6 +35,13 @@ src_install() {
 
 	unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz
 	install_default -f udev-lfs-${LFSRULEVER}/Makefile.lfs
+
+	mkdir -pv $D/usr/lib/udev/rules.d
+	mkdir -pv $D/etc/udev/rules.d
+
+	cat > $D/etc/udev/rules.d/65-kvm.rules << "EOF"
+KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
+EOF
 }
 
 post_install() {
