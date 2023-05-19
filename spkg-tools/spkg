@@ -377,14 +377,14 @@ populate_list() {
 
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
-				echo " $ERROR_DIALOG $p not installed!"
+				echo " $DIALOG_ERROR $p not installed!"
 				exit
 			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
 			elif [[ $HASH_UPDATE ]]; then
-				echo " $ERROR_DIALOG $p not found!"
+				echo " $DIALOG_ERROR $p not found!"
 				continue
 			else
-				echo " $ERROR_DIALOG $p not found!"
+				echo " $DIALOG_ERROR $p not found!"
 				REQUESTED_LIST=$p
 				MODE=search
 				return
@@ -492,7 +492,7 @@ if [[ $MODE == "sync" ]]; then
 	fi
 	echo " * Syncing database... "
 	cd $PKG_DB_DIR
-	git pull && echo " * Sync Complete!" || die " $ERROR_DIALOG Sync Failed!"
+	git pull && echo " * Sync Complete!" || die " $DIALOG_ERROR Sync Failed!"
 fi
 
 ####
@@ -533,7 +533,7 @@ if [[ $MODE == "update" ]]; then
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
 	if [ ! -e $INSTALL_CHART ]; then
-		die " $ERROR_DIALOG Error Cannot resume no list was found."
+		die " $DIALOG_ERROR Error Cannot resume no list was found."
 	fi
 	echo " * Resuming..."
 	## FIXME: This actually is a guess at what the REQUESTED_LIST actually was.
@@ -595,9 +595,13 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			list=$(find $PKG_DB_DIR -maxdepth 2 -mindepth 2 -iwholename \*$PKG_CAT/$PKG_NAME\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
 		fi
 
-		echo "${MODE^}ing: $p (${PKG_CAT:-*}/${PKG_NAME:-*})"
+		[[ $PKG_NAME == *\* ]] && PKG_NAME=${PKG_NAME%\*}
+		echo "${MODE^}ing: $p ${PKG_CAT:-*}/$PKG_NAME*"
 		[[ $MODE == 'list' ]] && printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
-		[[ $list == '' ]] && echo " ! $p not found!"
+		if [[ $list == '' ]]; then
+			echo " $DIALOG_ERROR $p not found!"
+			continue
+		fi
 		for r in $list; do
 			## Parse the entry again to get more information that was not supplied in the search.
 			PKG=$(DB-getPkg $r | getLatest)
@@ -611,7 +615,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 			if [[ $MODE == 'search' ]]; then
 				echo " * ${PKG_CAT}/${PKG_NAME}"
-				echo -n "      Available:"
+				printf " %12s:" "Available"
 				ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME | getLatest)
 				[[ -z $ipkg ]] && ipkg=0
 				ipvr=$(getVerRev $ipkg)
@@ -633,7 +637,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 				done; echo $NORMAL
 
 				## Run this in a subshell to avoid tainting the environment.
-				echo -n "      Installed:"
+				printf " %12s:" "Installed"
 				(
 					ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
 					[[ $ipkg == '' ]] && echo -n ' none'
@@ -647,13 +651,13 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 				## Ditto, avoid tainting the environment
 				(
 					source "${PKG_BLD}"
-					echo "       Homepage: ${HOMEPAGE}"
-					echo "    Description: ${DESCRIPTION}"
+					printf " %12s: %s\n" "Homepage" "$HOMEPAGE"
+					printf " %12s: %s\n" "Description" "$DESCRIPTION"
 					[[ -z $LICENSE ]] && LICENSE="Unknown"
-					echo "        License: ${LICENSE}"
+					printf " %12s: %s\n" "License" "$LICENSE"
 					[[ ! -z $IUSE ]] &&
-					echo "            USE: ${IUSE}"
-					echo -n "   Dependencies: ${DEPS}"
+					printf " %12s: %s\n" "USE" "$IUSE"
+					printf " %12s: %s" "Dependencies" "$DEPS"
 					[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
 					[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"
 					[[ ! -z "$BDEPS" ]] && echo -n " [B:${BDEPS}]"
@@ -707,7 +711,7 @@ else
 	if [[ $MODE != "update" &&  $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
-		getFullPkgList $REQUESTED_LIST > /dev/null || die " $ERROR_DIALOG Error Calculating Dependencies: you may need to run: spkg -U"
+		getFullPkgList $REQUESTED_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies: you may need to run: spkg -U"
 		PKG_LIST=$(cat $CHART)
 	fi
 	if [[ $VERBOSE -ge 1 ]]; then
