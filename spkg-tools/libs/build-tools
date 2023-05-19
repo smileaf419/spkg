@@ -300,7 +300,7 @@ installPackage() {
 		post_install || die "Error in post_install"
 
 		if [[ $MODULE == kernel ]]; then
-			local K_VER=$(readlink /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
+			local K_VER=$(readlink -f /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
 			local KERNEL_VER=$(getMajorVer $K_VER).$(getMinorVer $K_VER).$(getMicroVer $K_VER)
 			echo -n " * Running depmod (${KERNEL_VER}) .. "
 			depmod -a $KERNEL_VER && echo "Ok" || echo "Failed"
