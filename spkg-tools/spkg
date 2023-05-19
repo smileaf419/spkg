@@ -696,6 +696,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 					fi
 					printf "| %17s/%-23s | %-15s | %12s | %31s | %3d days | %s\n" $PKG_CAT $PKG_NAME $PKG_VR $(getArchs $a) "$(date --date="@$fileDate")" $(( $age / 86400 )) $installed
 				done
+				echo -n $NORMAL
 			fi
 		done
 	done
