@@ -377,14 +377,14 @@ populate_list() {
 
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
-				echo " $DIALOG_ERROR $p not installed!"
+				echo " $ERROR_DIALOG $p not installed!"
 				exit
 			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
 			elif [[ $HASH_UPDATE ]]; then
-				echo " $DIALOG_ERROR $p not found!"
+				echo " $ERROR_DIALOG $p not found!"
 				continue
 			else
-				echo " $DIALOG_ERROR $p not found!"
+				echo " $ERROR_DIALOG $p not found!"
 				REQUESTED_LIST=$p
 				MODE=search
 				return
@@ -492,7 +492,7 @@ if [[ $MODE == "sync" ]]; then
 	fi
 	echo " * Syncing database... "
 	cd $PKG_DB_DIR
-	git pull && echo " * Sync Complete!" || die " $DIALOG_ERROR Sync Failed!"
+	git pull && echo " * Sync Complete!" || die " $ERROR_DIALOG Sync Failed!"
 fi
 
 ####
@@ -533,7 +533,7 @@ if [[ $MODE == "update" ]]; then
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
 	if [ ! -e $INSTALL_CHART ]; then
-		die " $DIALOG_ERROR Error Cannot resume no list was found."
+		die " $ERROR_DIALOG Error Cannot resume no list was found."
 	fi
 	echo " * Resuming..."
 	## FIXME: This actually is a guess at what the REQUESTED_LIST actually was.
@@ -595,13 +595,11 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			list=$(find $PKG_DB_DIR -maxdepth 2 -mindepth 2 -iwholename \*$PKG_CAT/$PKG_NAME\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
 		fi
 
-		[[ $PKG_NAME == *\* ]] && PKG_NAME=${PKG_NAME%\*}
-		echo "${MODE^}ing: $p (${PKG_CAT:-*}/$PKG_NAME*)"
+		[[ -z $PKG_NAME || $PKG_NAME != *\* ]] && search_term="${PKG_NAME:-*}" || search_term="$PKG_NAME*"
+		search_term=${PKG_CAT:-*}/$serach_term
+		echo "${MODE^}ing: $p ($search_term)"
 		[[ $MODE == 'list' ]] && printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
-		if [[ $list == '' ]]; then
-			echo " $DIALOG_ERROR $p not found!"
-			continue
-		fi
+		[[ $list == '' ]] && echo " ! $p not found!"
 		for r in $list; do
 			## Parse the entry again to get more information that was not supplied in the search.
 			PKG=$(DB-getPkg $r | getLatest)
@@ -711,7 +709,7 @@ else
 	if [[ $MODE != "update" &&  $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
 		echo " * Calculating Package Order..."
-		getFullPkgList $REQUESTED_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies: you may need to run: spkg -U"
+		getFullPkgList $REQUESTED_LIST > /dev/null || die " $ERROR_DIALOG Error Calculating Dependencies: you may need to run: spkg -U"
 		PKG_LIST=$(cat $CHART)
 	fi
 	if [[ $VERBOSE -ge 1 ]]; then
