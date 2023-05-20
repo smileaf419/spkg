@@ -1,0 +1,21 @@
+HOMEPAGE="https://cmake.org/"
+DESCRIPTION="Cross platform Make"
+LICENSE="CMake"
+SRC_URI="https://cmake.org/files/v${PKG_VER%.*}/cmake-${PKG_VER}.tar.gz"
+DEPS="app-arch/libarchive dev-libs/expat dev-libs/libuv net-misc/curl sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
+	./bootstrap --prefix=/usr \
+				--system-libs \
+				--mandir=/share/man \
+				--no-system-jsoncpp \
+				--no-system-librhash \
+				--docdir=/share/doc/cmake-${PKG_VER}
+}
+
+src_test() { :; }

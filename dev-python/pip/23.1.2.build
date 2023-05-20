@@ -1,0 +1,11 @@
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=()
+DEPS=""
+BDEPS=""
+RDEPS="dev-lang/python"
+ARCHS="x86 x86_64"
+SLOT=0
+MODULE=python
+setBuildENV none pip
