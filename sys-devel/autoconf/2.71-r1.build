@@ -1,10 +1,10 @@
 HOMEPAGE="https://www.gnu.org/software/autoconf/"
-DESCRIPTION=""
+DESCRIPTION="Creates autoconfiguration files"
 LICENSE="GPLv2 GPLv3"
 SRC_URI=("https://ftp.gnu.org/gnu/autoconf/autoconf-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/autoconf/autoconf-${PKG_VER}.tar.xz.sig")
 DEPS=""
-BDEPS=""
+BDEPS="dev-lang/perl sys-devel/m4"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0

@@ -1,8 +1,8 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://links.twibright.com"
+DESCRIPTION="Web browser capable of both text and graphics modes"
+LICENSE="GPLv2"
 SRC_URI=("http://links.twibright.com/download/links-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
