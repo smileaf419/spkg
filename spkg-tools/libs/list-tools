@@ -7,42 +7,43 @@
 ## Set the Stack file
 export STACK=$WORKDIR_BASE/stack
 
-# 1: File
-# Returns: list of files depending on a file.
+## Checks if a given file is depended upon
+## Returns: list of files depending on a file or 0 if none found.
 checkFileDep() {
 	grep -r --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || return 0
 }
 
-# 1: Category/Package 2: Version
-# Returns: list of files depending on a package.
+## Checks if a given PKG_CAT/PKG_NAME and PKG_VER is depended upon
+## Returns: list of files depending on a package.
 isDependedOn() {
-	PKG=$1
-	PKG_VER=$2
+	local PKG=$1
+	local PKG_VER=$2
 	pkg-restricts nobin && return
-	FC=$(wc -l "$PKG_CACHE/$PKG/$PKG_VER/CONTENTS")
+	local FC=$(wc -l "$PKG_CACHE/$PKG/$PKG_VER/CONTENTS")
 	if [[ ${FC% *} -gt 1000 ]]; then
 		>&2 echo -n " * Checking for packages which depend on any installed files (${FC% *}) ..."
-		LARGE_PKG=1
+		local LARGE_PKG=1
 	fi
-	C=0
+	local C=0
 	for f in $(cat "${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS"); do
 		C=$(( $C + 1 ))
-		[[ $LARGE_PKG == 1 && $(echo $C % 1000 | bc) == 0 ]] && >&2 echo -n " $C .."
+		[[ $LARGE_PKG == 1 && $(( $C % 1000 )) == 0 ]] && >&2 echo -n " $C .."
 		## Ignore failures
 		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort|uniq|grep -v $PKG || true
 	done
 	[[ $LARGE_PKG == 1 ]] && >&2 echo " done"
 }
 
-# Populates a $CHART files
+## Populates a $CHART files
 getFullPkgList() {
-	# remove them if they exist to ensure an empty chart/stack
+	## remove files if they exist to ensure an empty chart/stack
 	[[ -e $CHART ]] && rm $CHART
 	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
 	[[ -e $STACK ]] && rm $STACK
 	touch $CHART $STACK $INSTALL_CHART
 
 	SP=
+	local d
 	for d in $@; do
 		getdep $d || local ERR=$?
 		if [[ $ERR == 1 ]]; then
@@ -59,12 +60,13 @@ getFullPkgList() {
 	cat $CHART
 }
 
-# Take a list and expand all @sets found within.
+## Take a list and expand all @sets found within.
 expandSets() {
 	local REQUEST_LIST=$@
 	local PKG_LIST=
 	if [[ $REQUEST_LIST =~ (^|[[:space:]])"@" ]]; then
 		>&2 echo " * Found Set .. Expanding"
+		local p
 		for p in $REQUEST_LIST; do
 			if [ ${p:0:1} == "@" ]; then
 				if [[ ${p#@} == "world" ]]; then
@@ -117,17 +119,17 @@ expandSets() {
 ## 1 - file/package not found
 ## 2 - Called self
 getdep() {
-	# Don't taint the environment.
+	## Don't taint the environment.
 	(
 		setPkgENV $1 > /dev/null
 
-		# Check if its on the stack, if not, add it. if so we'll get to it later.
-		grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return 0 || eval echo \"$PKG\" >> $STACK
+		## Check if its on the stack, if not, add it. if so we'll get to it later.
+		grep -E "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return 0 || eval echo \"$PKG\" >> $STACK
 
-		# If we somehow call ourselves..
-		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/$PKG_SLOT/ ]] && return 2
+		## If we somehow call ourselves..
+		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/$PKG_SLOT/ ]] && return 2
 
-		# Print an interesting looking tree.
+		## Print an interesting looking tree.
 		if [[ $VERBOSE -ge 1 ]]; then
 			>&2 echo "$SP$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
 			SP+=" "
@@ -145,10 +147,10 @@ getdep() {
 			return 1
 		fi
 
-		# Add our required now Dependencies
+		## Add our required now Dependencies
 		doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"
 
-		# Check CDEPS
+		## Check CDEPS
 		if [[ ! -z $CDEPS ]]; then
 			local p
 			for p in $CDEPS; do
@@ -156,27 +158,27 @@ getdep() {
 				local cp=$(getCategory $cpkg)/$(getName $cpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $cpkg)
 				pkg-has-flag "nodep" && break
 
-				# If its already in the list, ignore it and continue.
+				## If its already in the list, ignore it and continue.
 				grep -E "^${cp}" $CHART > /dev/null && continue
 
-				# If its already installed, we don't need to install it twice.
+				## If its already installed, we don't need to install it twice.
 				[[ $(Installed-getPkgList $cn) != 0 ]] && continue
 
 				cpkg=$(DB-getPkg $cpkg | getLatest)
 				getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
 
-				# Create a Post Dependency list.
+				## Create a Post Dependency list.
 				PDEPS+=" $cpkg"
 			done
 		fi
 
-		# Add our package
+		## Add our package
 		if ! grep -E "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART > /dev/null; then
 			getPKG >> $CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
 
-		# Add our Post Dependency list here.
+		## Add our Post Dependency list here.
 		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> $CHART
 
 		doDeps "${RDEPS[*]}"
@@ -184,6 +186,7 @@ getdep() {
 	)
 }
 
+## Process our Dependencies
 doDeps() {
 	local DEPS=($@)
 
@@ -194,10 +197,10 @@ doDeps() {
 	    ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $dpkg)
 		pkg-has-flag "nodep" && break
-		# If its already in the list, ignore it and continue.
+		## If its already in the list, ignore it and continue.
 		grep -E "^${dp}" $CHART > /dev/null && continue
 
-		# Identify Circular Dependencies here so we can break out
+		## Identify Circular Dependencies here so we can break out
 		getdep $dpkg $PKG_CAT/$PKG_NAME || local e=$?
 		if [[ ! -z $e && ! $e ]]; then
 			>&2 echo "Got return $e in $d"
