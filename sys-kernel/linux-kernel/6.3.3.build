@@ -3,7 +3,7 @@ DESCRIPTION="The Linux Kernel"
 LICENSE="GPLv2"
 PATCHES=()
 DEPS=""
-BDEPS="sys-devel/gcc<13.1.0"
+BDEPS="sys-devel/gcc"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=6.3
@@ -68,9 +68,12 @@ src_install() {
 }
 
 post_install() {
-	echo " * Preparing modules"
-	cd /usr/src/linux-$PKG_VER
-	make modules_prepare
+	if [ -e /proc/config.gz ]; then
+		echo " * Preparing modules"
+		cd /usr/src/linux-$PKG_VER
+		gzip -cd /proc/config.gz > .config
+		make modules_prepare
+	fi
 
 	## Set our slot's symlink
 	[ ! -e /usr/src/linux-$PKG_SLOT ] && ln -sfv /usr/src/linux-$PKG_VER /usr/src/linux-$PKG_SLOT
