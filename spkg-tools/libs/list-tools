@@ -83,11 +83,13 @@ expandSets() {
 				elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
 					PKG_LIST+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
 				else
-					>&2 echo " !! Unknown set: ${p#@}"
+					>&2 echo " $DIALOG_ERROR Unknown set: ${p#@}"
 					>&2 echo " * Did you mean one of: "
-					>&2 find $PKG_DB_DIR/spkg-sets/* | sed "s,$PKG_DB_DIR/spkg-sets/,,"
-					>&2 echo "world"
-					die "all"
+					>&2 echo -n $(find $PKG_DB_DIR/spkg-sets/* | sed "s,.*/,,")
+					>&2 echo -n " world"
+					>&2 echo " all"
+					echo "ERR"
+					exit 1
 				fi
 			else
 				PKG_LIST+=" $p"
@@ -164,7 +166,13 @@ getdep() {
 				## If its already installed, we don't need to install it twice.
 				[[ $(Installed-getPkgList $cn) != 0 ]] && continue
 
-				cpkg=$(DB-getPkg $cpkg | getLatest)
+				if [[ ! -z $PKG_VER_RESTRICT ]]; then
+					cpkg=$(DB-getPkg $cpkg)
+					>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
+					>&2 echo " * Result set: $cpkg"
+				else
+					cpkg=$(DB-getPkg $cpkg | getLatest)
+				fi
 				getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
 
 				## Create a Post Dependency list.
@@ -193,12 +201,61 @@ doDeps() {
 	[ -z $DEPS ] && return 0
 	local d
 	for d in ${DEPS[@]}; do
-	    local dpkg=$(DB-getPkg $(EntryParser $d))
-	    ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
-	    local dp=$(getCategory $dpkg)/$(getName $dpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $dpkg)
+		local PKG=$(EntryParser $d)
+		local PKG_VER_RESTRICT=$(getVerRestrict $PKG)
+		if [ ! -z $PKG_VER_RESTRICT ]; then
+			local dpkg=$(DB-getPkg $PKG)
+#			>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
+#			>&2 echo "PKG: $PKG"
+#			>&2 echo "List: $dpkg"
+			## We need to itterate over the dpkg and ensure we restrict versions to only those that match.
+			local IFS="|"
+			local p
+			local r
+			local opkg=
+			for r in $PKG_VER_RESTRICT; do
+				unset IFS
+				if [[ ${r:0:1} == ">" && ${r:1:2} == "=" ]]; then
+					for p in $dpkg; do
+						if version_ge $(getVersion $p) ${r#>=}; then
+							opkg+="$p\n"
+						fi
+					done
+				elif [[ "${r:0:1}" == ">" ]]; then
+					for p in $dpkg; do
+						if version_gt $(getVersion $p) ${r#>}; then
+							opkg+="$p\n"
+						fi
+					done
+				elif [[ "${r:0:1}" == "<" && ${r:1:2} == "=" ]]; then
+					for p in $dpkg; do
+						if version_le $(getVersion $p) ${r#<=}; then
+							opkg+="$p\n"
+						fi
+					done
+				elif [[ "${r:0:1}" == "<" ]]; then
+					for p in $dpkg; do
+						if version_lt $(getVersion $p) ${r#<}; then
+							opkg+="$p\n"
+						fi
+					done
+				elif [[ "${r:0:1}" == "=" ]]; then
+					for p in $dpkg; do
+						if [[ $(getVersion $p) == ${r#>} ]]; then
+							opkg+="$p\n"
+						fi
+					done
+
+				fi
+			done
+			dpkg=$(echo -e $opkg | getLatest)
+		else
+			local dpkg=$(DB-getPkg $PKG | getLatest)
+		fi
 		pkg-has-flag "nodep" && break
 		## If its already in the list, ignore it and continue.
-		grep -E "^${dp}" $CHART > /dev/null && continue
+		dpkg=${dpkg:?Error resolving dependencies}
+		grep -E "^$(getCategory $dpkg)/$(getName $dpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $dpkg)" $CHART > /dev/null && continue
 
 		## Identify Circular Dependencies here so we can break out
 		getdep $dpkg $PKG_CAT/$PKG_NAME || local e=$?

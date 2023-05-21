@@ -18,10 +18,9 @@ VERSION="20230518"
 
 ## Set some bash options
 ## +h - Disable hashing of commands, allows newer versions of programs to be located immediately used primarily for bootstrap
-##    * Should move this to the bootstrap code?
 ## -E - Trap ERR codes
 ## -e - Exit immediately on Error
-set +h -Ee
+set +h -Eeo pipefail
 
 ## Remove write bit from group/other
 umask 022
@@ -29,7 +28,19 @@ umask 022
 ####
 ## Trap Errors - Only exit out if we recieve an error code 77.
 ##               Such as using the function die
-trap '[ "$?" == 77 ] && exit 77' ERR
+#trap '[ "$?" == 77 ] && exit 77' ERR
+trap 'ErrorHandler $? $@' ERR
+
+ErrorHandler() {
+	local ERR=$1
+	shift
+	case $ERR in
+		77) exit 77 ;;
+		*)
+			echo " $DIALOG_ERROR Unhandled Error $ERR : $@"
+			;;
+	esac
+}
 
 ## Probably won't ever need this.
 #trap '[ "$?" -ne 0 ] && exit $?' EXIT
@@ -175,6 +186,9 @@ export PURPLE=$(tput setaf 5)
 export LTBLUE=$(tput setaf 6)
 export DIM=$(tput dim)
 
+## Set our Debug String
+export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+
 ## Convience vars for colorizing output.
 export IMPORTANT="$YELLOW!!$NORMAL"
 export DIALOG_ERROR="$RED!!$NORMAL"
@@ -290,8 +304,7 @@ parse_cmdline() {
 					v|-verbose)
 						VERBOSE=$(( $VERBOSE + 1 )) ;;
 					-debug)
-						set -x
-						export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }' ;;
+						set -x ;;
 					-version)
 						echo "spkg by Stephen Leaf version $VERSION"
 						exit $? ;;
@@ -361,6 +374,8 @@ populate_list() {
 	if [[ -z $list ]]; then
 		REQUESTED_LIST=
 		return 0
+	elif [[ $list == "ERR" ]]; then
+		die
 	fi
 	echo -n " * Populating list"
 	for p in $list; do

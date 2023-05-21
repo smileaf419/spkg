@@ -244,9 +244,9 @@ EntryParser() {
 			VGTE=1
 			VGT=${VGT%=}
 			p=${p%=}
-			PKG_VER_RESTRICT+="<=$VGT"
+			PKG_VER_RESTRICT+=">=$VGT"
 		else
-			PKG_VER_RESTRICT+="<$VGT"
+			PKG_VER_RESTRICT+=">$VGT"
 		fi
 	fi
 

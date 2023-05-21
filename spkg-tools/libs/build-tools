@@ -159,7 +159,6 @@ buildPackage() {
 installPackage() {
 	checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 	(
-		set -o pipefail
 		BUILD_SEPERATE_DIR=no
 		source "${PKG_BLD}"
 
