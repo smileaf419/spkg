@@ -1,0 +1,10 @@
+HOMEPAGE="https://www.gnu.org/software/diffutils/"
+DESCRIPTION="Tools to make diffs and compare files"
+LICENSE="GPLv2"
+SRC_URI=("https://ftp.gnu.org/gnu/diffutils/diffutils-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/diffutils/diffutils-${PKG_VER}.tar.xz.sig")
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
