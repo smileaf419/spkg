@@ -29,15 +29,14 @@ umask 022
 ## Trap Errors - Only exit out if we recieve an error code 77.
 ##               Such as using the function die
 #trap '[ "$?" == 77 ] && exit 77' ERR
-trap 'ErrorHandler $? $@' ERR
+trap 'ErrorHandler $?' ERR
 
 ErrorHandler() {
 	local ERR=$1
-	shift
 	case $ERR in
 		77) exit 77 ;;
 		*)
-			>&2 echo " $DIALOG_ERROR Unhandled Error $ERR : $@"
+			>&2 echo " $DIALOG_ERROR Unhandled Error $ERR ( got called at $(caller) )"
 			;;
 	esac
 }
@@ -686,7 +685,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 				curDate=$(date +%s)
 				for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
 					PKG_VR=$(getVerRev $a)
-					fileDate=$(cd $PKG_DB_DIR; git log --format=%ad --date unix "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | head -n1)
+					fileDate=$(cd $PKG_DB_DIR; git log --format=%ad --date unix "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | head -n1 || true)
 					## If the file is not added to git yet, don't error out.
 					[[ -z $fileDate ]] && fileDate=$curDate
 					age=$(( $curDate - $fileDate ))
