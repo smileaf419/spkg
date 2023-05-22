@@ -129,7 +129,7 @@ fileToList() {
 		echo -n "//$slot//"
 
 		## Output the Archs
-		arch=$(grep 'ARCHS=' "$l" | sed -e 's,.*ARCHS=",,' -e 's,".*$,,' -e 's/ /,/g')
+		arch=$(grep 'ARCHS=' "$l" | sed -e 's,.*ARCHS=",,' -e 's,".*$,,' -e 's/ /,/g' || true)
 		echo "${arch[*]}/"
 	done
 }
