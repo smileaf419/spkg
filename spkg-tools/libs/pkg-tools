@@ -166,7 +166,7 @@ splitVersion() {
 	fi
 
 	echo -n "$ver"
-	[[ ! -z $rev ]] && echo "/$rev"
+	[[ ! -z $rev ]] && echo "/$rev" || echo
 }
 export -f splitVersion
 
@@ -376,11 +376,6 @@ DB-getPkg() {
 		setPkgENV $(fileToList $l) > /dev/null
 		## Ensure we use our saved flags
 		PKG_FLAGS=$flags
-		if [[ ! -z $PKG_VER_RESTRICT ]]; then
-			## TODO Filter out non-matching versions here.
-#			continue
-			:;
-		fi
 		getPKG
 	done
 }

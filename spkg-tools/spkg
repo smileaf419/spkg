@@ -37,7 +37,7 @@ ErrorHandler() {
 	case $ERR in
 		77) exit 77 ;;
 		*)
-			echo " $DIALOG_ERROR Unhandled Error $ERR : $@"
+			>&2 echo " $DIALOG_ERROR Unhandled Error $ERR : $@"
 			;;
 	esac
 }
@@ -650,7 +650,6 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 						echo -n "~"
 					fi
 				done; echo $NORMAL
-
 				## Run this in a subshell to avoid tainting the environment.
 				printf " %12s:" "Installed"
 				(
