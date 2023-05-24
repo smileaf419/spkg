@@ -315,8 +315,10 @@ installPackage() {
 			grep "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
 			if [[ $? != 0 && $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT/ ]]; then
 				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
+					## Record whats requested, not just what we installed
+					PKG=$(echo -e $REQUESTED_LIST | grep "$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT/")
 					echo " * Registering into World."
-					getPKG >> $PKG_WORLD
+					echo ${PKG# } >> $PKG_WORLD
 				fi
 			fi
 		fi

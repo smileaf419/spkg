@@ -75,7 +75,7 @@ filterArch() {
 	## If we're using an unstable ARCH, we need to enable the ability for it to match packages marked as stable too.
 	[[ ${arch:0:1} != '~' ]] && f='[^~-]'
 	arch=${arch#\~}
-	echo $(cat -) | xargs grep -H 'ARCHS=.*'$f$arch'[ "]' 2> /dev/null| sed 's,:.*,,'
+	echo $(cat -) | xargs grep -H 'ARCHS=.*'$f$arch'[ "]' 2> /dev/null| sed 's,:.*,,' || true
 }
 export -f filterArch
 
@@ -88,7 +88,7 @@ filterSlot() {
 	if [[ $slot == 0 ]]; then
 		echo $p | tr ' ' '\n'
 	else
-		echo $p | xargs grep -H "SLOT=$slot" 2> /dev/null | sed 's,:.*,,'
+		echo $p | xargs grep -H "SLOT=$slot" 2> /dev/null | sed 's,:.*,,' || true
 	fi
 }
 export -f filterSlot

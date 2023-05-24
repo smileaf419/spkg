@@ -47,9 +47,9 @@ getFullPkgList() {
 	for d in $@; do
 		getdep $d || local ERR=$?
 		if [[ $ERR == 1 ]]; then
-			>&2 echo "Err: $d called self while calculating deps"
+			>&2 echo " $DIALOG_ERROR $d called self while calculating deps"
 		elif [[ $ERR == 2 ]]; then
-			die "Package $d Not found!"
+			die " $DIALOG_ERROR Package $d Not found!"
 		elif [[ $ERR == 77 ]]; then
 			die
 		fi
@@ -124,12 +124,16 @@ getdep() {
 	## Don't taint the environment.
 	(
 		setPkgENV $1 > /dev/null
+		if [[ $PKG_VER == 0 ]]; then
+			PKG=$(DB-getPkg $PKG | getLatest)
+			setPkgENV $PKG
+		fi
 
 		## Check if its on the stack, if not, add it. if so we'll get to it later.
 		grep -E "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return 0 || eval echo \"$PKG\" >> $STACK
 
 		## If we somehow call ourselves..
-		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/$PKG_SLOT/ ]] && return 2
+		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/$PKG_SLOT/ ]] && return 1
 
 		## Print an interesting looking tree.
 		if [[ $VERBOSE -ge 1 ]]; then
@@ -146,7 +150,7 @@ getdep() {
 			source "$PKG_BLD"
 			local PDEPS=
 		else
-			return 1
+			return 2
 		fi
 
 		## Add our required now Dependencies

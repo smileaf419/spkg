@@ -370,8 +370,8 @@ parse_cmdline() {
 populate_list() {
 	[ -e $CHART ] && rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
+	REQUESTED_LIST=
 	if [[ -z $list ]]; then
-		REQUESTED_LIST=
 		return 0
 	elif [[ $list == "ERR" ]]; then
 		die
@@ -380,6 +380,7 @@ populate_list() {
 	for p in $list; do
 		echo -n '.'
 		PKG=$(EntryParser $p)
+		setPkgENV $PKG > /dev/null
 		## EntryParser does not find packages within our Database
 		## Check our Mode and check for the presence of the package.
 		## If the file is not found or multiple packages are found, perform a search and show the results.
@@ -388,6 +389,8 @@ populate_list() {
 		else
 			PKG=$(DB-getPkg $PKG | getLatest)
 		fi
+		PKG_CAT=$(getCategory $PKG)
+		REQUESTED_LIST+=" $(getPKG)"
 
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
@@ -405,10 +408,9 @@ populate_list() {
 			fi
 		fi
 		## Save our Cache data.
-		eval echo $PKG >> $CHART
+		getPKG >> $CHART
 	done
 	echo " done"
-	[ -e $CHART ] && REQUESTED_LIST=$(cat $CHART)
 	return 0
 }
 
@@ -468,7 +470,7 @@ fi
 
 ## Update the sha1sum of all files for the given package.
 ## Using the set @all while useful is not recommended given the size of the repository.
-if [[ $MODE != 'search' &&  $HASH_UPDATE ]]; then
+if [[ $MODE != 'search' && $HASH_UPDATE ]]; then
 	C=$(echo $list | tr ' ' '\n' | wc -l)
 	echo " * Updating sha1 of $C packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
@@ -747,7 +749,7 @@ else
 				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
 				! -z $EMPTY_WORLD ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
-				## Only mention it's been forced if its within the REQUESTED_LIST & FORCE
+				## Only mention it's been forced if its within the *_LIST & FORCE
 				[[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
@@ -755,7 +757,7 @@ else
 				## Add to our INSTALL_CHART
 				Install-addPkg $PKG
 			elif [[ $VERBOSE -gt 1 ]]; then
-				>&2 echo "$PKG_CAT/$PKG_NAME not within REQUESTED_LIST or not FORCE ($REQUESTED_LIST)"
+				>&2 echo "$PKG_CAT/$PKG_NAME not requested or not forced ($REQUESTED_LIST)"
 			fi
 		else
 			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
