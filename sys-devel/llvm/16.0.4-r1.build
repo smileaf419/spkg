@@ -6,17 +6,19 @@ HOMEPAGE="https://llvm.org/docs/index.html"
 DESCRIPTION="A collection of modular and reusable compiler and toolchain technologies"
 LICENSE="Apache-2 LLVM"
 SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/llvm-${PKG_VER}.src.tar.xz"
-# Support Files
+## Support Files
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/cmake-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/third-party-${PKG_VER}.src.tar.xz"
-# Tools
+## Tools
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-${PKG_VER}.src.tar.xz"
+## compile failed, doesn't seem to be required and I have no clue what it is anyway!
+## TODO: post failure message here for reference.
 #"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/flang-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/lldb-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/lld-${PKG_VER}.src.tar.xz"
-# clang tools
+## clang tools
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-tools-extra-${PKG_VER}.src.tar.xz"
-# Projects
+## Projects
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/compiler-rt-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/openmp-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxx-${PKG_VER}.src.tar.xz"
@@ -24,17 +26,19 @@ SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_V
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/polly-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libunwind-${PKG_VER}.src.tar.xz")
 
-#PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/clang-${PKG_VER}-enable_default_ssp-1.patch")
+## https://github.com/llvm/llvm-project/issues/62396
+PATCHES=("https://github.com/llvm/llvm-project/commit/484e64f7e7b2c0494d7b2dbfdd528bcd707ee652.patch => llvm-16.0.3-gcc-13.patch"
+"https://www.linuxfromscratch.org/patches/blfs/svn/clang-16.0.4-enable_default_ssp-1.patch")
 DEPS="app-arch/zstd dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
 BDEPS="dev-lang/python"
 RDEPS=""
-ARCHS="x86 x86_64"
+ARCHS="~x86 ~x86_64"
 SLOT=0
 setBuildENV cmake ninja
 BUILD_SEPERATE_DIR=yes
 B=llvm-${PKG_VER}.src
 IUSE="doc"
-# FIXME: These dependencies are not available
+## FIXME: These dependencies are not available
 # use-enable doc && UDEPS="sphinx recommonmark doxygen"
 [[ $ENABLE_TESTS == 1 ]] && UDEPS+=" net-misc/rsync dev-python/psutil"
 
@@ -43,12 +47,8 @@ src_prepare() {
 	PYTHON_VER=${PYTHON_VER%.*}
 
 	[[ $ARCH == *x86_64 ]] && append-cflags -fPIC
-	# Used if we use the clang compiler?
-#	append-cflags -Wno-gnu-line-marker -Wno-gnu-anonymous-struct --Wno-unknown-warning-option
 
-	## Doesn't appear to be honored...
 	append-ldflags -lcursesw -lncursesw -ltinfow
-	append-cppflags -flarge-source-files
 }
 
 src_unpack() {
@@ -56,7 +56,6 @@ src_unpack() {
 	local length=${#SRC_URI[@]}
 	for (( l=0; l<${length}; l++ )); do
 		f=${SRC_URI[$l]}
-		echo " * Unpacking $(( $l + 1 )) of $length: $f"
 		file=${f##*/}
 		unpack ${DISTFILES}/${file}
 		P=${file%-*}
@@ -77,28 +76,32 @@ src_unpack() {
 			polly)             dir=$B/projects ;;
 			libunwind)         dir=$B/projects ;;
 		esac
-		[[ $file != llvm* ]] && mv "${file%.tar*}" "$dir/$P"
+		if [[ $file != llvm* && -e ${file%.tar*} ]]; then
+			[[ ! -e "$dir/$P" ]] && mkdir -p "$dir/$P"
+			mv "${file%.tar*}" "$dir/$P"
+		fi
 	done
 	ln -sf */runtimes .
 }
 
-#src_patch() {
-#	PATCHES=($1)
-#	patch -Np2 -d tools/clang < $DISTFILES/${PATCHES[0]##*/}
-#}
+src_patch() {
+	cd projects
+	patch_default
+	cd -
+}
 
 src_configure() {
-	# Fix python scripts to use python3
+	## Fix python scripts to use python3
 	grep -rl '#!.*python' .. | xargs sed -i '1s/python$/python3/'
 
-	# Fix a broken testcase caused by enabling SSP by default
+	## Fix a broken testcase caused by enabling SSP by default (LFS patch)
 	sed 's/clang_dfsan/& -fno-stack-protector/' \
 		-i ../projects/compiler-rt/test/dfsan/origin_unaligned_memtrans.c
 
 	mkdir include
-	# Copy this LLVM libunwind header or it won't be found:
+	## Copy this LLVM libunwind header or it won't be found:
 	cp -a ../projects/libunwind/include/mach-o include
-	# Nuke LLVM libunwind as it conflicts with the one already on the system:
+	## Nuke LLVM libunwind as it conflicts with the one already on the system:
 	rm -fr ../projects/libunwind
 
 	CC=gcc CXX=g++                                \
@@ -120,11 +123,11 @@ src_configure() {
 		-DLIBCXX_INCLUDE_BENCHMARKS=OFF           \
 		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF         \
 		-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON      \
+		-DCMAKE_C_COMPILER="clang"                \
+		-DCMAKE_CXX_COMPILER="clang++"            \
+		-DLLVM_USE_LINKER=lld                     \
 		-Wno-dev -G Ninja
 
-#		-DCMAKE_C_COMPILER="clang"                \
-#		-DCMAKE_CXX_COMPILER="clang++"            \
-#		-DLLVM_USE_LINKER=lld                     \
 
 	if use-enable doc; then
 		echo " * Building Documentation"
@@ -140,12 +143,6 @@ src_configure() {
 	fi
 }
 
-#src_compile() {
-	## Ahh the irritating ncursesw, here we have to enforce it as it doesn't seem to honor CFLAGS even when sent to cmake?
-	#grep -r -- '-lcurses' . | sed 's,:.*,,' | uniq | xargs sed -i 's,-lcurses,-lcursesw -ltinfow,'
-#	compile_default
-#}
-
 src_test() {
 	ninja check-all
 }
@@ -153,30 +150,30 @@ src_test() {
 src_install() {
 	install_default
 
-	# Install clang-static-analyzer:
+	## Install clang-static-analyzer:
 	for i in ccc c++; do
 		ln -s /usr/libexec/$i-analyzer \
 		$D/usr/bin/$i-analyzer || exit 1
 	done
 
-	# Ensure lit-cpuid is installed:
+	## Ensure lit-cpuid is installed:
 	if [ ! -r $D/usr/bin/lit-cpuid ]; then
 	cp -a build/bin/lit-cpuid $D/usr/bin/lit-cpuid
 	chown root:root $D/usr/bin/lit-cpuid
 	chmod 755 $D/usr/bin/lit-cpuid
 	fi
 
-	# Remove symlink to libgomp, which is already provided by gcc:
+	## Remove symlink to libgomp, which is already provided by gcc:
 	rm -f $D/usr/lib$LIBDIRSUFFIX/libgomp.so
 
-	# Install Python bindings:
+	## Install Python bindings:
 	mkdir -p "$D/usr/lib/python${PYTHON_VER}/site-packages"
 	cp -a tools/clang/bindings/python/clang "$D/usr/lib/python${PYTHON_VER}/site-packages/"
 
-	# Remove bundled python-six:
+	## Remove bundled python-six:
 	rm -f "$D/usr/lib/python${PYTHON_VER}/site-packages/six.py"
 
-	# Compile Python scripts:
+	## Compile Python scripts:
 	python -m compileall    "$D/usr/lib/python${PYTHON_VER}/site-packages/clang"
 	python -O -m compileall "$D/usr/lib/python${PYTHON_VER}/site-packages/clang"
 	python -m compileall    "$D/usr/lib/python${PYTHON_VER}/site-packages/lldb"
@@ -199,6 +196,6 @@ src_install() {
 		mv -v /usr/share/doc/LLVM/clang /usr/share/doc/llvm-${PKG_VER}
 		rmdir -v --ignore-fail-on-non-empty /usr/share/doc/LLVM
 
-		# FIXME: Doxygen documentation was suppose to be built, how to install it?
+		## FIXME: Doxygen documentation was suppose to be built, how to install it?
 	fi
 }

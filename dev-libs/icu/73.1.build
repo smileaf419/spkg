@@ -5,6 +5,6 @@ SRC_URI="https://github.com/unicode-org/icu/releases/download/release-${PKG_VER/
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=icu/source
