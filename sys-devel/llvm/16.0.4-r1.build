@@ -77,7 +77,7 @@ src_unpack() {
 			libunwind)         dir=$B/projects ;;
 		esac
 		if [[ $file != llvm* && -e ${file%.tar*} ]]; then
-			[[ ! -e "$dir/$P" ]] && mkdir -p "$dir/$P"
+			[[ ! -e "$dir" ]] && mkdir -p "$dir"
 			mv "${file%.tar*}" "$dir/$P"
 		fi
 	done
