@@ -62,7 +62,7 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	if [[ $(getMicroVer $PKG_VER) != 0 ]]; then
+	if [[ $(getMicroVer $PKG_VER) != 0 && "$BUILD_PATH/$B" != "$D/usr/src/linux-${PKG_VER}" ]]; then
 		mv -v "$BUILD_PATH/$B" "$D/usr/src/linux-${PKG_VER}"
 	fi
 }
