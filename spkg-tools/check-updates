@@ -14,7 +14,7 @@ source "${INSTALL_PATH}/libs/builddefaults"
 
 SRC_URI="https://gentoo.osuosl.org/distfiles/"
 DFILES_INDEX="/tmp/distindex"
-DFILES=/tmp/DFILES
+DFILES=/tmp/distfiles
 UPDATE_LIST=/tmp/updatelist
 
 VERBOSE=${VERBOSE:-0}

@@ -1,0 +1,15 @@
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://www.cpan.org/authors/id/S/SU/SULLR/IO-Socket-SSL-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS="app-crypt/make-ca dev-lang/perl dev-perl/Net-SSLeay dev-perl/URI"
+ARCHS="~x86 ~x86_64"
+SLOT=0
+MODULE=perl
+TEST=test
+
+src_configure() {
+	yes | perl Makefile.PL
+}

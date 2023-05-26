@@ -6,13 +6,13 @@ DEPS="dev-libs/glib dev-libs/icu"
 BDEPS=""
 RDEPS=""
 # Circular Dependency These need to be installed before harfbuzz
-# BUT support in each need harfbuzz installed first. 
+# BUT support in each need harfbuzz installed first.
 # These dependencies should be considered *BEFORE* harfbuzz
 # But the logic should NOT be within these packages themselves.
 # This is the culprit of the circular dependencies and those dependencies should still have harfbuzz as a dependency.
 # Without those packages requiring harfbuzz, harfbuzz won't be pulled into the dependency tree resulting in a lost dependency and harfbuzz getting cleaned.
 CDEPS="media-libs/freetype"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

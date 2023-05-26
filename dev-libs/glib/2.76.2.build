@@ -7,7 +7,7 @@ PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/glib-2.76.1-skip_war
 DEPS="dev-libs/elfutils dev-libs/libffi dev-libs/libpcre2 sys-libs/zlib"
 BDEPS="dev-libs/libxslt"
 RDEPS="app-text/docbook-xml:4.5 app-text/docbook-xsl-nons"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

@@ -7,7 +7,7 @@ TEST=1
 DEPS="app-arch/zstd dev-libs/gmp dev-libs/mpc dev-libs/mpfr sys-libs/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 
