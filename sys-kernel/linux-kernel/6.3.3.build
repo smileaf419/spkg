@@ -72,6 +72,7 @@ post_install() {
 		echo " * Preparing modules"
 		cd /usr/src/linux-$PKG_VER
 		gzip -cd /proc/config.gz > .config
+		unset ARCH
 		make modules_prepare
 	fi
 
