@@ -1,0 +1,23 @@
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/qpdf/qpdf/releases/download/v${PKG_VER}/qpdf-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="dev-libs/openssl media-libs/libjpeg-turbo sys-libs/zlib"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake make
+BUILD_SEPERATE_DIR=yes
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default -DBUILD_STATIC_LIBS=OFF
+}
+
+src_test() {
+	ctest
+}
