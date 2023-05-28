@@ -37,6 +37,7 @@ unpack() {
 		tar -xf "$FILE" -C "$DIR" || die "Failed to extract!"
 	elif [ ${FILE##*.} == "zip" ]; then
 		unzip -o "$FILE" -d "$DIR" || die "Failed to extract!"
+	## TODO: Auto extract the data.tar.xz ?
 	elif [ ${FILE##*.} == "deb" ]; then
 		ar x --output "$DIR" "$FILE"
 	elif [ ${FILE##*.} == "rar" ]; then
@@ -74,7 +75,7 @@ export -f spatch
 ## Applies a set of patches, within the array, a directory or an archive (tar only).
 ## src_patch automatically calls this method using the PATCHES var.
 spatches() {
-	local PATCHES=(${PATCHES[@]:-$@})
+	local PATCHES=($@)
 
 	for p in ${PATCHES[@]}; do
 		[[ $p == http* ]] && p=$DISTFILES/${p##*/}
