@@ -1,9 +1,9 @@
 HOMEPAGE="https://www.gnu.org/software/ncurses/"
 DESCRIPTION="Console Display Library"
 LICENSE="MIT"
-SRC_URI=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz")
-[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER}.tar.gz.asc")
-PATCHES=("https://dev.gentoo.org/~sam/distfiles/sys-libs/ncurses/ncurses-6.4-patches.tar.xz")
+SRC_URI=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER/_p*}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER/_p*}.tar.gz.asc")
+PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
@@ -11,6 +11,34 @@ use-enable pcre2 && UDEPS="dev-libs/libpcre2"
 IUSE=pcre2
 ARCHS="x86 x86_64"
 SLOT=0
+B=$PKG_NAME-${PKG_VER/_p*}
+
+PATCH_DATES=(
+20230107
+20230114
+20230121
+20230128
+20230211
+20230218
+20230225
+20230311
+20230401
+20230408
+20230415
+20230418
+20230423
+20230424
+20230429
+20230506
+20230514
+20230520
+20230527
+)
+
+## Patches
+for p in ${PATCH_DATES[*]}; do
+	PATCHES+=("https://invisible-island.net/archives/${PKG_NAME}/${PKG_VER/_p*}/$PKG_NAME-${PKG_VER/_p*}-$p.patch.gz")
+done
 
 src_configure() {
 	./configure --prefix=/usr           \
