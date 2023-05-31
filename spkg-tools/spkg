@@ -777,7 +777,12 @@ else
 	[ $PRETEND == 1 ] && exit 0
 
 	## Install our list
-	installList $(cat $INSTALL_CHART) && rm $INSTALL_CHART $CHART
+	## If our INSTALL_CHART or CHART don't exist, don't error out
+	## the user may have installed something else or ran another command
+	installList $(cat $INSTALL_CHART) && {
+		[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART;
+		[[ -e $CHART ]] && rm $CHART
+	}
 
 	## Check for any preserved files
 	preservedRebuild
