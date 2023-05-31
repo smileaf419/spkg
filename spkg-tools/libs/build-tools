@@ -430,7 +430,12 @@ stripPackage() {
 getBDeps() {
 	pkg-restricts nobin && return
 	echo -n "Finding Binary Dependencies..."
-	for dep in $( cat $1 | grep -P 'bin/|/lib/|/lib64/|/lib32/|/libx32/'); do
+	local bdeps=$(cat $1 | grep -P 'bin/|/lib(|32|x32|64)/') || local ERR=$?
+	if [[ $ERR == 1 ]]; then
+		echo " None Found"
+		return 0
+	fi
+	for dep in $bdeps; do
 		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
 		for d in $deps; do
 			for p in $(cat /etc/ld.so.conf); do
@@ -438,7 +443,7 @@ getBDeps() {
 			done
 		done
 	done | sort | uniq > "${PKG_CACHE}/$PKG_CAT/$PKG_NAME/$PKG_VR/BDEPS"
-	echo "Done"
+	echo " Done"
 }
 
 ####
