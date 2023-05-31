@@ -174,7 +174,7 @@ buildBDeps() {
 
 			## Grab a list of category/PKG names for each file.
 			## It is possible for multiple results to occur.
-			O=$(grep -r "$dep\$" $PKG_CACHE/*/*/*/CONTENTS |
+			O=$(grep -r --include=CONTENTS "^$dep$" $PKG_CACHE |
 				sed -e 's,:.*,,' \
 				    -e "s,$PKG_CACHE/,," \
 				    -e 's,/CONTENTS,,' \
