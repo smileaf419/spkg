@@ -141,7 +141,7 @@ buildBDeps() {
 	local OUT=
 
 	## Use our BDEPS file installed within PKG_CACHE
-	PKG=$(Installed-getPkg $1 | sed 's,/[^/]*/$,,')
+	Installed-getPkg $1 > /dev/null
 
 	[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
 
@@ -150,7 +150,7 @@ buildBDeps() {
 	PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
 
 	(
-		source "$PKG_CACHE/$PKG/$(getVerRev $PKG).build"
+		source "$PKG_BLD"
 		if pkg-restricts "nobin"; then
 			[ $VERBOSE -ge 1 ] && echo " none )"
 			return
@@ -167,7 +167,7 @@ buildBDeps() {
 		fi
 
 		## Itterate over it and find matching files within each package's CONTENTS
-		for dep in $(cat "$PKG_CACHE/$PKG/BDEPS"); do
+		for dep in $(cat "$PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/BDEPS"); do
 			## readlink to resolve relative paths that occationally show up.
 			## use dirname first in case the file is a symlink
 			dep=$(readlink -f $(dirname $dep))/${dep##*/}
@@ -185,7 +185,7 @@ buildBDeps() {
 				continue
 			fi
 			## Filter out itself.
-			[[ "${PKG%/*}" == "$O" ]] && continue
+			[[ "$PKG_CAT/$PKG_NAME" == "$O" ]] && continue
 
 			## If its not within our filter, or already added, add it to the list.
 			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]]|=|>|<)"$O"($|[[:space:]]|:|-[0-9]) &&
@@ -201,12 +201,11 @@ buildBDeps() {
 		## Trim the space at the end for cosmetic reasoning.
 		D=${D%% }
 		## Dependencies
-		PKG_BLD=$(getBldFile $PKG)
 		if ! grep '^DEPS=' $PKG_BLD > /dev/null 2>&1; then
 			echo -n "DEPS Missing - checking for BDEPS: "
-			if grep '^BDEPS=' $PKG_DB_DIR/$PKG.build > /dev/null 2>&1; then
+			if grep '^BDEPS=' $PKG_BLD > /dev/null 2>&1; then
 				echo "Updating."
-				sed -i 's,^BDEPS=["'\'']\(.*\)\["'\''],DEPS=\"\1\"\nBDEPS=\"\",' $PKG_DB_DIR/$PKG.build
+				sed -i 's,^BDEPS=["'\'']\(.*\)\["'\''],DEPS=\"\1\"\nBDEPS=\"\",' $PKG_BLD
 			else
 				echo "Not found, Skipping.."
 				continue
@@ -216,7 +215,7 @@ buildBDeps() {
 		## Theoretically speaking sorting is wasted if this is exclusively used
 		## to add DEPS, but this isn't always the case.
 		## sort things to avoid false-positives
-		LD=$(grep '^DEPS=' $PKG_DB_DIR/$PKG.build | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+		LD=$(grep '^DEPS=' $PKG_BLD | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
 
 		## If any need updating
 		if [[ ${LD%% } != $D ]]; then
@@ -237,7 +236,7 @@ buildBDeps() {
 			[[ ! -z $AD ]] && echo "  - Added:$AD"
 			[[ ! -z $RD ]] && echo "  - Removed:$RD"
 			if [[ $PRETEND != 1 ]]; then
-				sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_DB_DIR/$PKG.build
+				sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_BLD
 			fi
 		fi
 
