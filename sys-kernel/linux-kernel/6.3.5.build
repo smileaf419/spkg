@@ -6,7 +6,7 @@ DEPS=""
 BDEPS="sys-devel/gcc"
 RDEPS=""
 ARCHS="x86 x86_64"
-SLOT=6.1
+SLOT=6.3
 RESTRICT="strip nobin"
 
 URL_BASE="https://cdn.kernel.org/pub/linux/kernel/v$(getMajorVer $PKG_VER).x"
@@ -40,7 +40,7 @@ if [[ $MODE != "search" ]]; then
 		PATCHES=("$URL_BASE/patch-${MV}.${MiV}.1.xz")
 	fi
 
-	if [[ $(( $MicV % $VerIncr )) -gt 1 ]]; then
+	if [[ $(( $MicV % $VerIncr )) -gt 0 ]]; then
 		[[ $VERBOSE -gt 0 ]] && echo "Getting Patches from $VerStart to $MicV"
 		for x in $(seq $VerStart $(( ${MicV}-1 ))); do
 			N=$(( ${x}+1 ))
