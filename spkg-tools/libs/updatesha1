@@ -8,6 +8,7 @@
 VERIFY_SIG=0
 ENABLE_TESTS=1
 IGNORE_SHA=0
+INSTALL_DOCS=1
 #VERBOSE=3
 ## Set an unstable ARCH if its not already so we hash them too
 [[ ${ARCH:0:1} != "~" ]] && ARCH="~$ARCH"
