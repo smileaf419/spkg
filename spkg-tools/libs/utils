@@ -153,7 +153,7 @@ buildBDeps() {
 		source "$PKG_BLD"
 		if pkg-restricts "nobin"; then
 			[ $VERBOSE -ge 1 ] && echo " none )"
-			return
+			return 0
 		fi
 
 		PKG_FILTER+=(${CDEPS[@]})
@@ -356,6 +356,11 @@ sinstall() {
 	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") \"$1\" \"$2\"
 }
 
+####
+## Gathers a list of packages based on files found within PERSERVED_LOG to install them.
+## PERSERVED_LOG is generated during the uninstall phase of a pkg upgrade or uninstall
+## and contains files which are depended on packages still installed.
+## Once the rebuild is complete the now obsolete files are removed.
 preservedRebuild() {
 	MODE='rebuild'
 	## Files were preserved, process them here to ensure we don't break our system.
