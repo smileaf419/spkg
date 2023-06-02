@@ -3,7 +3,7 @@ DESCRIPTION="2D graphics library with support for multiple output devices"
 LICENSE="LGPLv2.1 MPL"
 SRC_URI=("https://cairographics.org/snapshots/cairo-${PKG_VER}.tar.xz")
 #https://download.gnome.org/sources/cairo/${PKG_VER%.*}/cairo-${PKG_VER}.tar.xz")
-PATCHES=()
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/x11-libs/cairo/files/1.17.8-tee-Fix-cairo-wrapper-functions.patch")
 DEPS="dev-libs/glib dev-libs/lzo media-libs/fontconfig media-libs/freetype media-libs/libpng sys-devel/binutils sys-libs/zlib x11-libs/libX11 x11-libs/libxcb x11-libs/libXext x11-libs/libXrender x11-libs/pixman"
 BDEPS=""
 RDEPS=""
@@ -13,28 +13,7 @@ CDEPS="media-libs/harfbuzz"
 setBuildENV meson ninja
 
 src_configure() {
-	## tee fails to build with error:
-	# ../src/cairo-tee-surface.c:382:55: error: incompatible type for argument 11 of '_cairo_surface_wrapper_show_text_glyphs'
-	#  382 |                                                       scaled_font,
-	#      |                                                       ^~~~~~~~~~~
-	#      |                                                       |
-	#      |                                                       cairo_scaled_font_t * {aka struct _cairo_scaled_font *}
-	#../src/cairo-surface-wrapper-private.h:171:70: note: expected 'cairo_text_cluster_flags_t' {aka 'enum _cairo_text_cluster_flags'} but argument is of type 'cairo_scaled_font_t *' {aka 'struct _cairo_scaled_font *'}
-	#  171 |                                          cairo_text_cluster_flags_t  cluster_flags,
-	#      |                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
-	#../src/cairo-tee-surface.c:383:55: warning: passing argument 12 of '_cairo_surface_wrapper_show_text_glyphs' from incompatible pointer type [-Wincompatible-pointer-types]
-	#  383 |                                                       clip);
-	#      |                                                       ^~~~
-	#      |                                                       |
-	#      |                                                       const cairo_clip_t * {aka const struct _cairo_clip *}
-	#../src/cairo-surface-wrapper-private.h:172:70: note: expected 'cairo_scaled_font_t *' {aka 'struct _cairo_scaled_font *'} but argument is of type 'const cairo_clip_t *' {aka 'const struct _cairo_clip *'}
-	#  172 |                                          cairo_scaled_font_t        *scaled_font,
-	#      |                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
-	#../src/cairo-tee-surface.c:376:14: error: too few arguments to function '_cairo_surface_wrapper_show_text_glyphs'
-	#  376 |     status = _cairo_surface_wrapper_show_text_glyphs (&surface->master, op,
-	#      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	#configure_default -Dtee=enabled
-	configure_default
+	configure_default -Dtee=enabled
 }
 
 src_test() { :; }
