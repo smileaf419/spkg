@@ -143,7 +143,7 @@ buildBDeps() {
 	## Use our BDEPS file installed within PKG_CACHE
 	Installed-getPkg $1 > /dev/null
 
-	[ $VERBOSE -ge 1 ] && echo -n "$PKG ( "
+	[ $VERBOSE -ge 1 ] && echo -n "$PKG_CAT/$PKG_NVR ( "
 
 	## Filter out the Toolchain. These are always depended on,
 	## So we don't need it complicating the logic
@@ -232,7 +232,7 @@ buildBDeps() {
 				fi
 			done
 
-			echo " * Updating $PKG:"
+			echo " * Updating $PKG_CAT/$PKG_NVR:"
 			[[ ! -z $AD ]] && echo "  - Added:$AD"
 			[[ ! -z $RD ]] && echo "  - Removed:$RD"
 			if [[ $PRETEND != 1 ]]; then
