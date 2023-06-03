@@ -39,6 +39,9 @@ cd $LOGDIR
 if [[ $LIST == 1 ]]; then
 	find * -iwholename \*$LOG\* -type f |sort -k2 -t- -V -r | uniq -s9
 else
-	xzcat $(find -iwholename \*$LOG\* -type f | sort | tail -n1) 2> /dev/null ||
-	  cat $(find -iwholename \*$LOG\* -type f | sort | tail -n1) 2> /dev/null
+	LOGFILE=$(find -iwholename *$LOG[/-]\* -type f | sort | tail -n1)
+	echo "LOGFILE: $LOGFILE ($LOG)"
+	[[ -z $LOGFILE ]] && { echo " ! Log not found!"; exit 1; }
+	xzcat $LOGFILE 2> /dev/null ||
+	  cat $LOGFILE 2> /dev/null
 fi
