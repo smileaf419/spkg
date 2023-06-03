@@ -73,12 +73,14 @@ post_install() {
 		cd /usr/src/linux-$PKG_VER
 		gzip -cd /proc/config.gz > .config
 		unset ARCH
+		make olddefconfig
 		make modules_prepare
 	fi
 
-	## Set our slot's symlink
-	[ ! -e /usr/src/linux-$PKG_SLOT ] && ln -sfv /usr/src/linux-$PKG_VER /usr/src/linux-$PKG_SLOT
-	## If we just installed the most recent slot, update the symlink to the current kernel to our slot's symlink.
+	## Set/update our slot's symlink
+	[ -e /usr/src/linux-$PKG_SLOT ] && rm /usr/src/linux-$PKG_SLOT
+	ln -sfv /usr/src/linux-$PKG_VER /usr/src/linux-$PKG_SLOT
+	## If we just installed the latest installed slot, update the symlink to the current kernel to our slot's symlink.
 	if [[ $(Installed-getPkg sys-kernel/linux-kernel | getLatest | getSlot) == $PKG_SLOT && ! -e /usr/src/linux ]]; then
 		inform " * Updating Kernel symlink to Linux ${PKG_VER}"
 		ln -sfv /usr/src/linux-$PKG_SLOT /usr/src/linux
