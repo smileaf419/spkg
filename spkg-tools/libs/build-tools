@@ -103,7 +103,8 @@ buildPackage() {
 
 	src_prepare
 
-	[[ $FETCH_ONLY == 1 ]] && return
+	## Used in install-init.d
+	[[ $_PREPARE_ONLY == 1 ]] && return
 
 	if [[ $BUILD_SEPERATE_DIR != no ]]; then
 		install -d -o $BUILD_USER build
