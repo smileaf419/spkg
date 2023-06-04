@@ -40,6 +40,7 @@ setBuildENV() {
 		ninja)
 			BDEPS+=" dev-util/ninja" ;;
 		pip)
+			BDEPS+=" dev-lang/python dev-python/pip"
 			RESTRICT="nobin nostrip" ;;
 	esac
 }

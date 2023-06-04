@@ -1,11 +1,11 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
-SRC_URI=()
+HOMEPAGE="https://pypi.org/project/setuptools/"
+DESCRIPTION="Easily download, build, install, upgrade, and uninstall Python packages"
+LICENSE="MIT"
+SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//_/-}/$PKG_NAME-${PKG_VER}.tar.gz")
 DEPS=""
 BDEPS=""
-RDEPS="dev-lang/python dev-python/pip"
-ARCHS="~x86 ~x86_64"
+RDEPS=""
+ARCHS="x86 x86_64"
 SLOT=0
 MODULE=python
 setBuildENV none pip

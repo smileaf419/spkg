@@ -15,6 +15,7 @@ checkFileDep() {
 
 ## Checks if a given PKG_CAT/PKG_NAME and PKG_VER is depended upon
 ## Returns: list of files depending on a package.
+## FIXME: This only checks binary dependencies, we should also check the DEPS and RDEPS
 isDependedOn() {
 	local PKG=$1
 	local PKG_VER=$2
@@ -112,6 +113,7 @@ expandSets() {
 ## BDEPS: Build dependencies: Required for building, but not for running.
 ## RDEPS: Runtime Dependencies: Required for running, but not for building.
 ##        These should be added after the package.
+##        But may contain some also found in BDEPS and should be filtered out.
 ## UDEPS: Optional Dependencies as required via USE
 ## CDEPS: Circular Dependencies are a special case where a package should be installed before and after
 ##        the package, but only if its not already installed.
@@ -193,6 +195,7 @@ getdep() {
 		## Add our Post Dependency list here.
 		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> $CHART
 
+		## FIXME: We need to filter out any entries contained within BDEPS
 		doDeps "${RDEPS[*]}"
 		SP=${SP# }
 	)

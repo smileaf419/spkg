@@ -1,7 +1,7 @@
 HOMEPAGE="https://pypi.org/project/flit-core/"
 DESCRIPTION="Distribution-building parts of Flit."
 LICENSE="BSD"
-SRC_URI=()
+SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//_/-}/$PKG_NAME-${PKG_VER}.tar.gz")
 DEPS=""
 BDEPS=""
 RDEPS=""

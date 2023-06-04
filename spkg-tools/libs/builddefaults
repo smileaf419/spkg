@@ -82,13 +82,13 @@ configure_default() {
 		CXXFLAGS="$CXXFLAGS" \
 		LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
 		$SET_ABI             \
-			$d/configure ${CONF_FLAGS} "$@" || die "Configure Failed!"
+			$d/configure ${CONF_FLAGS} "$@" || die " $ERROR_DIALOG Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
-		meson setup ${CONF_FLAGS} "$@" $d || die "Configure Failed!"
+		meson setup ${CONF_FLAGS} "$@" $d || die " $ERROR_DIALOG Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
-		cmake ${CONF_FLAGS} "$@" $d || die "Configure Failed!"
+		cmake ${CONF_FLAGS} "$@" $d || die " $ERROR_DIALOG Configure Failed!"
 	fi
 }
 export -f configure_default
@@ -97,9 +97,13 @@ export -f configure_default
 ## Build our package using the set build-tool
 compile_default() {
 	if [[ $buildTool == "make" ]]; then
-		make $MAKEOPTS $@ || die "Compile Failed!"
+		make $MAKEOPTS $@ || die " $ERROR_DIALOG Compile Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
-		ninja || die "Compile Failed!"
+		ninja || die " $ERROR_DIALOG Compile Failed!"
+## Compile the python module
+## Disabled as most modules don't need this and if globally enabled causes a huge number of dependencies to be required.
+#	elif [[ $buildTool == "pip" ]]; then
+#		pip3 wheel -v -w dist --no-build-isolation --no-deps $PWD || die " $ERROR_DIALOG Compile Failed!"
 	fi
 }
 export -f compile_default
@@ -113,9 +117,9 @@ test_default() {
 	TEST=${TEST:-check}
 
 	if [[ $buildTool == "make" ]]; then
-		make $MAKEOPTS $@ $TEST || die "Test Failed!"
+		make $MAKEOPTS $@ $TEST || die " $DIALOG_ERROR Test Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
-		ninja test || die "Test Failed!"
+		ninja test || die " $DIALOG_ERROR Test Failed!"
 	fi
 }
 export -f test_default
@@ -124,17 +128,17 @@ export -f test_default
 ## Install our package using the our set build-tool
 install_default() {
 	if [[ $buildTool == "make" ]]; then
-		make DESTDIR="${D}/$ROOT" $@ install || die "Install Failed!"
+		make DESTDIR="${D}/$ROOT" $@ install || die " $DIALOG ERROR Install Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
-		DESTDIR="${D}/$ROOT" ninja install || die "Install Failed!"
+		DESTDIR="${D}/$ROOT" ninja install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
 		# FIXME: This seems to happen too frequently.. like even once is too many times. Why?
-		if ! python -m pip install --upgrade $PKG_NAME; then
-			echo " !! Assuming pip is broken. Reinstalling and trying again."
+		if ! python -m pip install -v --upgrade --prefix=$D/usr --no-deps --no-user --force-reinstall $PKG_NAME; then
+			echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
 			fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
 			python $DISTFILES/get-pip.py
 
-			python -m pip install --upgrade $PKG_NAME
+			python -m pip install -v --upgrade --prefix=$D/usr --no-deps --no-user --force-reinstall $PKG_NAME || die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
 		fi
 	fi
 }
@@ -142,11 +146,7 @@ export -f install_default
 
 ####
 ## Uninstall the package using our set build-tool
-uninstall_default() {
-	if [[ $buildTool == "pip" ]]; then
-		python -m pip uninstall -y $PKG_NAME
-	fi
-}
+uninstall_default() { :; }
 export -f uninstall_default
 
 ## Function called by src_fetch
@@ -181,7 +181,7 @@ export -f unpack_default
 
 ## Function called by src_patch
 patch_default() {
-	spatches "$1" || die "Patching failed"
+	spatches "$1" || die " $ERROR_DIALOG Patching failed"
 }
 export -f patch_default
 
