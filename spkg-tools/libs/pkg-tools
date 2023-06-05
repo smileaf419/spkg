@@ -149,7 +149,7 @@ export -f listToLEntry
 ## Takes a *-PKG_VER-rPKG_REV
 ## Returns a PKG_VER/PKG_REV
 splitVersion() {
-	p=$1
+	local p=$1
 	## Check for Revision
 	local rev=
 	if [[ $p == *-r[0-9]* ]]; then

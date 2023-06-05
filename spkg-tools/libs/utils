@@ -104,7 +104,6 @@ getPkgFromWorld() {
 ####
 ## Adds an Entry to our INSTALL_CHART
 Install-addPkg() {
-#	PKG_LIST+=" $1"
 	eval echo $1 >> $INSTALL_CHART
 }
 
@@ -197,7 +196,7 @@ buildBDeps() {
 
 		[ $VERBOSE -ge 1 ] && echo ")"
 		## Filter out duplicates we didn't catch earlier.
-		D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+		local D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
 		## Trim the space at the end for cosmetic reasoning.
 		D=${D%% }
 		## Dependencies
@@ -215,17 +214,17 @@ buildBDeps() {
 		## Theoretically speaking sorting is wasted if this is exclusively used
 		## to add DEPS, but this isn't always the case.
 		## sort things to avoid false-positives
-		LD=$(grep '^DEPS=' $PKG_BLD | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+		local LD=$(grep '^DEPS=' $PKG_BLD | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
 
 		## If any need updating
 		if [[ ${LD%% } != $D ]]; then
-			AD=
+			local AD=
 			for l in $D; do
 				if [[ ! $LD =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
 					AD+=" $l"
 				fi
 			done
-			RD=
+			local RD=
 			for l in $LD; do
 				if [[ ! $D =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
 					RD+=" $l"
@@ -249,11 +248,8 @@ buildBDeps() {
 fetch_file() {
 	## Just Ignore Empty calls.
 	[[ $1 == "" ]] && return 0
-	FILE=${1##*/}
-	OUTFILE=$2
-
-	## No custom outfile .. just save it as normal
-	[[ $OUTFILE == "" ]] && OUTFILE=$FILE
+	local FILE=${1##*/}
+	local OUTFILE=${2:-$FILE}
 
 	## If we already exist, ignore it
 	[ -e "${DISTFILES}/${OUTFILE}" ] && return 0
@@ -262,10 +258,10 @@ fetch_file() {
 	## If we encounter an Error, delete the file and error out.
 	if [ $? != 0 ]; then
 		[[ -e "$DISTFILES/$OUTFILE" ]] && rm "${DISTFILES}/${OUTFILE}"
-		echo "   FILE: $FILE"
-		echo "OUTFILE: $OUTFILE"
-		echo "1: $1"
-		echo "2: $2"
+		>&2 echo "   FILE: $FILE"
+		>&2 echo "OUTFILE: $OUTFILE"
+		>&2 echo "1: $1"
+		>&2 echo "2: $2"
 		die "Error Downloading";
 	fi
 }
