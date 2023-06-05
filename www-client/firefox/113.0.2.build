@@ -1,0 +1,132 @@
+####
+## Firefox build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.mozilla.com/firefox"
+DESCRIPTION="Firefox Web Browser"
+LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
+SRC_URI=("https://archive.mozilla.org/pub/firefox/releases/${PKG_VER}/source/firefox-${PKG_VER}.source.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+#PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/firefox-102.11.0-ffmpeg_6-1.patch")
+DEPS=""
+BDEPS="dev-lang/rust net-libs/nodejs dev-util/cbindgen dev-libs/libevent dev-libs/dbus-glib dev-python/PyYAML"
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+#B=
+
+export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=system
+export MOZILLA_OFFICIAL="1"
+export BUILD_OFFICIAL="1"
+export MOZ_PHOENIX="1"
+export MOZ_PACKAGE_JSSHELL="1"
+export MOZBUILD_STATE_PATH=$B/mozbuild
+export SHELL=/bin/sh
+
+src_configure() {
+	## Prevent failures building gkrust by suppressing useless warnings: (Source: Slackware)
+	sed -i.allow-warnings -e '/#!\[deny(warnings)\]/a #![allow(unused_imports)]' \
+		servo/components/style/lib.rs
+
+	config_opts=(
+		"disable-necko-wifi"
+		"with-system-icu"
+		"with-system-libevent"
+		"with-system-libvpx"
+		"with-system-nspr"
+		"with-system-nss"
+		"with-system-webp"
+		"enable-system-ffi"
+		"enable-system-pixman"
+		"with-system-jpeg"
+		"with-system-png"
+		"with-system-zlib"
+
+		## Disable if we're creating archives
+		"enable-official-branding"
+		## Enable these if we want to debug
+		"disable-strip"
+		"disable-install-strip"
+		## Disable if we need debug, required for i686 builds
+		"disable-debug-symbols"
+		## elf hack may cause issues with some builds, disable if your machine is not affected
+		"disable-elf-hack"
+
+		"prefix=/usr"
+		"enable-application=browser"
+		"disable-crashreporter"
+		"disable-updater"
+		## enabling the tests will use a lot more space and significantly
+		## increase the build time, for no obvious benefit.
+		"disable-tests"
+
+		## The default level of optimization again produces a working build with gcc.
+		"enable-optimize"
+
+		## Using sandboxed wasm libraries has been moved to all builds instead
+		## of only mozilla automation builds. It requires extra llvm packages
+		## and was reported to seriously slow the build. Disable it.
+		"without-wasm-sandboxed-libraries"
+	)
+	[ -e mozconfig  ] && rm mozconfig
+	for o in ${config_opts[*]}; do
+		echo "ac_add_options --$o" >> mozconfig
+	done
+	## The following option unsets Telemetry Reporting. With the Addons Fiasco,
+	## Mozilla was found to be collecting user's data, including saved passwords and
+	## web form data, without users consent. Mozilla was also found shipping updates
+	## to systems without the user's knowledge or permission.
+	## As a result of this, use the following command to permanently disable
+	## telemetry reporting in Firefox.
+	echo "unset MOZ_TELEMETRY_REPORTING" >> mozconfig
+
+	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/firefox-build-dir" >> mozconfig
+
+	## FIXME: These Keys are specific to LFS
+	##        We need to create our own keys!!!
+	## https://www.chromium.org/developers/how-tos/api-keys
+	## https://location.services.mozilla.com/api
+	echo "AIzaSyDxKL42zsPjbke5O8_rPVpVrLrJ8aeE9rQ" > google-key
+	echo "613364a7-9418-4c86-bcee-57e32fd70c23" > mozilla-key
+	./mach configure
+}
+
+src_compile() {
+	./mach build
+}
+
+## Requires an X Session and 'enable-tests'
+src_test() {
+	./mach gtest
+}
+
+src_install() {
+	DESTDIR="$D" ./mach install
+
+	mkdir -pv $D/usr/share/{applications,pixmaps}
+
+	MIMETYPE="text/xml;text/mml;text/html;"
+	MIMETYPE+="application/xhtml+xml;application/vnd.mozilla.xul+xml;"
+	MIMETYPE+="x-scheme-handler/http;x-scheme-handler/https"
+
+	cat > $D/usr/share/applications/firefox.desktop << EOF
+[Desktop Entry]
+Encoding=UTF-8
+Name=Firefox Web Browser
+Comment=Browse the World Wide Web
+GenericName=Web Browser
+Exec=firefox %u
+Terminal=false
+Type=Application
+Icon=firefox
+Categories=GNOME;GTK;Network;WebBrowser;
+MimeType=$MIMETYPE
+StartupNotify=true
+EOF
+
+	unset MIMETYPE
+
+	ln -sfv /usr/lib/firefox/browser/chrome/icons/default/default128.png \
+			$D/usr/share/pixmaps/firefox.png
+}
