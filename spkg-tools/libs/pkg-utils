@@ -29,8 +29,8 @@ export -f inform
 ## Optionally extract the archive to a certain directory.
 ## Currently supports: tar.*, .zip, .deb and .rar
 unpack() {
-	FILE=$1
-	DIR=${2:-.}
+	local FILE=$1
+	local DIR=${2:-.}
 
 	echo " * Unpacking $FILE to $DIR"
 	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
@@ -54,9 +54,9 @@ export -f unpack
 ####
 ## Applies a patch, optionally with a set of arguments.
 spatch() {
-	patch=$1
+	local patch=$1
 	shift 1
-	patch_options=${@:--Np1}
+	local patch_options=${@:--Np1}
 	echo -n " * Applying Patch: $patch ($patch_options)"
 	if [[ $patch == *gz ]]; then
 		gzip -cd "$patch" | patch $patch_options > /dev/null || die " .. Failed!"
@@ -97,7 +97,7 @@ export -f spatches
 ####
 ## Removes flags from CFLAGS, CXXFLAGS and CPPFLAGS
 filter-flags() {
-	flags=$@
+	local flags=$@
 	for flag in $flags; do
 		CFLAGS=$(echo $CFLAGS|sed "s,$flag,,")
 		CXXFLAGS=$(echo $CXXFLAGS|sed "s,$flag,,")
@@ -127,7 +127,7 @@ export -f append-cppflags
 ## Within a version string of x.y.z
 ## This will return: x
 getMajorVer() {
-	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
+	local VER=${1:-$PKG_VER}
 	echo $VER | tr '.' '\n'|head -n1
 }
 export -f getMajorVer
@@ -136,8 +136,8 @@ export -f getMajorVer
 ## Within a version string of x.y.z
 ## This will return: y
 getMinorVer() {
-	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
-	c=$(echo $VER | tr '.' '\n'|wc -l)
+	local VER=${1:-$PKG_VER}
+	local c=$(echo $VER | tr '.' '\n'|wc -l)
 	if [[ $c == 2 ]]; then
 		echo $VER | tr '.' '\n'|tail -n1
 	elif [[ $c -ge 3 ]]; then
@@ -152,8 +152,8 @@ export -f getMinorVer
 ## Within a version string of x.y.z
 ## This will return: z
 getMicroVer() {
-	[[ -z $1 ]] && VER=$PKG_VER || VER=$1
-	n=$(echo $VER|tr '.' '\n'|wc -l)
+	local VER=${1:-$PKG_VER}
+	local n=$(echo $VER|tr '.' '\n'|wc -l)
 	if [[ $n == 3 ]]; then
 		echo $VER|tr '.' '\n'|tail -n1
 	else
@@ -204,16 +204,16 @@ export -f checkinlist
 ## Check if a config option (1) is set to either Y/M(2)
 ## Display a dialog describing the config option(3)
 checkKernelConfig() {
-	CONFIG=$1
-	NEEDS_MODULE=$2
-	DIALOG=$3
-	HAS_PROC=0
-	HAS_CONFIG=0
+	local CONFIG=$1
+	local NEEDS_MODULE=$2
+	local DIALOG=$3
+	local HAS_PROC=0
+	local HAS_CONFIG=0
 
 	if [ $NEEDS_MODULE == 0 ]; then
-		ERROR_DIALOG="$CONFIG Needs Disabled"
+		local ERROR_DIALOG="$CONFIG Needs Disabled"
 	else
-		ERROR_DIALOG="$CONFIG Needs to be Y (built-in) or M (module)"
+		local ERROR_DIALOG="$CONFIG Needs to be Y (built-in) or M (module)"
 	fi
 
 	echo -n "Checking for $DIALOG"
@@ -235,7 +235,7 @@ export -f checkKernelConfig
 ## Frontend to useradd
 ## If the user is found, calls usermod instead.
 addUser() {
-	USER=$1
+	local USER=$1
 	shift 1
 	if ! grep "^${USER}:" /etc/passwd > /dev/null 2>&1; then
 		echo " * Adding User $USER"
@@ -251,7 +251,7 @@ export -f addUser
 ## Frontend to groupadd
 ## If the group is found, calls groupmod instead.
 addGroup() {
-	GROUP=$1
+	local GROUP=$1
 	shift 1
 	if ! grep "^${GROUP}:" /etc/group > /dev/null 2>&1; then
 		echo " * Adding Group $GROUP"
@@ -265,7 +265,7 @@ export -f addGroup
 
 ## Frontend to userdel, Displays an error if the user doesn't exist.
 delUser() {
-	USER=$1
+	local USER=$1
 	shift 1
 	if grep "^${USER}:" /etc/passwd > /dev/null 2>&1; then
 		echo " * Removing User: $USER"
@@ -278,7 +278,7 @@ export -f delUser
 
 ## Frontend to groupdel, Displays an error if the group doesn't exist.
 delGroup() {
-	GROUP=$1
+	local GROUP=$1
 	shift 1
 	if grep "^${GROUP}:" /etc/group > /dev/null 2>&1; then
 		echo " * Removing Group: $GROUP"
@@ -296,7 +296,7 @@ export -f delGroup
 ## This function in essence calls: make install-[name here]
 install-init.d() {
 	(
-		d=$PWD
+		local d=$PWD
 		PKG=$(DB-getPkg sys-boot/blfs-bootscripts)
 		PKG_NAME=$(getName $PKG)
 		PKG_VER=$(getVerRev $PKG)
