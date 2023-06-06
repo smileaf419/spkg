@@ -7,7 +7,7 @@ DEPS=""
 BDEPS="dev-lang/perl sys-devel/m4"
 RDEPS=""
 ARCHS="x86 x86_64"
-SLOT=0
+SLOT=2.7
 export TESTSUITEFLAGS=-j4
 
 src_configure() {
