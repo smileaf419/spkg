@@ -8,7 +8,7 @@ SRC_URI=("https://archive.mozilla.org/pub/firefox/releases/${PKG_VER}/source/fir
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 #PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/firefox-102.11.0-ffmpeg_6-1.patch")
 DEPS=""
-BDEPS="dev-lang/rust net-libs/nodejs dev-util/cbindgen dev-libs/libevent dev-libs/dbus-glib dev-python/PyYAML"
+BDEPS="dev-lang/rust net-libs/nodejs dev-util/cbindgen dev-libs/libevent dev-libs/dbus-glib dev-python/PyYAML dev-python/psutil<=5.9.4"
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
@@ -25,6 +25,17 @@ export MOZBUILD_STATE_PATH=$B/mozbuild
 export SHELL=/bin/sh
 
 src_configure() {
+	## Keys are Unique to projects, This key is for spkg ONLY
+	## Please generate your own key for your own distribution.
+	## https://www.chromium.org/developers/how-tos/api-keys
+	echo "AIzaSyAX38M2bB3pxBepcFoc4aP2G3M6J0qy0e8" > google-key
+	## Keys are Unique to projects, This key is for spkg ONLY
+	## Please generate your own key for your own distribution.
+	## FIXME: This key is specific to LFS
+	##        A key specific to spkg is pending.
+	## https://location.services.mozilla.com/api
+	echo "613364a7-9418-4c86-bcee-57e32fd70c23" > mozilla-key
+
 	## Prevent failures building gkrust by suppressing useless warnings: (Source: Slackware)
 	sed -i.allow-warnings -e '/#!\[deny(warnings)\]/a #![allow(unused_imports)]' \
 		servo/components/style/lib.rs
@@ -83,12 +94,6 @@ src_configure() {
 
 	echo "mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/firefox-build-dir" >> mozconfig
 
-	## FIXME: These Keys are specific to LFS
-	##        We need to create our own keys!!!
-	## https://www.chromium.org/developers/how-tos/api-keys
-	## https://location.services.mozilla.com/api
-	echo "AIzaSyDxKL42zsPjbke5O8_rPVpVrLrJ8aeE9rQ" > google-key
-	echo "613364a7-9418-4c86-bcee-57e32fd70c23" > mozilla-key
 	./mach configure
 }
 
