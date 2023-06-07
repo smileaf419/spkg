@@ -147,7 +147,7 @@ install_default() {
 		## Because we run each function in a seperate, environment variables set within them do not keep
 		## Assume we are installing a precompiled rather than the one we built unless SPKG_PIP_INSTALL_COMPILED is set.
 		## Installed options maybe overridden via _PIP_OPTS
-		[[ ! -z $SPKG_PIP_INSTALL_COMPILED ]] &&
+		[[ -z $SPKG_PIP_INSTALL_COMPILED ]] &&
 			_PIP_INSTALL_OPTS=${_PIP_INSTALL_OPTS:-"--no-index --find-links dist --no-cache-dir"}
 
 		>&2 echo " * Running pip with $_PIP_INSTALL_OPTS --no-deps"

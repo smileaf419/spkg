@@ -9,4 +9,3 @@ ARCHS="~x86 ~x86_64"
 SLOT=0
 MODULE=python
 setBuildENV none pip
-export SPKG_PIP_INSTALL_COMPILED=1
