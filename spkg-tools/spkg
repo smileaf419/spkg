@@ -477,8 +477,8 @@ fi
 ## Update the sha1sum of all files for the given package.
 ## Using the set @all while useful is not recommended given the size of the repository.
 if [[ $MODE != 'search' && $HASH_UPDATE ]]; then
-	C=$(echo $list | tr ' ' '\n' | wc -l)
-	echo " * Updating sha1 of $C packages"
+	C=($REQUESTED_LIST)
+	echo " * Updating sha1 of ${#C[*]} packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
 	for p in $REQUESTED_LIST; do
 		PKG=$(DB-getPkg $p)
