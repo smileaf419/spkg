@@ -1,7 +1,7 @@
 HOMEPAGE="https://pypi.org/project/$PKG_NAME/"
-DESCRIPTION="YAML parser and emitter for Python"
+DESCRIPTION="C extension compiler for Python"
 LICENSE="MIT"
-SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//_/-}/$PKG_NAME-${PKG_VER}.tar.gz")
+SRC_URI=("https://github.com/cython/cython/releases/download/0.29.35/Cython-0.29.35.tar.gz")
 DEPS=""
 BDEPS=""
 RDEPS=""

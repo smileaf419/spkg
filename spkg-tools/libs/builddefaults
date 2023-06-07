@@ -65,7 +65,7 @@ configure_default() {
 	HOST_TGT=${HOST_TGT:-x86_64-pc-linux-gnu}
 	HOST_TGT32=${HOST_TGT32:-i686-pc-linux-gnu}
 	HOST_TGTx32=${HOST_TGTx32:-x86_64-pc-linux-gnux32}
-	d=.
+	local d=.
 	if [[ $BUILD_SEPERATE_DIR != no ]]; then
 		[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
 	fi
@@ -100,11 +100,23 @@ compile_default() {
 		make $MAKEOPTS $@ || die " $ERROR_DIALOG Compile Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
 		ninja || die " $ERROR_DIALOG Compile Failed!"
-## Compile the python module
-## Disabled as most modules don't need this and if globally enabled causes a huge number of dependencies to be required.
-#	elif [[ $buildTool == "pip" ]]; then
-#		pip3 wheel -v -w dist --no-build-isolation --no-deps $PWD || die " $ERROR_DIALOG Compile Failed!"
+
+	## Compile the python module
+	## Build options maybe overridden via _PIP_COMPILE_OPTS
+	elif [[ $buildTool == "pip" ]]; then
+		_PIP_COMPILE_OPTS=${_PIP_COMPILE_OPTS:-"-w dist --no-build-isolation --no-deps"}
+
+		>&2 echo " * Running pip with $_PIP_COMPILE_OPTS"
+		if ! eval pip3 wheel -v $_PIP_COMPILE_OPTS $PWD; then
+			echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
+			fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
+			python $DISTFILES/get-pip.py --no-warn-script-location
+			PATH+=":$HOME/.local/bin"
+
+			eval pip3 wheel -v $_PIP_INSTALL_OPTS $PWD || die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
+		fi
 	fi
+	return 0
 }
 export -f compile_default
 
@@ -132,13 +144,19 @@ install_default() {
 	elif [[ $buildTool == "ninja" ]]; then
 		DESTDIR="${D}/$ROOT" ninja install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
-		# FIXME: This seems to happen too frequently.. like even once is too many times. Why?
-		if ! python -m pip install -v --upgrade --prefix=$D/usr --no-deps --no-user --force-reinstall $PKG_NAME; then
+		## Because we run each function in a seperate, environment variables set within them do not keep
+		## Assume we are installing a precompiled rather than the one we built unless SPKG_PIP_INSTALL_COMPILED is set.
+		## Installed options maybe overridden via _PIP_OPTS
+		[[ ! -z $SPKG_PIP_INSTALL_COMPILED ]] &&
+			_PIP_INSTALL_OPTS=${_PIP_INSTALL_OPTS:-"--no-index --find-links dist --no-cache-dir"}
+
+		>&2 echo " * Running pip with $_PIP_INSTALL_OPTS --no-deps"
+		if ! eval python -m pip install -v --upgrade --prefix=$D/usr $_PIP_INSTALL_OPTS --no-deps --no-user --force-reinstall $PKG_NAME; then
 			echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
 			fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
 			python $DISTFILES/get-pip.py
 
-			python -m pip install -v --upgrade --prefix=$D/usr --no-deps --no-user --force-reinstall $PKG_NAME || die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
+			eval python -m pip install -v --upgrade --prefix=$D/usr $_PIP_INSTALL_OPTS --no-deps --no-user --force-reinstall $PKG_NAME || die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
 		fi
 	fi
 }

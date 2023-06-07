@@ -3,9 +3,12 @@ DESCRIPTION="cryptography is a package which provides cryptographic recipes and 
 LICENSE="Apache-2.0 BSD-3"
 SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//_/-}/$PKG_NAME-${PKG_VER}.tar.gz")
 DEPS=""
+## wheel, typing-extensions, setuptools, semantic-version, pycparser, setuptools-rust, cffi
 BDEPS="dev-python/cffi"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 MODULE=python
 setBuildENV none pip
+export SPKG_PIP_INSTALL_COMPILED=1
+export _PIP_COMPILE_OPTS="-w dist --no-deps"

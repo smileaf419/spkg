@@ -8,3 +8,4 @@ RDEPS=""
 setBuildENV none pip
 ARCHS="x86 x86_64"
 SLOT=0
+export SPKG_PIP_INSTALL_COMPILED=1

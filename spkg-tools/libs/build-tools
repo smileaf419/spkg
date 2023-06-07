@@ -114,6 +114,9 @@ buildPackage() {
 	# When we pass commands to our BUILD_USER these does not get updated
 	# Set it here to avoid permission issues when packages call for
 	# $HOME/.cache for example
+	local saved_USER=$USER
+	local saved_LOGNAME=$LOGNAME
+	local saved_HOME=$HOME
 	export USER=$BUILD_USER
 	export LOGNAME=$BUILD_USER
 	export HOME=$PKG_CACHE
@@ -138,6 +141,12 @@ buildPackage() {
 				src_test
 			fi
 		fi
+
+		## Restore our environment
+		export USER=$saved_USER
+		export LOGNAME=$saved_LOGNAME
+		export HOME=$saved_HOME
+
 		echo " * src_install"
 		src_install		|| die "Error in src_install"
 		case $MODULE in

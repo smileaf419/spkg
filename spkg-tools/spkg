@@ -428,11 +428,16 @@ if [[ $MODE != 'search' && $MODE != 'list' ]]; then
 		then mkdir -p "$PKG_CACHE" || die "Failed to create: PKG_CACHE: $PKG_CACHE"; fi
 	test -w $PKG_CACHE || die "Cannot write to PKG_CACHE: $PKG_CACHE"
 	if [[ $(stat -c '%U' "$PKG_CACHE") != $BUILD_USER ]]; then
-		echo -n " * Fixing Permissions in $PKG_CACHE "
+		echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
 		chown -R $BUILD_USER $PKG_CACHE && echo -n '.'
 		find $PKG_CACHE -type d -exec chmod 770 {} \; && echo -n '.'
 		find $PKG_CACHE -type f -exec chmod 660 {} \; && echo -n '.'
-		echo " done"
+		echo "done"
+	fi
+	if [[ $(stat -c '%U' "$PKG_CACHE/.cache/pip") != $BUILD_USER ]]; then
+		echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
+		chown -R $BUILD_USER $PKG_CACHE && echo -n '.'
+		echo "done"
 	fi
 
 	if [ ! -d $DISTFILES ];
