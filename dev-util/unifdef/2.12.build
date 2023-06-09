@@ -1,0 +1,23 @@
+####
+## unifdef build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://dotat.at/prog/unifdef/unifdef-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+TEST=test
+
+src_configure() { :; }
+
+src_install() {
+	make prefix=$D/usr install
+}

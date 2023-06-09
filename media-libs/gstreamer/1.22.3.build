@@ -1,0 +1,23 @@
+####
+## gstreamer build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="dev-libs/glib"
+BDEPS=""
+RDEPS="media-libs/gst-plugins-base"
+setBuildENV meson ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="x86 x86_64"
+SLOT=0
+#B=
+
+src_configure() {
+	configure_default -Dgst_debug=false   \
+					  -Dpackage-origin=https://github.com/smileaf419/spkg \
+					  -Dpackage-name="GStreamer ${PKG_VER} spkg"
+}

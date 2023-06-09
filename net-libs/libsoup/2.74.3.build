@@ -1,0 +1,22 @@
+####
+## libsoup build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://download.gnome.org/sources/libsoup/2.74/libsoup-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+ARCHS="x86 x86_64"
+SLOT=2
+#B=
+
+src_configure() {
+	configure_default -Dvapi=enabled      \
+					  -Dgssapi=disabled   \
+					  -Dsysprof=disabled
+}
