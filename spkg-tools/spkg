@@ -17,6 +17,10 @@
 ## Versions will be concurrent, but this will get updated whenever a large amount of functionality gets added or fixed.
 VERSION="20230518"
 
+## Something to call our release
+## We'll change it yearly to something fun.
+CODENAME="Spider"
+
 ## Set some bash options
 ## +h - Disable hashing of commands, allows newer versions of programs to be located immediately used primarily for bootstrap
 ## -E - Trap ERR codes
@@ -107,6 +111,20 @@ export PKG_CONFIG_PATH=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/l
 export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 
+## Set some colors
+export NORMAL=$(tput sgr0)
+export RED=$(tput setaf 1)
+export GREEN=$(tput setaf 2)
+export YELLOW=$(tput setaf 3)
+export BLUE=$(tput setaf 4)
+export PURPLE=$(tput setaf 5)
+export LTBLUE=$(tput setaf 6)
+export DIM=$(tput dim)
+
+## Convience vars for colorizing output.
+export IMPORTANT="$YELLOW!!$NORMAL"
+export DIALOG_ERROR="$RED!!$NORMAL"
+
 ####
 ## Set some defaults if they don't exist.
 export MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
@@ -121,6 +139,15 @@ export BUILD_PACKAGE=${BUILD_PACKAGE:-no}
 export SILENT_BUILD=${SILENT_BUILD:-no}
 export BUILD_USER=${BUILD_USER:-$(whoami)}
 export TEST_USER=${TEST_USER:-$(whoami)}
+export LOCALES=${LOCALES:-$LANGUAGE}; LOCALES=${LOCALES:-$LANG}
+if [[ -z $LOCALES ]]; then
+	echo " $DIALOG_ERROR You don't appear to have either LANGUAGE or LANG set!"
+	echo " $DIALOG_ERROR You should set one to a locale of your choice!"
+	echo " $IMPORTANT Defaulting to 'en_US.utf8'"
+	export LANG='en_US.utf8'
+	export LANGUAGE='en_US'
+	LOCALE='en_US'
+fi
 
 ####
 ## Paths
@@ -176,22 +203,8 @@ export PKG_LIST=
 ## For security reasons this shouldn't ever be used... But exists
 IGNORE_SHA1=0
 
-## Set some colors
-export NORMAL=$(tput sgr0)
-export RED=$(tput setaf 1)
-export GREEN=$(tput setaf 2)
-export YELLOW=$(tput setaf 3)
-export BLUE=$(tput setaf 4)
-export PURPLE=$(tput setaf 5)
-export LTBLUE=$(tput setaf 6)
-export DIM=$(tput dim)
-
 ## Set our Debug String
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
-
-## Convience vars for colorizing output.
-export IMPORTANT="$YELLOW!!$NORMAL"
-export DIALOG_ERROR="$RED!!$NORMAL"
 
 ####
 ## Include our libraries
