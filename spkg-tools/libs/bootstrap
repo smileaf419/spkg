@@ -172,6 +172,23 @@ else
 	echo " git clone https://github.com/smileaf419/spkg"
 fi
 
+## Used by some Graphical Apps
+cat > $ROOT/etc/os-release << "EOF"
+NAME="Leaf Linux"
+VERSION="$VERSION"
+ID=ll
+PRETTY_NAME="Leaf Linux $VERSION (built by spkg)"
+VERSION_CODENAME="$CODENAME"
+EOF
+
+## Shows we respect the LSB
+cat > $ROOT/etc/lsb-release << "EOF"
+DISTRIB_ID="Leaf Linux"
+DISTRIB_RELEASE="$VERSION"
+DISTRIB_CODENAME="$CODENAME"
+DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
+EOF
+
 echo " * Bootstrapping complete!"
 echo "You will now need to create a $ROOT/etc/spkg.conf"
 echo " A safe default is included within the spkg-tools subdir"
