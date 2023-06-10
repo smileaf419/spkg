@@ -40,4 +40,9 @@ src_configure() {
 					  -Wno-dev -G Ninja
 }
 
+src_compile() {
+	## We may have ran into a race condition?
+	compile_default || NINJAJOBS=1 ninja
+}
+
 src_test() { :; }
