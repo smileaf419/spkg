@@ -52,14 +52,6 @@ ErrorHandler() {
 ## Trap SIGINT so we can properly clean-up and display information.
 trap "echo -ne '\nSIGINT caught, '; cleanup; exit 1" SIGINT
 
-####
-## Ensure our config file exists
-if [ -e /etc/spkg.conf ]; then
-	source /etc/spkg.conf
-else
-	echo " * no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
-fi
-
 ## Clean-up all Temp files.
 cleanup() {
 	local PKG_ONLY=$1
@@ -126,11 +118,19 @@ export IMPORTANT="$YELLOW!!$NORMAL"
 export DIALOG_ERROR="$RED!!$NORMAL"
 
 ####
+## Ensure our config file exists
+if [ -e /etc/spkg.conf ]; then
+	source /etc/spkg.conf
+else
+	echo " $IMPORTANT no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
+fi
+
+####
 ## Set some defaults if they don't exist.
 export MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1))}
 export CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 export CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
-export ARCH=${ARCH:-x86_64}
+export ARCH=${ARCH:-$(uname -m)}
 export USE=${USE:-}
 export PAGE=${PAGE:-letter}
 export ENABLE_TEST=${ENABLE_TESTS:-0}
