@@ -96,9 +96,9 @@ expandSets() {
 				PKG_LIST+=" $p"
 			fi
 		done
-		if [[ $PKG_LIST == *@* ]]; then
+		while [[ $PKG_LIST == *@* ]]; do
 			PKG_LIST=$(expandSets $PKG_LIST)
-		fi
+		done
 		echo $PKG_LIST
 	else
 		echo $REQUEST_LIST
