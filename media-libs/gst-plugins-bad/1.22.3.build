@@ -7,7 +7,7 @@ LICENSE=""
 SRC_URI=("https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="app-arch/bzip2 dev-libs/glib dev-libs/libgudev dev-libs/libxml2 dev-libs/nettle dev-libs/openssl dev-libs/wayland media-libs/fdk-aac media-libs/gst-plugins-base media-libs/gstreamer media-libs/lcms media-libs/libaom media-libs/libass media-libs/libopenmpt media-libs/libsndfile media-libs/libva media-libs/libwebp media-libs/openal media-libs/openjpeg media-libs/opus media-libs/sbc net-libs/neon net-misc/curl x11-libs/cairo x11-libs/gtk+ x11-libs/libdrm x11-libs/libX11 x11-libs/pango"
+DEPS="app-arch/bzip2 dev-libs/glib dev-libs/libgudev dev-libs/libxml2 dev-libs/nettle dev-libs/openssl dev-libs/wayland media-libs/fdk-aac media-libs/gst-plugins-base media-libs/gstreamer media-libs/lcms media-libs/libaom media-libs/libass media-libs/libopenmpt media-libs/libsndfile media-libs/libva media-libs/libwebp media-libs/openal media-libs/openjpeg media-libs/opus media-libs/sbc net-libs/neon net-misc/curl x11-libs/cairo x11-libs/gtk+:3 x11-libs/libdrm x11-libs/libX11 x11-libs/pango"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
