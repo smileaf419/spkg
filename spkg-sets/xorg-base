@@ -12,3 +12,5 @@ x11-libs/xcb-util-renderutil
 x11-libs/xcb-util-wm
 x11-misc/util-macros
 x11-misc/xbitmaps
+x11-base/xorg-server
+x11-drivers/xf86-input-evdev
