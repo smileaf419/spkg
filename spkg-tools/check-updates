@@ -113,6 +113,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		lvm2) FILE=$(echo $FILE|sed 's,LVM2\.,lvm2-,') ;;
 		tcl) FILE=${FILE/tcl/tcl-} ;;
 		timezone-data) FILE=${FILE/tzdata/} ;;
+		firefox) FILE=${FILE%%.source} ;;
 	esac
 
 	# These apply to all packages.
@@ -125,6 +126,10 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	if [[ ${FILE##*-} == $PKG_VER ]]; then
 		continue
 	fi
+
+	## Invalid Versions
+	[[ $PKG_NAME == "gdb"  ]] && version_gt ${FILE##*-} 1000 && continue
+
 	if version_gt ${FILE##*-} $PKG_VER; then
 		echo " * Updating $PKG_CAT/$PKG_NAME : $PKG_VER -> ${FILE##*-}" | tee -a $UPDATE_LIST
 		cp -v "$PKG_BLD" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
