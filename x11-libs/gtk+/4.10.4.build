@@ -32,12 +32,10 @@ src_compile() {
 
 src_install() {
 	install_default
-
-	mv "$D"/usr/bin/gtk{,4}-update-icon-cache
-	ln -sf /usr/bin/gtk4-update-icon-cache "$D"/usr/bin/gtk-update-icon-cache
 }
 
 post_install() {
 	gtk-query-immodules-4.0 --update-cache
 	glib-compile-schemas /usr/share/glib-2.0/schemas
+	gtk4-update-icon-cache
 }

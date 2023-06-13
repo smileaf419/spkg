@@ -17,6 +17,10 @@ SLOT=0
 TEST=test
 
 src_configure() {
+	## Add a missing include statement which will break compilation on 32-bit systems (Source: LFS)
+	sed -e '/#include "GPGMECryptoSignBackend.h"/i#include <config.h>' \
+		-i poppler/GPGMECryptoSignBackend.cc
+
 	configure_default -DTESTDATADIR=$PWD/testfiles \
 					  -DENABLE_UNSTABLE_API_ABI_HEADERS=ON
 }

@@ -8,7 +8,7 @@ SRC_URI=("https://webkitgtk.org/releases/webkitgtk-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 DEPS=""
-BDEPS="dev-lang/ruby dev-util/unifdef net-libs/libsoup:3"
+BDEPS="dev-lang/ruby dev-util/unifdef net-libs/libsoup:2"
 RDEPS=""
 setBuildENV cmake ninja
 ARCHS="x86 x86_64"
@@ -17,7 +17,7 @@ SLOT=0
 
 src_configure() {
 	## Fix a problem when not using BUBBLEWRAP_SANDBOX (Source: LFS)
-	sed -i '39,66 s:^://:' Source/WTF/wtf/glib/Sandbox.cpp
+#	sed -i '39,66 s:^://:' Source/WTF/wtf/glib/Sandbox.cpp
 
 	## To build the GTK4 version which cannot be enabled at the same time as the GTK3
 	## Set USE_GTK4=ON
@@ -32,7 +32,7 @@ src_configure() {
 					  -DENABLE_MINIBROWSER=ON     \
 					  -DENABLE_DOCUMENTATION=OFF  \
 					  -DUSE_WOFF2=OFF             \
-					  -DUSE_GTK4=ON               \
+					  -DUSE_GTK4=OFF              \
 					  -DUSE_WPE_RENDERER=ON       \
 					  -DENABLE_JOURNALD_LOG=OFF   \
 					  -DENABLE_BUBBLEWRAP_SANDBOX=OFF \
