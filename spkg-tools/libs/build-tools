@@ -402,8 +402,14 @@ uninstall() {
 			fi
 		fi
     done
-	[ "${O_VER}" != "${PKG_VER}" ] && rm -r "${PKG_CACHE}/${PKG}/${O_VER}"
-	if [ "$O_VER" == "" ]; then
+	if [ "${O_VER}" != "${PKG_VER}" ]; then
+		if [ ! -z $O_VER ]; then
+			rm -r "${PKG_CACHE}/${PKG}/${O_VER}"
+		else
+			rm -r "${PKG_CACHE}/${PKG}/${PKG_VER}"
+		fi
+	fi
+	if [ -z "$O_VER" ]; then
 		if grep "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 			echo "WARNING: You've removed a package within the system set!"
 			echo "         This may cause undesired consequences!"
