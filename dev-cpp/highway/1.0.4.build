@@ -1,0 +1,17 @@
+####
+## highway build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/google/highway"
+DESCRIPTION="Performance-portable, length-agnostic SIMD with runtime dispatch"
+LICENSE="Apache-2.0"
+SRC_URI=("https://github.com/google/highway/archive/refs/tags/${PKG_VER}.tar.gz => highway-$PKG_VER.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV cmake make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+#B=
