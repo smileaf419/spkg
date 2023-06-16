@@ -7,7 +7,7 @@ LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/libsoup/${PKG_VER%.*}/libsoup-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS=""
+DEPS="dev-db/sqlite dev-libs/glib net-libs/libpsl net-libs/nghttp2 sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
