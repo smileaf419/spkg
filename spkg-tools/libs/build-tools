@@ -136,6 +136,7 @@ buildPackage() {
 		if [ $ENABLE_TESTS == 1 ]; then
 			echo " * src_test ($TEST_USER)"
 			if [[ -e /bin/su || -e /usr/bin/su ]]; then
+				export TEST
 				su -p -c 'src_test' $BUILD_USER || die "Error in src_test"
 			else
 				src_test
@@ -408,6 +409,8 @@ uninstall() {
 		else
 			rm -r "${PKG_CACHE}/${PKG}/${PKG_VER}"
 		fi
+		## If the dir is empty remove it.
+		rmdir "$PKG_CACHE/$PKG" 2> /dev/null
 	fi
 	if [ -z "$O_VER" ]; then
 		if grep "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
