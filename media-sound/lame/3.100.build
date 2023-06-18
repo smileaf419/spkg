@@ -1,24 +1,30 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://lame.sourceforge.io"
+DESCRIPTION="high quality MPEG Audio Layer III (MP3) encoder"
+LICENSE="LGPL"
 SRC_URI="https://downloads.sourceforge.net/lame/lame-${PKG_VER}.tar.gz"
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.100-pkgconfig.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/tree/media-sound/lame/files/lame-3.100-symbols.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.98-gtk-path.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.99.5-msse.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.99.5-tinfo.patch")
 DEPS="sys-libs/ncurses"
 BDEPS=""
 RDEPS="dev-lang/nasm"
 ARCHS="x86 x86_64"
 SLOT=0
+TEST=test
 
 src_configure() {
-	LDFLAGS+="-ltinfow" ./configure --prefix=/usr \
-				--disable-static \
-				--enable-mp3rtp \
-				--enable-nasm
-}
+	mv configure.{in,ac}
+	autoreconf -fiv
 
-src_test() {
-	make $MAKEOPTS test
+	append-ldflags -ltinfow
+	CONF_FLAGS="--prefix=/usr"
+
+	configure_default --enable-mp3rtp \
+					  --enable-nasm
 }
 
 src_install() {
-	make DESTDIR="${D}" pkghtmldir=/usr/share/doc/lame-${PKG_VER} install
+	install_default pkghtmldir=/usr/share/doc/lame-${PKG_VER}
 }
