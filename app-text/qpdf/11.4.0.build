@@ -1,8 +1,8 @@
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://github.com/qpdf/qpdf"
+DESCRIPTION="Command-line tool and library for PDF transformations"
+LICENSE="Apache-2.0"
 SRC_URI=("https://github.com/qpdf/qpdf/releases/download/v${PKG_VER}/qpdf-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
