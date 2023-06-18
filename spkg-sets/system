@@ -79,7 +79,7 @@ dev-python/pip
 app-editors/nano
 dev-util/ninja
 sys-devel/patch
-dev-util/pkg-config
+dev-util/pkgconf
 sys-process/procps-ng
 sys-process/psmisc
 sys-apps/sed

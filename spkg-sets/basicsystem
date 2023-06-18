@@ -23,7 +23,7 @@ sys-apps/acl
 sys-libs/libcap
 sys-apps/shadow
 sys-devel/gcc
-dev-util/pkg-config
+dev-util/pkgconf
 sys-libs/ncurses
 sys-apps/sed
 sys-process/psmisc
