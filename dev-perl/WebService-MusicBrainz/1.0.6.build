@@ -1,10 +1,7 @@
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://metacpan.org/pod/WebService::MusicBrainz"
 DESCRIPTION="API to search the musicbrainz.org database"
 LICENSE="Free-software"
 SRC_URI=("https://cpan.org/authors/id/B/BF/BFAIST/WebService-MusicBrainz-${PKG_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 DEPS=""
 BDEPS=""

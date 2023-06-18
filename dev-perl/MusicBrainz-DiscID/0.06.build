@@ -1,11 +1,7 @@
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://metacpan.org/pod/MusicBrainz::DiscID"
 DESCRIPTION="Perl interface for the MusicBrainz libdiscid library"
 LICENSE="MIT"
 SRC_URI=("https://cpan.org/authors/id/N/NJ/NJH/MusicBrainz-DiscID-${PKG_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS=""
 BDEPS="media-libs/libdiscid"
 RDEPS=""
