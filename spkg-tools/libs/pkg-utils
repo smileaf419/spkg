@@ -35,12 +35,12 @@ unpack() {
 	echo " * Unpacking $FILE to $DIR"
 	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
 		tar -xf "$FILE" -C "$DIR" || die "Failed to extract!"
-	elif [ ${FILE##*.} == "zip" ]; then
+	elif [[ ${FILE##*.} == "zip" ]]; then
 		unzip -o "$FILE" -d "$DIR" || die "Failed to extract!"
 	## TODO: Auto extract the data.tar.xz ?
-	elif [ ${FILE##*.} == "deb" ]; then
+	elif [[ ${FILE##*.} == "deb" ]]; then
 		ar x --output "$DIR" "$FILE"
-	elif [ ${FILE##*.} == "rar" ]; then
+	elif [[ ${FILE##*.} == "rar" ]]; then
 		[ ! -e /usr/bin/unrar ] && die " ! 'app-arch/unrar' not installed! cannot extract archive"
 		unrar x "$FILE" "DIR"
 	# TODO: Add rpm support
