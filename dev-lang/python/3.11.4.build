@@ -4,7 +4,7 @@ LICENSE="PSF"
 SRC_URI=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz")
 [[ $INSTALL_DOCS == 1 ]] && SRC_URI+=("https://www.python.org/ftp/python/doc/${PKG_VER}/python-${PKG_VER}-docs-html.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.python.org/ftp/python/${PKG_VER}/Python-${PKG_VER}.tar.xz.sig")
-B=Python-$PKG_VER
+B=${PKG_NV^}
 IUSE="sqlite"
 DEPS="app-arch/bzip2 app-arch/xz-utils dev-libs/expat dev-libs/libffi dev-libs/openssl net-libs/libnsl net-libs/libtirpc sys-libs/gdbm sys-libs/libxcrypt sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
@@ -29,9 +29,7 @@ src_configure() {
 	use-enable sqlite || echo MODULE__SQLITE3_STATE=disabled >> Makefile
 }
 
-# test test_curses failed -- Traceback (most recent call last):
-# File "/var/tmp/pkg/python/Python-3.10.6/Lib/test/test_curses.py", line 291, in test_output_string func(s)
-#      _curses.error: inswstr() returned ERR
+## test test_httpservers may fail if LC_ALL is not set to a utf8 locale.
 
 src_install() {
 	install_default
