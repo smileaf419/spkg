@@ -1,8 +1,13 @@
+####
+## elfutils build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://sourceware.org/elfutils/"
 DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 LICENSE="GPLv2 GPLv3 LGPLv3"
 SRC_URI=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar.bz2"
 "https://dev.gentoo.org/~sam/distfiles/dev-libs/elfutils/elfutils-0.187-patches.tar.xz")
+## https://www.cygwin.com/bugzilla/show_bug.cgi?id=29176
+PATCHES=("https://patchwork.sourceware.org/project/elfutils/patch/20230304213534.1448550-1-mark@klomp.org/raw/ => elfutils-$PKG_VER-test-fix.patch")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar.bz2.sig")
 B="elfutils-${PKG_VER}"
 DEPS="sys-libs/zlib"
@@ -22,12 +27,9 @@ src_configure() {
 
 	# Not using Static libs
 	sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
-	
+
 	# https://sourceware.org/PR23914
 #	-e 's:-Werror::'                           \
-	# fix the pkg-config directory.
-#	sed -e '/^pkgconfigdir/ s,$(libdir),/usr/lib,' \
-#		-i */Makefile.in
 	./configure --prefix=/usr                \
 				--libdir=/lib                \
 	            --disable-debuginfod         \
@@ -40,7 +42,5 @@ src_test() {
 }
 
 src_install() {
-	make -C libelf DESTDIR="${D}" install
-#	mkdir -p "${D}"/usr/lib/pkgconfig
-#	install -vm644 config/libelf.pc "${D}"/usr/lib/pkgconfig
+	install_default -C libelf
 }
