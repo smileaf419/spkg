@@ -5,7 +5,7 @@ DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://github.com/OpenPrinting/cups-filters/releases/download/${PKG_VER}/cups-filters-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
+PATCHES=("https://github.com/OpenPrinting/cups-filters/commit/8f274035756c04efeb77eb654e9d4c4447287d65.patch => cups-filters-$PKG_VER-CVE-2023-24805.patch")
 DEPS="app-text/poppler app-text/qpdf dev-libs/glib media-libs/fontconfig media-libs/freetype media-libs/lcms media-libs/libexif media-libs/libjpeg-turbo media-libs/libpng media-libs/tiff net-print/cups sys-apps/dbus sys-libs/zlib"
 BDEPS="app-text/ghostscript-gpl"
 RDEPS=""
