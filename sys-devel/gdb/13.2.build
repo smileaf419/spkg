@@ -16,7 +16,16 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	## Fix an issue where gdb keeps linking to libopcodes-2.39.50.so which does not exist.
+	BINUTILS_VER=$(Installed-getPkg sys-devel/binutils | getVersion)
+	sed -i "s,2\.39\.50,$BINUTILS_VER,"  ../bfd/version.m4  \
+										 ../bfd/configure    \
+										 ../opcodes/configure \
+										 ../bfd/doc/bfdver.texi
+
 	configure_default --with-system-readline \
+					  --with-system-zlib     \
+					  --enable-64-bit-bfd    \
 					  --with-python=/usr/bin/python3
 }
 
