@@ -1,5 +1,6 @@
 ####
 ## LLVM build script
+## Copyright 2023 spkg developers, licensed under GPLv2
 ## Referenced linuxfromscratch and Slackware's directions.
 
 HOMEPAGE="https://llvm.org/docs/index.html"
@@ -26,12 +27,14 @@ SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_V
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/polly-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libunwind-${PKG_VER}.src.tar.xz")
 
-## https://github.com/llvm/llvm-project/issues/62396
-PATCHES=("https://github.com/llvm/llvm-project/commit/484e64f7e7b2c0494d7b2dbfdd528bcd707ee652.patch => llvm-16.0.3-gcc-13.patch")
+PATCHES=(
+"https://www.linuxfromscratch.org/patches/blfs/svn/clang-16.0.5-enable_default_ssp-1.patch"
+)
+
 DEPS="app-arch/zstd dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
 BDEPS="dev-lang/python"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 setBuildENV cmake ninja
 BUILD_SEPERATE_DIR=yes
@@ -46,8 +49,6 @@ src_prepare() {
 	PYTHON_VER=${PYTHON_VER%.*}
 
 	[[ $ARCH == *x86_64 ]] && append-cflags -fPIC
-	## Used if we use the clang compiler?
-#	append-cflags -Wno-gnu-line-marker -Wno-gnu-anonymous-struct --Wno-unknown-warning-option
 
 	append-ldflags -lcursesw -lncursesw -ltinfow
 }
@@ -58,7 +59,6 @@ src_unpack() {
 	for (( l=0; l<${length}; l++ )); do
 		f=${SRC_URI[$l]}
 		file=${f##*/}
-		unpack ${DISTFILES}/${file}
 		P=${file%-*}
 		[[ $file == third* ]] && P='third-party'
 		[[ $file == clang-tools* ]] && P='clang-tools-extra'
@@ -77,26 +77,32 @@ src_unpack() {
 			polly)             dir=$B/projects ;;
 			libunwind)         dir=$B/projects ;;
 		esac
-		[[ $file != llvm* ]] && mv "${file%.tar*}" "$dir/$P"
+		unpack ${DISTFILES}/${file} $dir
+		if [[ $file != llvm* && -e $dir/${file%.tar*} ]]; then
+			mv "$dir/${file%.tar*}" "$dir/$P"
+		fi
 	done
 	ln -sf */runtimes .
 }
 
 src_patch() {
-	cd projects
-	patch_default
-	cd -
+	[[ $P == '' ]] && return 0
+	PATCHES=($P)
+	spatch ${PATCHES[0]} -Np2 -d tools/clang
+	PATCHES=${PATCHES[@]:1}
+	patch_default $PATCHES
+	cd - > /dev/null
 }
 
 src_configure() {
 	## Fix python scripts to use python3
 	grep -rl '#!.*python' .. | xargs sed -i '1s/python$/python3/'
 
-	## Fix a broken testcase caused by enabling SSP by default
+	## Fix a broken testcase caused by enabling SSP by default (LFS patch)
 	sed 's/clang_dfsan/& -fno-stack-protector/' \
 		-i ../projects/compiler-rt/test/dfsan/origin_unaligned_memtrans.c
 
-	mkdir include
+	mkdir -p include
 	## Copy this LLVM libunwind header or it won't be found:
 	cp -a ../projects/libunwind/include/mach-o include
 	## Nuke LLVM libunwind as it conflicts with the one already on the system:
