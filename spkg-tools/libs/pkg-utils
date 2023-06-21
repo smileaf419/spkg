@@ -63,6 +63,7 @@ export -f unpack
 ## Applies a patch, optionally with a set of arguments.
 spatch() {
 	local patch=$1
+	[[ $patch == http* ]] && patch=$DISTFILES/${patch##*/}
 	shift 1
 	local patch_options=${@:--Np1}
 	echo -n " * Applying Patch: $patch ($patch_options)"
