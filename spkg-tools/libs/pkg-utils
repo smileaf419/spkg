@@ -21,7 +21,12 @@ export -f die
 ####
 ## Output a dialog and append it to a log file.
 ## This logfile will then be outputted again at the very end.
-inform() { echo "$*" | tee -a $INFORMLOG; }
+inform() {
+	echo "$*" | tee -a $INFORMLOG;
+	if [[ $(whoami) != $BUILD_USER ]]; then
+		chown $BUILD_USER $INFORMLOG
+	fi
+}
 export -f inform
 
 ####
@@ -31,6 +36,9 @@ export -f inform
 unpack() {
 	local FILE=$1
 	local DIR=${2:-.}
+
+	[[ $DIR != '/' ]] && DIR=${DIR%/}
+	[ ! -e $DIR ] && mkdir -p $DIR
 
 	echo " * Unpacking $FILE to $DIR"
 	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
@@ -75,7 +83,7 @@ export -f spatch
 ## Applies a set of patches, within the array, a directory or an archive (tar only).
 ## src_patch automatically calls this method using the PATCHES var.
 spatches() {
-	local PATCHES=($@)
+	local PATCHES=(${@:-${PATCHES[@]}})
 
 	for p in ${PATCHES[@]}; do
 		[[ $p == http* ]] && p=$DISTFILES/${p##*/}
