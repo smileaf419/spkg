@@ -9,6 +9,8 @@ PKG_WORLD="$ROOT/$PKG_WORLD"
 LOGDIR="$ROOT/$LOGDIR"
 ## Set a stable arch
 ARCH=$(uname -m)
+SUPPORTED_ARCHS="x86 x86_64"
+checkinlist $SUPPORTED_ARCHS $ARCH || die "$ARCH is not currently supported! Supported Archs: $SUPPORTED_ARCHS"
 
 export HOST_TGT=$(uname -m)-leaf-linux-gnu
 export PATH="$ROOT/tools/bin:$PATH"
