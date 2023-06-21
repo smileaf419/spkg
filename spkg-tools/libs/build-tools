@@ -42,6 +42,9 @@ setBuildENV() {
 		pip)
 			BDEPS+=" dev-lang/python dev-python/pip"
 			RESTRICT="nobin nostrip" ;;
+		cmake)
+			[[ $configTool != "cmake" ]] && BDEPS+=" dev-util/cmake"
+			BUILD_SEPERATE_DIR=yes ;;
 	esac
 }
 export -f setBuildENV
@@ -92,6 +95,7 @@ buildPackage() {
 		cd "${BUILD_PATH}/${B}"
 	fi
 	if [[ ! -z $PATCHES ]]; then
+		echo " * src_patch"
 		export P="${PATCHES[@]}"
 		if [[ -e /bin/su || -e /usr/bin/su ]]; then
 			su -p -c 'src_patch' $BUILD_USER || die "Error While Patching"
@@ -101,6 +105,7 @@ buildPackage() {
 		unset P
 	fi
 
+	echo " * src_prepare"
 	src_prepare
 
 	## Used in install-init.d

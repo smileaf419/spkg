@@ -88,7 +88,7 @@ configure_default() {
 		meson setup ${CONF_FLAGS} "$@" $d || die " $ERROR_DIALOG Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
-		cmake ${CONF_FLAGS} "$@" $d || die " $ERROR_DIALOG Configure Failed!"
+		cmake ${CONF_FLAGS} "$@" -B $d/build -S $d || die " $ERROR_DIALOG Configure Failed!"
 	fi
 }
 export -f configure_default
@@ -123,6 +123,12 @@ compile_default() {
 	## Build options maybe overridden via _PIP_COMPILE_OPTS
 	elif [[ $buildTool == "pip" ]]; then
 		python_compile
+	elif [[ $buildTool == "cmake" ]]; then
+		local d=.
+		if [[ $BUILD_SEPERATE_DIR != no ]]; then
+			[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
+		fi
+		cmake --build $d/build
 	fi
 	return 0
 }
@@ -174,6 +180,12 @@ install_default() {
 		DESTDIR="${D}/$ROOT" ninja install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
 		python_install
+	elif [[ $buildTool == "cmake" ]]; then
+		local d=.
+		if [[ $BUILD_SEPERATE_DIR != no ]]; then
+			[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
+		fi
+		DESTDIR="$D/$ROOT" cmake --install $d/build
 	fi
 }
 export -f install_default
@@ -215,7 +227,7 @@ export -f unpack_default
 
 ## Function called by src_patch
 patch_default() {
-	spatches "$1" || die " $ERROR_DIALOG Patching failed"
+	spatches "$@" || die " $ERROR_DIALOG Patching failed"
 }
 export -f patch_default
 
@@ -240,6 +252,7 @@ export -f src_unpack
 
 ## call spatches on PATCHES
 src_patch() {
+	P=${@:-$P}
 	patch_default "$P"
 }
 export -f src_patch
