@@ -1,6 +1,6 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://libuv.org https://github.com/libuv/libuv"
+DESCRIPTION="Cross-platform asynchronous I/O"
+LICENSE="MIT CC"
 SRC_URI="https://dist.libuv.org/dist/v${PKG_VER}/libuv-v${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
@@ -15,3 +15,6 @@ src_configure() {
 
 	configure_default
 }
+
+## 2 tests fail if ran from a non-valid user
+## Qualifications currently are unknown.

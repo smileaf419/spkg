@@ -1,0 +1,32 @@
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-${PKG_VER}.tar.bz2")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-${PKG_VER}.tar.bz2.sig")
+DEPS="dev-libs/libgpg-error"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_compile() {
+	compile_default
+
+	make -C doc html
+	makeinfo --html --no-split -o doc/assuan_nochunks.html doc/assuan.texi
+	makeinfo --plaintext       -o doc/assuan.txt           doc/assuan.texi
+}
+
+src_test() { :; }
+
+src_install() { 
+	install_default
+
+	install -v -dm755 "${D}"/usr/share/doc/libassuan-${PKG_VER}/html
+	install -v -m644 doc/assuan.html/* \ 
+                    "${D}"/usr/share/doc/libassuan-${PKG_VER}/html
+	install -v -m644 doc/assuan_nochunks.html \ 
+                    "${D}"/usr/share/doc/libassuan-${PKG_VER}
+	install -v -m644 doc/assuan.{txt,texi} \
+                    "${D}"/usr/share/doc/libassuan-${PKG_VER}
+}

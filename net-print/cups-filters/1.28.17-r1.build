@@ -1,8 +1,9 @@
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+####
+## cups-filters build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/OpenPrinting/cups-filters"
+DESCRIPTION="filters, backends, driverless utility, ... - Everything which CUPS 2.x needs to be used on non-Mac systems"
+LICENSE="Apache-2.0"
 SRC_URI=("https://github.com/OpenPrinting/cups-filters/releases/download/${PKG_VER}/cups-filters-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("https://github.com/OpenPrinting/cups-filters/commit/8f274035756c04efeb77eb654e9d4c4447287d65.patch => cups-filters-$PKG_VER-CVE-2023-24805.patch")
