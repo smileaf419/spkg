@@ -473,6 +473,11 @@ if [[ $MODE != 'search' && $MODE != 'list' ]]; then
 	touch $INFORMLOG
 	chmod 1777 $INFORMLOG
 
+	if ! test -w /var/tmp || ! test -w /tmp; then
+		echo -n " $IMPORTANT Fixing permissions of tmp dirs .. "
+		chmod 1777 /{,var/}tmp && echo "done" || die "failed!"
+	fi
+
 	## Populate our list with fully qualified entries so long as we're not searching.
 	## We wouldn't want to destroy our search terms.
 	populate_list
