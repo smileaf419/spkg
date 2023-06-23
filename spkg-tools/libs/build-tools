@@ -49,13 +49,27 @@ setBuildENV() {
 }
 export -f setBuildENV
 
+####
+## buildPackage does the bulk amount of the work for any package.
+## calling functions which packages override, while setting up variables they can access.
+## The call order is:
+## src_fetch
+## src_verify (disabled)
+## src_unpack
+## src_patch
+## src_prepare
+## src_configure (ran as BUILD_USER)
+## src_compile (ran as BUILD_USER
+## src_test (ran as TEST_USER)
+## src_install
+## Alternatively if we are in bootstrap mode, it will instead call bootstrap_default
 buildPackage() {
-	# Export this so packages can override the src_unpack.
+	## Export this so packages can override the src_unpack.
 	export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
 
-	# Download all files.
-	# If it fails, create it and try again.
-	# Package may have overrode it.
+	## Download all files.
+	## If it fails, create it and try again.
+	## Package may have overrode it.
 	if ! cd "${BUILD_PATH}" > /dev/null 2>&1; then
 		install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}" || die "Failed to create Build Dir."
 	else
@@ -85,8 +99,8 @@ buildPackage() {
 		fi
 		unset SRC_FILE
 
-		# In most cases archive directories are the name of the archive itself.
-		# This could be a better default for B.
+		## In most cases archive directories are the name of the archive itself.
+		## This could be a better default for B.
 		if [ ! -d "${BUILD_PATH}/${B}" ]; then
 			echo "Build Directory ($BUILD_PATH/$B) not found! Directory listing of BUILD_PATH:"
 			ls "${BUILD_PATH}"
@@ -116,9 +130,9 @@ buildPackage() {
 		cd build
 	fi
 
-	# When we pass commands to our BUILD_USER these does not get updated
-	# Set it here to avoid permission issues when packages call for
-	# $HOME/.cache for example
+	## When we pass commands to our BUILD_USER these does not get updated
+	## Set it here to avoid permission issues when packages call for
+	## $HOME/.cache for example
 	local saved_USER=$USER
 	local saved_LOGNAME=$LOGNAME
 	local saved_HOME=$HOME
@@ -173,6 +187,15 @@ buildPackage() {
 	fi
 }
 
+####
+## installPackage Either installs via an archive, or builds the source.
+## Afterwrads creates an archive,
+## Cleans the install root of: libtool archives, documentation, unused language files
+## Strips debug symbols
+## installs into our ROOT
+## removes old files if the package was installed
+## and calls post_install
+## finally cleans up
 installPackage() {
 	checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 	(
@@ -186,8 +209,8 @@ installPackage() {
 			if [ -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]; then
 				tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz"
 			else
-				# If the archive isn't available, it could be due to an upgrade or just got cleaned up at some point.
-				# Just allow it to be rebuilt.
+				## If the archive isn't available, it could be due to an upgrade or just got cleaned up at some point.
+				## Just allow it to be rebuilt.
 				buildPackage
 				cd "${D}"
 			fi
@@ -200,7 +223,7 @@ installPackage() {
 			return
 		fi
 
-		# Archive it up before we do any post modifications.
+		## Archive it up before we do any post modifications.
 		archivePackage
 
 		echo " * Removing Libtool Archives (.la)"
@@ -214,7 +237,7 @@ installPackage() {
 
 		if [[ -e "${D}/usr/share/locale" ]]; then
 			echo " * Cleaning locales"
-			# Create an Exclude list
+			## Create an Exclude list
 			export LIST=$(ls -1 "${D}/usr/share/locale")
 			for l in $LANG ${LANG%.*} ${LANG%_*}; do
 				LIST=$(grep -v $l <<< $LIST)
@@ -226,11 +249,11 @@ installPackage() {
 
 		stripPackage
 
-		# Gather Contents
-		# This is sort of an awkward hack...
-		# If we're bootstrapping we install binutils twice and gcc 3 times!
-		# This causes recording issues. it should be safe to remove them if we're on pass2
-		# Otherwise we're going to add to our CONTENTS
+		## Gather Contents
+		## This is sort of an awkward hack...
+		## If we're bootstrapping we install binutils twice and gcc 3 times!
+		## This causes recording issues. it should be safe to remove them if we're on pass2
+		## Otherwise we're going to add to our CONTENTS
 		if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
 			find . | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
 		else
@@ -238,36 +261,36 @@ installPackage() {
 		fi
 
 		echo " * Merging into ${ROOT}"
-		# Install New Files
+		## Install New Files
 		local IFS=$'\n'   # Internal Field Sperator
 		local CONFIG_PROTECTED=false
 		for file in $(cat "${BUILD_PATH}/CONTENTS"); do
-			# Check for links before anything else
-			# to avoid installing a directory when a link
-			# was expected.
+			## Check for links before anything else
+			## to avoid installing a directory when a link
+			## was expected.
 			if [ -L "${D}/${file}" ]; then
 				ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null &&
 					echo " >> $file -> $(readlink ${file})" ||
 					echo "!>s $file -> $(readlink $file)"
-			# Skip installing already installed dirs.
-			# it overrides the user's permission customizations.
-			# 2 schools of thought:
-			#   1) Under most circumstances, dirs are not managed.
-			#   2) Under most circumstances, most dirs are not modified by users.
-			# Packages *can* modify dirs they manage and need
-			# a certain way in post_install
+			## Skip installing already installed dirs.
+			## it overrides the user's permission customizations.
+			## 2 schools of thought:
+			##   1) Under most circumstances, dirs are not managed.
+			##   2) Under most circumstances, most dirs are not modified by users.
+			## Packages *can* modify dirs they manage and need
+			## a certain way in post_install
 			elif [[ -d "${D}/${file}" ]]; then
 				if [[ ! -e "${file}" ]]; then
 					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
 				fi
 			else
-				# Check if a file is to be installed in /etc
-				#  If it is, check if the file already exists and
-				#  instead copy it to a backup file.
+				## Check if a file is to be installed in /etc
+				##  If it is, check if the file already exists and
+				##  instead copy it to a backup file.
 				if [[ $CFG_PROTECT == true && $file == */etc/* && -e "${file}" ]]; then
-					# Check if the file is different
-					# If the file hasn't change, we can safely ignore it.
-					# If the file has changed however, protect it and report it at the end.
+					## Check if the file is different
+					## If the file hasn't change, we can safely ignore it.
+					## If the file has changed however, protect it and report it at the end.
 					if ! diff "$D/$file" "$file" > /dev/null 2>&1; then
 						pfile="${file}.cfg$(date +%s)"
 						cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
@@ -275,13 +298,13 @@ installPackage() {
 					else
 						echo "a>> $file"
 					fi
-				# If the file is a library we must use install and not cp as the library maybe in use.
+				## If the file is a library we must use install and not cp as the library maybe in use.
 				elif [[ $file == */lib* ]]; then
 					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!l> $file"
 				else
-					# if cp fails the file might be busy, but to cp is faster than sinstall due to
-					# having to read permissions and then install
-					# fallback on sinstall if it fails.
+					## if cp fails the file might be busy, but to cp is faster than sinstall due to
+					## having to read permissions and then install
+					## fallback on sinstall if it fails.
 					if cp -p "${D}/${file}" "${file}" 2> /dev/null; then
 						echo " >> $file"
 					else
@@ -295,12 +318,12 @@ installPackage() {
 			fi
 		done
 
-		# Uninstall Old files
+		## Uninstall Old files
 		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
 
-		# Create the cache directory
+		## Create the cache directory
 		mkdir -p "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
-		# Copy over our build file so we can reference it in uninstalls
+		## Copy over our build file so we can reference it in uninstalls
 		cp "${PKG_DB_DIR}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build"
 		getBDeps "${BUILD_PATH}/CONTENTS"
 		mv "${BUILD_PATH}/CONTENTS" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/CONTENTS"
@@ -322,13 +345,13 @@ installPackage() {
 			depmod -a $KERNEL_VER && echo "Ok" || echo "Failed"
 		fi
 
-		# Check if its a system package
-		# Currently we don't use slots within the system set.
-		# So the most recent slot should always be used.
+		## Check if its a system package
+		## Currently we don't use slots within the system set.
+		## So the most recent slot should always be used.
 		if ! grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
-			# If it didn't find it as a system package, check if its already in the world set.
+			## If it didn't find it as a system package, check if its already in the world set.
 
-			# Only add to world requested packages.
+			## Only add to world requested packages.
 			grep "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
 			if [[ $? != 0 && $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT/ ]]; then
 				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
@@ -352,8 +375,10 @@ installPackage() {
 	) || die " ! Error installing $PKG_CAT/$PKG_NVR"
 }
 
-# Arguments: Package (category/name) and version to remove.
-#			 if 3rd argument is supplied diff versions and remove the old files.
+####
+## Uninstalls a given package
+## Arguments: Package (category/name) and version to remove.
+##			 if 3rd argument is supplied diff versions and remove the old files.
 uninstall() {
 	local PKG=$1
 	local PKG_VER=$2
@@ -362,15 +387,15 @@ uninstall() {
 	[[ "$O_VER" == "0" ]] && return
 
 	## Compare Slots
-	# If slots differ we got the wrong version or the only other installed version is a different slot
-	# Either way, we need to ignore it.
+	## If slots differ we got the wrong version or the only other installed version is a different slot
+	## Either way, we need to ignore it.
 	[[ $(Installed-getPkgList $PKG | filterSlot $PKG_SLOT) != *build ]] && return
 
 	if [[ "$O_VER" != "" ]]; then
-		# Grep to add the filename before the files as a cheap trick
-		# Sort it by 2nd field, add a space to induce a 2nd field for uniq
-		# grep again for the installed version and remove the file path
-		# leaving only the installed files that do not exist in the to-be installed version.
+		## Grep to add the filename before the files as a cheap trick
+		## Sort it by 2nd field, add a space to induce a 2nd field for uniq
+		## grep again for the installed version and remove the file path
+		## leaving only the installed files that do not exist in the to-be installed version.
 		grep / "${PKG_CACHE}/${PKG}/${O_VER}/CONTENTS" "${BUILD_PATH}/CONTENTS" |sort -t: -k2 | sed 's,:,: ,' | uniq -f1 -u | grep $PKG_CACHE | sed 's,.*: ,,' > /tmp/flist-$PKG_NAME
 		FLIST=$(tac /tmp/flist-$PKG_NAME)
 		rm /tmp/flist-$PKG_NAME
@@ -387,9 +412,9 @@ uninstall() {
 				echo "Attempted to remove ${file} While bootstrapping"
 			fi
 		else
-			# Check to see if its a versioned .so file
-			# Links can be made around this and the real file might be
-			# removed leaving dead links.
+			## Check to see if its a versioned .so file
+			## Links can be made around this and the real file might be
+			## removed leaving dead links.
 			local fd=
 			[[ $file == *\.so* ]] && fd=$(checkFileDep $file)
 
@@ -400,9 +425,9 @@ uninstall() {
 					echo "Attempted to remove ${file} While bootstrapping"
 				fi
 			else
-				# This could be a link, we should check if it is, and protect
-				# the main file. otherwise it'll cause errors until the
-				# dependency is rebuilt.
+				## This could be a link, we should check if it is, and protect
+				## the main file. otherwise it'll cause errors until the
+				## dependency is rebuilt.
 				echo " @! $file"
 				echo $file >> $PRESERVED_LOG
 			fi
@@ -429,7 +454,7 @@ uninstall() {
 }
 
 ## Create an archive package of our build, could be useful if we decide to distribute binary copies
-## Enabled with BUILD_PACKAGE = yes
+## Enabled with BUILD_PACKAGE=yes
 archivePackage() {
 	# Package it up
 	if [[ $BUILD_PACKAGE == "yes" && $ARCHIVE_INSTALL != 1 && $MODE != "bootstrap" ]]; then
