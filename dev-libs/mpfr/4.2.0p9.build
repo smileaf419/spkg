@@ -1,17 +1,19 @@
 HOMEPAGE="https://www.mpfr.org/"
 DESCRIPTION="Library for multiple-precision floating-point computations with exact rounding"
 LICENSE="LGPLv2.1"
-SRC_URI=("https://www.mpfr.org/mpfr-${PKG_VER}/mpfr-${PKG_VER}.tar.xz")
-PATCH_LEVEL=9
+PV=${PKG_VER%p*}
+SRC_URI=("https://www.mpfr.org/mpfr-$PV/mpfr-$PV.tar.xz")
+PATCH_LEVEL=${PKG_VER#*p}
 for p in $(seq 1 $PATCH_LEVEL); do
 	[[ $p -lt 10 ]] && p="0$p"
-	PATCHES+=("https://www.mpfr.org/mpfr-4.2.0/patch$p => mpfr-$PKG_VER-${p#0}.patch")
+	PATCHES+=("https://www.mpfr.org/mpfr-4.2.0/patch$p => mpfr-$PV-${p#0}.patch")
 done
 DEPS="dev-libs/gmp"
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+B=$PKG_NAME-$PV
 
 src_configure() {
 	configure_default \
