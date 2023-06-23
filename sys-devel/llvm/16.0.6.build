@@ -168,7 +168,7 @@ src_install() {
 	fi
 
 	## Remove symlink to libgomp, which is already provided by gcc:
-	rm -f $D/usr/lib$LIBDIRSUFFIX/libgomp.so
+	rm -f $D/usr/lib/libgomp.so
 
 	## Install Python bindings:
 	mkdir -p "$D/usr/lib/python${PYTHON_VER}/site-packages"

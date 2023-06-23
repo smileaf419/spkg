@@ -13,7 +13,7 @@ a9af2a45f6a17cf9590f6d6d9e266c3095d21b12  libcxxabi-16.0.5.src.tar.xz
 ab728c9c3ddfcdff033a2ef8b9f84723dc403f18  polly-16.0.5.src.tar.xz
 4ffcc154f67d8c31d52fe51ecfb6495fa7b16257  libunwind-16.0.5.src.tar.xz
 1b0a1be68d6bae77fb1ee60f554fb8eaba1b63d0  clang-16.0.5-enable_default_ssp-1.patch
-3ee041ffc030bab96a774f4741eaa9655e367f06  16.0.6.build
+a3f250c7bc34ae06dbc3e3456dc33fad54f7a123  16.0.6.build
 072d2fb4b10f95d06189de00eb7f7e9b35c54e9a  llvm-16.0.6.src.tar.xz
 0de534cfef38697e115c3ae80634765f05e78e5b  cmake-16.0.6.src.tar.xz
 5b1a58de6ed9d154a38edb6386a5749576e0b96a  third-party-16.0.6.src.tar.xz
