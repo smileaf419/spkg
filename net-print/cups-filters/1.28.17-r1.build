@@ -20,16 +20,16 @@ SLOT=0
 
 src_configure() {
 	## Required to fix an issue introduced with qpdf 11.3.0
-	append-cppflags "-std=c++17"
-	sed -e 's,-std=gnu11,,' \
-		-e 's,-std=c++0x,,' \
-		-i configure Makefile*
+	## https://github.com/OpenPrinting/cups-filters/issues/512
+	sed "531d" -i Makefile.am
+	sed -e "/AX_CXX_COMPILE_STDCXX/ s,11,17," -i configure.ac
+	autoreconf -fiv
 
-	configure_default   --sysconfdir=/etc    \
-						--localstatedir=/var \
-						--without-rcdir      \
-						--disable-avahi      \
-						--disable-mutool
+	configure_default --sysconfdir=/etc \
+					  --without-rcdir   \
+					  --disable-avahi   \
+					  --disable-mutool  \
+					  --localstatedir=/var
 }
 
 src_compile() {
