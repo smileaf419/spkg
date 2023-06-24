@@ -51,18 +51,15 @@ export -f setBuildENV
 
 ####
 ## buildPackage does the bulk amount of the work for any package.
-## calling functions which packages override, while setting up variables they can access.
-## The call order is:
-## src_fetch
-## src_verify (disabled)
+## This functions is meant to be ran as BUILD_USER
+## The call order of user-defined functions is:
 ## src_unpack
 ## src_patch
 ## src_prepare
 ## If we are in bootstrap mode, this will call bootstrap_default instead of the following:
-##  src_configure (ran as BUILD_USER)
-##  src_compile (ran as BUILD_USER
-##  src_test (ran as BUILD_USER)
-##  src_install
+##  src_configure
+##  src_compile
+##  src_test
 buildPackage() {
 	if [[ ! -z $SRC_URI ]]; then
 		src_unpack
@@ -104,7 +101,7 @@ export -f buildPackage
 
 ####
 ## installPackage Either installs via an archive, or builds the source.
-## Afterwrads creates an archive,
+## Afterwords creates an archive
 ## Cleans the install root of: libtool archives, documentation, unused language files
 ## Strips debug symbols
 ## installs into our ROOT
