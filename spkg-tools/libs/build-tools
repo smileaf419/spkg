@@ -64,43 +64,10 @@ export -f setBuildENV
 ##  src_test (ran as BUILD_USER)
 ##  src_install
 buildPackage() {
-	## Export this so packages can override the src_unpack.
-	export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
-
-	## Download all files.
-	## If it fails, create it and try again.
-	## Package may have overrode it.
-	if ! cd "${BUILD_PATH}" > /dev/null 2>&1; then
-		install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}" || die "Failed to create Build Dir."
-	else
-		chown $BUILD_USER "$BUILD_PATH"
-	fi
-
 	if [[ ! -z $SRC_URI ]]; then
-		src_fetch
+		src_unpack
 
-		# src_verify
-
-		[[ $FETCH_ONLY == 1 ]] && return
-
-		## We need to downgrade SRC_URI for scripts to access it properly
-		local IFS=$'\n'
-		local SRC="${SRC_URI[*]}"
-		IFS=
-		export SRC_FILE=${SRC_URI[0]}
-		unset SRC_URI
-		export SRC_URI=$SRC
-		unset SRC
-
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_unpack' $BUILD_USER
-		else
-			src_unpack
-		fi
-		unset SRC_FILE
-
-		## In most cases archive directories are the name of the archive itself.
-		## This could be a better default for B.
+		## Enter our Build Dir
 		if [ ! -d "${BUILD_PATH}/${B}" ]; then
 			echo "Build Directory ($BUILD_PATH/$B) not found! Directory listing of BUILD_PATH:"
 			ls "${BUILD_PATH}"
@@ -110,13 +77,7 @@ buildPackage() {
 	fi
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
-		export P="${PATCHES[@]}"
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_patch' $BUILD_USER || die "Error While Patching"
-		else
-			src_patch || die "Error While Patching"
-		fi
-		unset P
+		src_patch || die "Error While Patching"
 	fi
 
 	echo " * src_prepare"
@@ -125,67 +86,21 @@ buildPackage() {
 	## Used in install-init.d
 	[[ $_PREPARE_ONLY == 1 ]] && return
 
-	if [[ $BUILD_SEPERATE_DIR != no ]]; then
-		install -d -o $BUILD_USER build
-		cd build
-	fi
-
-	## When we pass commands to our BUILD_USER these does not get updated
-	## Set it here to avoid permission issues when packages call for
-	## $HOME/.cache for example
-	local saved_USER=$USER
-	local saved_LOGNAME=$LOGNAME
-	local saved_HOME=$HOME
-	export USER=$BUILD_USER
-	export LOGNAME=$BUILD_USER
-	export HOME=$PKG_CACHE
 	if [[ $MODE != "bootstrap" ]]; then
-		echo " * src_configure ($BUILD_USER)"
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_configure' $BUILD_USER || die "Error in src_configure"
-		else
-			src_configure
-		fi
-		echo " * src_compile ($BUILD_USER)"
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_compile' $BUILD_USER || die "Error in src_compile"
-		else
-			src_compile
-		fi
+		echo " * src_configure"
+		src_configure
+		echo " * src_compile"
+		src_compile
 		if [ $ENABLE_TESTS == 1 ]; then
-			echo " * src_test ($BUILD_USER)"
-			if [[ -e /bin/su || -e /usr/bin/su ]]; then
-				export TEST
-				su -p -c 'src_test' $BUILD_USER || die "Error in src_test"
-			else
-				src_test
-			fi
+			echo " * src_test"
+			src_test
 		fi
-
-		## Restore our environment
-		export USER=$saved_USER
-		export LOGNAME=$saved_LOGNAME
-		export HOME=$saved_HOME
-
-		echo " * src_install"
-		src_install		|| die "Error in src_install"
-		case $MODULE in
-			kernel)
-				echo > ${BUILD_PATH}/KERNEL_MODULE ;;
-			perl)
-				echo > ${BUILD_PATH}/PERL_MODULE ;;
-			python)
-				echo > ${BUILD_PATH}/PYTHON_MODULE ;;
-		esac
 	else
 		echo " * Bootstrapping"
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'bootstrap_default' $BUILD_USER || die "Error bootstrapping"
-		else
-			bootstrap_default
-		fi
+		bootstrap_default
 	fi
 }
+export -f buildPackage
 
 ####
 ## installPackage Either installs via an archive, or builds the source.
@@ -204,19 +119,91 @@ installPackage() {
 
 		install -o $BUILD_USER -d "${D}"
 
-		if [ $ARCHIVE_INSTALL == 1 ]; then
+		## If the archive doesn't exist we can't do an ARCHIVE_INSTALL, build the package instead.
+		if [[ $ARCHIVE_INSTALL == 1 && -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]]; then
 			cd "${D}"
-			if [ -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]; then
-				tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz"
-			else
-				## If the archive isn't available, it could be due to an upgrade or just got cleaned up at some point.
-				## Just allow it to be rebuilt.
-				buildPackage
-				cd "${D}"
-			fi
+			tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz"
+
+		## Build our source, setup the environment so we can pass things off to our BUILD_USER
 		else
-			buildPackage
-			cd "${D}"
+			src_fetch
+
+			# src_verify
+
+			[[ $FETCH_ONLY == 1 ]] && return
+
+			## We need to downgrade SRC_URI for scripts to access it properly
+			## Arrays cannot be exported.
+			local IFS=$'\n'
+			local SRC="${SRC_URI[*]}"
+			IFS=
+			export SRC_FILE=${SRC_URI[0]}
+			unset SRC_URI
+			export SRC_URI=$SRC
+			unset SRC
+
+			## Arrays cannot be exported
+			P="${PATCHES[*]}"
+			unset PATCHES
+			PATCHES=$P
+			unset P
+
+			## Ensure TEST is exported
+			export TEST
+
+			## Export this so packages can override the src_unpack.
+			export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
+
+			## We are not preparing
+			export _PREPARE_ONLY=0
+
+			## When we pass commands to our BUILD_USER these does not get updated
+			## Set it here to avoid permission issues when packages call for
+			## $HOME/.cache for example
+			local saved_USER=$USER
+			local saved_LOGNAME=$LOGNAME
+			local saved_HOME=$HOME
+			export USER=$BUILD_USER
+			export LOGNAME=$BUILD_USER
+			export HOME=$PKG_CACHE
+
+			if [[ $BUILD_SEPERATE_DIR != no ]]; then
+				local d
+				[[ $BUILD_SEPERATE_DIR != yes ]] && d=$BUILD_SEPERATE_DIR || d=build
+				install -d -o $BUILD_USER $d
+				cd $d
+			fi
+
+			## Package may have overrode it.
+			if ! cd "${BUILD_PATH}" > /dev/null 2>&1; then
+				install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}" || die "Failed to create Build Dir."
+			else
+				chown $BUILD_USER "$BUILD_PATH"
+			fi
+
+			if [[ -e /bin/su || -e /usr/bin/su ]]; then
+				su -p -c 'buildPackage' $BUILD_USER
+			else
+				buildPackage
+			fi
+
+			## Restore our environment
+			export USER=$saved_USER
+			export LOGNAME=$saved_LOGNAME
+			export HOME=$saved_HOME
+
+			cd "${BUILD_PATH}/${B}"
+			echo " * src_install"
+			src_install		|| die "Error in src_install"
+			case $MODULE in
+				kernel)
+					echo > ${BUILD_PATH}/KERNEL_MODULE ;;
+				perl)
+					echo > ${BUILD_PATH}/PERL_MODULE ;;
+				python)
+					echo > ${BUILD_PATH}/PYTHON_MODULE ;;
+			esac
+
 		fi
 		if [[ $FETCH_ONLY == 1 ]]; then
 			rm -r "${BUILD_PATH}"
