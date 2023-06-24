@@ -341,7 +341,6 @@ parse_cmdline() {
 						echo    " Optional Arguments"
 						echo    "  --silentBuild, -Q    Hides all build output."
 						echo    "  --user [username]    Runs all build file commands as [username]"
-						echo    "  --testUsr [username] Runs all build file test commands as [username]"
 						echo    "  --oneshot, -1        Omits adding any package requested to the world file."
 						echo    "  --empty, -e          Assumes an empty world file"
 						echo    "  --update, -U         Finds all updates for all installed packages."
