@@ -16,7 +16,7 @@
 ##
 ## Overriding these functions allows you to customize what is ran at each step.
 ## src_configure and src_compile are ran as BUILD_USER
-## src_test is ran as TEST_USER
+## src_test is ran as BUILD_USER
 ## src_install and post_install are ran as root.
 ##
 ## All overridden functions must be self-contained as environments will be reset between each function.
@@ -265,7 +265,7 @@ export -f src_configure
 src_compile() { compile_default; }
 export -f src_compile
 
-## Ran as TEST_USER
+## Ran as BUILD_USER
 src_test() { test_default; }
 export -f src_test
 

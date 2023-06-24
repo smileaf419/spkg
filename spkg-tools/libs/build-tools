@@ -58,11 +58,11 @@ export -f setBuildENV
 ## src_unpack
 ## src_patch
 ## src_prepare
-## src_configure (ran as BUILD_USER)
-## src_compile (ran as BUILD_USER
-## src_test (ran as TEST_USER)
-## src_install
-## Alternatively if we are in bootstrap mode, it will instead call bootstrap_default
+## If we are in bootstrap mode, this will call bootstrap_default instead of the following:
+##  src_configure (ran as BUILD_USER)
+##  src_compile (ran as BUILD_USER
+##  src_test (ran as BUILD_USER)
+##  src_install
 buildPackage() {
 	## Export this so packages can override the src_unpack.
 	export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
@@ -153,7 +153,7 @@ buildPackage() {
 			src_compile
 		fi
 		if [ $ENABLE_TESTS == 1 ]; then
-			echo " * src_test ($TEST_USER)"
+			echo " * src_test ($BUILD_USER)"
 			if [[ -e /bin/su || -e /usr/bin/su ]]; then
 				export TEST
 				su -p -c 'src_test' $BUILD_USER || die "Error in src_test"

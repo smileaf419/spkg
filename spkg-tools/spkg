@@ -138,7 +138,6 @@ export INSTALL_DOCS=${INSTALL_DOCS:-0}
 export BUILD_PACKAGE=${BUILD_PACKAGE:-no}
 export SILENT_BUILD=${SILENT_BUILD:-no}
 export BUILD_USER=${BUILD_USER:-$(whoami)}
-export TEST_USER=${TEST_USER:-$(whoami)}
 export LOCALES=${LOCALES:-$LANGUAGE}; LOCALES=${LOCALES:-$LANG}
 if [[ -z $LOCALES ]]; then
 	echo " $DIALOG_ERROR You don't appear to have either LANGUAGE or LANG set!"
@@ -283,9 +282,6 @@ parse_cmdline() {
 					l|-logdir)
 						let a=++a
 						LOGDIR=$val ;;
-					-testUsr)
-						let a=++a
-						TEST_USER=$val ;;
 					-user)
 						let a=++a
 						BUILD_USER=$val ;;
