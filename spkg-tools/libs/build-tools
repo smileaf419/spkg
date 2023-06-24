@@ -425,11 +425,19 @@ uninstall() {
 					rm "${file}" 2> /dev/null && echo " << $file" || echo " <! $file"
 				fi
 			else
-				## This could be a link, we should check if it is, and protect
-				## the main file. otherwise it'll cause errors until the
-				## dependency is rebuilt.
-				echo " @! $file"
-				echo $file >> $PRESERVED_LOG
+				## If our file already exists within the PRESERVED_LOG don't add it
+				if ! grep $file $PRESERVED_LOG; then
+					echo " @! $file"
+					echo $file >> $PRESERVED_LOG
+				fi
+				## Check if its a link, if so, read the link and add it to our PRESERVED_LOG if its not already added.
+				if [ -L $file ]; then
+					file=$(readlink -f $file)
+					if ! grep $file $PRESERVED_LOG; then
+						echo " @! $file"
+						echo $file >> $PRESERVED_LOG
+					fi
+				fi
 			fi
 		fi
     done
@@ -443,7 +451,7 @@ uninstall() {
 		rmdir "$PKG_CACHE/$PKG" 2> /dev/null
 	fi
 	if [ -z "$O_VER" ]; then
-		if grep "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+		if grep "^$PKG_CAT/$PKG_NAME" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 			echo "WARNING: You've removed a package within the system set!"
 			echo "         This may cause undesired consequences!"
 		else
