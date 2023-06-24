@@ -7,6 +7,11 @@ PKG_CACHE="$ROOT/$PKG_CACHE"
 DISTFILES="$ROOT/$DISTFILES"
 PKG_WORLD="$ROOT/$PKG_WORLD"
 LOGDIR="$ROOT/$LOGDIR"
+
+## Something to call our release
+## We'll change it yearly to something fun.
+CODENAME="Spider"
+
 ## Set a stable arch
 ARCH=$(uname -m)
 SUPPORTED_ARCHS="x86 x86_64"

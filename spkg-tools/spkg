@@ -17,10 +17,6 @@
 ## Versions will be concurrent, but this will get updated whenever a large amount of functionality gets added or fixed.
 VERSION="20230518"
 
-## Something to call our release
-## We'll change it yearly to something fun.
-CODENAME="Spider"
-
 ## Set some bash options
 ## +h - Disable hashing of commands, allows newer versions of programs to be located immediately used primarily for bootstrap
 ## -E - Trap ERR codes
