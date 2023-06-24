@@ -1,5 +1,5 @@
-HOMEPAGE=""
-DESCRIPTION=""
+HOMEPAGE="http://shnutils.freeshell.org/shntool/"
+DESCRIPTION="A multi-purpose WAVE data processing and reporting utility"
 LICENSE="GPL"
 SRC_URI=("http://shnutils.freeshell.org/shntool/dist/src/shntool-${PKG_VER}.tar.gz")
 PATCHES=(

@@ -1,8 +1,7 @@
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/PulseAudio/"
+DESCRIPTION="Sound Server System for POSIX OSes"
+LICENSE="LGPLv2.1"
 SRC_URI=("https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-${PKG_VER}.tar.xz")
-PATCHES=()
 DEPS="dev-libs/glib dev-libs/openssl media-libs/alsa-lib media-libs/libsndfile media-libs/sbc sys-apps/dbus sys-devel/libtool sys-fs/eudev sys-libs/gdbm sys-libs/libcap x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/libxcb x11-libs/libXtst"
 BDEPS="dev-libs/check"
 RDEPS=""
