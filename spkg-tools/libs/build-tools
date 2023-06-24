@@ -396,20 +396,22 @@ uninstall() {
 		## Sort it by 2nd field, add a space to induce a 2nd field for uniq
 		## grep again for the installed version and remove the file path
 		## leaving only the installed files that do not exist in the to-be installed version.
-		grep / "${PKG_CACHE}/${PKG}/${O_VER}/CONTENTS" "${BUILD_PATH}/CONTENTS" |sort -t: -k2 | sed 's,:,: ,' | uniq -f1 -u | grep $PKG_CACHE | sed 's,.*: ,,' > /tmp/flist-$PKG_NAME
+		grep -H / "${PKG_CACHE}/${PKG}/${O_VER}/CONTENTS" "${BUILD_PATH}/CONTENTS" | sort -t: -k2 | sed 's,:,: ,' | uniq -f1 -u | grep $PKG_CACHE | sed 's,.*: ,,' > /tmp/flist-$PKG_NAME
+		## Reverse cat the filelist so files always come before their dirs.
 		FLIST=$(tac /tmp/flist-$PKG_NAME)
-		rm /tmp/flist-$PKG_NAME
+		## Remove it now that we don't need it.
+		rm -f /tmp/flist-$PKG_NAME
 		echo "Uninstalling $PKG-$O_VER"
 	else
+		## Reverse cat the filelist so files always come before their dirs.
 		FLIST=$(tac ${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS)
 		echo "Uninstalling $PKG-$PKG_VER"
 	fi
 	for file in $FLIST; do
+		## While MODE=bootstrap refuse to remove files which could break things
 		if [ -d "${file}" ]; then
 			if [[ $MODE != "bootstrap" ]]; then
 				rmdir "${file}" 2> /dev/null && echo " << $file"
-			else
-				echo "Attempted to remove ${file} While bootstrapping"
 			fi
 		else
 			## Check to see if its a versioned .so file
@@ -421,8 +423,6 @@ uninstall() {
 			if [[ -z $fd ]]; then
 				if [[ $MODE != "bootstrap" ]]; then
 					rm "${file}" 2> /dev/null && echo " << $file" || echo " <! $file"
-				else
-					echo "Attempted to remove ${file} While bootstrapping"
 				fi
 			else
 				## This could be a link, we should check if it is, and protect
@@ -588,6 +588,6 @@ installList() {
 			[[ ! -e "${log}.xz" ]] && xz "$log" || echo " ! Log ${log}.xz exists"
 		fi
 		echo -n " * Running ldconfig .."
-		ldconfig && echo "done!" || echo "failed!"
+		ldconfig && echo "done!" || die "failed!"
 	done
 }
