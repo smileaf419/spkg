@@ -115,6 +115,7 @@ export -f python_compile
 ## Build our package using the set build-tool
 compile_default() {
 	if [[ $buildTool == "make" ]]; then
+		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == "no" ]] && cd build
 		make $MAKEOPTS $@ || die " $ERROR_DIALOG Compile Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
 		ninja || die " $ERROR_DIALOG Compile Failed!"
@@ -175,6 +176,7 @@ export -f python_install
 ## Install our package using the our set build-tool
 install_default() {
 	if [[ $buildTool == "make" ]]; then
+		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == "no" ]] && cd build
 		make DESTDIR="${D}/$ROOT" $@ install || die " $DIALOG ERROR Install Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
 		DESTDIR="${D}/$ROOT" ninja install || die " $DIALOG_ERROR Install Failed!"
