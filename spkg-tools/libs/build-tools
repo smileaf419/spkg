@@ -32,7 +32,8 @@ setBuildENV() {
 			BDEPS+=" dev-util/meson"
 			BUILD_SEPERATE_DIR=yes ;;
 		cmake)
-			BDEPS+=" dev-util/cmake" ;;
+			BDEPS+=" dev-util/cmake"
+			BUILD_SEPERATE_DIR=no ;;
 	esac
 	case $buildTool in
 		make)
