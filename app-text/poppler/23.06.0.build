@@ -36,8 +36,8 @@ src_install() {
 	install -v -m755 -d           ${D}/usr/share/doc/poppler-${PKG_VER}
 	cp -vr ../glib/reference/html ${D}/usr/share/doc/poppler-${PKG_VER}
 
-	tar -xf ../../poppler-data-0.4.11.tar.gz
-	cd poppler-data-0.4.11
+	tar -xf ../../poppler-data-$DATA_VER.tar.gz
+	cd poppler-data-$DATA_VER
 
 	make prefix=${D}/usr install
 }
