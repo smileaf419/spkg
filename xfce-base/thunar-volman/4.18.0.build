@@ -6,8 +6,8 @@ LICENSE="GPLv2+ CC-BY-SA-3.0"
 SRC_URI=("https://archive.xfce.org/src/xfce/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="xfce-base/exo"
-BDEPS="dev-libs/glib x11-libs/gtk+:3 xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf x11-libs/libnotify dev-libs/libgudev"
+DEPS="dev-libs/glib dev-libs/libgudev x11-libs/gtk+:3 x11-libs/libnotify x11-libs/pango xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf"
+BDEPS="dev-libs/glib xfce-base/libxfce4ui xfce-base/libxfce4util xfce-base/xfconf x11-libs/libnotify dev-libs/libgudev"
 RDEPS="xfce-base/thunar"
 setBuildENV auto make
 ARCHS="x86 x86_64"

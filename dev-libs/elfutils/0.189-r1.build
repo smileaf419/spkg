@@ -10,7 +10,7 @@ SRC_URI=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar
 PATCHES=("https://patchwork.sourceware.org/project/elfutils/patch/20230304213534.1448550-1-mark@klomp.org/raw/ => elfutils-$PKG_VER-test-fix.patch")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar.bz2.sig")
 B="elfutils-${PKG_VER}"
-DEPS="sys-libs/zlib"
+DEPS="app-arch/bzip2 app-arch/xz-utils app-arch/zstd sys-libs/zlib"
 BDEPS="sys-devel/flex sys-devel/m4 sys-devel/gettext"
 RDEPS=""
 ARCHS="x86 x86_64"

@@ -6,7 +6,7 @@ LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/libgudev/${PKG_VER}/libgudev-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="dev-libs/glib dev-libs/gobject-introspection"
+DEPS="dev-libs/glib sys-fs/eudev"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja

@@ -4,7 +4,7 @@ LICENSE="LGPLv2.1 MPL"
 SRC_URI=("https://cairographics.org/snapshots/cairo-${PKG_VER}.tar.xz")
 #https://download.gnome.org/sources/cairo/${PKG_VER%.*}/cairo-${PKG_VER}.tar.xz")
 PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/x11-libs/cairo/files/1.17.8-tee-Fix-cairo-wrapper-functions.patch")
-DEPS="dev-libs/glib dev-libs/lzo media-libs/fontconfig media-libs/freetype media-libs/libpng sys-devel/binutils sys-libs/zlib x11-libs/libX11 x11-libs/libxcb x11-libs/libXext x11-libs/libXrender x11-libs/pixman"
+DEPS="dev-libs/glib dev-libs/lzo media-libs/fontconfig media-libs/freetype media-libs/libpng sys-libs/zlib x11-libs/libX11 x11-libs/libxcb x11-libs/libXext x11-libs/libXrender x11-libs/pixman"
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"

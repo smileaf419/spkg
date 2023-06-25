@@ -7,7 +7,7 @@ LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/json-glib/${PKG_VER%.*}/json-glib-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS=""
+DEPS="dev-libs/glib"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja

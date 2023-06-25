@@ -6,7 +6,7 @@ LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/libwnck/${PKG_VER%.*}/libwnck-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="app-accessibility/at-spi2-core  dev-libs/glib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+:3 x11-libs/libX11 x11-libs/libXrender x11-libs/pango x11-libs/startup-notification"
+DEPS="app-accessibility/at-spi2-core dev-libs/glib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+:3 x11-libs/libX11 x11-libs/libXrender x11-libs/libXres x11-libs/pango x11-libs/startup-notification"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja

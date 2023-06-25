@@ -6,7 +6,7 @@ LICENSE="MIT"
 SRC_URI=("https://github.com/mm2/Little-CMS/releases/download/lcms${PKG_VER}/lcms2-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="media-libs/libjpeg-turbo"
+DEPS="media-libs/libjpeg-turbo media-libs/tiff sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

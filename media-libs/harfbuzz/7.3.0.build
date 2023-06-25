@@ -2,7 +2,7 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/HarfBuzz"
 DESCRIPTION="An OpenType text shaping engine"
 LICENSE="Old-MIT ISC icu"
 SRC_URI="https://github.com/harfbuzz/harfbuzz/releases/download/${PKG_VER}/harfbuzz-${PKG_VER}.tar.xz"
-DEPS="dev-libs/glib dev-libs/icu"
+DEPS="dev-libs/glib dev-libs/icu x11-libs/cairo"
 BDEPS=""
 RDEPS=""
 # Circular Dependency These need to be installed before harfbuzz

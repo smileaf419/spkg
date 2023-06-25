@@ -7,7 +7,7 @@ LICENSE="MIT Apache-2.0 BSD BSD-1 BSD-2 BSD-4 UoI-NCSA"
 SRC_URI=("https://static.rust-lang.org/dist/rustc-${PKG_VER}-src.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="dev-libs/openssl sys-devel/llvm sys-libs/zlib"
+DEPS="dev-libs/openssl net-misc/curl sys-devel/llvm sys-libs/zlib"
 BDEPS="net-misc/curl"
 RDEPS=""
 setBuildENV cmake make

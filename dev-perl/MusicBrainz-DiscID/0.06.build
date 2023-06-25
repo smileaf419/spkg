@@ -2,7 +2,7 @@ HOMEPAGE="https://metacpan.org/pod/MusicBrainz::DiscID"
 DESCRIPTION="Perl interface for the MusicBrainz libdiscid library"
 LICENSE="MIT"
 SRC_URI=("https://cpan.org/authors/id/N/NJ/NJH/MusicBrainz-DiscID-${PKG_VER}.tar.gz")
-DEPS=""
+DEPS="media-libs/libdiscid"
 BDEPS="media-libs/libdiscid"
 RDEPS=""
 setBuildENV auto make

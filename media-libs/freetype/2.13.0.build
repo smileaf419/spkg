@@ -3,7 +3,7 @@ DESCRIPTION="High-quality and portable font engine"
 LICENSE="FTL | GPLv2"
 SRC_URI=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://downloads.sourceforge.net/freetype/freetype-${PKG_VER}.tar.xz.sig")
-DEPS="app-arch/bzip2 media-libs/libpng sys-libs/zlib"
+DEPS="app-arch/brotli app-arch/bzip2 media-libs/harfbuzz media-libs/libpng sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 IUSE="harfbuzz"

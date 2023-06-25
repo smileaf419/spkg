@@ -7,7 +7,7 @@ LICENSE=""
 SRC_URI=("https://webkitgtk.org/releases/webkitgtk-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS=""
+DEPS="app-crypt/libsecret app-text/enchant dev-db/sqlite dev-libs/glib dev-libs/icu dev-libs/libgcrypt dev-libs/libgpg-error dev-libs/libtasn1 dev-libs/libxml2 dev-libs/libxslt dev-libs/wayland gui-libs/libwpe gui-libs/wpebackend-fdo media-libs/fontconfig media-libs/freetype media-libs/gst-plugins-bad media-libs/gst-plugins-base media-libs/gstreamer media-libs/harfbuzz media-libs/lcms media-libs/libavif media-libs/libepoxy media-libs/libjpeg-turbo media-libs/libjxl media-libs/libpng media-libs/libwebp media-libs/mesa media-libs/openjpeg net-libs/libsoup:3 sys-libs/zlib x11-libs/cairo x11-libs/gdk-pixbuf x11-libs/gtk+:4 x11-libs/libdrm x11-libs/libX11 x11-libs/libXcomposite x11-libs/libXdamage x11-libs/libXrender x11-libs/libXt x11-libs/pango"
 BDEPS="dev-lang/ruby dev-util/unifdef net-libs/libsoup:3"
 RDEPS=""
 setBuildENV cmake ninja

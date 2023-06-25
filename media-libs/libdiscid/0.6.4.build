@@ -3,6 +3,7 @@ DESCRIPTION="Client library to create MusicBrainz enabled tagging applications"
 LICENSE="LGPLv2.1"
 SRC_URI=("http://ftp.musicbrainz.org/pub/musicbrainz/libdiscid/libdiscid-${PKG_VER}.tar.gz")
 PATCHES=()
+DEPS=""
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"

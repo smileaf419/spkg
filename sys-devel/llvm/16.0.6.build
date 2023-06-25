@@ -31,7 +31,7 @@ PATCHES=(
 #"https://www.linuxfromscratch.org/patches/blfs/svn/clang-16.0.5-enable_default_ssp-1.patch"
 )
 
-DEPS="app-arch/zstd dev-libs/libffi dev-libs/libxml2 sys-libs/zlib"
+DEPS="app-arch/xz-utils app-arch/zstd dev-libs/libffi dev-libs/libxml2 sys-libs/ncurses sys-libs/zlib"
 BDEPS="dev-lang/python"
 RDEPS=""
 ARCHS="~x86 ~x86_64"

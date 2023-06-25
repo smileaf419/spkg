@@ -6,7 +6,7 @@ LICENSE=""
 SRC_URI=("https://downloads.sourceforge.net/cdrtools/cdrtools-${PKG_VER}.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="media-libs/alsa-lib sys-apps/acl sys-libs/libcap"
+DEPS="media-libs/alsa-lib media-sound/pulseaudio sys-apps/acl sys-libs/libcap"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

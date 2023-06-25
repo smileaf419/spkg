@@ -3,7 +3,7 @@ DESCRIPTION="GNU Locale Utilities"
 LICENSE="GPLv3+ LGPLv2.1+"
 SRC_URI=("https://ftp.gnu.org/gnu/gettext/gettext-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gettext/gettext-${PKG_VER}.tar.xz.sig")
-DEPS="dev-libs/libunistring dev-libs/libxml2 sys-apps/acl"
+DEPS="dev-libs/libunistring dev-libs/libxml2 sys-apps/acl sys-apps/attr"
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"

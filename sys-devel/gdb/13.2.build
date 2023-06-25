@@ -7,7 +7,7 @@ LICENSE="GPL-3+ LGPL-2.1+"
 SRC_URI=("https://ftp.gnu.org/gnu/gdb/gdb-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS=""
+DEPS="app-arch/xz-utils app-arch/zstd dev-lang/python dev-libs/expat dev-libs/gmp dev-libs/mpfr sys-devel/binutils sys-libs/ncurses sys-libs/readline sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

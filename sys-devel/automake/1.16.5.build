@@ -3,7 +3,7 @@ DESCRIPTION=""
 LICENSE="GPLv2"
 SRC_URI=("https://ftp.gnu.org/gnu/automake/automake-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/automake/automake-${PKG_VER}.tar.xz.sig")
-DEPS="sys-devel/autoconf"
+DEPS=""
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"

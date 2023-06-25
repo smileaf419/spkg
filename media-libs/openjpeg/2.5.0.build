@@ -6,7 +6,7 @@ LICENSE="BSD-2"
 SRC_URI=("https://github.com/uclouvain/openjpeg/archive/v${PKG_VER}/openjpeg-${PKG_VER}.tar.gz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="app-arch/xz-utils app-arch/zstd media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/libwebp media-libs/tiff sys-libs/zlib"
+DEPS="app-arch/xz-utils app-arch/zstd media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/tiff sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 setBuildENV cmake make

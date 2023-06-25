@@ -11,7 +11,7 @@ PATCHES=(
 #"https://we.need.a.good.domain.com/unzip-6.0-use-system-bzip2.patch"
 )
 # system bzip2 patch is the applied patches from the consolidated_fixes patch from LFS, without the failed files.
-DEPS=""
+DEPS="app-arch/bzip2"
 BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
