@@ -149,10 +149,14 @@ buildBDeps() {
 	PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
 
 	(
+		## Load our saved USE flags.
 		if [ -e $PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/USE_FLAGS ]; then
 			USE=$(cat $PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/USE_FLAGS)
 		fi
 		[ $VERBOSE -ge 1 ] && >&2 echo -n " [ USE: $USE ]: "
+		## Before we source it, we need to get the IUSE
+		## Without this the UDEPS will be incomplete.
+		USE+=" $(grep '[^#]*IUSE=' "$PKG_BLD" | sed -e 's,.*IUSE=",,' -e 's,".*$,,' || true)"
 		source "$PKG_BLD"
 		if pkg-restricts "nobin"; then
 			[ $VERBOSE -ge 1 ] && >&2 echo -n "none"

@@ -125,11 +125,11 @@ fileToList() {
 		fi
 
 		## Output the slot
-		slot=$(grep 'SLOT=' "$l" | sed 's,.*SLOT=,,')
+		slot=$(grep '[^#]*SLOT=' "$l" | sed 's,.*SLOT=,,')
 		echo -n "//$slot//"
 
 		## Output the Archs
-		arch=$(grep 'ARCHS=' "$l" | sed -e 's,.*ARCHS=",,' -e 's,".*$,,' -e 's/ /,/g' || true)
+		arch=$(grep '[^#]*ARCHS=' "$l" | sed -e 's,.*ARCHS=",,' -e 's,".*$,,' -e 's/ /,/g' || true)
 		echo "${arch[*]}/"
 	done
 }

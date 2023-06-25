@@ -19,12 +19,12 @@ hashdir() {
 	echo -n "    Updating: $PKG_CAT/$PKG_NAME: ["
 	local dir=${PKG_BLD%/*}
 	[[ -e $dir/sha1 ]] && rm $dir/sha1
-	PKG=$(DB-getPkg $PKG_CAT/$PKG_NAME)
+	local PKG=$(DB-getPkg $PKG_CAT/$PKG_NAME)
 	for p in $PKG; do
-		unset SRC_URI PATCHES
 		(
-			PKG_BLD=$(getBldFile $p)
-			echo -n " $(getVerRev $p)"
+			unset SRC_URI PATCHES
+			setPkgENV $p > /dev/null
+			echo -n " $PKG_VR"
 
 			sha1sum "$PKG_BLD" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
 			source "$PKG_BLD"
@@ -38,14 +38,14 @@ hashdir() {
 ####
 ## Check packages for any failures, if we find any rehash the entire package.
 updatesha1() {
-	list=$@
+	local list=$@
 
 	## Get a directory listing for the given package
 	## check the sha1sum of each file
 	## if any file fails, rehash the entire directory.
 	local updated=0
 	for l in $list; do
-		PKGs=$(DB-getPkg $l)
+		local PKGs=$(DB-getPkg $l)
 		for p in $PKGs; do
 			## Unset these as some packages don't set them and will cause issues checking hashes.
 			unset SRC_URI PATCHES
