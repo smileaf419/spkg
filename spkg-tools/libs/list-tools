@@ -71,9 +71,12 @@ expandSets() {
 		for p in $REQUEST_LIST; do
 			if [ ${p:0:1} == "@" ]; then
 				if [[ ${p#@} == "world" ]]; then
-					PKG_LIST+=" $(grep -v -E "^#" $PKG_WORLD|tr '\n' ' ')"
+					PKG_LIST+=" $(grep -v -E "^#" $PKG_WORLD)"
 				elif [[ ${p#@} == "all" ]]; then
-					PKG_LIST=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -v spkg | tr '\n' ' ')
+					PKG_LIST=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -Ev "spkg|git")
+					break
+				elif [[ ${p#@} == "installed" ]]; then
+					PKG_LIST=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,,")
 					break
 				elif [[ ${p#@} == "perlModules" ]]; then
 					PKG_LIST+=" $(rebuildModules perl)"
@@ -81,14 +84,13 @@ expandSets() {
 					PKG_LIST+=" $(rebuildModules python)"
 				elif [[ ${p#@} == "kernelModules" ]]; then
 					PKG_LIST+=" $(rebuildModules kernel)"
-				elif [ -e $PKG_DB_DIR/spkg-sets/${p#@} ]; then
-					PKG_LIST+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@}|tr '\n' ' ')"
+				elif [[ ${p#@} != '' && -e $PKG_DB_DIR/spkg-sets/${p#@} ]]; then
+					PKG_LIST+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@})"
 				else
 					>&2 echo " $DIALOG_ERROR Unknown set: ${p#@}"
 					>&2 echo " * Did you mean one of: "
-					>&2 echo -n $(find $PKG_DB_DIR/spkg-sets/* | sed "s,.*/,,")
-					>&2 echo -n " world"
-					>&2 echo " all"
+					>&2 echo -n $(ls $PKG_DB_DIR/spkg-sets/)
+					>&2 echo " world installed all"
 					echo "ERR"
 					exit 1
 				fi

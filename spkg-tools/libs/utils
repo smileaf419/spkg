@@ -142,16 +142,20 @@ buildBDeps() {
 	## Use our BDEPS file installed within PKG_CACHE
 	Installed-getPkg $1 > /dev/null
 
-	[ $VERBOSE -ge 1 ] && echo -n "$PKG_CAT/$PKG_NVR ( "
+	[ $VERBOSE -ge 1 ] && >&2 echo -n "$PKG_CAT/$PKG_NVR"
 
 	## Filter out the Toolchain. These are always depended on,
 	## So we don't need it complicating the logic
 	PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
 
 	(
+		if [ -e $PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/USE_FLAGS ]; then
+			USE=$(cat $PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/USE_FLAGS)
+		fi
+		[ $VERBOSE -ge 1 ] && >&2 echo -n " [ USE: $USE ]: "
 		source "$PKG_BLD"
 		if pkg-restricts "nobin"; then
-			[ $VERBOSE -ge 1 ] && echo " none )"
+			[ $VERBOSE -ge 1 ] && >&2 echo -n "none"
 			return 0
 		fi
 
@@ -169,18 +173,23 @@ buildBDeps() {
 		for dep in $(cat "$PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/BDEPS"); do
 			## readlink to resolve relative paths that occationally show up.
 			## use dirname first in case the file is a symlink
-			dep=$(readlink -f $(dirname $dep))/${dep##*/}
+#			dep=$(readlink -f $(dirname $dep))/${dep##*/}
 
 			## Grab a list of category/PKG names for each file.
 			## It is possible for multiple results to occur.
 			O=$(grep -r --include=CONTENTS "^$dep$" $PKG_CACHE |
 				sed -e 's,:.*,,' \
 				    -e "s,$PKG_CACHE/,," \
-				    -e 's,/CONTENTS,,' \
-					-e 's,\(.*/.*\)/.*,\1,')
+				    -e 's,/CONTENTS,,' || true)
+			PKG_VR=${O##*/}
+			O=${O%/*}
+			[ -e $PKG_CACHE/$O/$PKG_VR/$PKG_VR.build ] &&
+				PKG_SLOT=$(grep 'SLOT=' "$PKG_CACHE/$O/${PKG_VR}/${PKG_VR}.build" | sed 's,.*SLOT=,,')
+
 			## No package found for the file.
 			if [[ -z $O ]]; then
 				>&2 echo " !! $dep Not found in any package"
+				echo $dep >> $PRESERVED_LOG
 				continue
 			fi
 			## Filter out itself.
@@ -190,48 +199,47 @@ buildBDeps() {
 			if [[ ! ${PKG_FILTER[*]} =~ (^|[[:space:]]|=|>|<)"$O"($|[[:space:]]|:|-[0-9]) &&
 				  ! $OUT =~ (^|[[:space:]])"$O"($|[[:space:]]) ]]; then
 				OUT+=" $O"
-				[ $VERBOSE -ge 1 ] && echo -n "$O '$d' "
+				[[ $PKG_SLOT != "0" ]] && OUT+=":$PKG_SLOT"
+				[ $VERBOSE -ge 1 ] && echo -n "$O:$PKG_SLOT '$dep' "
 			fi
 		done
 
-		[ $VERBOSE -ge 1 ] && echo ")"
 		## Filter out duplicates we didn't catch earlier.
 		local D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
 		## Trim the space at the end for cosmetic reasoning.
 		D=${D%% }
 		## Dependencies
 		if ! grep '^DEPS=' $PKG_BLD > /dev/null 2>&1; then
-			echo -n "DEPS Missing - checking for BDEPS: "
+			echo -n "DEPS Missing ($PKG_BLD) - checking for BDEPS: "
 			if grep '^BDEPS=' $PKG_BLD > /dev/null 2>&1; then
 				echo "Updating."
 				sed -i 's,^BDEPS=["'\'']\(.*\)\["'\''],DEPS=\"\1\"\nBDEPS=\"\",' $PKG_BLD
 			else
 				echo "Not found, Skipping.."
-				continue
 			fi
 		fi
 
 		## Theoretically speaking sorting is wasted if this is exclusively used
 		## to add DEPS, but this isn't always the case.
 		## sort things to avoid false-positives
-		local LD=$(grep '^DEPS=' $PKG_BLD | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+		local LD=$(grep '^DEPS=' $PKG_BLD | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ' || true)
 
 		## If any need updating
 		if [[ ${LD%% } != $D ]]; then
-			local AD=
+			local AD=""
 			for l in $D; do
-				if [[ ! $LD =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
+				if [[ ! $LD =~ (^|[[:space:]])"$l"($|[[:space:]]|:) ]]; then
 					AD+=" $l"
 				fi
 			done
-			local RD=
+			local RD=""
 			for l in $LD; do
-				if [[ ! $D =~ (^|[[:space:]])"$l"($|[[:space:]]) ]]; then
+				if [[ ! $D =~ (^|[[:space:]])"$l"($|[[:space:]]|:) ]]; then
 					RD+=" $l"
 				fi
 			done
 
-			echo " * Updating $PKG_CAT/$PKG_NVR:"
+			echo; echo " * Updating $PKG_CAT/$PKG_NVR:"
 			[[ ! -z $AD ]] && echo "  - Added:$AD"
 			[[ ! -z $RD ]] && echo "  - Removed:$RD"
 			if [[ $PRETEND != 1 ]]; then
@@ -363,11 +371,11 @@ preservedRebuild() {
 	if [ -e $PRESERVED_LOG ]; then
 		echo " * Gathering list of packages to rebuild"
 		[ -e $INSTALL_CHART ] && rm $INSTALL_CHART
-		PKG_LIST=
-		REQUESTED_LIST=
+		PKG_LIST=""
+		REQUESTED_LIST=""
 		for f in $(cat $PRESERVED_LOG); do
 			echo -n "$f:"
-			local pkgs=$(checkFileDep $f | sort|uniq|tr '\n' ' ')
+			local pkgs=$(checkFileDep $f | sort|uniq)
 			echo " $pkgs"
 			for d in $pkgs; do
 				#  B=${A%/*}; C=${A##*/}; echo $B-$C
@@ -376,7 +384,7 @@ preservedRebuild() {
 				setPkgENV $cn-$v > /dev/null
 				setupENV $PKG > /dev/null
 				echo $PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT
-				Install-addPkg $PKG
+				PKG_LIST+=" $PKG"
 			done
 		done
 

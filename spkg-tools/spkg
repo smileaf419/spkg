@@ -476,11 +476,12 @@ fi
 
 ## Calculate Binary Dependencies and update the DEPS var within the build file.
 if [[ $MODE == "buildbdeps" ]]; then
+	echo -n "Finding Binary Dependencies: "
+	[ $VERBOSE == 0 ] && echo
 	for l in $REQUESTED_LIST; do
 		p=$(getCategory $l)/$(getName $l)
-		echo "Finding Binary Dependencies: $p"
-		buildBDeps $p
-	done
+		buildBDeps $p && [ $VERBOSE == 0 ] && echo -n "."
+	done && echo
 fi
 
 ## Update the sha1sum of all files for the given package.

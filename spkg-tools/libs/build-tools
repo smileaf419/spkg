@@ -72,6 +72,13 @@ buildPackage() {
 		fi
 		cd "${BUILD_PATH}/${B}"
 	fi
+	if [[ $BUILD_SEPERATE_DIR != "no" ]]; then
+		local d
+		[[ $BUILD_SEPERATE_DIR != yes ]] && d=$BUILD_SEPERATE_DIR || d=build
+		install -d -o $BUILD_USER $d
+		cd $d
+	fi
+
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
 		src_patch || die "Error While Patching"
@@ -164,13 +171,6 @@ installPackage() {
 			export LOGNAME=$BUILD_USER
 			export HOME=$PKG_CACHE
 
-			if [[ $BUILD_SEPERATE_DIR != no ]]; then
-				local d
-				[[ $BUILD_SEPERATE_DIR != yes ]] && d=$BUILD_SEPERATE_DIR || d=build
-				install -d -o $BUILD_USER $d
-				cd $d
-			fi
-
 			## Package may have overrode it.
 			if ! cd "${BUILD_PATH}" > /dev/null 2>&1; then
 				install -v -o $BUILD_USER -d "${BUILD_PATH}" && cd "${BUILD_PATH}" || die "Failed to create Build Dir."
@@ -190,6 +190,13 @@ installPackage() {
 			export HOME=$saved_HOME
 
 			cd "${BUILD_PATH}/${B}"
+			if [[ $BUILD_SEPERATE_DIR != "no" ]]; then
+				local d
+				[[ $BUILD_SEPERATE_DIR != yes ]] && d=$BUILD_SEPERATE_DIR || d=build
+				install -d -o $BUILD_USER $d
+				cd $d
+			fi
+
 			echo " * src_install"
 			src_install		|| die "Error in src_install"
 			case $MODULE in
@@ -201,10 +208,8 @@ installPackage() {
 					echo > ${BUILD_PATH}/PYTHON_MODULE ;;
 			esac
 
-		fi
-		if [[ $FETCH_ONLY == 1 ]]; then
-			rm -r "${BUILD_PATH}"
-			return
+			## Save our USE for use later.
+			echo $USE > ${BUILD_PATH}/USE_FLAGS
 		fi
 
 		## Archive it up before we do any post modifications.
@@ -318,6 +323,7 @@ installPackage() {
 		elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
 			mv ${BUILD_PATH}/PYTHON_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PYTHON_MODULE
 		fi
+		mv ${BUILD_PATH}/USE_FLAGS ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/USE_FLAGS
 
 		echo " * post_install"
 		post_install || die "Error in post_install"

@@ -16,8 +16,6 @@ INSTALL_DOCS=1
 ####
 ## Hash the directory
 hashdir() {
-	local PKG=$@
-	echo
 	echo -n "    Updating: $PKG_CAT/$PKG_NAME: ["
 	local dir=${PKG_BLD%/*}
 	[[ -e $dir/sha1 ]] && rm $dir/sha1
@@ -25,8 +23,8 @@ hashdir() {
 	for p in $PKG; do
 		unset SRC_URI PATCHES
 		(
-			setPkgENV $p > /dev/null
-			echo -n " $PKG_VR"
+			PKG_BLD=$(getBldFile $p)
+			echo -n " $(getVerRev $p)"
 
 			sha1sum "$PKG_BLD" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
 			source "$PKG_BLD"
@@ -54,7 +52,7 @@ updatesha1() {
 			setPkgENV $p > /dev/null
 
 			if ! checkSha1 "${PKG_BLD%/*}" "$PKG_BLD"; then
-				hashdir $PKG
+				hashdir
 				updated=1
 				break
 			elif [[ $VERBOSE -gt 0 ]]; then
@@ -63,7 +61,7 @@ updatesha1() {
 			source "$PKG_BLD"
 			if ! fetch_list "" "$(IFS=$'\n'; echo "${SRC_URI[*]}")" 'src'; then
 				# A failed hash was found.
-				hashdir $PKG
+				hashdir
 				updated=1
 				break
 			elif [[ $VERBOSE -gt 0 ]]; then
@@ -71,7 +69,7 @@ updatesha1() {
 			fi
 			if ! fetch_list "" "$(IFS=$'\n'; echo "${PATCHES[*]}")" 'patch'; then
 				# A failed hash was found.
-				hashdir $PKG
+				hashdir
 				updated=1
 				break
 			elif [[ $VERBOSE -gt 0 ]]; then
