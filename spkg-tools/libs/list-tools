@@ -172,7 +172,7 @@ getdep() {
 				grep -E "^${cp}" $CHART > /dev/null && continue
 
 				## If its already installed, we don't need to install it twice.
-				[[ $(Installed-getPkgList $cn) != 0 ]] && continue
+				[[ $(Installed-getPkgList $cp) != 0 ]] && continue
 
 				if [[ ! -z $PKG_VER_RESTRICT ]]; then
 					cpkg=$(DB-getPkg $cpkg)
@@ -210,10 +210,9 @@ doDeps() {
 	[ -z $DEPS ] && return 0
 	local d
 	for d in ${DEPS[@]}; do
-		local PKG=$(EntryParser $d)
-		local PKG_VER_RESTRICT=$(getVerRestrict $PKG)
+		EntryParser $d > /dev/null
 		if [ ! -z $PKG_VER_RESTRICT ]; then
-			local dpkg=$(DB-getPkg $PKG)
+			local dpkg=$(DB-getPkg $(getPKG))
 #			>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
 #			>&2 echo "PKG: $PKG"
 #			>&2 echo "List: $dpkg"

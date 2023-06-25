@@ -33,10 +33,11 @@ setupENV() {
 	## If we're uninstalling we need to report the installed version
 	export PKG
 	if [[ $MODE == 'uninstall' || $MODE == 'rebuild' ]]; then
-		PKG=$(Installed-getPkg $PKG)
+		Installed-getPkg $PKG > /dev/null
 	else
-		PKG=$(DB-getPkg $PKG | getLatest)
+		DB-getPkg $PKG > /dev/null
 	fi
+	PKG=$(getPKG)
 	## If we didn't find a result, get the full list and grab the latest.
 	## This skips the filter* functions.
 	if [[ $PKG == "" || $PKG == 0 ]]; then
@@ -46,8 +47,8 @@ setupENV() {
 #           >&2 echo " ! $1 not found for any arch/slot"
 			return
 		fi
+		setPkgENV $PKG > /dev/null
 	fi
-	setPkgENV $PKG > /dev/null
 	export BUILD_PATH="${WORKDIR_BASE}/${PKG_NAME}"
 	## Default archive build directory
 	export B="${PKG_NV}"

@@ -384,8 +384,9 @@ populate_list() {
 	echo -n " * Populating list"
 	for p in $list; do
 		echo -n '.'
-		PKG=$(EntryParser $p)
-		setPkgENV $PKG > /dev/null
+		EntryParser $p > /dev/null
+		PKG=$(getPKG)
+		#setPkgENV $PKG > /dev/null
 		## EntryParser does not find packages within our Database
 		## Check our Mode and check for the presence of the package.
 		## If the file is not found or multiple packages are found, perform a search and show the results.
@@ -748,7 +749,10 @@ else
 	if [[ $VERBOSE -ge 1 ]]; then
 		echo "Package Order (Full List):"
 		for p in $(cat $CHART); do
-			setPkgENV $p > /dev/null
+			PKG_CAT=$(getCategory $p)
+			PKG_NAME=$(getName $p)
+			PKG_VR=$(getVerRev $p)
+			PKG_SLOT=$(getSlot $p)
 			echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
 		done
 		echo -e "\nPackage Order:"
@@ -756,7 +760,7 @@ else
 
 	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
 	for p in $(cat $CHART); do
-		setupENV $p > /dev/null
+		setupENV $p
 
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
