@@ -1,0 +1,13 @@
+HOMEPAGE="https://xiph.org/flac/"
+DESCRIPTION="Free lossless audio encoder and decoder"
+LICENSE="BSD FDL-1.2 GPLv2 LGPLv2.1"
+SRC_URI="https://downloads.xiph.org/releases/flac/flac-${PKG_VER}.tar.xz"
+DEPS="media-libs/libogg"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default --disable-thorough-tests
+}
