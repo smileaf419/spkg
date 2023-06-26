@@ -198,6 +198,10 @@ installPackage() {
 				cd $d
 			fi
 
+			## We upgrade our SRC_URI again as we won't need to worry about exporting it anymore
+			IFS=$'\n'
+			SRC_URI=($SRC_URI)
+
 			echo " * src_install"
 			src_install		|| die "Error in src_install"
 			case $MODULE in
