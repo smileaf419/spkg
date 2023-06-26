@@ -15,6 +15,7 @@ setBuildENV cmake make
 ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
+[[ $ENABLE_TESTS == 1 ]] && BDEPS+="dev-vcs/git"
 
 src_configure() {
 	## Add a missing include statement which will break compilation on 32-bit systems (Source: LFS)
@@ -27,7 +28,8 @@ src_configure() {
 
 src_test() {
 	git clone --depth 1 https://gitlab.freedesktop.org/poppler/test.git testfiles
-	LC_ALL=en_US.UTF-8 test_default
+	export LC_ALL=en_US.UTF-8
+	test_default
 }
 
 src_install() {
