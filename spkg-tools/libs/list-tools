@@ -127,11 +127,7 @@ expandSets() {
 getdep() {
 	## Don't taint the environment.
 	(
-		setPkgENV $1 > /dev/null
-		if [[ $PKG_VER == 0 ]]; then
-			PKG=$(DB-getPkg $PKG | getLatest)
-			setPkgENV $PKG
-		fi
+		setPkgENV $( [[ $(getVersion $1) == 0 ]] && DB-getPkg $PKG | getLatest || echo $1 ) > /dev/null
 
 		## Check if its on the stack, if not, add it. if so we'll get to it later.
 		grep -E "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return 0 || eval echo \"$PKG\" >> $STACK
@@ -210,9 +206,10 @@ doDeps() {
 	[ -z $DEPS ] && return 0
 	local d
 	for d in ${DEPS[@]}; do
-		EntryParser $d > /dev/null
+		local PKG=$(EntryParser $d)
+		local PKG_VER_RESTRICT=$(getVerRestrict $PKG)
 		if [ ! -z $PKG_VER_RESTRICT ]; then
-			local dpkg=$(DB-getPkg $(getPKG))
+			local dpkg=$(DB-getPkg $PKG)
 #			>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
 #			>&2 echo "PKG: $PKG"
 #			>&2 echo "List: $dpkg"
