@@ -37,6 +37,9 @@ unpack() {
 	local FILE=$1
 	local DIR=${2:-.}
 
+	## If we're given a http address, strip it off
+	[[ $FILE == http* ]] && FILE=$DISTFILES/${FILE##*/}
+
 	[[ $DIR != '/' ]] && DIR=${DIR%/}
 	[ ! -e $DIR ] && mkdir -p $DIR
 
