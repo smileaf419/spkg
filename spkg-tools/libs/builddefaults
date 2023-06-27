@@ -254,8 +254,7 @@ export -f src_unpack
 
 ## call spatches on PATCHES
 src_patch() {
-	P=${@:-$P}
-	patch_default "$P"
+	patch_default "${@:-${PATCHES[*]}}"
 }
 export -f src_patch
 

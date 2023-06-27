@@ -141,17 +141,18 @@ installPackage() {
 			## Arrays cannot be exported.
 			local IFS=$'\n'
 			local SRC="${SRC_URI[*]}"
-			IFS=
 			export SRC_FILE=${SRC_URI[0]}
 			unset SRC_URI
 			export SRC_URI=$SRC
 			unset SRC
 
 			## Arrays cannot be exported
-			P="${PATCHES[*]}"
+			local IFS=$'\n'
+			local P="${PATCHES[*]}"
 			unset PATCHES
-			PATCHES=$P
+			export PATCHES=$P
 			unset P
+			unset IFS
 
 			## Ensure TEST is exported
 			export TEST
