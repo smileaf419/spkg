@@ -249,6 +249,7 @@ installPackage() {
 		## If we're bootstrapping we install binutils twice and gcc 3 times!
 		## This causes recording issues. it should be safe to remove them if we're on pass2
 		## Otherwise we're going to add to our CONTENTS
+		cd $D
 		if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
 			find . | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
 		else
