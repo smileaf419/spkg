@@ -5,8 +5,7 @@ PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
-## ~No ~ARCHS ~set ~until ~zfs ~can ~update ~their ~API ~or ~PKG_VER_RESTRICT ~is ~fully ~implemented, ~whichever ~comes ~first.
-ARCHS="~-"
+ARCHS="x86 x86_64"
 SLOT=0
 B=linux-$PKG_VER
 RESTRICT="strip nobin"
