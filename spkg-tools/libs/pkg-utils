@@ -308,17 +308,17 @@ export -f delGroup
 ## This function in essence calls: make install-[name here]
 install-init.d() {
 	(
-		local d=$PWD
-		PKG=$(DB-getPkg sys-boot/blfs-bootscripts)
-		PKG_NAME=$(getName $PKG)
-		PKG_VER=$(getVerRev $PKG)
-		PKG_BLD="$PKG_DB_DIR/$(getCategory $PKG)/${PKG_NAME}/${PKG_VER}.build"
+		PKG=$(DB-getPkg sys-boot/blfs-bootscripts | getLatest)
+		PKG_VER=$(getVersion $PKG)
+		PKG_BLD=$(getBldFile $PKG)
 		unset PATCHES SRC_URI
 		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 		source "${PKG_BLD}"
-		BUILD_PATH=$d
-		B="${PKG_NAME}-${PKG_VER}"
+		export SRC_FILE=${SRC_URI[0]}
 		_PREPARE_ONLY=1
+		src_fetch
+		cd $BUILD_PATH
+		B=blfs-bootscripts-$PKG_VER
 		buildPackage
 		src_install install-$1
 	)
