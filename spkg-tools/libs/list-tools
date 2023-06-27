@@ -148,7 +148,6 @@ getdep() {
 			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "Sha1sum failed for $PKG_BLD within $PKG_CAT/$PKG_NAME"
 			unset BDEPS RDEPS UDEPS CDEPS DEPS
 			source "$PKG_BLD"
-			local PDEPS=
 		else
 			return 2
 		fi
@@ -178,9 +177,6 @@ getdep() {
 					cpkg=$(DB-getPkg $cpkg | getLatest)
 				fi
 				getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
-
-				## Create a Post Dependency list.
-				PDEPS+=" $cpkg"
 			done
 		fi
 
@@ -190,11 +186,27 @@ getdep() {
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
 
-		## Add our Post Dependency list here.
-		[[ ! -z $PDEPS ]] && echo $PDEPS | tr ' ' '\n' >> $CHART
+		####
+		## Filter out any dependency found within BDEPS from our RDEPS.
+		## This allows for a complete Runtime dependency without having to worry about
+		## Runtime dependencies also being listed as Build dependencies.
 
-		## FIXME: We need to filter out any entries contained within BDEPS
-		doDeps "${RDEPS[*]}"
+		## Add a description to each dep so we can pair them.
+		local dep=$((echo ${BDEPS[*]} | sed 's,\(^\| \),\1BDEPS:,g'; echo ${RDEPS[*]} | sed 's,\(^\| \),\1RDEPS:,g') |
+			## Seperate them into lines
+			tr ' ' '\n' |
+			## Sort by the 2nd field
+			sort -t: -k2 |
+			## Generate a 2nd field for uniq
+			tr ':' ' ' |
+			## we only want 1 instance of the value
+			uniq -f 1 |
+			## Get our RDEPS
+			grep RDEPS |
+			## Remove our description pair value.
+			sed 's,^[^ ]* ,,')
+
+		doDeps "$dep"
 		SP=${SP# }
 	)
 }
