@@ -73,12 +73,6 @@ buildPackage() {
 		fi
 		cd "${BUILD_PATH}/${B}"
 	fi
-	if [[ $BUILD_SEPERATE_DIR != "no" ]]; then
-		local d
-		[[ $BUILD_SEPERATE_DIR != yes ]] && d=$BUILD_SEPERATE_DIR || d=build
-		install -d -o $BUILD_USER $d
-		cd $d
-	fi
 
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
@@ -90,6 +84,13 @@ buildPackage() {
 
 	## Used in install-init.d
 	[[ $_PREPARE_ONLY == 1 ]] && return
+
+	if [[ $BUILD_SEPERATE_DIR != "no" ]]; then
+		local d
+		[[ $BUILD_SEPERATE_DIR != yes ]] && d=$BUILD_SEPERATE_DIR || d=build
+		install -d -o $BUILD_USER $d
+		cd $d
+	fi
 
 	if [[ $MODE != "bootstrap" ]]; then
 		echo " * src_configure"
