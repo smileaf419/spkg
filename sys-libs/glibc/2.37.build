@@ -16,10 +16,10 @@ BUILD_SEPERATE_DIR=yes
 src_configure() {
 	# Fix a security issue identified by upstream
 	sed '/width -=/s/workend - string/number_length/' \
-	    -i stdio-common/vfprintf-process-arg.c
+	    -i ../stdio-common/vfprintf-process-arg.c
 
 	# Ensure ldconfig and sln are installed into /sbin
-	echo "rootsbindir=/sbin" > configparms
+	echo "rootsbindir=/sbin" > ../configparms
 
 	# 64bit build
 	mkdir -pv $D/$ROOT/lib{,64}
