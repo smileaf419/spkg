@@ -82,13 +82,13 @@ configure_default() {
 		CXXFLAGS="$CXXFLAGS" \
 		LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
 		$SET_ABI             \
-			$d/configure ${CONF_FLAGS} "$@" || die " $ERROR_DIALOG Configure Failed!"
+			$d/configure ${CONF_FLAGS} "$@" || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
-		meson setup ${CONF_FLAGS} "$@" $d || die " $ERROR_DIALOG Configure Failed!"
+		meson setup ${CONF_FLAGS} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
-		cmake ${CONF_FLAGS} "$@" -B $d/build -S $d || die " $ERROR_DIALOG Configure Failed!"
+		cmake ${CONF_FLAGS} "$@" -B $d/build -S $d || die " $DIALOG_ERROR Configure Failed!"
 	fi
 }
 export -f configure_default
@@ -116,9 +116,9 @@ export -f python_compile
 compile_default() {
 	if [[ $buildTool == "make" ]]; then
 		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == "no" ]] && cd build
-		make $MAKEOPTS $@ || die " $ERROR_DIALOG Compile Failed!"
+		make $MAKEOPTS $@ || die " $DIALOG_ERROR Compile Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
-		ninja || die " $ERROR_DIALOG Compile Failed!"
+		ninja || die " $DIALOG_ERROR Compile Failed!"
 
 	## Compile the python module
 	## Build options maybe overridden via _PIP_COMPILE_OPTS
@@ -177,7 +177,7 @@ export -f python_install
 install_default() {
 	if [[ $buildTool == "make" ]]; then
 		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == "no" ]] && cd build
-		make DESTDIR="${D}/$ROOT" $@ install || die " $DIALOG ERROR Install Failed!"
+		make DESTDIR="${D}/$ROOT" $@ install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
 		DESTDIR="${D}/$ROOT" ninja install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
@@ -229,7 +229,7 @@ export -f unpack_default
 
 ## Function called by src_patch
 patch_default() {
-	spatches "$@" || die " $ERROR_DIALOG Patching failed"
+	spatches "$@" || die " $DIALOG_ERROR Patching failed"
 }
 export -f patch_default
 

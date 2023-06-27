@@ -223,9 +223,9 @@ checkKernelConfig() {
 	local HAS_CONFIG=0
 
 	if [ $NEEDS_MODULE == 0 ]; then
-		local ERROR_DIALOG="$CONFIG Needs Disabled"
+		local DIALOG_ERROR="$CONFIG Needs Disabled"
 	else
-		local ERROR_DIALOG="$CONFIG Needs to be Y (built-in) or M (module)"
+		local DIALOG_ERROR="$CONFIG Needs to be Y (built-in) or M (module)"
 	fi
 
 	echo -n "Checking for $DIALOG"
