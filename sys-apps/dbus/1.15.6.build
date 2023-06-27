@@ -52,6 +52,8 @@ cat > ${D}/etc/dbus-1/session-local.conf << "EOF"
 	<servicedir>/usr/local/share/dbus-1/services</servicedir>
 </busconfig>
 EOF
+
+	install-init.d dbus
 }
 
 post_install() {
