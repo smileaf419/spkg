@@ -318,19 +318,20 @@ installPackage() {
 		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
 
 		## Create the cache directory
-		mkdir -p "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
+		local CACHE_DIR="${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
+		mkdir -p "$CACHE_DIR"
 		## Copy over our build file so we can reference it in uninstalls
-		cp "${PKG_DB_DIR}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build"
+		cp "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
 		getBDeps "${BUILD_PATH}/CONTENTS"
-		mv "${BUILD_PATH}/CONTENTS" "${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/CONTENTS"
+		mv "${BUILD_PATH}/CONTENTS" "$CACHE_DIR/CONTENTS"
 		if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
-			mv ${BUILD_PATH}/KERNEL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/KERNEL_MODULE
+			mv ${BUILD_PATH}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
 		elif [ -e ${BUILD_PATH}/PERL_MODULE ]; then
-			mv ${BUILD_PATH}/PERL_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PERL_MODULE
+			mv ${BUILD_PATH}/PERL_MODULE $CACHE_DIR/PERL_MODULE
 		elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
-			mv ${BUILD_PATH}/PYTHON_MODULE ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/PYTHON_MODULE
+			mv ${BUILD_PATH}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
 		fi
-		mv ${BUILD_PATH}/USE_FLAGS ${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/USE_FLAGS
+		mv ${BUILD_PATH}/USE_FLAGS $CACHE_DIR/USE_FLAGS
 
 		echo " * post_install"
 		post_install || die "Error in post_install"
