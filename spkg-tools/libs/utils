@@ -265,7 +265,7 @@ fetch_file() {
 
 	## If we already exist, ignore it
 	[ -e "${DISTFILES}/${OUTFILE}" ] && return 0
-	wget -c -O "${DISTFILES}/${OUTFILE}" "$1"
+	wget --xattr -c -O "${DISTFILES}/${OUTFILE}" "$1"
 
 	## If we encounter an Error, delete the file and error out.
 	if [ $? != 0 ]; then
