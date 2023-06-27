@@ -52,8 +52,10 @@ if [ TEST == 1 ]; then
 	rm -v dummy.c a.out dummy.log
 fi
 
-	mkdir -pv "${D}"/usr/share/gdb/auto-load/usr/lib
-	mv -v "${D}"/usr/lib*/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib
+	if [[ $MODE != 'bootstrap' ]]; then
+		mkdir -pv "${D}"/usr/share/gdb/auto-load/usr/lib
+		mv -v "${D}"/usr/lib*/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib
+	fi
 }
 
 bootstrap() {
