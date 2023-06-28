@@ -21,6 +21,7 @@ src_test() { :; }
 
 src_install() {
 	install_default
-	
+
 	install -v -m644 doc/{nano.html,sample.nanorc} "${D}"/usr/share/doc/nano-${PKG_VER}
+	install -v -m644 $PKG_DB_DIR/$PKG_CAT/$PKG_NAME/build.nanorc "$D/usr/share/nano"
 }
