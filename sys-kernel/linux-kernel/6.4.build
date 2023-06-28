@@ -71,10 +71,33 @@ src_install() {
 }
 
 post_install() {
+	## If we have a saved config file, use it.
 	if [ -e /proc/config.gz ]; then
 		echo " * Preparing modules"
+
+		## Update this var for setKernelConfig below.
+		KERNEL_CONFIG_FILE=/usr/src/linux-$PKG_VER/.config
 		cd /usr/src/linux-$PKG_VER
 		gzip -cd /proc/config.gz > .config
+
+		## Set some defaults
+		setKernelConfig CONFIG_IKCONFIG y
+		setKernelConfig CONFIG_IKCONFIG_PROC y
+		# Device Drivers --->
+		#   Multiple devices driver support (RAID and LVM) --->
+		setKernelConfig CONFIG_DM_CRYPT y
+		setKernelConfig CONFIG_DM_SNAPSHOT y
+		setKernelConfig CONFIG_DM_THIN_PROVISIONING y
+		setKernelConfig CONFIG_DM_CACHE y
+		setKernelConfig CONFIG_DM_MIRROR y
+		setKernelConfig CONFIG_DM_ZERO y
+		setKernelConfig CONFIG_DM_DELAY y
+		#   [*] Block Devices --->
+		setKernelConfig CONFIG_BLK_DEV_RAM y
+		# Kernel hacking --->
+		#   Generic Kernel Debugging Instruments --->
+		setKernelConfig CONFIG_MAGIC_SYSRQ y
+
 		unset ARCH ROOT
 		make olddefconfig
 		make modules_prepare
