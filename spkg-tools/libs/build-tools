@@ -182,7 +182,7 @@ installPackage() {
 			fi
 
 			if [[ -e /bin/su || -e /usr/bin/su ]]; then
-				su -p -c 'buildPackage' $BUILD_USER || die "DIALOG_ERROR Building package failed!"
+				su -p -c 'buildPackage' $BUILD_USER || die "$DIALOG_ERROR Building package failed!"
 			else
 				buildPackage || die
 			fi
