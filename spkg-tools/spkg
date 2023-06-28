@@ -118,7 +118,7 @@ export DIALOG_ERROR="$RED!!$NORMAL"
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
 else
-	echo " $IMPORTANT no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
+	>&2 echo " $IMPORTANT no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
 fi
 
 ####
@@ -136,9 +136,9 @@ export SILENT_BUILD=${SILENT_BUILD:-no}
 export BUILD_USER=${BUILD_USER:-$(whoami)}
 export LOCALES=${LOCALES:-$LANGUAGE}; LOCALES=${LOCALES:-$LANG}
 if [[ -z $LOCALES ]]; then
-	echo " $DIALOG_ERROR You don't appear to have either LANGUAGE or LANG set!"
-	echo " $DIALOG_ERROR You should set one to a locale of your choice!"
-	echo " $IMPORTANT Defaulting to 'en_US.utf8'"
+	>&2 echo " $DIALOG_ERROR You don't appear to have either LANGUAGE or LANG set!"
+	>&2 echo " $DIALOG_ERROR You should set one to a locale of your choice!"
+	>&2 echo " $IMPORTANT Defaulting to 'en_US.utf8'"
 	export LANG='en_US.utf8'
 	export LANGUAGE='en_US'
 	LOCALE='en_US'
@@ -381,9 +381,9 @@ populate_list() {
 	elif [[ $list == "ERR" ]]; then
 		die
 	fi
-	echo -n " * Populating list"
+	>&2 echo -n " * Populating list"
 	for p in $list; do
-		echo -n '.'
+		>&2 echo -n '.'
 		EntryParser $p > /dev/null
 		PKG=$(getPKG)
 		#setPkgENV $PKG > /dev/null
@@ -397,14 +397,14 @@ populate_list() {
 		fi
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
-				echo " $DIALOG_ERROR $p not installed!"
+				>&2 echo " $DIALOG_ERROR $p not installed!"
 				exit
 			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
 			elif [[ $HASH_UPDATE ]]; then
-				echo " $DIALOG_ERROR $p not found!"
+				>&2 echo " $DIALOG_ERROR $p not found!"
 				continue
 			else
-				echo " $DIALOG_ERROR $p not found!"
+				>&2 echo " $DIALOG_ERROR $p not found!"
 				REQUESTED_LIST=$p
 				MODE=search
 				return
@@ -416,7 +416,7 @@ populate_list() {
 		## Save our Cache data.
 		getPKG >> $CHART
 	done
-	echo " done"
+	>&2 echo " done"
 	return 0
 }
 
@@ -433,16 +433,17 @@ if [[ $MODE != 'search' && $MODE != 'list' ]]; then
 		then mkdir -p "$PKG_CACHE" || die "Failed to create: PKG_CACHE: $PKG_CACHE"; fi
 	test -w $PKG_CACHE || die "Cannot write to PKG_CACHE: $PKG_CACHE"
 	if [[ $(stat -c '%U' "$PKG_CACHE") != $BUILD_USER ]]; then
-		echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
+		>&2 echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
 		chown -R $BUILD_USER $PKG_CACHE && echo -n '.'
 		find $PKG_CACHE -type d -exec chmod 770 {} \; && echo -n '.'
 		find $PKG_CACHE -type f -exec chmod 660 {} \; && echo -n '.'
-		echo "done"
+		>&2 echo " done"
 	fi
 	if [[ $(stat -c '%U' "$PKG_CACHE/.cache/pip") != $BUILD_USER ]]; then
-		echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
+		mkdir -p $PKG_CACHE/.cache/pip
+		>&2 echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
 		chown -R $BUILD_USER $PKG_CACHE && echo -n '.'
-		echo "done"
+		>&2 echo " done"
 	fi
 
 	if [ ! -d $DISTFILES ];
@@ -466,8 +467,8 @@ if [[ $MODE != 'search' && $MODE != 'list' ]]; then
 	chmod 1777 $INFORMLOG
 
 	if ! test -w /var/tmp || ! test -w /tmp; then
-		echo -n " $IMPORTANT Fixing permissions of tmp dirs .. "
-		chmod 1777 /{,var/}tmp && echo "done" || die "failed!"
+		>&2 echo -n " $IMPORTANT Fixing permissions of tmp dirs .. "
+		chmod 1777 /{,var/}tmp && >&2 echo "done" || die "failed!"
 	fi
 
 	## Populate our list with fully qualified entries so long as we're not searching.
