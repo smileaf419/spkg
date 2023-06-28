@@ -48,7 +48,11 @@ sys-apps/kmod
 dev-libs/elfutils
 dev-libs/libffi
 dev-lang/python
-dev-python/wheel
+## Avoid a Circular Dependency with nodep
+dev-pthon/flit_core[nodep]
+dev-python/wheel[nodep]
+dev-python/setuptools[nodep]
+dev-python/pip[nodep]
 dev-util/ninja
 dev-util/meson
 sys-apps/coreutils
