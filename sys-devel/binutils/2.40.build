@@ -1,3 +1,4 @@
+
 HOMEPAGE="https://www.gnu.org/software/binutils/"
 DESCRIPTION="GNU Binary tools"
 LICENSE="GPL-3+"
@@ -64,7 +65,9 @@ bootstrap() {
 		make DESTDIR=$D install
 		;;
 	pass2)
-		sed '6009s/$add_dir//' -i ../ltmain.sh &&
+		## Binutils ships an outdated copy of libtool in the tarball. It lacks sysroot support,
+		## so the produced binaries will be mistakenly linked to libraries from the host distro. (LFS)
+		sed '6009s/$add_dir//' -i ../ltmain.sh
 		../configure                   \
 		    --prefix=/usr              \
 		    --build=$(../config.guess) \
@@ -74,10 +77,10 @@ bootstrap() {
 		    --enable-gprofng=no        \
 		    --disable-werror           \
 		    --enable-64-bit-bfd        \
+		    --without-zstd             \
 		    --enable-multilib &&
-		compile_default && install_default &&
-		rm -v "$D/$ROOT"/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.a
-		find "$D/$ROOT"/usr/lib{,64,exec} -name \*.la -delete || true
+		compile_default V=1 && install_default &&
+		rm -v "$D/$ROOT"/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.{a,la}
 		;;
 	esac
 }
