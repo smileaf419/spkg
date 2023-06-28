@@ -11,10 +11,15 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
-	# Ensure installation of Symlinks
-	sed -i 's@\(ln -s -f \)$(PREFIX)/bin/@\1@' Makefile
-	# Fix man page installation
-	sed -i "s@(PREFIX)/man@(PREFIX)/usr/share/man@g" Makefile
+	## Ensure installation of Symlinks
+	## Fix man page installation
+	## Fix installation of header files
+	## Fix installation of Documentation
+	sed -e 's@\(ln -s -f \)$(PREFIX)/bin/@\1@' \
+		-e "s@(PREFIX)/man@(PREFIX)/usr/share/man@g" \
+		-e '/bzlib.h/s,include,usr/include,' \
+		-e '/^DOCDIR/s,share,usr/share,' \
+		-i Makefile
 
 	append-ldflags -fPIC
 	make -f Makefile-libbz2_so
@@ -22,6 +27,9 @@ src_configure() {
 }
 
 src_install() {
+	## Our sed earlier does not instruct it to create this dir
+	mkdir -p $D/$ROOT/usr/include
+
 	make PREFIX="${D}/$ROOT" install
 	cp -av libbz2.so* "${D}/$ROOT"/lib
 	ln -sv libbz2.so.${PKG_VER} "${D}/$ROOT"/lib/libbz2.so
@@ -31,8 +39,6 @@ src_install() {
 		ln -sfv bzip2 $i
 	done
 	rm -fv "${D}/$ROOT"/lib/libbz2.a
-	mv "$D/$ROOT"/{include,share/*} "$D/$ROOT"/usr
-	rmdir "$D/$ROOT"/share
 }
 
 bootstrap() {
