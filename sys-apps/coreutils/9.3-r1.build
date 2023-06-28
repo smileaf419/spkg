@@ -44,7 +44,7 @@ src_install() {
 	## Make a compatibility symlink to support these.
 	mkdir -p "$D/$ROOT/usr/bin"
 	for p in env; do
-		ln -sv /bin/$p "$D/$ROOT/usr/bin/$p"
+		ln -sfv /bin/$p "$D/$ROOT/usr/bin/$p"
 	done
 }
 
