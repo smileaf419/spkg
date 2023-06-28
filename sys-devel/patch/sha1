@@ -1,4 +1,4 @@
-890f10ade3dc46c362e76c8c9589e9052f9e21c0  2.7.6-r1.build
+ed20af0c668524693a3804e877d5731f0cff5487  2.7.6-r1.build
 6f64fa75993bdb285ac4ed6eca6c9212725bff91  patch-2.7.6.tar.xz
 9d4f622df9501d72ffa40e62edca9b934aaad1c4  patch-2.7.6-fix-test-suite.patch
 8bff26cb8818dad5f918b7bad2df64b15bfa6dae  patch-2.7.6-fix-error-handling-with-git-style-patches.patch
