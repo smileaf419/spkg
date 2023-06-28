@@ -2,6 +2,7 @@
 sys-devel/gettext[nodep]
 sys-devel/bison[nodep]
 dev-lang/perl[nodep]
+dev-libs/libffi[nodep]
 dev-lang/python[nodep]
 sys-apps/texinfo[nodep]
 sys-apps/util-linux[nodep]
