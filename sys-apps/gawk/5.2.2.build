@@ -1,3 +1,6 @@
+####
+## gawk build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gnu.org/software/gawk/"
 DESCRIPTION=""
 LICENSE=""

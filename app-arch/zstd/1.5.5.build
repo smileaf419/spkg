@@ -1,3 +1,6 @@
+####
+## zstd build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://facebook.github.io/zstd/"
 DESCRIPTION="Zstandard is a fast compression algorithm, providing high compression ratios."
 LICENSE="GPLv2"

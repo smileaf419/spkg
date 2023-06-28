@@ -1,3 +1,6 @@
+####
+## fluxbox build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://www.fluxbox.org"
 DESCRIPTION="X11 window manager featuring tabs and an iconbar"
 LICENSE="MIT"

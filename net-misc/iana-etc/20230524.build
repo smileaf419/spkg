@@ -1,3 +1,6 @@
+####
+## iana-etc build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.iana.org/protocols"
 DESCRIPTION="Provides data for Network services and protocols"
 LICENSE=""

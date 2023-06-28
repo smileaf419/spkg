@@ -1,3 +1,6 @@
+####
+## IO-Socket-SSL build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://metacpan.org/pod/IO::Socket::SSL"
 DESCRIPTION="SSL sockets with IO::Socket interface"
 LICENSE="perl_5"

@@ -1,3 +1,6 @@
+####
+## e2fsprogs build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
 DESCRIPTION="Standard EXT2/EXT3/EXT4 filesystem utilities"
 LICENSE="GPLv2 BSD"

@@ -1,3 +1,6 @@
+####
+## lvm2 build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://sourceware.org/lvm2/"
 DESCRIPTION="Userspace toolset that provide logical volume management facilities"
 LICENSE="GPLv2"

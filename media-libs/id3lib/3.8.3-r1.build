@@ -1,3 +1,6 @@
+####
+## id3lib build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://id3lib.sourceforge.net/"
 DESCRIPTION="ID3 Library for C++"
 LICENSE="LGPLv2.1"

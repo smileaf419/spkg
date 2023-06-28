@@ -1,3 +1,6 @@
+####
+## id3v2 build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://id3v2.sourceforge.net"
 DESCRIPTION="A command line editor for id3v2 tags"
 LICENSE="LGPLv2"

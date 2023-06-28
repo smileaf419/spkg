@@ -1,3 +1,6 @@
+####
+## unzip build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://infozip.sourceforge.net/UnZip.html"
 DESCRIPTION="unzipper for pkzip-compressed files"
 LICENSE="Info-ZIP"

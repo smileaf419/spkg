@@ -1,3 +1,6 @@
+####
+## bluez build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://www.bluez.org"
 DESCRIPTION="Official Linux Bluetooth Protocol Stack"
 LICENSE="BSD-2 GPLv2 LGPLv2.1 MIT Apache2.0"

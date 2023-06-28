@@ -1,3 +1,6 @@
+####
+## lmdb build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/LMDB/lmdb"
 DESCRIPTION="An ultra-fast, ultra-compact, crash-proof, key-value, embedded data store"
 LICENSE="OpenLDAP"

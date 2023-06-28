@@ -1,3 +1,6 @@
+####
+## libcddb build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://libcddb.sourceforge.net/"
 DESCRIPTION="A library for accessing a CDDB server"
 LICENSE="LGPLv2"

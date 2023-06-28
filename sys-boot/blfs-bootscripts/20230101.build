@@ -1,3 +1,6 @@
+####
+## blfs-bootscripts build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://linuxfromscratch.org/lfs/view/development/chapter09/bootscripts.html"
 DESCRIPTION="Bootscripts for the Beyond LFS system."
 LICENSE=""

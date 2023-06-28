@@ -1,3 +1,6 @@
+####
+## ftp build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/smileaf419/spkg"
 DESCRIPTION="FTP User and Group"
 LICENSE="none"

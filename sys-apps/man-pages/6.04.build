@@ -1,3 +1,6 @@
+####
+## man-pages build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.kernel.org/doc/man-pages/"
 DESCRIPTION="A comprehensive collection of Linux manual pages"
 LICENSE="man-pages GPL-2+ BSD"

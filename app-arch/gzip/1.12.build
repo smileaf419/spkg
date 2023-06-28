@@ -1,3 +1,6 @@
+####
+## gzip build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gnu.org/software/gzip/"
 DESCRIPTION="GNU data compression tools"
 LICENSE="GPLv3+"

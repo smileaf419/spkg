@@ -1,3 +1,6 @@
+####
+## bzip2 build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://sourceware.org/bzip2/"
 DESCRIPTION="A high-quality data compressor."
 SRC_URI=("https://www.sourceware.org/pub/bzip2/bzip2-${PKG_VER}.tar.gz")

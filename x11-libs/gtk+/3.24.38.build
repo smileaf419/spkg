@@ -1,3 +1,6 @@
+####
+## gtk+ build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gtk.org"
 DESCRIPTION="GTK is a multi-platform toolkit for creating graphical user interfaces."
 LICENSE="LGPLv2.1"

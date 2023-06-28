@@ -1,3 +1,6 @@
+####
+## lame build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://lame.sourceforge.io"
 DESCRIPTION="high quality MPEG Audio Layer III (MP3) encoder"
 LICENSE="LGPL"

@@ -1,3 +1,6 @@
+####
+## autoconf build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gnu.org/software/autoconf/"
 DESCRIPTION="Creates autoconfiguration files"
 LICENSE="GPLv2 GPLv3"

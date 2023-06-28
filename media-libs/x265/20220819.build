@@ -1,3 +1,6 @@
+####
+## x265 build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://x265.org/ https://bitbucket.org/multicoreware/x265_git/"
 DESCRIPTION="Library for encoding video streams into the H.265/HEVC format"
 LICENSE="GPLv2"

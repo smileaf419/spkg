@@ -1,3 +1,6 @@
+####
+## taglib build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://taglib.org"
 DESCRIPTION="Audio File tag editing library."
 LICENSE="LGPLv2.1 MPL-1.1"

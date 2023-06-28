@@ -1,3 +1,6 @@
+####
+## musicbrainz build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://musicbrainz.org/doc/libmusicbrainz"
 DESCRIPTION="Client Library for accessing the latest XML based MusicBrainz web service"
 LICENSE="LGPLv2.1"

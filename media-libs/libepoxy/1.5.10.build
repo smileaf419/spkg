@@ -1,3 +1,6 @@
+####
+## libepoxy build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/anholt/libepoxy"
 DESCRIPTION="Library for handling OpenGL function pointer management"
 LICENSE="MIT"

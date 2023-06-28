@@ -1,3 +1,6 @@
+####
+## man-db build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.nongnu.org/man-db/"
 DESCRIPTION=""
 LICENSE=""

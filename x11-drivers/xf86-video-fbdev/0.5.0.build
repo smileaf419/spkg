@@ -1,3 +1,6 @@
+####
+## xf86-video-fbdev build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.x.org/wiki/"
 DESCRIPTION=""
 LICENSE=""

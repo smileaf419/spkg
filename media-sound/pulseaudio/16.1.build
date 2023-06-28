@@ -1,3 +1,6 @@
+####
+## pulseaudio build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/PulseAudio/"
 DESCRIPTION="Sound Server System for POSIX OSes"
 LICENSE="LGPLv2.1"

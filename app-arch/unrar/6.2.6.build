@@ -1,3 +1,6 @@
+####
+## unrar build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.rarlab.com/rar_add.htm"
 DESCRIPTION="Decompression RAR archive utility"
 LICENSE="unRAR"

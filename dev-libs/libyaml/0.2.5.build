@@ -1,3 +1,6 @@
+####
+## libyaml build
+## Copyright 2023 spkg developers, licensed under GPLv2
 # Start versioning at -r1 if patches are used.
 # non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""

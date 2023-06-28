@@ -1,3 +1,6 @@
+####
+## freetype build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.freetype.org/"
 DESCRIPTION="High-quality and portable font engine"
 LICENSE="FTL | GPLv2"

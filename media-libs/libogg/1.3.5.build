@@ -1,3 +1,6 @@
+####
+## libogg build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://xiph.org/ogg/"
 DESCRIPTION="The Ogg media file format library"
 LICENSE="BSD"

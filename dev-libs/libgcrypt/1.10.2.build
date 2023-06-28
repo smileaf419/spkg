@@ -1,3 +1,6 @@
+####
+## libgcrypt build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gnupg.org/index.html"
 DESCRIPTION="Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG."
 LICENSE="LGPLv2.1 GPLv2+"

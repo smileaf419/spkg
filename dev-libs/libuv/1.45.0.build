@@ -1,3 +1,6 @@
+####
+## libuv build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="http://libuv.org https://github.com/libuv/libuv"
 DESCRIPTION="Cross-platform asynchronous I/O"
 LICENSE="MIT CC"

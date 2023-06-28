@@ -1,3 +1,6 @@
+####
+## makemkv build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://makemkv.com"
 DESCRIPTION="Blu-ray HD-DVD and DVD Disc Ripper and Streamer"
 LICENSE="GPL-2 LGPL-2.1 MPL-1.1 MakeMKV-EULA openssl"

@@ -1,3 +1,6 @@
+####
+## pip build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pypi.org/project/pip/"
 DESCRIPTION="The PyPA recommended tool for installing Python packages."
 LICENSE="MIT"

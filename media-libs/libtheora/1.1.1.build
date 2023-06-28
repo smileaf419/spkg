@@ -1,3 +1,6 @@
+####
+## libtheora build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.theora.org"
 DESCRIPTION="The Theora Video Compression Codec"
 LICENSE="BSD"

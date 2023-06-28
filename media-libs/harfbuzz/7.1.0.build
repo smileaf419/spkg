@@ -1,3 +1,6 @@
+####
+## harfbuzz build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/HarfBuzz"
 DESCRIPTION="An OpenType text shaping engine"
 LICENSE="Old-MIT ISC icu"

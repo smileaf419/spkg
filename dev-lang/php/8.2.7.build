@@ -1,3 +1,6 @@
+####
+## php build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.php.net/"
 DESCRIPTION="PHP Hypertext Preprocessor."
 LICENSE="PHP"

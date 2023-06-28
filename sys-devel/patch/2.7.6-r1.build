@@ -1,3 +1,6 @@
+####
+## patch build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://savannah.gnu.org/projects/patch/"
 DESCRIPTION=""
 LICENSE=""

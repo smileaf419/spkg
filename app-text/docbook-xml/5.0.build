@@ -1,3 +1,6 @@
+####
+## docbook-xml build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.docbook.org/"
 DESCRIPTION="Docbook DTD for XML"
 LICENSE="docbook"

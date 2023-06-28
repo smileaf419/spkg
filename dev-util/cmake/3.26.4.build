@@ -1,3 +1,6 @@
+####
+## cmake build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://cmake.org/"
 DESCRIPTION="Cross platform Make"
 LICENSE="CMake"

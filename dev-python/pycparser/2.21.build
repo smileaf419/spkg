@@ -1,3 +1,6 @@
+####
+## pycparser build
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pypi.org/project/pycparser/"
 DESCRIPTION="C Parser in Python"
 LICENSE="BSD"
