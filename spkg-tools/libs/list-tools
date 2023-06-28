@@ -266,12 +266,18 @@ doDeps() {
 				fi
 			done
 			dpkg=$(echo -e $opkg | getLatest)
+			if [ -z $dpkg ]; then
+				echo "$DIALOG_ERROR No version to match restrictions of $p"
+				die "$DIALOG_ERROR Error Resolving Dependencies"
+			fi
 		else
 			local dpkg=$(DB-getPkg $PKG | getLatest)
+			if [ -z $dpkg ]; then
+				die "$DIALOG_ERROR Error Resolving Dependencies: $PKG ($dpkg)"
+			fi
 		fi
 		pkg-has-flag "nodep" && break
 		## If its already in the list, ignore it and continue.
-		dpkg=${dpkg:?Error resolving dependencies}
 		grep -E "^$(getCategory $dpkg)/$(getName $dpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $dpkg)" $CHART > /dev/null && continue
 
 		## Identify Circular Dependencies here so we can break out
