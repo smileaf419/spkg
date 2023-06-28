@@ -27,7 +27,7 @@ src_compile() {
 
 	## If we want the Python Bindings
 	cd ..
-	_PIP_COMPILE_OPTS="-w dist --no-deps"
+#	_PIP_COMPILE_OPTS="-w dist --no-deps"
 	python_compile
 }
 
