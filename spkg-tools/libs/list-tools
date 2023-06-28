@@ -85,7 +85,7 @@ expandSets() {
 				elif [[ ${p#@} == "kernelModules" ]]; then
 					PKG_LIST+=" $(rebuildModules kernel)"
 				elif [[ ${p#@} != '' && -e $PKG_DB_DIR/spkg-sets/${p#@} ]]; then
-					PKG_LIST+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@})"
+					PKG_LIST+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@} || true)"
 				else
 					>&2 echo " $DIALOG_ERROR Unknown set: ${p#@}"
 					>&2 echo " * Did you mean one of: "
