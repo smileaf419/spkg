@@ -8,7 +8,7 @@ SRC_URI=("https://dlcdn.apache.org/maven/maven-3/${PKG_VER}/source/apache-maven-
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="x86 x86_64"
+ARCHS="~x86 ~x86_64"
 SLOT=0
 
 src_unpack() {
