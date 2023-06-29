@@ -1,37 +1,64 @@
 #!/bin/sh
-[ ! -e /lib/locale  ] && mkdir /lib/locale
-localedef -i POSIX -f UTF-8 C.UTF-8 2> /dev/null || true
-localedef -i cs_CZ -f UTF-8 cs_CZ.UTF-8
-localedef -i de_DE -f ISO-8859-1 de_DE
-localedef -i de_DE@euro -f ISO-8859-15 de_DE@euro
-localedef -i de_DE -f UTF-8 de_DE.UTF-8
-localedef -i el_GR -f ISO-8859-7 el_GR
-localedef -i en_GB -f ISO-8859-1 en_GB
-localedef -i en_GB -f UTF-8 en_GB.UTF-8
-localedef -i en_HK -f ISO-8859-1 en_HK
-localedef -i en_PH -f ISO-8859-1 en_PH
-localedef -i en_US -f ISO-8859-1 en_US
-localedef -i en_US -f UTF-8 en_US.UTF-8
-localedef -i es_ES -f ISO-8859-15 es_ES@euro
-localedef -i es_MX -f ISO-8859-1 es_MX
-localedef -i fa_IR -f UTF-8 fa_IR
-localedef -i fr_FR -f ISO-8859-1 fr_FR
-localedef -i fr_FR@euro -f ISO-8859-15 fr_FR@euro
-localedef -i fr_FR -f UTF-8 fr_FR.UTF-8
-localedef -i is_IS -f ISO-8859-1 is_IS
-localedef -i is_IS -f UTF-8 is_IS.UTF-8
-localedef -i it_IT -f ISO-8859-1 it_IT
-localedef -i it_IT -f ISO-8859-15 it_IT@euro
-localedef -i it_IT -f UTF-8 it_IT.UTF-8
-localedef -i ja_JP -f EUC-JP ja_JP
-localedef -i ja_JP -f SHIFT_JIS ja_JP.SJIS 2> /dev/null || true
-localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
-localedef -i nl_NL@euro -f ISO-8859-15 nl_NL@euro
-localedef -i ru_RU -f KOI8-R ru_RU.KOI8-R
-localedef -i ru_RU -f UTF-8 ru_RU.UTF-8
-localedef -i se_NO -f UTF-8 se_NO.UTF-8
-localedef -i ta_IN -f UTF-8 ta_IN.UTF-8
-localedef -i tr_TR -f UTF-8 tr_TR.UTF-8
-localedef -i zh_CN -f GB18030 zh_CN.GB18030
-localedef -i zh_HK -f BIG5-HKSCS zh_HK.BIG5-HKSCS
-localedef -i zh_TW -f UTF-8 zh_TW.UTF-8
+## Copyright 2023 spkg developers, licensed under GPLv2
+## Code Heavily references https://www.linuxfromscratch.org/~thomas/multilib/chapter08/glibc.html
+## 2 locales are expected to fail C.UTF-8 and ja_JP.SJIS
+
+[ ! -e /lib/locale  ] && mkdir -p /lib/locale
+LOCALES=(
+"POSIX UTF-8"
+"cs_CZ UTF-8"
+"de_DE ISO-8859-1"
+"de_DE@euro ISO-8859-1"
+"de_DE UTF-8"
+"el_GR ISO-8859-7"
+"en_GB ISO-8859-1"
+"en_GB UTF-8"
+"en_HK ISO-8859-1"
+"en_PH ISO-8859-1"
+"en_US ISO-8859-1"
+"en_US UTF-8"
+"es_ES ISO-8859-15"
+"es_MX ISO-8859-1"
+"fa_IR UTF-8"
+"fr_FR ISO-8859-1"
+"fr_FR@euro ISO-8859-15"
+"fr_FR UTF-8"
+"is_IS ISO-8859-1"
+"is_IS UTF-8"
+"it_IT ISO-8859-1"
+"it_IT ISO-8859-15"
+"it_IT UTF-8"
+"ja_JP EUC-JP"
+"ja_JP SHIFT_JIS"
+"ja_JP UTF-8"
+"nl_NL@euro ISO-8859-15"
+"ru_RU KOI8-R"
+"ru_RU UTF-8"
+"se_NO UTF-8"
+"ta_IN UTF-8"
+"tr_TR UTF-8"
+"zh_CN GB18030"
+"zh_HK BIG5-HKSCS"
+"zh_TW UTF-8"
+)
+
+echo " * Generating locales"
+IFS=$'\n'
+num=${#LOCALES[@]}
+for (( c=0; c<$num; c++ )); do
+	l=${LOCALES[$c]}
+	lang=${l% *}
+	encoding=${l#* }
+	if [[ $encoding != ISO-8859* ]]; then
+		gl=$lang.$encoding
+		[[ $lang == POSIX ]] && gl=C.$encoding
+		[[ $lang == es_ES* ]] && lang=${lang/@euro/}
+		[[ $encoding == SHIFT_JIS ]] && gl=${gl/SHIFT_JIS/SJIS}
+		[[ $lang == fa_IR ]] && gl=${gl/.UTF-8/}
+		[[ $encoding == EUC_JP ]] && gl=${gl/.EUC_JP/}
+	else
+		gl=$lang
+	fi
+	echo -n " * Generating [$(($c + 1))/$num] $gl: "
+	localedef -i $lang -f $encoding $gl 2> /dev/null && echo " Ok" || echo " Failed"
+done
