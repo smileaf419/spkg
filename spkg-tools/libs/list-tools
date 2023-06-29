@@ -192,13 +192,13 @@ getdep() {
 		## Runtime dependencies also being listed as Build dependencies.
 
 		## Add a description to each dep so we can pair them.
-		local dep=$((echo ${BDEPS[*]} | sed 's,\(^\| \),\1BDEPS:,g'; echo ${RDEPS[*]} | sed 's,\(^\| \),\1RDEPS:,g') |
+		local dep=$((echo ${BDEPS[*]} | sed 's,\(^\| \),\1BDEPS|,g'; echo ${RDEPS[*]} | sed 's,\(^\| \),\1RDEPS|,g') |
 			## Seperate them into lines
 			tr ' ' '\n' |
 			## Sort by the 2nd field
 			sort -t: -k2 |
 			## Generate a 2nd field for uniq
-			tr ':' ' ' |
+			tr '|' ' ' |
 			## we only want 1 instance of the value
 			uniq -f 1 |
 			## Get our RDEPS
