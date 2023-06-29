@@ -1,13 +1,78 @@
-#!/bin/sh
+####
+## Clean-db
+## Helps to keep our DB clean by removing excess builds
+## Copyright 2023 spkg developers, licensed under GPLv2
+#!/bin/bash
+
 source /etc/spkg.conf
 
-for d in $(find $PKG_DB_DIR -mindepth 2 -type d); do
-	[[ $d == *spkg-tools* || $d == *spkg-sets* || $d == *.git* ]] && continue
-	NUM=$(ls -1 $d/*.build | wc -l)
-	if [[ $NUM -gt 1 ]]; then
-		echo $d:
-		FILES=$(ls -1 $d/*.build | sort -V | head -n $(($NUM - 1)) )
-		echo $FILES
-		rm -v $FILES
+MAX_BUILDS=2
+[[ $ARCH == ~* ]] && ARCH=${ARCH#\~}
+
+echo " * Cleaning Builds for ARCH $ARCH"
+
+## Function to figure out where this script is at so we can reference our libs directory.
+## Taken from:
+## https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+whereAmI() {
+	local SOURCE=${BASH_SOURCE[0]}
+	while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+		local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+		SOURCE=$(readlink "$SOURCE")
+		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+	done
+	local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+	echo $DIR
+}
+
+## Include our libraries
+INSTALL_PATH=$(whereAmI)
+source "${INSTALL_PATH}/libs/pkg-tools"
+source "${INSTALL_PATH}/libs/pkg-utils"
+source "${INSTALL_PATH}/libs/builddefaults"
+source "${INSTALL_PATH}/libs/utils"
+source "${INSTALL_PATH}/libs/build-tools"
+source "${INSTALL_PATH}/libs/list-tools"
+source "${INSTALL_PATH}/libs/updatesha1"
+
+cleanPkg() {
+	local d=$1
+	NUM=$(DB-getPkg $d | wc -l)
+	if [[ $NUM -gt $MAX_BUILDS ]]; then
+		## This does not honor PKG_SLOT differences!
+		FILES=( $(DB-getPkg $d | head -n $(( $NUM - $MAX_BUILDS )) ) )
+		SLOT=$(grep -h "SLOT=$slot" $(getBldFile ${FILES[0]}) | sed 's,^.*SLOT=,,')
+		if [[ $SLOT == "0" ]]; then
+			echo -n $d:
+			for p in ${FILES[*]}; do
+				echo -n "$(getVerRev $p) "
+				rm $(getBldFile $p)
+			done
+			rm $d/sha1
+			updatesha1 $d
+		else
+			echo "$d has multiple SLOTs not cleaning"
+		fi
+	elif [[ $NUM == 0 ]]; then
+		echo "$d Has No builds marked as $ARCH"
 	fi
+}
+
+cd $PKG_DB_DIR
+list=($(find * -mindepth 1 -maxdepth 1 -type d))
+length=${#list[@]}
+
+for (( l=0; l<${length}; l++ )); do
+	## Current #
+	C=$(( ${l} + 1 ))
+	## PKG entry
+	d=${list[$l]}
+	[[ $d == *spkg-tools* || $d == *spkg-sets* || $d == *.git* ]] && continue
+
+#	echo -ne "\r $C / $length: $d                             "
+	PKG_CAT=${d%/*}
+	PKG_NAME=${d#*/}
+	printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME
+	cleanPkg $d
 done
+echo
