@@ -377,6 +377,7 @@ parse_cmdline() {
 ## Takes a user supplied list and parse it and finding matches for packages.
 ## Store the information within our CHART for easy reference.
 populate_list() {
+	local timestart=$(date "+%s.%N")
 	[ -e $CHART ] && rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
 	REQUESTED_LIST=
@@ -390,7 +391,6 @@ populate_list() {
 		>&2 echo -n '.'
 		EntryParser $p > /dev/null
 		PKG=$(getPKG)
-		#setPkgENV $PKG > /dev/null
 		## EntryParser does not find packages within our Database
 		## Check our Mode and check for the presence of the package.
 		## If the file is not found or multiple packages are found, perform a search and show the results.
@@ -420,7 +420,11 @@ populate_list() {
 		## Save our Cache data.
 		getPKG >> $CHART
 	done
-	>&2 echo " done"
+	if [[ -e /usr/bin/bc ]]; then
+		>&2 printf " done (%.3f s)\n" $( echo $(date "+%s.%N") - $timestart | bc )
+	else
+		>&2 echo " done"
+	fi
 	return 0
 }
 
@@ -428,7 +432,7 @@ parse_cmdline $@
 
 ####
 ## Ensure we can write to required directories
-if [[ $MODE != 'search' && $MODE != 'list' ]]; then
+if [[ $MODE != 'search' && $MODE != 'list' && $MODE != 'update' ]]; then
 	if [ ! -d $PKG_ARCHIVE_DIR ];
 		then mkdir -p "$PKG_ARCHIVE_DIR" || die "Failed to create: PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"; fi
 	test -w $PKG_ARCHIVE_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"
@@ -537,6 +541,7 @@ fi
 ## Check for updates against whats installed and build our list.
 ## Take everything installed and find upgrades for it, respecting explicitly installed slots within world.
 if [[ $MODE == "update" ]]; then
+	timestart=$(date "+%s.%N")
 	echo -n " * Checking for updates"
 
 	## a REQUESTED_LIST is not set as none of this has been explicitely requested.
@@ -545,28 +550,38 @@ if [[ $MODE == "update" ]]; then
 	PKG_LIST=
 #	spinner=('|' '|' '/' '/' '-' '-' '\\' '\\')
 #	s=0
+	[ -e $CHART ] && rm -f $CHART
 	for p in $list; do
 #		echo -ne "\r * Checking for updates ${spinner[$s]}"
 		echo -n '.'
-		PKG=$(Installed-getPkg $(EntryParser $p))
 
-		setPkgENV $PKG > /dev/null
+		PKG_CAT=$(getCategory $p)
+		PKG_NAME=$(getName $p)
 		## This may return multiple packages if multiple slots are installed.
 		WPKG=$(getPkgFromWorld $PKG_CAT/$PKG_NAME)
-		for w in $WPKG; do
-			## We only need to grab the slot information.
-			PKG_VER=0
-			PKG_REV=0
-			PKG_SLOT=$(getSlot $w)
-			PKG=$(getPKG)
-			echo $PKG >> $CHART
-#			s=$(( $s + 1 ))
-#			[[ $s -gt ${#spinner} ]] && s=0
-		done
+		if [ ! -z $WPKG ]; then
+			for w in $WPKG; do
+				echo $w >> $CHART
+			done
+		else
+			PKG=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
+			for p in $PKG; do
+				PKG_SLOT=$(getSlot $p)
+				PKG_VER=0
+				PKG_REV=0
+				getPKG >> $CHART
+			done
+		fi
+#		s=$(( $s + 1 ))
+#		[[ $s -gt ${#spinner} ]] && s=0
 	done
+	if [[ -e /usr/bin/bc ]]; then
+		>&2 printf " done (%.3f s)\n" $( echo $(date "+%s.%N") - $timestart | bc )
+	else
+		>&2 echo " done"
+	fi
 	echo
-
-	[ $VERBOSE -ge 1 ] && echo list: $list
+#	[ $VERBOSE -ge 1 ] && echo list: $list
 
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
@@ -747,25 +762,36 @@ elif [[ $MODE == "preserved" ]]; then
 else
 	if [[ $MODE != "update" &&  $MODE != "resume" ]]; then
 		## Get Dependencies and check if any require updates.
-		echo " * Calculating Package Order..."
+		timestart=$(date "+%s.%N")
+		echo -n " * Calculating Package Order..."
 		getFullPkgList $REQUESTED_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies: you may need to run: spkg -U"
 		PKG_LIST=$(cat $CHART)
-	fi
-	if [[ $VERBOSE -ge 1 ]]; then
-		echo "Package Order (Full List):"
-		for p in $(cat $CHART); do
-			PKG_CAT=$(getCategory $p)
-			PKG_NAME=$(getName $p)
-			PKG_VR=$(getVerRev $p)
-			PKG_SLOT=$(getSlot $p)
-			echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
-		done
-		echo -e "\nPackage Order:"
+		if [[ -e /usr/bin/bc ]]; then
+			>&2 printf " done (%.3f s)\n" $( echo $(date "+%s.%N") - $timestart | bc )
+		else
+			>&2 echo " done"
+		fi
+		if [[ $VERBOSE -ge 1 ]]; then
+			echo "Package Order (Full List):"
+			for p in $(cat $CHART); do
+				PKG_CAT=$(getCategory $p)
+				PKG_NAME=$(getName $p)
+				PKG_VR=$(getVerRev $p)
+				PKG_SLOT=$(getSlot $p)
+				echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
+			done
+			echo -e "\nPackage Order:"
+		fi
 	fi
 
+	timestart=$(date "+%s.%N")
 	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
 	for p in $(cat $CHART); do
-		setupENV $p
+		PKG_CAT=$(getCategory $p)
+		PKG_NAME=$(getName $p)
+		PKG_VR=$(getVerRev $p)
+		PKG_SLOT=$(getSlot $p)
+		O_VER=$(Installed-getPkg $p | getVerRev)
 
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
@@ -773,11 +799,15 @@ else
 			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
 				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
 				! -z $EMPTY_WORLD ]]; then
-				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
+				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
+				[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
+				echo -n " [ $O_VER ]"
 				## Only mention it's been forced if its within the *_LIST & FORCE
 				if ! version_gt $PKG_VR $O_VER && [[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
 					echo -n " (forced)"
 				fi
+
+				## FIXME: Does this ever output?
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 
@@ -789,6 +819,13 @@ else
 		else
 			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
 				$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
+				if grep "^$PKG_CAT/$PKG_NAME" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+					echo -n "~"
+				elif grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
+					echo -n "+"
+				else
+					echo -n " "
+				fi
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				[[ $FORCE == 1 ]] && echo -n " (forced)"
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
@@ -799,6 +836,9 @@ else
 			fi
 		fi
 	done
+	if [[ -e /usr/bin/bc ]]; then
+		>&2 printf " * version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
+	fi
 
 	[[ ! -e $INSTALL_CHART ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
