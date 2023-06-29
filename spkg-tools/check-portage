@@ -1,9 +1,19 @@
 #!/bin/bash
+####
+## Check Portage
+## Copyright 2023 spkg developers, licensed under GPLv2
+
+## Checks portage for updates, an emerge --sync must be ran prior which requires a functioning Gentoo system.
+## While this may catch a few upates that check-updates does not, I do not find this to be very respectable.
+## When and if spkg gets a following with more than just me who can check for updates, this will be deleted (or if requested)
+## Likewise with the check-updates script.
 
 source /etc/spkg.conf
 source $INSTALL_PATH/libs/pkg-tools
 source $INSTALL_PATH/libs/pkg-utils
 GENTOO=${GENTOO:-$1}
+
+echo " * Checking Portage for updates ($GENTOO)"
 
 for cat in $(ls -1 $PKG_DB_DIR); do
 	[ ! -d $GENTOO/$cat ] && continue

@@ -1,4 +1,8 @@
 #!/bin/sh
+## Read Latest Log
+## Copyright 2023 spkg developers, licensed under GPLv2
+## Used to read the latest log or list logs of a given package
+
 LIST=0
 VERSION=0.1
 LOG=

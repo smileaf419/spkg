@@ -1,8 +1,9 @@
+#!/bin/bash
 ####
 ## Clean-db
-## Helps to keep our DB clean by removing excess builds
 ## Copyright 2023 spkg developers, licensed under GPLv2
-#!/bin/bash
+##
+## Helps to keep our DB clean by removing excess builds
 
 source /etc/spkg.conf
 
@@ -29,10 +30,7 @@ whereAmI() {
 INSTALL_PATH=$(whereAmI)
 source "${INSTALL_PATH}/libs/pkg-tools"
 source "${INSTALL_PATH}/libs/pkg-utils"
-source "${INSTALL_PATH}/libs/builddefaults"
 source "${INSTALL_PATH}/libs/utils"
-source "${INSTALL_PATH}/libs/build-tools"
-source "${INSTALL_PATH}/libs/list-tools"
 source "${INSTALL_PATH}/libs/updatesha1"
 
 cleanPkg() {

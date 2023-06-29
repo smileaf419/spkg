@@ -1,5 +1,11 @@
 #!/bin/sh
+## Clean Archives
+## Copyright 2023 spkg developers, licensed under GPLv2
+## Clean out old Archives
+
 source /etc/spkg.conf
+
+echo " * Cleaning Old archives in $PKG_ARCHIVE_DIR"
 
 for d in $(find $PKG_ARCHIVE_DIR -mindepth 1 -type d); do
 	[[ $d == *spkg-tools* || $d == *spkg-sets* ]] && continue
