@@ -294,6 +294,8 @@ parse_cmdline() {
 						FORCE=1 ;;
 					p|-pretend)
 						PRETEND=1 ;;
+					a|-ask)
+						ASK=1 ;;
 					-verify)
 						VERIFY_SIG=1 ;;
 					1|-oneshot)
@@ -340,8 +342,10 @@ parse_cmdline() {
 						echo    "  --oneshot, -1        Omits adding any package requested to the world file."
 						echo    "  --empty, -e          Assumes an empty world file"
 						echo    "  --update, -U         Finds all updates for all installed packages."
+#						echo    "  --newUse -N          Finds all updates affected by a USE change."
 						echo    "  --force, -f          Forces install of already installed packages."
 						echo    "  --pretend, -p        Shows what will be done, without doing it."
+						echo    "  --ask, -a            Like --pretend, but asks before continuing"
 						echo    "  --fetchOnly          Fetches all files without installing."
 						echo    "  --verify             Verify PGP Signatures if available."
 						echo    "  --installArchive, -A Installs package(s) from a preprepared archive."
@@ -771,7 +775,9 @@ else
 				! -z $EMPTY_WORLD ]]; then
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
 				## Only mention it's been forced if its within the *_LIST & FORCE
-				[[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]] && echo -n " (forced)"
+				if ! version_gt $PKG_VR $O_VER && [[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
+					echo -n " (forced)"
+				fi
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 
@@ -796,6 +802,13 @@ else
 
 	[[ ! -e $INSTALL_CHART ]] && die "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
+	if [[ $ASK == 1 ]]; then
+		echo -n "Ok to continue? [${GREEN}Yes${NORMAL}/${RED}No${NORMAL}] "
+		read a
+		if [[ ! -z $a && ${a^^} != 'Y' && ${a^^} != 'YES' ]]; then
+			exit 0
+		fi
+	fi
 
 	## Install our list
 	## If our INSTALL_CHART or CHART don't exist, don't error out
