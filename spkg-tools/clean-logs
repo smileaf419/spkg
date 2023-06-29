@@ -1,10 +1,14 @@
 #!/bin/bash
+####
+## clean-logs
+## Copyright 2023 spkg developers, licensed under GPLv2
+## Helps to keep the logs under control
 
 source /etc/spkg.conf
 
-CLEAN_LOG_DATE=${CLEAN_LOG_DATE:-90}
+## Default to 30 days
+CLEAN_LOG_DATE=${CLEAN_LOG_DATE:-30}
 
-echo -n " * Cleaning logs .. "
-CLEANED=$(find $LOGDIR -mtime +$CLEAN_LOG_DATE -print | wc -l)
-find $LOGDIR -mtime +$CLEAN_LOG_DATE -delete > /dev/null 2>&1
+echo -n " * Cleaning logs (+$CLEAN_LOG_DATE days old) .. "
+CLEANED=$(find $LOGDIR -mtime +$CLEAN_LOG_DATE -print -delete 2> /dev/null| wc -l)
 [[ $? == 0 ]] && echo " cleaned $CLEANED logs" || echo " Failed!"
