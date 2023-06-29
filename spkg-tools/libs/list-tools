@@ -181,7 +181,7 @@ getdep() {
 		fi
 
 		## Add our package
-		if ! grep -E "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART > /dev/null; then
+		if ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART > /dev/null; then
 			getPKG >> $CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi

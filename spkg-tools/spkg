@@ -790,15 +790,23 @@ else
 		PKG_CAT=$(getCategory $p)
 		PKG_NAME=$(getName $p)
 		PKG_VR=$(getVerRev $p)
-		PKG_SLOT=$(getSlot $p)
-		O_VER=$(Installed-getPkg $p | getVerRev)
 
+		## Install
 		if [[ $MODE != "uninstall" ]]; then
 			## By default we don't install already installed packages, even when requested
 			## check forced or empty world.
+			O_VER=$(Installed-getPkg $p | getVerRev)
 			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
 				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
 				! -z $EMPTY_WORLD ]]; then
+				PKG_SLOT=$(getSlot $p)
+				if grep "^$PKG_CAT/$PKG_NAME" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+					echo -n "~"
+				elif grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
+					echo -n "+"
+				else
+					echo -n " "
+				fi
 				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
 				[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
 				echo -n " [ $O_VER ]"
@@ -807,7 +815,8 @@ else
 					echo -n " (forced)"
 				fi
 
-				## FIXME: Does this ever output?
+				## If an IUSE is present, display it
+				IUSE=$(grep '[^#]*IUSE=' "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
 				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
 				echo
 
@@ -816,24 +825,16 @@ else
 			elif [[ $VERBOSE -gt 1 ]]; then
 				>&2 echo "$PKG_CAT/$PKG_NAME not requested or not forced ($REQUESTED_LIST)"
 			fi
-		else
-			if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
-				$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
-				if grep "^$PKG_CAT/$PKG_NAME" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
-					echo -n "~"
-				elif grep -E "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
-					echo -n "+"
-				else
-					echo -n " "
-				fi
-				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR [ $O_VER ]"
-				[[ $FORCE == 1 ]] && echo -n " (forced)"
-				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
-				echo
 
-				## Add to our INSTALL_CHART
-				Install-addPkg $PKG
-			fi
+		## Uninstall
+		elif [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
+			$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
+			echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
+			[[ $FORCE == 1 ]] && echo -n " (forced)"
+			echo
+
+			## Add to our INSTALL_CHART
+			Install-addPkg $PKG
 		fi
 	done
 	if [[ -e /usr/bin/bc ]]; then

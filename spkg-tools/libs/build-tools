@@ -454,7 +454,7 @@ uninstall() {
 			echo "WARNING: You've removed a package within the system set!"
 			echo "         This may cause undesired consequences!"
 		else
-			grep -Ev "^$PKG_CAT/$PKG_NAME/.*/$PKG_SLOT" $PKG_WORLD > $PKG_WORLD.old
+			grep -Ev "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > $PKG_WORLD.old
 			mv $PKG_WORLD.old $PKG_WORLD
 		fi
 	fi
