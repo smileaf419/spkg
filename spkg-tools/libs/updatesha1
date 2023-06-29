@@ -20,6 +20,7 @@ hashdir() {
 	local dir=${PKG_BLD%/*}
 	[[ -e $dir/sha1 ]] && rm $dir/sha1
 	local PKG=$(DB-getPkg $PKG_CAT/$PKG_NAME)
+	local p
 	for p in $PKG; do
 		(
 			unset SRC_URI PATCHES
@@ -44,8 +45,10 @@ updatesha1() {
 	## check the sha1sum of each file
 	## if any file fails, rehash the entire directory.
 	local updated=0
+	local l
 	for l in $list; do
 		local PKGs=$(DB-getPkg $l)
+		local p
 		for p in $PKGs; do
 			## Unset these as some packages don't set them and will cause issues checking hashes.
 			unset SRC_URI PATCHES
