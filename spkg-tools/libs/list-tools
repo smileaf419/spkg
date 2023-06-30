@@ -35,32 +35,6 @@ isDependedOn() {
 	[[ $LARGE_PKG == 1 ]] && >&2 echo " done"
 }
 
-## Populates a $CHART files
-getFullPkgList() {
-	## remove files if they exist to ensure an empty chart/stack
-	[[ -e $CHART ]] && rm $CHART
-	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
-	[[ -e $STACK ]] && rm $STACK
-	touch $CHART $STACK $INSTALL_CHART
-
-	SP=
-	local d
-	for d in $@; do
-		getdep $d || local ERR=$?
-		if [[ $ERR == 1 ]]; then
-			>&2 echo " $DIALOG_ERROR $d called self while calculating deps"
-		elif [[ $ERR == 2 ]]; then
-			die " $DIALOG_ERROR Package $d Not found!"
-		elif [[ $ERR == 77 ]]; then
-			die
-		fi
-		flist+=" $LENTRY"
-	done
-	>&2 echo
-	rm $STACK
-	cat $CHART
-}
-
 ## Take a list and expand all @sets found within.
 expandSets() {
 	local REQUEST_LIST=$@
@@ -107,6 +81,39 @@ expandSets() {
 	fi
 }
 
+## Populates a $CHART files
+getFullPkgList() {
+	local timestart=$(date "+%s.%N")
+	>&2 echo -n " * Calculating Package Order..."
+	## remove files if they exist to ensure an empty chart/stack
+	[[ -e $CHART ]] && rm $CHART
+	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
+	[[ -e $STACK ]] && rm $STACK
+	touch $CHART $STACK $INSTALL_CHART
+
+	SP=
+	local d
+	for d in $@; do
+		getdep $d || local ERR=$?
+		if [[ $ERR == 1 ]]; then
+			>&2 echo " $DIALOG_ERROR $d called self while calculating deps"
+		elif [[ $ERR == 2 ]]; then
+			die " $DIALOG_ERROR Package $d Not found!"
+		elif [[ $ERR == 77 ]]; then
+			die
+		fi
+		flist+=" $LENTRY"
+	done
+	>&2 echo
+	rm $STACK
+	cat $CHART
+	if [[ -e /usr/bin/bc ]]; then
+		>&2 printf " done (%.3f s)\n" $( echo $(date "+%s.%N") - $timestart | bc )
+	else
+		>&2 echo " done"
+	fi
+}
+
 ####
 ## 1: Package of deps to get.
 ## 2: if calling itself: the package which called it.
@@ -127,10 +134,27 @@ expandSets() {
 getdep() {
 	## Don't taint the environment.
 	(
-		setPkgENV $( [[ $(getVersion $1) == 0 ]] && DB-getPkg $1 | getLatest || echo $1 ) > /dev/null
+		## If we need a version, it matters if we're uninstalling or installing.
+		## If an older version is installed that we need to remove,
+		## we may instead grab the incorrect version and end up with a Pkg not found.
+		if [[ $(getVersion $1) == 0 ]]; then
+			if [[ $MODE == 'uninstall' ]]; then
+				PKG=$(Installed-getPkg $1)
+			else
+				PKG=$(DB-getPkg $1 | getLatest)
+			fi
+		else
+			PKG=$1
+		fi
+		setPkgENV $PKG > /dev/null
 
 		## Check if its on the stack, if not, add it. if so we'll get to it later.
-		grep -E "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $STACK > /dev/null 2>&1 && return 0 || eval echo \"$PKG\" >> $STACK
+		if [[ $PKG_SLOT == 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART $STACK > /dev/null 2>&1 ||
+			[[ $PKG_SLOT != 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART $STACK > /dev/null 2>&1; then
+			return 0
+		else
+			eval echo \"$PKG\" >> $STACK
+		fi
 
 		## If we somehow call ourselves..
 		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/$PKG_SLOT/ ]] && return 1
@@ -181,7 +205,8 @@ getdep() {
 		fi
 
 		## Add our package
-		if ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART > /dev/null; then
+		if [[ $PKG_SLOT == 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART > /dev/null 2>&1 ||
+			[[ $PKG_SLOT != 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART > /dev/null 2>&1; then
 			getPKG >> $CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi

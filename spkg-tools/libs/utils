@@ -97,8 +97,33 @@ buildKernel() {
 ## Check the WORLD file for a PKG
 ## Returns nothing, if nothing is found.
 getPkgFromWorld() {
-	[ -z $PKG_WORLD ] && die "Error: World File not set"
-    grep "^$1\$" $PKG_WORLD 2> /dev/null || true
+	local WORLD=${2:-$PKG_WORLD}
+	[ -z $WORLD ] && die "Error: World File not set"
+    grep "^$1\$" $WORLD 2> /dev/null || true
+}
+
+####
+## Checks if a PKG is recorded within WORLD
+## This requires the WORLD file to be expanded as WORLD may contain @sets
+isPkgInWorld() {
+	## Check the status of the ExpandedWorld against that of WORLD
+	## This offers the ability for @sets to be recorded and updated later within the set.
+	## If the WORLD is newer than that of ExpandedWorld update it
+	if [[ ! -e $PKG_WORLD.expanded || $(stat -c '%Y' $PKG_WORLD) -gt $(stat -c '%Y' $PKG_WORLD.expanded) ]]; then
+		local w
+		grep -v '^@' $PKG_WORLD > $PKG_WORLD.expanded
+		local list=$(expandSets $(grep '^@' $PKG_WORLD || true) )
+		for w in $list; do
+			if [[ $w == *:* ]]; then
+				$w=${w/:/\/\/\/}
+			else
+				w+="///"
+			fi
+			w+="///"
+		done
+	fi
+	## Otherwise, getPkgFromWorld
+	getPkgFromWorld $1 $PKG_WORLD.expanded
 }
 
 ####

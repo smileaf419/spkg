@@ -414,11 +414,10 @@ populate_list() {
 				return
 			fi
 		fi
-		PKG_CAT=$(getCategory $PKG)
-		REQUESTED_LIST+=" $(getPKG)"
+		REQUESTED_LIST+=" $PKG"
 
 		## Save our Cache data.
-		getPKG >> $CHART
+		echo $PKG >> $CHART
 	done
 	if [[ -e /usr/bin/bc ]]; then
 		>&2 printf " done (%.3f s)\n" $( echo $(date "+%s.%N") - $timestart | bc )
@@ -613,21 +612,21 @@ elif [[ $MODE == "buildKernel" ]]; then
 ##        if not, error out and tell the user to run: spkg @system @world
 elif [[ $MODE == "clean" ]]; then
 #	ENABLE_TESTS=1
-	echo " * Deep Cleaning"
+	echo " * Deep Cleaning (Experimental!)"
 	echo " * Gathering a list of @system and @world"
-	PKG_LIST=$(expandSets "@system @world")
-	echo " * Calculating Package List"
-	getFullPkgList $PKG_LIST > /dev/null || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
+	REQUESTED_LIST="@system @world"
+	populate_list
+	getFullPkgList $(cat $CHART) > /dev/null || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	mv $CHART $WORKDIR_BASE/sysworldset
 	echo " * Getting a list of installed packages."
-	find $PKG_CACHE -name \*.build | fileToList | listToLEntry > $WORKDIR_BASE/installedPkgs
-	getFullPkgList $(cat $WORKDIR_BASE/installedPkgs) > /dev/null|| die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
+	REQUESTED_LIST="@installed"
+	populate_list
+	getFullPkgList $(cat $CHART) > /dev/null|| die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	echo " * Gathering a list of targets to remove"
 	REQUESTED_LIST=$(cat $CHART $WORKDIR_BASE/sysworldset | sort | uniq -u)
-	MODE="uninstall"
 	## Clean-up
-	rm $WORKDIR_BASE/sysworldset $WORKDIR_BASE/installedPkgs
-
+#	rm $WORKDIR_BASE/sysworldset
+	exit 0
 	# { output=$(command 2>&1 1>&3-) ;} 3>&1
 
 ## Bootstrap a new system to the given directory.
@@ -760,17 +759,10 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 elif [[ $MODE == "preserved" ]]; then
 	preservedRebuild
 else
-	if [[ $MODE != "update" &&  $MODE != "resume" ]]; then
+	if [[ $MODE != "update" && $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
 		## Get Dependencies and check if any require updates.
-		timestart=$(date "+%s.%N")
-		echo -n " * Calculating Package Order..."
 		getFullPkgList $REQUESTED_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies: you may need to run: spkg -U"
 		PKG_LIST=$(cat $CHART)
-		if [[ -e /usr/bin/bc ]]; then
-			>&2 printf " done (%.3f s)\n" $( echo $(date "+%s.%N") - $timestart | bc )
-		else
-			>&2 echo " done"
-		fi
 		if [[ $VERBOSE -ge 1 ]]; then
 			echo "Package Order (Full List):"
 			for p in $(cat $CHART); do
@@ -800,7 +792,7 @@ else
 				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
 				! -z $EMPTY_WORLD ]]; then
 				PKG_SLOT=$(getSlot $p)
-				if grep "^$PKG_CAT/$PKG_NAME" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+				if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 					echo -n "~"
 				elif grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
 					echo -n "+"
@@ -827,8 +819,8 @@ else
 			fi
 
 		## Uninstall
-		elif [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
-			$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
+		elif [[	$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
+		#if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
 			echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
 			[[ $FORCE == 1 ]] && echo -n " (forced)"
 			echo
@@ -845,8 +837,8 @@ else
 	[ $PRETEND == 1 ] && exit 0
 	if [[ $ASK == 1 ]]; then
 		echo -n "Ok to continue? [${GREEN}Yes${NORMAL}/${RED}No${NORMAL}] "
-		read a
-		if [[ ! -z $a && ${a^^} != 'Y' && ${a^^} != 'YES' ]]; then
+		read cont
+		if [[ ! -z $cont && ${cont^^} != 'Y' && ${cont^^} != 'YES' ]]; then
 			exit 0
 		fi
 	fi
