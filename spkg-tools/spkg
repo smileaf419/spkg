@@ -191,8 +191,11 @@ export VERBOSE=0
 ## Current loaded package
 export PKG=
 ## User supplied list from the command line (Parsed)
+## Initally set via parse_cmdline and altered via populate_list
+## Should not be altered afterwards
 export REQUESTED_LIST=
 ## List of all packages with dependencies to work on.
+## All functions should operate off of this variable by default, but accept a list argument.
 export PKG_LIST=
 
 ## For security reasons this shouldn't ever be used... But exists
@@ -221,6 +224,7 @@ parse_cmdline() {
 		local val=${opts[$a+1]}
 		if [[ $opt == -* ]] ; then
 			opt=${opt#-}
+			local i
 			for i in $(seq 1 ${#opt}); do
 				if [[ $opt == -* ]]; then
 					o=$opt
@@ -387,15 +391,27 @@ populate_list() {
 		die
 	fi
 	>&2 echo -n " * Populating list"
+	local p
 	for p in $list; do
 		>&2 echo -n '.'
-		EntryParser $p > /dev/null
-		PKG=$(getPKG)
+		PKG=$(EntryParser $p)
 		## EntryParser does not find packages within our Database
 		## Check our Mode and check for the presence of the package.
 		## If the file is not found or multiple packages are found, perform a search and show the results.
 		if [[ $MODE == 'uninstall' ]]; then
 			PKG=$(Installed-getPkg $PKG)
+			c=($PKG)
+			if [[ ${#c} -gt 1 ]]; then
+				echo
+				echo " $DIALOG_ERROR $p has multiple matches!"
+				for pk in $PKG; do
+					setPkgENV $pk > /dev/null
+					echo -n " $PKG_CAT/$PKG_NAME - $PKG_VR"
+					[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
+					echo
+				done
+				die
+			fi
 		else
 			PKG=$(DB-getPkg $PKG | getLatest)
 		fi
