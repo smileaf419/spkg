@@ -401,7 +401,7 @@ populate_list() {
 		if [[ $MODE == 'uninstall' ]]; then
 			PKG=$(Installed-getPkg $PKG)
 			c=($PKG)
-			if [[ ${#c} -gt 1 ]]; then
+			if [[ ${#c[*]} -gt 1 ]]; then
 				echo
 				echo " $DIALOG_ERROR $p has multiple matches!"
 				for pk in $PKG; do
