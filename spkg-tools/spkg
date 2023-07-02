@@ -29,21 +29,21 @@ umask 022
 ####
 ## Trap Errors - Only exit out if we recieve an error code 77.
 ##               Such as using the function die
-#trap '[ "$?" == 77 ] && exit 77' ERR
 trap 'ErrorHandler $?' ERR
+trap 'ErrorHandler $?' EXIT
 
 ErrorHandler() {
 	local ERR=$1
 	case $ERR in
-		77) exit 77 ;;
+		0) ;;
+		77)
+			cleanup
+			exit 77 ;;
 		*)
 			>&2 echo " $DIALOG_ERROR Unhandled Error $ERR ( got called at $(caller) )"
 			;;
 	esac
 }
-
-## Probably won't ever need this.
-#trap '[ "$?" -ne 0 ] && exit $?' EXIT
 
 ## Trap SIGINT so we can properly clean-up and display information.
 trap "echo -ne '\nSIGINT caught, '; cleanup; exit 1" SIGINT
@@ -65,10 +65,19 @@ cleanup() {
 
 	if [ -e $INFORMLOG ]; then
 		cat "$INFORMLOG"
-		[[ ! -z $PKG_ONLY ]] && rm "$INFORMLOG"
-	else
-		touch $INFORMLOG
-		chmod 1777 $INFORMLOG
+	fi
+
+	## Clean-up our temp files
+	## If an error occurs we should remove our lock file.
+	if [[ -z $PKG_ONLY ]]; then
+		## For security purposes, validate our SPKG_TMP_DIR
+		BP=$(readlink -f $SPKG_TMP_DIR)
+		if [[ ! -z $BP && $BP != '/' && -e $SPKG_TMP_DIR ]]; then
+			rm -f $SPKG_TMP_DIR/.lock
+			if [[ $( [[ -e $INFORMLOG ]] && stat -c '%s' $INFORMLOG || echo 0) == 0 && ! -e $INSTALL_CHART ]]; then
+				rm -rf $SPKG_TMP_DIR
+			fi
+		fi
 	fi
 
 	# TODO: automerge if files were not changed.
@@ -171,14 +180,21 @@ export PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-$CACHE_DIR/archive}
 export LOGFILE=${LOGFILE:-%D-%n-%v.log}
 ## Database file used to store all packages explicitely installed not found within @system
 export PKG_WORLD=${PKG_WORLD:-$CACHE_DIR/world}
+## Temp files
+## Dir used to hold all Temp files so multiple instances maybe ran without conflict.
+export SPKG_TMP_DIR=/tmp/spkg-$$
+mkdir -p $SPKG_TMP_DIR
+## Create our lock file.
+touch $SPKG_TMP_DIR/.lock
 ## Informational File to output at the end.
-export INFORMLOG=${INFORMLOG:-$WORKDIR_BASE/inform.log}
+export INFORMLOG=${INFORMLOG:-$SPKG_TMP_DIR/inform.log}
 ## Storage file of cached packages being operated on.
-export CHART=${CHART:-$WORKDIR_BASE/chart}
+export CHART=${CHART:-$SPKG_TMP_DIR/chart}
 ## Chart of packages in order to be installed/uninstalled.
-export INSTALL_CHART=${INSTALL_CHART:-$WORKDIR_BASE/install_chart}
+export INSTALL_CHART=${INSTALL_CHART:-$SPKG_TMP_DIR/install_chart}
 ## List of files preserved until packages that depend on them can be reinstalled.
-export PRESERVED_LOG=${PRESERVED_LOG:-$WORKDIR_BASE/preserved}
+export PRESERVED_LOG=${PRESERVED_LOG:-$SPKG_TMP_DIR/preserved}
+
 
 ####
 ## Set initial program defaults
@@ -600,6 +616,22 @@ if [[ $MODE == "update" ]]; then
 
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
+	## If we're resuming we need to find a SPKG_TMP_DIR without a lock file.
+	for check in $(ls -d /tmp/spkg-*); do
+		if [[ ! -e $check/.lock ]]; then
+			## Clean-up our tmp dir, we'll be using the old one.
+			rm -r $SPKG_TMP_DIR
+			SPKG_TMP_DIR=$check
+			break
+		fi
+	done
+	[[ $SPKG_TMP_DIR == /tmp/spkg-$$ ]] && die " $DIALOG_ERROR Nothing to resume"
+	## Reset paths.
+	export INFORMLOG=$SPKG_TMP_DIR/inform.log
+	export CHART=$SPKG_TMP_DIR/chart
+	export INSTALL_CHART=$SPKG_TMP_DIR/install_chart
+	export PRESERVED_LOG=$SPKG_TMP_DIR/preserved
+
 	if [ ! -e $INSTALL_CHART ]; then
 		die " $DIALOG_ERROR Error Cannot resume no list was found."
 	fi
@@ -829,14 +861,13 @@ else
 				echo
 
 				## Add to our INSTALL_CHART
-				Install-addPkg $PKG
+				Install-addPkg $p
 			elif [[ $VERBOSE -gt 1 ]]; then
 				>&2 echo "$PKG_CAT/$PKG_NAME not requested or not forced ($REQUESTED_LIST)"
 			fi
 
 		## Uninstall
 		elif [[	$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
-		#if [[ $(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getVersion) != 0 &&
 			echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
 			[[ $FORCE == 1 ]] && echo -n " (forced)"
 			echo
