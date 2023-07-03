@@ -294,7 +294,7 @@ parse_cmdline() {
 						let a=++a
 						PKG_ARCHIVE_DIR=$val ;;
 					A|-installArchive)
-						ARCHIVE_INSTALL="1" ;;
+						ARCHIVE_INSTALL=1 ;;
 					l|-logdir)
 						let a=++a
 						LOGDIR=$val ;;
@@ -565,14 +565,13 @@ elif [[ $MODE == "resume" ]]; then
 	export CHART=$SPKG_TMP_DIR/chart
 	export INSTALL_CHART=$SPKG_TMP_DIR/install_chart
 	export PRESERVED_LOG=$SPKG_TMP_DIR/preserved
+	REQUESTED_LIST=$(cat $SPKG_TMP_DIR/requested.list)
 
 	if [ ! -e $INSTALL_CHART ]; then
 		die " $DIALOG_ERROR Error Cannot resume no list was found."
 	fi
 	echo " * Resuming..."
-	## FIXME: This actually is a guess at what the REQUESTED_LIST actually was.
-	##        If for example: a package was request, and 2 dependencies brought in, then got cancelled and resumed.
-	##        all 3 packages would be set as requested and thus registered within WORLD.
+
 	cp "$INSTALL_CHART" "$CHART"
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.

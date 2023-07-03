@@ -64,6 +64,7 @@ populate_list() {
 		## Needs at least PKG_CAT/PKG_NAME and PKG_SLOT
 		[[ ${RPKG:0:1} == '/' ]] && RPKG=$(getCategory $PKG)$RPKG
 		REQUESTED_LIST+=" $RPKG"
+		echo $RPKG >> $SPKG_TMP_DIR/requested.list
 		PKG_LIST+=" $PKG"
 
 		## Save our Cache data.
