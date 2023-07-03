@@ -74,8 +74,8 @@ src_install() {
 		echo " * Preparing modules"
 
 		## Update this var for setKernelConfig below.
-		KERNEL_CONFIG_FILE=/usr/src/linux-$PKG_VER/.config
-		cd /usr/src/linux-$PKG_VER
+		KERNEL_CONFIG_FILE=$D/usr/src/linux-$PKG_VER/.config
+		cd $D/usr/src/linux-$PKG_VER
 		gzip -cd /proc/config.gz > .config
 
 		## Set some defaults
@@ -102,40 +102,34 @@ src_install() {
 	fi
 
 	## Set/update our slot's symlink
-	if [[ ! -L /usr/src/linux-$PKG_SLOT ]]; then
+	if [[ -e /usr/src/linux-$PKG_SLOT && ! -L /usr/src/linux-$PKG_SLOT ]]; then
 		inform " $IMPORTANT /usr/src/linux-$PKG_SLOT contains a kernel dir. A symlink will not be created!"
 		inform " $IMPORTANT You will need to manually remove it for slot symlinks to be managed."
 		inform " $IMPORTANT This is normal if upgrading from the 1st release of a new minor release."
 		inform " $IMPORTANT Ex: $PKG_SLOT -> ${PKG_SLOT}.1 - If this is the case, you may wish run:"
 		inform " $IMPORTANT  rm -r /usr/src/linux-$PKG_SLOT && ln -sf /usr/src/linux-$PKG_VER /usr/src/linux-$PKG_SLOT"
-	else
-		rm /usr/src/linux-$PKG_SLOT
-		ln -sfv /usr/src/linux-$PKG_VER /usr/src/linux-$PKG_SLOT
 	fi
+
+	ln -sfv linux-$PKG_VER $D/usr/src/linux-$PKG_SLOT
+}
+
+post_install() {
 	## If we just installed the latest installed slot, update the symlink to the current kernel to our slot's symlink.
 	if [[ $(Installed-getPkg sys-kernel/linux-kernel | getLatest | getSlot) == $PKG_SLOT && ! -e /usr/src/linux ]]; then
 		inform " * Updating Kernel symlink to Linux ${PKG_VER}"
-		ln -sfv /usr/src/linux-$PKG_SLOT /usr/src/linux
+		ln -sfv linux-$PKG_SLOT /usr/src/linux
 	fi
 }
 
-src_uninstall() {
+src_post_uninstall() {
 	## We need to ensure we didn't just break a symlink
-	## Check if any versions are installed for our slot, if so, update it otherwise remove it.
-	local I=$(Installed-getPkg $PKG_CAT/$PKG_NAME:$PKG_SLOT | getLatest)
-	local IVer=$(getVersion ${I:-0})
-	if [[ $IVer != 0 && ! -z $IVer ]]; then
-		[ -L /usr/src/linux-$PKG_SLOT ] && rm /usr/src/linux-$PKG_SLOT
-		echo " * Updating Kernel Symlink for slot $PKG_SLOT to $IVER"
-		ln -sv /usr/src/linux-$IVer /usr/src/linux-$PKG_SLOT
-	## If no version exists for our slot, get the latest installed slot and set our main link to that.
-	else
-		rm /usr/src/linux-$PKG_SLOT
-		local ISlot=$(getSlot ${I:-0})
-		## If our Main link exists and is currently linked to a now dead slot, remove it and link it to the latest slot.
-		if [[ -e /usr/src/linux && $(readlink $/usr/src/linux) == "/usr/src/linux-$PKG_SLOT" ]]; then
-			rm /usr/src/linux
-			ln -sf /usr/src/linux-$ISlot /usr/src/linux
+	## If our Main link exists and is currently linked to a now dead slot, remove it and link it to the latest slot.
+	if [[ -e /usr/src/linux && ! -e $(readlink $/usr/src/linux) ]]; then
+		local ISlot=$(Installed-getPkg $PKG_CAT/$PKG_NAME | getLatest | getSlot)
+		rm /usr/src/linux
+		if [[ $ISlot != '' && $ISlot != 0 ]]; then
+			inform " * Updating Kernel symlink to Linux ${ISlot}"
+			ln -sf linux-$ISlot /usr/src/linux
 		fi
 	fi
 }
