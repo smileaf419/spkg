@@ -7,6 +7,72 @@
 ## Set the Stack file
 export STACK=$WORKDIR_BASE/stack
 
+####
+## Takes a user supplied list and parse it and finding matches for packages.
+## Store the information within our CHART for easy reference.
+populate_list() {
+	local timestart=$(date "+%s.%N")
+	[ -e $CHART ] && rm $CHART
+	local list=$(expandSets $REQUESTED_LIST)
+	REQUESTED_LIST=
+	if [[ -z $list ]]; then
+		return 0
+	elif [[ $list == "ERR" ]]; then
+		die
+	fi
+	>&2 echo -n " * Populating list"
+	local p
+	for p in $list; do
+		>&2 echo -n '.'
+		PKG=$(EntryParser $p)
+		## EntryParser does not find packages within our Database
+		## Check our Mode and check for the presence of the package.
+		## If the file is not found or multiple packages are found, perform a search and show the results.
+		if [[ $MODE == 'uninstall' ]]; then
+			PKG=$(Installed-getPkg $PKG)
+			c=($PKG)
+			if [[ ${#c[*]} -gt 1 ]]; then
+				echo
+				echo " $DIALOG_ERROR $p has multiple matches!"
+				for pk in $PKG; do
+					setPkgENV $pk > /dev/null
+					echo -n " $PKG_CAT/$PKG_NAME - $PKG_VR"
+					[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
+					echo
+				done
+				die
+			fi
+		else
+			PKG=$(DB-getPkg $PKG | getLatest)
+		fi
+		if [[ $PKG == "" ]]; then
+			if [[ $MODE == 'uninstall' ]]; then
+				>&2 echo " $DIALOG_ERROR $p not installed!"
+				exit
+			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
+			elif [[ $HASH_UPDATE ]]; then
+				>&2 echo " $DIALOG_ERROR $p not found!"
+				continue
+			else
+				>&2 echo " $DIALOG_ERROR $p not found!"
+				REQUESTED_LIST=$p
+				MODE=search
+				return
+			fi
+		fi
+		REQUESTED_LIST+=" $PKG"
+
+		## Save our Cache data.
+		echo $PKG >> $CHART
+	done
+	if [[ -e /usr/bin/bc ]]; then
+		>&2 printf " done (%.3f s)\n" $( echo $(date "+%s.%N") - $timestart | bc )
+	else
+		>&2 echo " done"
+	fi
+	return 0
+}
+
 ## Checks if a given file is depended upon
 ## Returns: list of files depending on a file or 0 if none found.
 checkFileDep() {
