@@ -1,0 +1,50 @@
+####
+## libsdl2 build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.libsdl.org/"
+DESCRIPTION="The Simple DirectMedia Layer Version 2"
+LICENSE="ZLIB"
+SRC_URI=("https://www.libsdl.org/release/SDL2-${PKG_VER}.tar.gz")
+DEPS=""
+BDEPS=""
+RDEPS=""
+## [[ $INSTALL_DOCS == 1 ]] && BDEPS+=" app-doc/doxygen"
+setBuildENV cmake cmake
+ARCHS="~x86 ~x86_64"
+SLOT=0
+B=SDL2-$PKG_VER
+
+src_configure() {
+	append-cflags -ffat-lto-objects
+	configure_default -D SDL_HIDAPI_LIBUSB=ON \
+					  -D SDL_STATIC=OFF \
+					  -D SDL_RPATH=OFF \
+					  -G Ninja
+}
+
+src_compile() {
+	compile_default
+#	if [[ $INSTALL_DOCS == 1 ]]; then
+#		pushd docs
+#			doxygen
+#		popd
+#	fi
+}
+
+src_test() {
+	cd ../test
+	./configure
+	sed -i "/^LIBS/ s,$, -L../build" Makefile
+	compile_default
+}
+
+src_install() {
+	install_default
+	# Static libraries cannot be disabled by this package without breaking the build.
+	# Remove them now that we're done with them.
+	rm -v $D/usr/lib/libSDL2*.a
+#	if [[ $INSTALL_DOCS == 1 ]]; then
+#		install -v -m755 -d       $D/usr/share/doc/SDL2-${PKG_VER}/html
+#		cp -Rv docs/output/html/* $D/usr/share/doc/SDL2-${PKG_VER}/html
+#	fi
+}
