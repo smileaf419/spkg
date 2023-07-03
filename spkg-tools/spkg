@@ -511,7 +511,7 @@ if [[ $MODE == "update" ]]; then
 
 	## a REQUESTED_LIST is not set as none of this has been explicitely requested.
 	## instead set a PKG_LIST
-	list=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,," | tr '\n' ' ')
+	list=$(expandSets "@installed")
 	PKG_LIST=
 #	spinner=('|' '|' '/' '/' '-' '-' '\\' '\\')
 #	s=0
@@ -776,7 +776,7 @@ else
 				PKG_SLOT=$(getSlot $p)
 				if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 					echo -n "~"
-				elif grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
+				elif grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
 					echo -n "+"
 				else
 					echo -n " "
