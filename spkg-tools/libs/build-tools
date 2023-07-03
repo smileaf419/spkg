@@ -347,15 +347,15 @@ installPackage() {
 		## Check if its a system package
 		## Currently we don't use slots within the system set.
 		## So the most recent slot should always be used.
-		if ! grep "^$PKG_CAT/$PKG_NAME\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+		if ! grep "^$PKG_CAT/${PKG_NAME/+/\\+}\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 			## If it didn't find it as a system package, check if its already in the world set.
 
 			## Only add to world requested packages.
-			grep "^$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
-			if [[ $? != 0 && $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT/ ]]; then
+			grep "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1
+			if [[ $? != 0 && $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME(/[^/]*){3}/$PKG_SLOT/ ]]; then
 				if [[ -z $OMIT_RECORD_IN_WORLD ]]; then
 					## Record whats requested, not just what we installed
-					PKG=$(echo -e $REQUESTED_LIST | grep "$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/[^/]*/$PKG_SLOT/")
+					PKG=$(echo $REQUESTED_LIST | tr ' ' '\n' | grep "$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT/")
 					echo " * Registering into World."
 					echo ${PKG# } >> $PKG_WORLD
 				fi
@@ -366,7 +366,7 @@ installPackage() {
 
 		if [ -e $INSTALL_CHART ]; then
 			## Trim the top package off and save our list of todos.
-			tail -n $(( $(wc -l $INSTALL_CHART | sed 's, .*$,,') - 1 )) $INSTALL_CHART >> ${INSTALL_CHART}-2
+			tail -n +2 $INSTALL_CHART >> ${INSTALL_CHART}-2
 			mv ${INSTALL_CHART}-2 $INSTALL_CHART
 		fi
 
