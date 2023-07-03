@@ -126,9 +126,9 @@ installPackage() {
 		install -o $BUILD_USER -d "${D}"
 
 		## If the archive doesn't exist we can't do an ARCHIVE_INSTALL, build the package instead.
-		if [[ $ARCHIVE_INSTALL == 1 && -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz" ]]; then
+		if [[ $ARCHIVE_INSTALL == 1 && -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" ]]; then
 			cd "${D}"
-			tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.gz"
+			tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz"
 
 		## Build our source, setup the environment so we can pass things off to our BUILD_USER
 		else
@@ -206,17 +206,17 @@ installPackage() {
 
 			echo " * src_install"
 			src_install		|| die "Error in src_install"
-			case $MODULE in
-				kernel)
-					echo > ${BUILD_PATH}/KERNEL_MODULE ;;
-				perl)
-					echo > ${BUILD_PATH}/PERL_MODULE ;;
-				python)
-					echo > ${BUILD_PATH}/PYTHON_MODULE ;;
-			esac
 
 			## Save our USE for use later.
-			echo $USE > ${BUILD_PATH}/USE_FLAGS
+			echo $USE > ${D}/USE_FLAGS
+			case $MODULE in
+				kernel)
+					echo > ${D}/KERNEL_MODULE ;;
+				perl)
+					echo > ${D}/PERL_MODULE ;;
+				python)
+					echo > ${D}/PYTHON_MODULE ;;
+			esac
 		fi
 
 		## Archive it up before we do any post modifications.
@@ -245,6 +245,20 @@ installPackage() {
 
 		stripPackage
 
+		## Create the cache directory
+		local CACHE_DIR="${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
+		mkdir -p "$CACHE_DIR"
+		## Copy over our build file so we can reference it in uninstalls
+		cp "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
+		if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
+			mv ${BUILD_PATH}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
+		elif [ -e ${BUILD_PATH}/PERL_MODULE ]; then
+			mv ${BUILD_PATH}/PERL_MODULE $CACHE_DIR/PERL_MODULE
+		elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
+			mv ${BUILD_PATH}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
+		fi
+		mv ${D}/USE_FLAGS $CACHE_DIR/USE_FLAGS
+
 		## Gather Contents
 		## This is sort of an awkward hack...
 		## If we're bootstrapping we install binutils twice and gcc 3 times!
@@ -256,6 +270,9 @@ installPackage() {
 		else
 			find . | sed "s,^\.,," | sort > "${BUILD_PATH}/CONTENTS"
 		fi
+
+		getBDeps "${BUILD_PATH}/CONTENTS"
+		cp "${BUILD_PATH}/CONTENTS" "$CACHE_DIR/CONTENTS"
 
 		echo " * Merging into ${ROOT}"
 		## Install New Files
@@ -317,22 +334,6 @@ installPackage() {
 
 		## Uninstall Old files
 		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
-
-		## Create the cache directory
-		local CACHE_DIR="${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
-		mkdir -p "$CACHE_DIR"
-		## Copy over our build file so we can reference it in uninstalls
-		cp "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
-		getBDeps "${BUILD_PATH}/CONTENTS"
-		mv "${BUILD_PATH}/CONTENTS" "$CACHE_DIR/CONTENTS"
-		if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
-			mv ${BUILD_PATH}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
-		elif [ -e ${BUILD_PATH}/PERL_MODULE ]; then
-			mv ${BUILD_PATH}/PERL_MODULE $CACHE_DIR/PERL_MODULE
-		elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
-			mv ${BUILD_PATH}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
-		fi
-		mv ${BUILD_PATH}/USE_FLAGS $CACHE_DIR/USE_FLAGS
 
 		echo " * post_install"
 		post_install || die "Error in post_install"
@@ -466,6 +467,7 @@ archivePackage() {
 	if [[ $BUILD_PACKAGE == "yes" && $ARCHIVE_INSTALL != 1 && $MODE != "bootstrap" ]]; then
 		echo -n "Packaging up..."
 		mkdir -p "${PKG_ARCHIVE_DIR}/${PKG_CAT}"
+		cd $D
 		tar -Jcpf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" . && echo " Done"
 	fi
 }
