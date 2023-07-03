@@ -453,7 +453,7 @@ fi
 if [[ $MODE == "buildbdeps" ]]; then
 	echo -n "Finding Binary Dependencies: "
 	[ $VERBOSE == 0 ] && echo
-	for l in $REQUESTED_LIST; do
+	for l in $PKG_LIST; do
 		p=$(getCategory $l)/$(getName $l)
 		buildBDeps $p && [ $VERBOSE == 0 ] && echo -n "."
 	done && echo
@@ -462,10 +462,10 @@ fi
 ## Update the sha1sum of all files for the given package.
 ## Using the set @all while useful is not recommended given the size of the repository.
 if [[ $MODE != 'search' && $HASH_UPDATE ]]; then
-	C=($REQUESTED_LIST)
+	C=($PKG_LIST)
 	echo " * Updating sha1 of ${#C[*]} packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
-	for p in $REQUESTED_LIST; do
+	for p in $PKG_LIST; do
 		PKG=$(DB-getPkg $p)
 		if [[ $PKG == "" ]]; then
 			echo -n "!"
@@ -573,7 +573,7 @@ elif [[ $MODE == "resume" ]]; then
 	## FIXME: This actually is a guess at what the REQUESTED_LIST actually was.
 	##        If for example: a package was request, and 2 dependencies brought in, then got cancelled and resumed.
 	##        all 3 packages would be set as requested and thus registered within WORLD.
-	mv "$INSTALL_CHART" "$CHART"
+	cp "$INSTALL_CHART" "$CHART"
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 elif [[ $MODE == "buildKernel" ]]; then
@@ -743,8 +743,7 @@ elif [[ $MODE == "preserved" ]]; then
 else
 	if [[ $MODE != "update" && $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
 		## Get Dependencies and check if any require updates.
-		getFullPkgList $REQUESTED_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies: you may need to run: spkg -U"
-		PKG_LIST=$(cat $CHART)
+		getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies: you may need to run: spkg -U"
 		if [[ $VERBOSE -ge 1 ]]; then
 			echo "Package Order (Full List):"
 			for p in $(cat $CHART); do
@@ -771,7 +770,7 @@ else
 			## check forced or empty world.
 			O_VER=$(Installed-getPkg $p | getVerRev)
 			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
-				($FORCE == 1 && $REQUESTED_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
+				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
 				! -z $EMPTY_WORLD ]]; then
 				PKG_SLOT=$(getSlot $p)
 				if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then

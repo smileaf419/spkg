@@ -14,6 +14,7 @@ populate_list() {
 	local timestart=$(date "+%s.%N")
 	[ -e $CHART ] && rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
+	PKG_LIST=
 	REQUESTED_LIST=
 	if [[ -z $list ]]; then
 		return 0
@@ -24,12 +25,12 @@ populate_list() {
 	local p
 	for p in $list; do
 		>&2 echo -n '.'
-		PKG=$(EntryParser $p)
+		RPKG=$(EntryParser $p)
 		## EntryParser does not find packages within our Database
 		## Check our Mode and check for the presence of the package.
 		## If the file is not found or multiple packages are found, perform a search and show the results.
 		if [[ $MODE == 'uninstall' ]]; then
-			PKG=$(Installed-getPkg $PKG)
+			PKG=$(Installed-getPkg $RPKG)
 			c=($PKG)
 			if [[ ${#c[*]} -gt 1 ]]; then
 				echo
@@ -43,7 +44,7 @@ populate_list() {
 				die
 			fi
 		else
-			PKG=$(DB-getPkg $PKG | getLatest)
+			PKG=$(DB-getPkg $RPKG | getLatest)
 		fi
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
@@ -55,12 +56,15 @@ populate_list() {
 				continue
 			else
 				>&2 echo " $DIALOG_ERROR $p not found!"
-				REQUESTED_LIST=$p
+				PKG_LIST=$p
 				MODE=search
 				return
 			fi
 		fi
-		REQUESTED_LIST+=" $PKG"
+		## Needs at least PKG_CAT/PKG_NAME and PKG_SLOT
+		[[ ${RPKG:0:1} == '/' ]] && RPKG=$(getCategory $PKG)$RPKG
+		REQUESTED_LIST+=" $RPKG"
+		PKG_LIST+=" $PKG"
 
 		## Save our Cache data.
 		echo $PKG >> $CHART
@@ -170,7 +174,6 @@ getFullPkgList() {
 		fi
 		flist+=" $LENTRY"
 	done
-	>&2 echo
 	rm $STACK
 	cat $CHART
 	if [[ -e /usr/bin/bc ]]; then
