@@ -13,7 +13,7 @@ DEPS="app-arch/xz-utils app-arch/zstd media-libs/libjpeg-turbo media-libs/libweb
 BDEPS=""
 RDEPS=""
 setBuildENV cmake ninja
-BUILD_SEPERATE_DIR=no
+BUILD_SEPERATE_DIR=yes
 ARCHS="~x86 ~x86_64"
 SLOT=0
 
