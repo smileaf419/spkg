@@ -34,6 +34,7 @@ trap 'ErrorHandler $?' EXIT
 
 ErrorHandler() {
 	local ERR=$1
+	rm -f $SPKG_TMP_DIR/.lock
 	case $ERR in
 		0) ;;
 		77)
@@ -70,12 +71,15 @@ cleanup() {
 	## Clean-up our temp files
 	## If an error occurs we should remove our lock file.
 	if [[ -z $PKG_ONLY ]]; then
+		[ -e $SPKG_TMP_DIR/.lock ] && rm -f $SPKG_TMP_DIR/.lock
 		## For security purposes, validate our SPKG_TMP_DIR
-		BP=$(readlink -f $SPKG_TMP_DIR)
-		if [[ ! -z $BP && $BP != '/' && -e $SPKG_TMP_DIR ]]; then
-			rm -f $SPKG_TMP_DIR/.lock
-			if [[ $( [[ -e $INFORMLOG ]] && stat -c '%s' $INFORMLOG || echo 0) == 0 && ! -e $INSTALL_CHART ]]; then
-				rm -rf $SPKG_TMP_DIR
+		if [[ ! -z $SPKG_TMP_DIR && -e $SPKG_TMP_DIR ]]; then
+			BP=$(readlink -f $SPKG_TMP_DIR)
+			if [[ ! -z $BP && $BP != '/' ]]; then
+				## If a INFORMLOG exists, but is zero and an install chart does not exist remove the tmp dir.
+				if [[ $( [[ -e $INFORMLOG ]] && stat -c '%s' $INFORMLOG || echo 0) == 0 && ! -e $INSTALL_CHART ]]; then
+					rm -rf $SPKG_TMP_DIR
+				fi
 			fi
 		fi
 	fi
@@ -180,10 +184,23 @@ export PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-$CACHE_DIR/archive}
 export LOGFILE=${LOGFILE:-%D-%n-%v.log}
 ## Database file used to store all packages explicitely installed not found within @system
 export PKG_WORLD=${PKG_WORLD:-$CACHE_DIR/world}
+
 ## Temp files
 ## Dir used to hold all Temp files so multiple instances maybe ran without conflict.
 export SPKG_TMP_DIR=/tmp/spkg-$$
+## Check for an unlocked SPKG_TMP_DIR. If we don't find one, create the dir and continue.
+## If we do find one, rename it to the current pid.
+for check in $(ls -d /tmp/spkg-* 2> /dev/null || true); do
+	## If a lock doesn't exist, we're good to reuse the environment or at the very least, keep the house clean.
+	if [[ ! -e $check/.lock ]]; then
+		mv $check $SPKG_TMP_DIR
+		break
+	fi
+done
+unset check
+## Create the Dir if it doesn't already exist.
 mkdir -p $SPKG_TMP_DIR
+
 ## Create our lock file.
 touch $SPKG_TMP_DIR/.lock
 ## Informational File to output at the end.
@@ -338,8 +355,8 @@ parse_cmdline() {
 					h|-help)
 						echo "spkg by Stephen Leaf version $VERSION"
 						echo "Usage: $0 [Arguments] [package | @set]"
-						echo " @set can be any of: @all @system @world"
-						echo "  see spkg-sets, for a complete listing."
+						echo " @set can be any of: @all @installed @system @world"
+						echo "  see the $PKG_DB_DIR/spkg-sets dir, for a complete listing."
 						echo " Modes (Default: Install)"
 						echo    "  --search, -s         Search and list package information."
 						echo    "  --uninstall, -u      uninstall package."
@@ -550,15 +567,6 @@ if [[ $MODE == "update" ]]; then
 
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
-	## If we're resuming we need to find a SPKG_TMP_DIR without a lock file.
-	for check in $(ls -d /tmp/spkg-*); do
-		if [[ ! -e $check/.lock ]]; then
-			## Clean-up our tmp dir, we'll be using the old one.
-			rm -r $SPKG_TMP_DIR
-			SPKG_TMP_DIR=$check
-			break
-		fi
-	done
 	[[ $SPKG_TMP_DIR == /tmp/spkg-$$ ]] && die " $DIALOG_ERROR Nothing to resume"
 	## Reset paths.
 	export INFORMLOG=$SPKG_TMP_DIR/inform.log
