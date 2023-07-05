@@ -6,7 +6,7 @@ DESCRIPTION="high quality MPEG Audio Layer III (MP3) encoder"
 LICENSE="LGPL"
 SRC_URI="https://downloads.sourceforge.net/lame/lame-${PKG_VER}.tar.gz"
 PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.100-pkgconfig.patch"
-"https://cgit.gentoo.org/repo/gentoo.git/tree/media-sound/lame/files/lame-3.100-symbols.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.100-symbols.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.98-gtk-path.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.99.5-msse.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/media-sound/lame/files/lame-3.99.5-tinfo.patch")
