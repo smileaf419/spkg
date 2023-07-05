@@ -14,7 +14,8 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 setBuildENV cmake
-BUILD_SEPERATE_DIR=../source
+BUILD_SEPERATE_DIR=no
+B=x265-$PKG_VER/source
 
 src_configure() {
 	configure_default -DGIT_ARCHSETYPE=1
