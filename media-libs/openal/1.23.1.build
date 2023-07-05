@@ -1,8 +1,6 @@
 ####
-## openal build
+## OpenAL build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://www.openal-soft.org/"
 DESCRIPTION="A software implementation of the OpenAL 3D audio API"
 LICENSE="LGPLv2+ BSD"
@@ -13,7 +11,7 @@ DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV cmake make
-BUILD_SEPERATE_DIR=no
+BUILD_SEPERATE_DIR=yes
 ARCHS="x86 x86_64"
 SLOT=0
 B=openal-soft-$PKG_VER
