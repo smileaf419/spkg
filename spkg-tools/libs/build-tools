@@ -132,6 +132,9 @@ installPackage() {
 
 		## Build our source, setup the environment so we can pass things off to our BUILD_USER
 		else
+			## Even if we are trying to install via an archive, if we got here the archive doesn't exist.
+			## Disable the ARCHIVE_INSTALL to allow a package to be built if BUILD_PACKAGE=yes
+			ARCHIVE_INSTALL=0
 			src_fetch
 
 			# src_verify
