@@ -543,7 +543,7 @@ if [[ $MODE == "update" ]]; then
 		WPKG=$(getPkgFromWorld $PKG_CAT/$PKG_NAME)
 		if [ ! -z $WPKG ]; then
 			for w in $WPKG; do
-				echo $w >> $CHART
+				DB-getPkg $w | getLatest >> $CHART
 			done
 		else
 			PKG=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
@@ -551,7 +551,7 @@ if [[ $MODE == "update" ]]; then
 				PKG_SLOT=$(getSlot $p)
 				PKG_VER=0
 				PKG_REV=0
-				getPKG >> $CHART
+				DB-getPkg $(getPKG) | getLatest >> $CHART
 			done
 		fi
 #		s=$(( $s + 1 ))
