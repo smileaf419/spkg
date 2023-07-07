@@ -1,0 +1,33 @@
+####
+## groff build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gnu.org/software/groff/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://ftp.gnu.org/gnu/groff/groff-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/groff/groff-${PKG_VER}.tar.gz.sig")
+DEPS=""
+BDEPS="dev-lang/perl"
+RDEPS=""
+IUSE="X"
+use-enable X && UDEPS="x11-libs/libICE x11-libs/libSM x11-libs/libX11 x11-libs/libXau x11-libs/libXaw x11-libs/libxcb x11-libs/libXext x11-libs/libXmu x11-libs/libXpm x11-libs/libXt"
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default $(use-enable X && echo --with-x || echo --without-x)
+}
+
+src_compile() {
+	# In case we override this globally enforce a single process here.
+	make -j1
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	mkdir ${D}/etc
+	echo $PAGE > ${D}/etc/papersize
+}
