@@ -1,14 +1,10 @@
 ####
 ## openjpeg build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://www.openjpeg.org"
 DESCRIPTION="Open-source JPEG 2000 library"
 LICENSE="BSD-2"
 SRC_URI=("https://github.com/uclouvain/openjpeg/archive/v${PKG_VER}/openjpeg-${PKG_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS="app-arch/xz-utils app-arch/zstd media-libs/lcms media-libs/libjpeg-turbo media-libs/libpng media-libs/tiff sys-libs/zlib"
 BDEPS=""
 RDEPS=""
@@ -24,7 +20,7 @@ src_test() { :; }
 
 src_install() {
 	install_default
-	pushd doc
+	pushd ../doc
 		for man in man/man?/* ; do
 			install -v -D -m 644 $man ${D}/usr/share/$man
 		done
