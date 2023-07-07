@@ -10,7 +10,6 @@ BDEPS=""
 RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
-B=linux-$PKG_VER
 RESTRICT="strip nobin"
 
 URL_BASE="https://cdn.kernel.org/pub/linux/kernel/v6.x"
@@ -28,12 +27,15 @@ if [[ $MODE != "search" ]]; then
 	if [ $(( $MicV % $VerIncr )) == 0 ]; then
 		if [[ $MicV == 0 ]]; then
 			SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.tar.xz")
+			B=linux-$MV-$MiV
 		else
 			SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.${MicV}.tar.xz")
+			B=linux-$MV.$Miv.$MicV
 		fi
 	## If we've not reach our threshold yet, grab the original
 	elif [ $MicV -lt $VerIncr ]; then
 		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.tar.xz")
+		B=linux-$MV.$MiV
 	## Otherwise, we need to grab the archive closest to our current version.
 	else
 		VerStart=$(( $(( $MicV / $VerIncr )) * $VerIncr ))
