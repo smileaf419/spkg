@@ -1,14 +1,10 @@
 ####
 ## test build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://github.com/smileaf419/spkg"
+DESCRIPTION="Testing package not used for any other reason. don't install it :)"
+LICENSE="Free"
 SRC_URI=("")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
@@ -16,7 +12,7 @@ setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="x86 x86_64"
 SLOT=0
-#B=
+B=
 
 src_configure() { :; }
 
@@ -24,4 +20,7 @@ src_compile() { :; }
 
 src_test() { :; }
 
-src_install() { :; }
+src_install() {
+	mkdir -p $D/usr/local/bin
+	touch $D/usr/local/bin/test
+}
