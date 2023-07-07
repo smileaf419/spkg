@@ -253,12 +253,12 @@ installPackage() {
 		mkdir -p "$CACHE_DIR"
 		## Copy over our build file so we can reference it in uninstalls
 		cp "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
-		if [ -e ${BUILD_PATH}/KERNEL_MODULE ]; then
-			mv ${BUILD_PATH}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
-		elif [ -e ${BUILD_PATH}/PERL_MODULE ]; then
-			mv ${BUILD_PATH}/PERL_MODULE $CACHE_DIR/PERL_MODULE
-		elif [ -e ${BUILD_PATH}/PYTHON_MODULE ]; then
-			mv ${BUILD_PATH}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
+		if [ -e ${D}/KERNEL_MODULE ]; then
+			mv ${D}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
+		elif [ -e ${D}/PERL_MODULE ]; then
+			mv ${D}/PERL_MODULE $CACHE_DIR/PERL_MODULE
+		elif [ -e ${D}/PYTHON_MODULE ]; then
+			mv ${D}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
 		fi
 		mv ${D}/USE_FLAGS $CACHE_DIR/USE_FLAGS
 
@@ -275,7 +275,6 @@ installPackage() {
 		fi
 
 		getBDeps "${BUILD_PATH}/CONTENTS"
-		cp "${BUILD_PATH}/CONTENTS" "$CACHE_DIR/CONTENTS"
 
 		echo " * Merging into ${ROOT}"
 		## Install New Files
@@ -338,6 +337,9 @@ installPackage() {
 		## Uninstall Old files
 		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
 
+		## Move our new CONTENTS into its final location.
+		mv "${BUILD_PATH}/CONTENTS" "$CACHE_DIR/CONTENTS"
+
 		echo " * post_install"
 		post_install || die "Error in post_install"
 
@@ -398,7 +400,7 @@ uninstall() {
 		## Sort it by 2nd field, add a space to induce a 2nd field for uniq
 		## grep again for the installed version and remove the file path
 		## leaving only the installed files that do not exist in the to-be installed version.
-		grep -H / "${PKG_CACHE}/${PKG}/${O_VER}/CONTENTS" "${BUILD_PATH}/CONTENTS" | sort -t: -k2 | sed 's,:,: ,' | uniq -f1 -u | grep $PKG_CACHE | sed 's,.*: ,,' > /tmp/flist-$PKG_NAME
+		grep -H / "$BUILD_PATH/CONTENTS" "${PKG_CACHE}/${PKG}/${O_VER}/CONTENTS" | sort -t: -k2 -u | grep "$PKG_CACHE" | sed 's,.*:,,' > /tmp/flist-$PKG_NAME
 		## Reverse cat the filelist so files always come before their dirs.
 		FLIST=$(tac /tmp/flist-$PKG_NAME)
 		## Remove it now that we don't need it.
