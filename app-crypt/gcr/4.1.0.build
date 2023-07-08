@@ -1,23 +1,21 @@
 ####
 ## GCR build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://gitlab.gnome.org/GNOME/gcr"
+DESCRIPTION="library for accessing PKCS#11 modules like smart cards, in a (G)object-oriented way"
+LICENSE="GPLv2"
 SRC_URI=("https://download.gnome.org/sources/gcr/${PKG_VER%.*}/gcr-${PKG_VER}.tar.xz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS="app-crypt/p11-kit dev-libs/glib dev-libs/libgcrypt x11-libs/gtk+:4 x11-libs/pango"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
 BUILD_SEPERATE_DIR=yes
 ARCHS="~x86 ~x86_64"
-SLOT=3
+SLOT=4
 
 src_configure() {
 	sed -i 's:"/desktop:"/org:' schema/*.xml
-	sed -e "/install_dir/s@,\$@ / 'gcr-3.41.1'&@" \
+	sed -e "/install_dir/s@,\$@ / 'gcr-$PKG_VER'&@" \
 		-e "/fatal-warnings/d"                    \
 		-i docs/*/meson.build
 
