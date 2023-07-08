@@ -285,6 +285,9 @@ installPackage() {
 			## to avoid installing a directory when a link
 			## was expected.
 			if [ -L "${D}/${file}" ]; then
+				## If the link is a directory, we need to remove it, otherwise the link will be
+				## created within the directory rather than overriding it.
+				[[ -d "/$file" ]] && rm "/$file"
 				ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null &&
 					echo " >> $file -> $(readlink ${file})" ||
 					echo "!>s $file -> $(readlink $file)"
