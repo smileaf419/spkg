@@ -776,8 +776,10 @@ else
 			## By default we don't install already installed packages, even when requested
 			## check forced or empty world.
 			O_VER=$(Installed-getPkg $p | getVerRev)
+			PKG_SLOT=$(getSlot $p)
+
 			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
-				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME") ||
+				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"/[^/]*/[^/]*/[^/]*/$PKG_SLOT) ||
 				! -z $EMPTY_WORLD ]]; then
 				PKG_SLOT=$(getSlot $p)
 				if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
