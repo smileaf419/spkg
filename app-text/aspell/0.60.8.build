@@ -1,14 +1,10 @@
 ####
 ## Aspell build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-## Start versioning at -r1 if patches are used.
-## non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="http://aspell.net/"
+DESCRIPTION="Free and Open Source spell checker designed to replace Ispell"
+LICENSE="LGPLv2.1"
 SRC_URI=("https://ftp.gnu.org/gnu/aspell/aspell-${PKG_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS="sys-libs/ncurses"
 BDEPS=""
 RDEPS=""
