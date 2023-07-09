@@ -1,15 +1,11 @@
 ####
 ## libao build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://www.xiph.org/ao/"
 DESCRIPTION="Audio Output Library"
 LICENSE="GPLv2"
 #SRC_URI=("https://downloads.xiph.org/releases/ao/libao-${PKG_VER}.tar.gz")
-SRC_URI=("https://github.com/xiph/libao/archive/${PKG_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
+SRC_URI=("https://github.com/xiph/libao/archive/${PKG_VER}.tar.gz => libao-${PKG_VER}.tar.gz")
 DEPS="media-libs/alsa-lib media-sound/pulseaudio"
 BDEPS=""
 RDEPS=""
