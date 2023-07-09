@@ -1,22 +1,18 @@
 ####
 ## minecraft-launcher build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://www.minecraft.net/"
 DESCRIPTION="An open-world game whose gameplay revolves around breaking and placing blocks"
 LICENSE="Mojang"
-SRC_URI=("https://launcher.mojang.com/v1/objects/4392471202bb9dff482db8a5551a7643da955ace/minecraft-launcher")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
-RDEPS="app-crypt/libsecret"
-BDEPS=""
+SRC_URI=("https://launcher.mojang.com/download/Minecraft.tar.gz")
+RDEPS="app-crypt/libsecret accounts/games"
+BDEPS="accounts/games"
 DEPS="dev-libs/glib x11-libs/gtk+:3"
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="x86 x86_64"
 SLOT=0
-B=
+B=minecraft-launcher
 
 src_configure() { :; }
 
@@ -25,6 +21,6 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	install -m755 -d ${D}/usr/bin
-	install -m755 ${DISTFILES}/${SRC_URI[0]##*/} ${D}/usr/bin
+	install -m755 -d ${D}/usr/games/bin
+	install -g games -m755 minecraft-launcher ${D}/usr/games/bin
 }
