@@ -23,8 +23,11 @@ export -f die
 ## This logfile will then be outputted again at the very end.
 inform() {
 	echo "$*" | tee -a $INFORMLOG;
-	if [[ $(whoami) != $BUILD_USER ]]; then
+	local w=$(whoami)
+	if [[ $w != $BUILD_USER && $w == 'root' ]]; then
 		chown $BUILD_USER $INFORMLOG
+	else
+		echo " $IMPORTANT $INFORMLOG is not owned by $BUILD_USER and cannot be fixed, this may cause an issue writting later."
 	fi
 }
 export -f inform
