@@ -11,6 +11,7 @@ DEPS="dev-libs/glib media-libs/libaom media-libs/libwebp x11-libs/gdk-pixbuf"
 BDEPS=""
 RDEPS=""
 setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
 ARCHS="x86 x86_64"
 SLOT=0
 
