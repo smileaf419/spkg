@@ -31,4 +31,5 @@ src_install() {
 
 src_uninstall() {
 	delUser www
+	delGroup www
 }

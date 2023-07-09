@@ -30,4 +30,5 @@ src_install() {
 
 src_uninstall() {
 	delUser ntp
+	delGroup ntp
 }
