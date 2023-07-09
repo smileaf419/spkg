@@ -5,19 +5,19 @@ HOMEPAGE=""
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/libsoup/${PKG_VER%.*}/libsoup-${PKG_VER}.tar.xz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 DEPS="dev-db/sqlite dev-libs/glib net-libs/libpsl net-libs/nghttp2 sys-libs/zlib"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
+BUILD_SEPERATE_DIR=yes
 ARCHS="x86 x86_64"
 SLOT=3
 #B=
 
 src_configure() {
 	## Fix installation of API documentation (LFS)
-	sed 's/apiversion/soup_version/' -i docs/reference/meson.build
+	sed 's/apiversion/soup_version/' -i ../docs/reference/meson.build
 
 	configure_default -Dvapi=enabled      \
 					  -Dgssapi=disabled   \

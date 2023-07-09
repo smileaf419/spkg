@@ -1,12 +1,12 @@
 ####
 ## brotli build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://github.com/google/brotli"
+DESCRIPTION="Brotli compression format"
+LICENSE="MIT"
 SRC_URI=("https://github.com/google/brotli/archive/v${PKG_VER}/brotli-${PKG_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=("https://github.com/Unity-Technologies/brotli/commit/f6d4387464cf002ca7bc60f9963afbf8a519a0db.patch => brotli-${PKG_VER}-python.patch")
+PATCHES=("https://github.com/Unity-Technologies/brotli/commit/f6d4387464cf002ca7bc60f9963afbf8a519a0db.patch => brotli-${PKG_VER}-python.patch"
+"https://github.com/google/brotli/commit/09b0992b6acb7faa6fd3b23f9bc036ea117230fc.patch => brotli-${PKG_VER}-pkgconfig.patch")
 DEPS=""
 BDEPS="dev-lang/python"
 RDEPS=""
@@ -16,12 +16,6 @@ ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 
-src_configure() {
-	sed -i 's@-R..libdir.@@' scripts/*.pc.in
-
-	configure_default
-}
-
 src_compile() {
 	compile_default
 
@@ -30,8 +24,6 @@ src_compile() {
 #	_PIP_COMPILE_OPTS="-w dist --no-deps"
 	python_compile
 }
-
-src_test() { :; }
 
 src_install() {
 	install_default
