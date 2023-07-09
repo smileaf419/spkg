@@ -56,8 +56,8 @@ unpack() {
 		unrar x "$FILE" "DIR"
 	# TODO: Add rpm support
 	#       https://stackoverflow.com/questions/18787375/how-do-i-extract-the-contents-of-an-rpm
-	else
-		die "Cannot extract unknown type: $FILE"
+#	else
+#		die "Cannot extract unknown type: $FILE"
 	fi
 }
 export -f unpack
