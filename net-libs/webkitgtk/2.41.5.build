@@ -16,6 +16,13 @@ SLOT=0
 #B=
 
 src_configure() {
+	## https://bugs.gentoo.org/469942
+	## Not all linkers support this, but for the moment it shouldn't be an issue (until it is :)
+	append-ldflags -Wl,--no-keep-memory
+
+	## https://bugs.gentoo.org/761238
+	append-cppflags -DNDEBUG
+
 	## To build the GTK4 version which cannot be enabled at the same time as the GTK3
 	## Set USE_GTK4=ON
 	## Remove ENABLE_GEOLOCATION=OFF if GeoClue is installed
