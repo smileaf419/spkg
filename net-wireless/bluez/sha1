@@ -1,3 +1,6 @@
 c11c49747cc8e701b2fd25e1b304fcb575c58171  5.66.build
 463fccb87e584da4a640eea77080d236e2a9e0e2  bluez-5.66.tar.xz
 ec63b8a08f5c19ea3ff2df428625c36835b34dd8  bluez-5.66-obexd_without_systemd-1.patch
+2f99574f0db1eaa0c5478bd53ba8fc01a4a3a289  5.68.build
+451028c0b2136fc99b4bd9f522d07648976bf900  bluez-5.68.tar.xz
+ec63b8a08f5c19ea3ff2df428625c36835b34dd8  bluez-5.68-obexd_without_systemd-1.patch

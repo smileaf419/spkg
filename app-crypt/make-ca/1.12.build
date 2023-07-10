@@ -1,9 +1,9 @@
 ####
 ## make-ca build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://github.com/lfs-book/make-ca"
+DESCRIPTION="PKI setup script for LFS (and others)"
+LICENSE="GPLv3 MIT "
 SRC_URI=("https://github.com/lfs-book/make-ca/releases/download/v${PKG_VER}/make-ca-${PKG_VER}.tar.xz"
 "http://www.cacert.org/certs/root.crt"
 "http://www.cacert.org/certs/class3.crt")
@@ -39,7 +39,7 @@ src_install() {
 
 	# Create a profile variable so python will used non-bundled certs
 	mkdir -pv "${D}"/etc/profile.d
-cat > "${D}"/etc/profile.d/pythoncerts.sh << "EOF"
+	cat > "${D}"/etc/profile.d/pythoncerts.sh << "EOF"
 export _PIP_STANDALONE_CERT=/etc/pki/tls/certs/ca-bundle.crt
 EOF
 
@@ -51,6 +51,10 @@ EOF
 EOF
 	chmod 754 "${D}"/etc/cron.weekly/update-pki.sh
 
-	inform "to finish the install please run: /usr/sbin/make-ca -g"
-	inform "A cronjob has been installed to do this every week"
+	inform "make-ca: A cronjob has been installed to run every week"
+}
+
+post_install() {
+	echo " * Refreshing certs"
+	make-ca -r
 }
