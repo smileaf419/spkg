@@ -1,9 +1,9 @@
 ####
 ## youtube-dl build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://github.com/ytdl-org/youtube-dl"
+DESCRIPTION="Command-line program to download videos from YouTube.com and other video sites"
+LICENSE="public domain"
 SRC_URI=("https://yt-dl.org/downloads/latest/youtube-dl")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://yt-dl.org/downloads/latest/youtube-dl.sig")
 DEPS=""
