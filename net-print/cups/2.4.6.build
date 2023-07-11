@@ -20,18 +20,30 @@ src_configure() {
 		inform "x11-misc/xdg-utils is not installed, setting the default viewer to links"
 	fi
 
-	configure_default --libdir=/usr/lib        \
-					  --with-systemd=no         \
-					  --with-rcdir=/tmp/cupsinit \
-					  --with-system-groups=lpadmin
+	CONF_FLAGS=(--libdir=/usr/lib
+				--with-systemd=no
+				--with-rundir=/run/cups
+				--with-rcdir=/tmp/cupsinit
+				--with-system-groups=lpadmin
+				--with-docdir=/usr/share/cups/doc-${PKG_VER}
+				# Follow Fedora permission setting
+				--with-cupsd-file-perm=0755
+				--with-exe-file-perm=755
+				--with-log-file-perm=0640
+				# Used by Debian, also prevents printers from getting
+				# disabled and users not knowing how to re-enable them
+				--with-error-policy=retry-job
+				# Used in Debian and Fedora
+				--enable-sync-on-close
+				)
+	configure_default
 }
 
+## Requires cups to not be running
+## And a Graphical environment to be present.
 src_test() {
-	## Requires cups to not be running
-	## And a Graphical environment to be present.
 	LC_ALL=C make -k check
 }
-
 src_install() {
 	install_default
 
