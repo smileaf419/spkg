@@ -5,8 +5,6 @@ HOMEPAGE="https://nodejs.org/"
 DESCRIPTION="Asynchronous event-driven JavaScript runtime"
 LICENSE="Apache-1.1 Apache-2.0 BSD BSD-2 MIT"
 SRC_URI=("https://nodejs.org/dist/v${PKG_VER}/node-v${PKG_VER}.tar.xz")
-PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/net-libs/nodejs/files/nodejs-20.3.0-gcc14.patch"
-"https://cgit.gentoo.org/repo/gentoo.git/plain/net-libs/nodejs/files/nodejs-20.3.0-simdutf-2.3.14.patch")
 DEPS="dev-libs/icu dev-libs/libuv dev-libs/openssl net-dns/c-ares net-libs/nghttp2 sys-libs/zlib"
 BDEPS="net-libs/nghttp2 net-dns/c-ares"
 RDEPS=""
