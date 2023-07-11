@@ -32,6 +32,7 @@ source "${INSTALL_PATH}/libs/pkg-tools"
 source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/utils"
 source "${INSTALL_PATH}/libs/updatesha1"
+source "${INSTALL_PATH}/libs/build-tools"
 
 cleanPkg() {
 	local d=$1
