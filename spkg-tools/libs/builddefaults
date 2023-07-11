@@ -82,7 +82,7 @@ configure_default() {
 		CXXFLAGS="$CXXFLAGS" \
 		LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
 		$SET_ABI             \
-			$d/configure ${CONF_FLAGS} "$@" || die " $DIALOG_ERROR Configure Failed!"
+			$d/configure ${CONF_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
 		meson setup ${CONF_FLAGS} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
