@@ -1,14 +1,10 @@
 ####
 ## startup-notification build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/startup-notification/"
+DESCRIPTION="Application startup notification and feedback library"
+LICENSE="LGPLv2 MIT"
 SRC_URI=("https://www.freedesktop.org/software/startup-notification/releases/startup-notification-${PKG_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS="x11/libX11 x11/libxcb x11/xcb-util"
 BDEPS=""
 RDEPS=""
@@ -22,6 +18,5 @@ src_install() {
 	install_default
 
 	install -v -m644 -D doc/startup-notification.txt \
-		    /usr/share/doc/startup-notification-${PKG_VER}/startup-notification.txt
-
+		    $D/usr/share/doc/startup-notification-${PKG_VER}/startup-notification.txt
 }
