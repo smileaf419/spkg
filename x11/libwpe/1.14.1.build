@@ -1,0 +1,18 @@
+####
+## libwpe build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://wpewebkit.org/releases/libwpe-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="x11/libxkbcommon"
+BDEPS="media/mesa"
+RDEPS=""
+setBuildENV meson ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_test() { :; }

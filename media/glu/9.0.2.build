@@ -1,0 +1,28 @@
+####
+## glu build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="https://gitlab.freedesktop.org/mesa/glu"
+DESCRIPTION="The OpenGL Utility Library"
+LICENSE="SGI-B-2.0"
+SRC_URI=("ftp://ftp.freedesktop.org/pub/mesa/glu/glu-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="media/mesa"
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default -Dgl_provider=gl
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	rm -vf "${D}"/usr/lib/libGLU.a
+}

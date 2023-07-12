@@ -1,0 +1,19 @@
+####
+## libtool build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gnu.org/software/libtool/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://ftp.gnu.org/gnu/libtool/libtool-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/libtool/libtool-${PKG_VER}.tar.xz.sig")
+DEPS=""
+BDEPS=""
+RDEPS="system/autoconf system/automake"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_install() {
+	install_default
+
+	rm -fv "${D}/usr/lib/libltdl.a"
+}

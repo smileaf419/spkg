@@ -27,24 +27,24 @@ setBuildENV() {
 	[[ -z $2 ]] && buildTool=make || buildTool=$2
 	case $configTool in
 		auto)
-			BDEPS+=" sys-devel/autoconf" ;;
+			BDEPS+=" system/autoconf" ;;
 		meson)
-			BDEPS+=" dev-util/meson"
+			BDEPS+=" devel/meson"
 			BUILD_SEPERATE_DIR=yes ;;
 		cmake)
-			BDEPS+=" dev-util/cmake"
+			BDEPS+=" devel/cmake"
 			BUILD_SEPERATE_DIR=no ;;
 	esac
 	case $buildTool in
 		make)
-			BDEPS+=" sys-devel/automake" ;;
+			BDEPS+=" system/automake" ;;
 		ninja)
-			BDEPS+=" dev-util/ninja" ;;
+			BDEPS+=" devel/ninja" ;;
 		pip)
-			BDEPS+=" dev-lang/python dev-python/pip"
+			BDEPS+=" devel/python python/pip"
 			RESTRICT="nobin nostrip" ;;
 		cmake)
-			[[ $configTool != "cmake" ]] && BDEPS+=" dev-util/cmake"
+			[[ $configTool != "cmake" ]] && BDEPS+=" devel/cmake"
 			BUILD_SEPERATE_DIR=yes ;;
 	esac
 }

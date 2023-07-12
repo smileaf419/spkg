@@ -1,0 +1,43 @@
+####
+## grub build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gnu.org/software/grub/"
+DESCRIPTION="GRand Unified Bootloader"
+LICENSE="GPLv3"
+SRC_URI=("https://ftp.gnu.org/gnu/grub/grub-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/grub/grub-${PKG_VER}.tar.xz.sig")
+# Fix an issue causing grub-install to fail when the /boot partition 
+# (or the root partition if /boot is not a separate partition) is created by e2fsprogs-1.47.0 or later
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/grub-2.06-upstream_fixes-1.patch")
+DEPS="apps/xz-utils media/freetype system/lvm2"
+BDEPS=""
+RDEPS=""
+IUSE="zfs"
+use-enable zfs && UDEPS="system/zfs"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr          \
+				--bindir=/bin          \
+				--sbindir=/sbin        \
+	            --sysconfdir=/etc      \
+	            --disable-efiemu       \
+	            --disable-werror       \
+	            --enable-device-mapper \
+	            $(use-enable zfs && echo --enable-libzfs || echo --disable-libzfs)
+}
+
+src_compile() {
+	unset {C,CPP,CXX,LD}FLAGS
+	compile_default
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	mkdir -p "${D}"/usr/share/bash-completion
+	mv -v "${D}"/etc/bash_completion.d/grub "${D}"/usr/share/bash-completion/completions
+}

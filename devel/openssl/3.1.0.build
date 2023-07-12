@@ -1,0 +1,42 @@
+####
+## openssl build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.openssl.org/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://www.openssl.org/source/openssl-${PKG_VER}.tar.gz"
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS="apps/ca-certificates"
+ARCHS="x86 x86_64"
+SLOT=0
+TEST=test
+
+src_configure() {
+	append-cppflags -fno-strict-aliasing
+
+	[ -e /bin/env ] && sed -i 's,/usr/bin/env,/bin/env,' Configure
+
+	./config --prefix=/usr         \
+	         --openssldir=/etc/ssl \
+			 --libdir=/lib         \
+	         shared                \
+	         zlib-dynamic
+}
+
+src_install() {
+	sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+	install_default MANSUFFIX=ssl
+	mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
+	cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
+
+	mv "$D"{/usr,}/bin
+#	mkdir -p "$D/usr/lib"
+#	mv "$D"{,/usr}/lib/pkgconfig
+}
+
+post_install() {
+	echo " * Rehashing openssl certs"
+	openssl rehash $ROOT/etc/ssl/certs
+}

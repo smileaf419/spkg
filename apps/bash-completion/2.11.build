@@ -1,0 +1,18 @@
+####
+## bash-completion build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/scop/bash-completion"
+DESCRIPTION="Programmable completion functions for bash"
+LICENSE="GPLv2"
+SRC_URI="https://github.com/scop/bash-completion/releases/download/${PKG_VER}/bash-completion-${PKG_VER}.tar.xz"
+BDEPS=""
+RDEPS="apps/ash"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	# Might be unnecessary.
+	autoreconf -i
+
+	configure_default
+}

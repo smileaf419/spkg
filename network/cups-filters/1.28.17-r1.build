@@ -1,0 +1,43 @@
+####
+## cups-filters build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/OpenPrinting/cups-filters"
+DESCRIPTION="filters, backends, driverless utility, ... - Everything which CUPS 2.x needs to be used on non-Mac systems"
+LICENSE="Apache-2.0"
+SRC_URI=("https://github.com/OpenPrinting/cups-filters/releases/download/${PKG_VER}/cups-filters-${PKG_VER}.tar.xz")
+PATCHES=(
+"https://cgit.gentoo.org/repo/gentoo.git/plain/net-print/cups-filters/files/cups-filters-1.28.17-CVE-2023-24805.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/net-print/cups-filters/files/cups-filters-1.28.17-c++17.patch"
+)
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+DEPS="apps/poppler apps/qpdf devel/glib media/fontconfig media/freetype media/lcms media/libexif media/libjpeg-turbo media/libpng media/tiff network/cups system/dbus system/zlib"
+BDEPS="apps/ghostscript-gpl"
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	## Required to fix an issue introduced with qpdf 11.3.0
+	## https://github.com/OpenPrinting/cups-filters/issues/512
+	sed "531d" -i Makefile.am
+	sed -e "/AX_CXX_COMPILE_STDCXX/ s,11,17," -i configure.ac
+	autoreconf -fiv
+
+	configure_default --sysconfdir=/etc \
+					  --without-rcdir   \
+					  --disable-avahi   \
+					  --disable-mutool  \
+					  --localstatedir=/var
+}
+
+src_compile() {
+	compile_default V=1
+}
+
+src_test() {
+	## Tests require Dejavu fonts to be installed
+	## Or --with-test-font-path=/path/to/font.ttf
+	:;
+}

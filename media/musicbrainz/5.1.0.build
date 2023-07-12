@@ -1,0 +1,26 @@
+####
+## musicbrainz build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://musicbrainz.org/doc/libmusicbrainz"
+DESCRIPTION="Client Library for accessing the latest XML based MusicBrainz web service"
+LICENSE="LGPLv2.1"
+SRC_URI=("https://github.com/metabrainz/libmusicbrainz/releases/download/release-${PKG_VER}/libmusicbrainz-${PKG_VER}.tar.gz")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/libmusicbrainz-5.1.0-cmake_fixes-1.patch")
+DEPS="devel/libxml2 network/neon"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+setBuildENV cmake
+BUILD_SEPERATE_DIR=yes
+B=libmusicbrainz-${PKG_VER}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	# Requires Doxygen
+#	rm -rf "${D}"/usr/share/doc/libmusicbrainz-${PKG_VER}
+#	cp -vr docs/ "${D}"/usr/share/doc/libmusicbrainz-${PKG_VER}
+}

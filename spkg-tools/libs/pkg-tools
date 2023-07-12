@@ -11,7 +11,7 @@
 ##
 ## Utils     - Useful methods build files may need to perform commonly operations.
 ##
-### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
+## Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
 ## All methods take a PKG: PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 ## Even if one or more are missing, unless otherwise noted.
 

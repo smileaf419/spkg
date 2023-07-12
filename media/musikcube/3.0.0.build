@@ -1,0 +1,25 @@
+####
+## musikcube build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/clangen/musikcube"
+DESCRIPTION="a cross-platform, terminal-based music player, audio engine, metadata indexer, and server"
+LICENSE="BSD-3"
+SRC_URI=("https://github.com/clangen/musikcube/archive/refs/tags/${PKG_VER}.tar.gz => ${PKG_NAME}-${PKG_VER}.tar.gz")
+PATCHES=("https://github.com/clangen/musikcube/files/10340400/musikcube-0.99.4-typo.patch")
+## This package builds a static binary.
+DEPS=""
+BDEPS="devel/asio virtual/alsa media/pipewire media/taglib network/libmicrohttpd devel/libev"
+## Optional: media-libs/libopenmpt and dev-libs/libgme
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+setBuildENV cmake
+
+src_configure() {
+	configure_default -G "Unix Makefiles" \
+					  -DLIBTINFO=/lib/libtinfow.so \
+					  -DNO_NCURSESW=1 \
+					  -DENABLE_BUNDLED_TAGLIB=false
+}
+
+src_test() { :; }

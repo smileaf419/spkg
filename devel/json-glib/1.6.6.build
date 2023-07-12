@@ -1,0 +1,16 @@
+####
+## JSON Glib build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://download.gnome.org/sources/json-glib/${PKG_VER%.*}/json-glib-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/glib"
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="x86 x86_64"
+SLOT=0

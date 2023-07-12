@@ -1,0 +1,19 @@
+####
+## libxklavier build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://people.freedesktop.org/~svu/libxklavier-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/glib devel/libxml2 devel/gobject-introspection apps/so-codes"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_test() { :; }

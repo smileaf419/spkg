@@ -1,0 +1,19 @@
+####
+## xfce4-terminal build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="https://www.xfce.org"
+DESCRIPTION="A GTK+3 terminal emulator"
+LICENSE=""
+SRC_URI=("https://archive.xfce.org/src/apps/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/glib x11/cairo x11/gdk-pixbuf x11/gtk+:3 x11/libX11 x11/pango x11/vte xfce/libxfce4ui xfce/libxfce4util xfce/xfconf"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_test() { :; }

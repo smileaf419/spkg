@@ -1,0 +1,14 @@
+####
+## libass build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/libass/libass"
+DESCRIPTION="Library for SSA/ASS subtitles rendering"
+LICENSE="ISC"
+SRC_URI="https://github.com/libass/libass/releases/download/${PKG_VER}/libass-${PKG_VER}.tar.xz"
+DEPS="apps/brotli apps/bzip2 devel/fribidi media/fontconfig media/freetype media/harfbuzz media/libpng system/zlib"
+BDEPS="devel/fribidi media/harfbuzz"
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_test() { :; }

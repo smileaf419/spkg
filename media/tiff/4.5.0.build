@@ -1,0 +1,22 @@
+####
+## tiff build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="http://libtiff.maptools.org"
+DESCRIPTION="Tag Image File Format (TIFF) library"
+LICENSE="libtiff"
+SRC_URI=("https://download.osgeo.org/libtiff/tiff-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="apps/xz-utils apps/zstd media/libjpeg-turbo media/libwebp system/zlib"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default -G Ninja
+}

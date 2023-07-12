@@ -1,0 +1,26 @@
+####
+## zstd build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://facebook.github.io/zstd/"
+DESCRIPTION="Zstandard is a fast compression algorithm, providing high compression ratios."
+LICENSE="GPLv2"
+SRC_URI=("https://github.com/facebook/zstd/releases/download/v${PKG_VER}/zstd-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/facebook/zstd/releases/download/v${PKG_VER}/zstd-${PKG_VER}.tar.gz.sig")
+PATCHES=()
+DEPS="apps/xz-utils system/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() {
+	compile_default prefix=/usr libdir=/lib exec_prefix=/bin
+}
+
+src_install() {
+	install_default prefix=/usr libdir=/lib exec_prefix=/
+	#PKGCONFIGDIR="/usr/lib/pkgconfig"
+	rm -v "$ROOT/$D"/lib/libzstd.a
+}

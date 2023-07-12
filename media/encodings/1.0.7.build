@@ -1,0 +1,26 @@
+####
+## encodings build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://www.x.org/pub/individual/font/${PKG_NAME}-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS=""
+BDEPS="media/font-util"
+RDEPS="x11/mkfontscale"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static
+}
+
+src_test() { :; }
+
+post_install() {
+	fc-cache
+}

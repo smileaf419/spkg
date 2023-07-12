@@ -1,0 +1,19 @@
+####
+## lcms build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="http://www.littlecms.com/"
+DESCRIPTION="A lightweight, speed optimized color management engine"
+LICENSE="MIT"
+SRC_URI=("https://github.com/mm2/Little-CMS/releases/download/lcms${PKG_VER}/lcms2-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="media/libjpeg-turbo media/tiff system/zlib"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+B=lcms2-$PKG_VER

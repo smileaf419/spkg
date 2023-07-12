@@ -1,0 +1,33 @@
+####
+## libical build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/libical/libical"
+DESCRIPTION="Implementation of basic iCAL protocols"
+LICENSE="MPL-2.0 LGPL-2.1"
+SRC_URI="https://github.com/libical/libical/releases/download/v${PKG_VER}/libical-${PKG_VER}.tar.gz"
+PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-libs/libical/files/libical-3.0.4-tests.patch"
+"https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-libs/libical/files/libical-3.0.11-pkgconfig-libdir.patch")
+DEPS="devel/glib devel/icu"
+BDEPS="devel/vala devel/gobject-introspection"
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+setBuildENV cmake
+TEST=test
+
+src_configure() {
+	configure_default \
+	      -DSHARED_ONLY=yes            \
+	      -DICAL_BUILD_DOCS=false      \
+	      -DGOBJECT_INTROSPECTION=true \
+	      -DICAL_GLIB_VAPI=true
+}
+
+src_compile() {
+	make -j1
+}
+
+src_test() {
+	test_default
+	inform " * Known failure of glib tests"
+}

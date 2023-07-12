@@ -1,0 +1,19 @@
+####
+## Parse-Yapp build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://metacpan.org/pod/Parse::Yapp"
+DESCRIPTION="Perl extension for generating and using LALR parsers."
+LICENSE="GPLv2+ Artistic"
+SRC_URI="https://www.cpan.org/authors/id/W/WB/WBRASWELL/Parse-Yapp-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS="devel/perl"
+ARCHS="x86 x86_64"
+SLOT=0
+B=Parse-Yapp-${PKG_VER}
+MODULE=perl
+TEST=test
+
+src_configure() {
+	perl Makefile.PL
+}

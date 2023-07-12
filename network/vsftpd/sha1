@@ -1,0 +1,7 @@
+8909c310c75730a5c24573691dc51d567ac4e706  3.0.5.build
+0159531cc9f9fc6dd64cd734e2fd42601e44b5d9  vsftpd-3.0.5.tar.gz
+ff1ef2088b960a77051b4cf83491f1c4ce70c621  vsftpd-2.3.2-kerberos.patch
+c0277b4cc871fe951bb797e5d830f51703fab9e3  vsftpd-3.0.2-alpha.patch
+fbf3c1b872bf77984dd15ca18ee0af973db991ea  vsftpd-3.0.3-sparc.patch
+3505a5a784dcb25bc3d74fd2556fc18dbe2b23a3  vsftpd-3.0.5-seccomp.patch
+81d0e14dbb23956c7da77e40af48f2818ebe473a  010-openssl-deprecated.patch

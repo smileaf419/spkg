@@ -1,0 +1,14 @@
+####
+## gtksourceview build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://download.gnome.org/sources/gtksourceview/${PKG_VER%.*}/gtksourceview-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="apps/at-spi2-core  devel/glib devel/libxml2 media/harfbuzz system/zlib x11/cairo x11/gdk-pixbuf x11/gtk+:3 x11/pango"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=3
+B=gtksourceview-$PKG_VER

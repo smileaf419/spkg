@@ -1,0 +1,39 @@
+####
+## libevent build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/libevent/libevent/releases/download/release-${PKG_VER}-stable/libevent-${PKG_VER}-stable.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/openssl"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+B+=-stable
+
+src_configure() {
+	## fix an issue that prevents event_rpcgen.py (Source LFS)
+	sed -i 's/python/&3/' event_rpcgen.py
+
+	configure_default
+}
+
+## Building Documentation:
+#doxygen Doxyfile
+
+src_test() {
+	make verify
+}
+
+src_install() {
+	install_default
+
+## Documentation
+#	install -v -m755 -d     $D/usr/share/doc/libevent-${PKG_VER}/api
+#	cp -v -R doxygen/html/* $D/usr/share/doc/libevent-${PKG_VER}/api
+}

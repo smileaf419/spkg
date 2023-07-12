@@ -171,7 +171,7 @@ buildBDeps() {
 
 	## Filter out the Toolchain. These are always depended on,
 	## So we don't need it complicating the logic
-	PKG_FILTER=("sys-apps/util-linux" "sys-libs/glibc" "sys-devel/gcc")
+	PKG_FILTER=("system/util-linux" "system/glibc" "system/gcc")
 
 	(
 		## Load our saved USE flags.

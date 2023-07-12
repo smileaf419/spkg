@@ -1,0 +1,28 @@
+####
+## xinit build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.x.org/wiki/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://www.x.org/pub/individual/app/xinit-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="x11/libX11"
+BDEPS=""
+RDEPS="x11/xterm"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-static \
+				--with-xinitdir=/etc/X11/app-defaults
+}
+
+src_test() { :; }
+
+src_install(){
+	install_default
+	sed -i '/$serverargs $vtarg/ s/serverargs/: #&/' "${D}"/usr/bin/startx
+}

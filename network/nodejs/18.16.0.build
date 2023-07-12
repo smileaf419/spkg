@@ -1,0 +1,39 @@
+####
+## Node.js build
+## Copyright 2023 spkg developers, licensed under GPLv2
+## Start versioning at -r1 if patches are used.
+## non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://nodejs.org/dist/v${PKG_VER}/node-v${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/icu devel/libuv devel/openssl network/c-ares network/nghttp2 system/zlib"
+BDEPS="network/nghttp2 network/c-ares"
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+B=node-v$PKG_VER
+
+src_configure() {
+	./configure --prefix=/usr    \
+				--shared-cares   \
+				--shared-libuv   \
+				--shared-openssl \
+				--shared-nghttp2 \
+				--shared-zlib    \
+				--with-intl=system-icu
+}
+
+src_test() {
+	make test-only
+}
+
+src_install() {
+	install_default
+	mkdir -p $D/usr/share/doc
+	ln -sf node $D/usr/share/doc/node-${PKG_VER}
+}

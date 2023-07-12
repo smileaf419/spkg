@@ -1,0 +1,50 @@
+####
+## readline build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
+DESCRIPTION="Provides a set of functions for use by applications that allow users to edit command lines as they are typed in."
+LICENSE="GPLv3"
+SRC_URI=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER/p*/}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/readline/readline-${PKG_VER}.tar.gz.sig")
+DEPS="system/ncurses"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+PATCH_LEVEL=${PKG_VER#*p}
+PV=${PKG_VER%p*}
+for p in $(seq 1 $PATCH_LEVEL); do
+	[[ $p -lt 10 ]] && p="0$p"
+	[[ $p -lt 100 ]] && p="0$p"
+	PATCHES+=("https://ftp.gnu.org/pub/gnu/$PKG_NAME/$PKG_NAME-$PV-patches/$PKG_NAME${PV//./}-$p => $PKG_NAME-$PV-${p#0}.patch")
+done
+B=$PKG_NAME-$PV
+
+src_patch() {
+	[[ $P == '' ]] && return 0
+	PATCHES=($P)
+	spatch ${PATCHES[0]} -Np0
+	PATCHES=${PATCHES[@]:1}
+	patch_default $PATCHES
+}
+
+src_configure() {
+	# Probably not required as we're always installing into a clean temp root.
+	# But included from LFS.
+	sed -i '/MV.*old/d' Makefile.in
+	sed -i '/{OLDSUFF}/c:' support/shlib-install
+
+	configure_default --with-curses --libdir=/lib
+}
+
+src_compile() {
+	make SHLIB_LIBS="-lncursesw"
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default SHLIB_LIBS="-lncursesw"
+	mkdir -p "${D}"/usr/share/doc/readline-${PV}
+	install -v -m644 doc/*.{ps,pdf,html,dvi} "${D}"/usr/share/doc/readline-${PV}
+}

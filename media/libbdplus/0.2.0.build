@@ -1,0 +1,14 @@
+####
+## libbdplus build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.videolan.org/developers/libbdplus.html"
+DESCRIPTION="Blu-ray Library for BD+ Decryption"
+LICENSE="LGPLv2.1"
+SRC_URI="https://download.videolan.org/pub/videolan/libbdplus/${PKG_VER}/libbdplus-${PKG_VER}.tar.bz2"
+DEPS="devel/libgcrypt devel/libgpg-error"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_test() { :; }

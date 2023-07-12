@@ -1,0 +1,31 @@
+####
+## links build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="http://links.twibright.com"
+DESCRIPTION="Web browser capable of both text and graphics modes"
+LICENSE="GPLv2"
+SRC_URI=("http://links.twibright.com/download/links-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="apps/bzip2 apps/xz-utils apps/zstd devel/libev devel/openssl media/fontconfig media/freetype media/libjpeg-turbo media/libpng media/libwebp media/tiff system/zlib x11/libX11"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr --mandir=/usr/share/man --enable-graphics
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	install -v -d -m755 ${D}/usr/share/doc/links-${PKG_VER}
+	install -v -m644 doc/links_cal/* KEYS BRAILLE_HOWTO \
+	    ${D}/usr/share/doc/links-${PKG_VER}
+}

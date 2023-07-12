@@ -1,0 +1,26 @@
+####
+## meson build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://mesonbuild.com/"
+DESCRIPTION="The Meson Building System"
+LICENSE="Apache-2.0"
+SRC_URI=()
+DEPS=""
+RDEPS=""
+BDEPS="devel/python python/pip python/wheel"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	python -m pip install --upgrade meson
+}
+
+src_uninstall() {
+	python -m pip uninstall -y meson
+}

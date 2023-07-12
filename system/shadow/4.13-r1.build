@@ -1,0 +1,45 @@
+####
+## shadow build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://shadow-maint.github.io/shadow/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://github.com/shadow-maint/shadow/releases/download/${PKG_VER}/shadow-${PKG_VER}.tar.xz"
+DEPS="system/acl system/attr system/libxcrypt"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	sed -i 's/groups$(EXEEXT) //' src/Makefile.in
+	find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
+	find man -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \;
+	find man -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \;
+	sed -e 's:#ENCRYPT_METHOD DES:ENCRYPT_METHOD SHA512:' \
+		-e 's@#\(SHA_CRYPT_..._ROUNDS 5000\)@\100@'       \
+	    -e 's:/var/spool/mail:/var/mail:'                 \
+	    -i etc/login.defs
+
+	./configure --sysconfdir=/etc \
+				--bindir=/bin     \
+				--sbindir=/sbin   \
+				--libdir=/lib     \
+	            --disable-static  \
+	            --with-group-name-max-length=32
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	make -C man DESTDIR="${D}" install-man
+
+	# Fix permissions so we can login as root.
+	chmod 4111 ${D}/bin/su
+}
+
+post_install() {
+	pwconv
+	grpconv
+}

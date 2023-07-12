@@ -305,13 +305,13 @@ delGroup() {
 export -f delGroup
 
 ####
-## Provides an easy access to the init.d scripts within the sys-boot/blfs-bootscripts
+## Provides an easy access to the init.d scripts within the system/blfs-bootscripts
 ## For more information about what scripts are available and how to install them, refer to the
-## sys-boot/blfs-bootscripts package.
+## system/blfs-bootscripts package.
 ## This function in essence calls: make install-[name here]
 install-init.d() {
 	(
-		PKG=$(DB-getPkg sys-boot/blfs-bootscripts | getLatest)
+		PKG=$(DB-getPkg system/blfs-bootscripts | getLatest)
 		PKG_VER=$(getVersion $PKG)
 		PKG_BLD=$(getBldFile $PKG)
 		unset PATCHES SRC_URI

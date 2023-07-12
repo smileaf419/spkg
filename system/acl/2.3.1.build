@@ -1,0 +1,18 @@
+####
+## acl build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://savannah.nongnu.org/projects/acl"
+DESCRIPTION="Access Control List Manipulation Programs"
+LICENSE="GPLv2"
+SRC_URI=("https://download.savannah.gnu.org/releases/acl/acl-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.savannah.gnu.org/releases/acl/acl-${PKG_VER}.tar.xz.sig")
+DEPS="system/attr"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	sed -i '/^pkgconfdir/ s,$(libdir),/usr/lib,' Makefile.*
+	./configure --prefix=/usr --libdir=/lib --disable-static
+}

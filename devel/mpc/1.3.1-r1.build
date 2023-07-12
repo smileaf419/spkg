@@ -1,0 +1,32 @@
+####
+## mpc build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="http://www.multiprecision.org/"
+DESCRIPTION="A library for multiprecision complex arithmetic with exact rounding"
+LICENSE="LGPL-2.1"
+SRC_URI=("https://ftp.gnu.org/gnu/mpc/mpc-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/mpc/mpc-${PKG_VER}.tar.gz.sig")
+DEPS="devel/gmp devel/mpfr"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_compile() {
+	compile_default
+	make html
+}
+
+src_install() {
+	install_default
+	make DESTDIR="${D}" install-html
+}
+
+bootstrap() {
+	case $PKG_FLAGS in
+		pass1) ./configure --host=$HOST_TGT --build=$(config.guess) --prefix=/tools ;;
+		pass2) configure_default ;;
+	esac
+	compile_default
+	install_default
+}

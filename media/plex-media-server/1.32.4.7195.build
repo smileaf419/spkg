@@ -1,0 +1,51 @@
+####
+## plex-media-server build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://plex.tv/"
+DESCRIPTION="Personal Media Server"
+LICENSE="Plex"
+#https://plex.tv/downloads/latest/5?channel=0&build=linux-x86_64&distro=debian&X-Plex-Token=xxxxxxxxxxxxxxxxxxxx
+H=7c8f9d3b6
+SRC_URI="https://downloads.plex.tv/plex-media-server-new/${PKG_VER}-${H}/debian/plexmediaserver_${PKG_VER}-${H}_amd64.deb"
+DEPS="devel/sqlite devel/boost media/libva media/ffmpeg network/curl x11/libdrm x11/libpciaccess"
+BDEPS="accounts/plex"
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+B="troot"
+RESTRICT="nobin nostrip"
+
+src_prepare() {
+	unpack $BUILD_PATH/data.tar.xz
+}
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p ${D}/etc/default
+	mkdir -p ${D}/etc/rc.d/init.d
+	mkdir -p ${D}/etc/rc.d/rc{0,3,6}.d
+	mv ${D}/usr/lib/plexmediaserver/lib/plexmediaserver.default \
+		${D}/etc/default
+	mv ${D}/usr/lib/plexmediaserver/lib/plexmediaserver.init \
+		${D}/etc/rc.d/init.d/plexmediaserver
+	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc0.d/K40plexmediaserver
+	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc6.d/K40plexmediaserver
+	ln -s ../init.d/plexmediaserver ${D}/etc/rc.d/rc3.d/S40plexmediaserver
+
+	sed '15i # Fix the Library Path\nLD_LIBRARY_PATH="/usr/lib/plexmediaserver/lib:$LD_LIBRARY_PATH"\n' \
+		-i "$D/etc/rc.d/init.d/plexmediaserver"
+}
+
+post_install() {
+	## If its already installed and running, restart it.
+	if [[ $(/etc/init.d/plexmediaserver status) == *running. ]]; then
+		/etc/init.d/plexmediaserver restart
+	else
+		inform "An init script has been installed under /etc/init.d/plexmediaserver"
+	fi
+}

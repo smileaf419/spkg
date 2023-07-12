@@ -1,0 +1,44 @@
+####
+## gtk+ build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gtk.org"
+DESCRIPTION="GTK is a multi-platform toolkit for creating graphical user interfaces."
+LICENSE="LGPLv2.1"
+SRC_URI=("https://download.gnome.org/sources/gtk+/${PKG_VER%.*}/gtk+-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="apps/at-spi2-core apps/bzip2 devel/glib media/fontconfig media/freetype media/harfbuzz media/libpng network/cups system/zlib x11/cairo x11/gdk-pixbuf x11/libX11 x11/libXcomposite x11/libXcursor x11/libXdamage x11/libXext x11/libXfixes x11/libXinerama x11/libXrandr x11/libXrender x11/pango"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=2
+B=gtk+-$PKG_VER
+
+src_configure() {
+	sed -e 's#l \(gtk-.*\).sgml#& -o \1#' \
+    	-i docs/{faq,tutorial}/Makefile.in
+
+    # Fix hardcoded paths
+	sed -i 's,/usr/bin/file,/bin/file,' configure
+
+	./configure --prefix=/usr \
+				--sysconfdir=/etc
+
+}
+
+# some tests will fail if this is a new install.
+# and tests must be ran from an X environment.
+
+src_install() {
+	install_default
+	mv $D/usr/bin/gtk{,2}-update-icon-cache
+}
+
+post_install() {
+	inform "gtk-update-icon-cache has been installed as 'gtk2-update-icon-cache' to avoid clobbering."
+	if [[ ! -e /usr/bin/gtk-update-icon-cache ]]; then
+		inform "A compatiblility symlink has been installed to this, however if x11-libs/gtk+:3 is installed that version will be considered the default."
+		ln -svf /usr/bin/gtk2-update-icon-cache gtk-update-icon-cache
+	fi
+	gtk-query-immodules-2.0 --update-cache
+	glib-compile-schemas /usr/share/glib-2.0/schemas
+}

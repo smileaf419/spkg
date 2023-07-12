@@ -1,0 +1,34 @@
+####
+## p11-kit build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://p11-glue.github.io/p11-glue/p11-kit.html"
+DESCRIPTION="Provides a way to load and enumerate PKCS#11 modules"
+LICENSE="https://github.com/p11-glue/p11-kit/blob/master/COPYING"
+SRC_URI=("https://github.com/p11-glue/p11-kit/releases/download/${PKG_VER}/p11-kit-${PKG_VER}.tar.xz") 
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/p11-glue/p11-kit/releases/download/${PKG_VER}/p11-kit-${PKG_VER}.tar.xz.sig")
+DEPS="devel/libffi devel/libtasn1"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	sed '20,$ d' -i ../trust/trust-extract-compat
+	cat >> ../trust/trust-extract-compat << "EOF"
+# Copy existing anchor modifications to /etc/ssl/local
+/usr/libexec/make-ca/copy-trust-modifications
+
+# Update trust stores
+/usr/sbin/make-ca -r
+EOF
+
+	configure_default -Dtrust_paths=/etc/pki/anchors
+}
+
+src_install() {
+	install_default
+	ln -sfv /usr/libexec/p11-kit/trust-extract-compat \
+        	"${D}"/usr/bin/update-ca-certificates
+}

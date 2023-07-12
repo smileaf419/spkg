@@ -1,0 +1,55 @@
+####
+## eudev build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/eudev-project/eudev"
+DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
+LICENSE="LGPLv2.1 MIT GPLv2"
+LFSRULEVER=20171102
+#"https://github.com/eudev-project/eudev/archive/refs/heads/master.zip => eudev-master-$PKG_VER.zip"
+SRC_URI=("https://github.com/eudev-project/eudev/releases/download/v${PKG_VER}/eudev-${PKG_VER}.tar.gz"
+"https://anduin.linuxfromscratch.org/LFS/udev-lfs-${LFSRULEVER}.tar.xz")
+DEPS="apps/xz-utils apps/zstd devel/openssl system/kmod system/zlib"
+BDEPS="devel/gperf apps/unzip"
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_test() {
+	# These directories are required for the tests
+	mkdir -pv /usr/lib/udev/rules.d
+	mkdir -pv /etc/udev/rules.d
+
+	test_default
+}
+
+src_configure() {
+	./autogen.sh || true
+
+	## LFS: Remove an unneeded group
+	sed -i -e 's/GROUP="sgx", //' rules/50-udev-default.rules
+
+	configure_default \
+				--bindir=/bin     \
+	            --sbindir=/sbin   \
+	            --libdir=/lib     \
+	            --sysconfdir=/etc \
+	            --enable-manpages
+}
+
+src_install() {
+	install_default
+
+	unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz
+	install_default -f udev-lfs-${LFSRULEVER}/Makefile.lfs
+
+	mkdir -pv $D/usr/lib/udev/rules.d
+	mkdir -pv $D/etc/udev/rules.d
+
+	cat > $D/etc/udev/rules.d/65-kvm.rules << "EOF"
+KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
+EOF
+}
+
+post_install() {
+	udevadm hwdb --update
+}

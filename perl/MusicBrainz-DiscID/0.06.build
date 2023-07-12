@@ -1,0 +1,18 @@
+####
+## MusicBrainz-DiscID build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://metacpan.org/pod/MusicBrainz::DiscID"
+DESCRIPTION="Perl interface for the MusicBrainz libdiscid library"
+LICENSE="MIT"
+SRC_URI=("https://cpan.org/authors/id/N/NJ/NJH/MusicBrainz-DiscID-${PKG_VER}.tar.gz")
+DEPS="media/libdiscid"
+BDEPS="media/libdiscid"
+RDEPS=""
+setBuildENV auto make
+ARCHS="x86 x86_64"
+SLOT=0
+MODULE=perl
+
+src_configure() {
+	perl Makefile.PL
+}

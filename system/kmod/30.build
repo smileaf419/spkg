@@ -1,0 +1,36 @@
+####
+## kmod build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-${PKG_VER}.tar.xz"
+DEPS="apps/xz-utils apps/zstd devel/openssl system/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr          \
+	            --sysconfdir=/etc      \
+	            --bindir=/bin          \
+	            --sbindir=/sbin        \
+	            --libdir=/lib          \
+	            --with-openssl         \
+	            --with-xz              \
+	            --with-zstd            \
+	            --with-zlib
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+	mkdir -p "$D/sbin"
+	for target in depmod insmod modinfo modprobe rmmod; do
+		ln -sfv ../bin/kmod "${D}"/sbin/$target
+	done
+
+	ln -sfv kmod "${D}"/bin/lsmod
+}

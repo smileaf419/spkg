@@ -1,0 +1,9 @@
+f9e70b95141c3553e039c8e372c39f6728d88051  3.0-r1.build
+c9f4099ecf2772b53c2dd4a8e508064ce015d182  zip-3.0.tar.gz
+2ac8bcaa53f1f506c3743980f5852b696233c0ac  zip-3.0-build.patch
+5508d1f1718a72ed5be6658bdd771fa9dd60e2f1  zip-3.0-clang-15-configure-tests.patch
+a2b624a522a0d1fec1ab1d703dfabed5aa90850b  zip-3.0-exec-stack.patch
+f7440bcd928d1dc4187fb9d3428021dc9f89ad3c  zip-3.0-format-security.patch
+bb6f71a7b344284a4994e72eb89ff6593abc41d5  zip-3.0-no-crypt.patch
+10b98ec338b20649837da3dfd8dcf8123088b5c3  zip-3.0-pic.patch
+7a174a0002d39c9a4d6229785b87f8335e323082  zip-3.0-zipnote-freeze.patch

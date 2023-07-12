@@ -1,0 +1,19 @@
+####
+## xfdesktop build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="https://www.xfce.org"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://archive.xfce.org/src/xfce/xfdesktop/${PKG_VER%.*}/xfdesktop-${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="apps/at-spi2-core  devel/glib media/harfbuzz system/zlib x11/cairo x11/gdk-pixbuf x11/gtk+:3 x11/libICE x11/libnotify x11/libSM x11/libX11 x11/pango xfce/exo xfce/garcon xfce/libxfce4ui xfce/libxfce4util xfce/libxfce4windowing xfce/thunar xfce/xfconf"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_test() { :; }

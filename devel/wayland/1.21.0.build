@@ -1,0 +1,23 @@
+####
+## wayland build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://wayland.freedesktop.org/ https://gitlab.freedesktop.org/wayland/wayland"
+DESCRIPTION="Wayland protocol libraries"
+LICENSE="MIT"
+SRC_URI=("https://gitlab.freedesktop.org/wayland/wayland/-/releases/${PKG_VER}/downloads/wayland-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="devel/expat devel/libffi devel/libxml2"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default -Ddocumentation=false
+}
+
+src_test() {
+	env -u XDG_RUNTIME_DIR ninja test
+}

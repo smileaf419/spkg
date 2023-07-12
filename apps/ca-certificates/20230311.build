@@ -1,0 +1,40 @@
+####
+## ca-certificates build
+## Copyright 2023 spkg developers, licensed under GPLv2
+# Start versioning at -r1 if patches are used.
+# non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE="https://packages.debian.org/sid/ca-certificates"
+DESCRIPTION="certificate authorities shipped with Mozilla's browser"
+LICENSE="GPLv2"
+SRC_URI=("http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_${PKG_VER}_all.deb")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS="system/debianutils"
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+B=""
+
+src_unpack() {
+	ar x $DISTFILES/${SRC_FILE##*/}
+}
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	cd $D
+	unpack $BUILD_PATH/data.tar.xz
+	cd $D/usr/share/ca-certificates
+	find * -name '*.crt' -print > $D/etc/ca-certificates.conf
+}
+
+post_install() {
+	update-ca-certificates
+}

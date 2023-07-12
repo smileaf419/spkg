@@ -1,0 +1,18 @@
+####
+## libbluray build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.videolan.org/developers/libbluray.html"
+DESCRIPTION="Blu-ray playback libraries"
+LICENSE="LGPL-2.1"
+SRC_URI="https://downloads.videolan.org/pub/videolan/libbluray/${PKG_VER}/libbluray-${PKG_VER}.tar.bz2"
+DEPS="devel/libxml2 media/fontconfig media/freetype"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default --disable-bdjava-jar
+}
+
+src_test() { :; }

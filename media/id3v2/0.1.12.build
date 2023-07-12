@@ -1,0 +1,22 @@
+####
+## id3v2 build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://id3v2.sourceforge.net"
+DESCRIPTION="A command line editor for id3v2 tags"
+LICENSE="LGPLv2"
+SRC_URI="http://prdownloads.sourceforge.net/id3v2/id3v2-${PKG_VER}.tar.gz"
+DEPS="media/id3lib system/zlib"
+BDEPS=""
+RDEPS="media/id3lib"
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() { :; }
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p "${D}"/usr/bin
+	mkdir -p "${D}"/usr/share/man/man1
+	make PREFIX="${D}/usr" install
+}

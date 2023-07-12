@@ -1,0 +1,33 @@
+####
+## Ares Emulator
+HOMEPAGE="https://github.com/ares-emulator/ares https://ares-emu.net/"
+DESCRIPTION="ares is a cross-platform, open source, multi-system emulator, focusing on accuracy and preservation."
+LICENSE="GPLv3+ ISC"
+SRC_URI=("https://github.com/ares-emulator/ares/archive/refs/tags/v${PKG_VER}.tar.gz => ares-${PKG_VER}.tar.gz")
+## https://github.com/ares-emulator/ares/issues/1100
+PATCHES=("https://github.com/ares-emulator/ares/pull/1102/commits/2c31bc1d2dd6babdf9745b691d38c23788c92029.patch => ares-132-gcc-13.patch"
+## https://github.com/rtissera/libchdr/issues/92
+"https://github.com/ares-emulator/ares/pull/1106/commits/bb58670cde0c84b4ee0fc16c5e36e071b73dc105.patch => ares-132-declare-fseeko-ftello.patch")
+DEPS="apps/at-spi2-core devel/glib media/alsa-lib media/harfbuzz media/libao media/libsdl2 media/mesa media/openal media/pulseaudio system/eudev system/zlib x11/cairo x11/gdk-pixbuf x11/gtk+:3 x11/libX11 x11/libXext x11/libXrandr x11/libXv x11/pango"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() { :; }
+
+src_compile() {
+	# Fix a compile time error introduced by LLVM 16
+	sed '/POST/ s,$, -Wno-error=implicit-function-declaration,' -i thirdparty/GNUmakefile
+
+	## force GCC build
+#	compile_default hiro=gtk3 build=release compiler=g++ prefix="$D/usr" install
+	## clang build (falls back on gcc) - default
+	compile_default hiro=gtk3 build=release prefix="$D/usr" install
+}
+
+src_test() { :; }
+
+src_install() { :; }

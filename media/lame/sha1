@@ -1,0 +1,7 @@
+6bdc02fa194ac9a40bb257807fd5c312baffaece  3.100.build
+64c53b1a4d493237cef5e74944912cd9f98e618d  lame-3.100.tar.gz
+3859e843b0475d95d09271108fc96a4e535947c0  lame-3.100-pkgconfig.patch
+44580a3f56d8ae4eec2e6b0fae11500b8177c509  lame-3.100-symbols.patch
+981c10a0d183a477bd20b8d7fe09fd12864ccc9b  lame-3.98-gtk-path.patch
+778b6820f096369eff206a02a28715ac68061b41  lame-3.99.5-msse.patch
+fcabdf196e9bc331b8d893c55fd1f33665916199  lame-3.99.5-tinfo.patch

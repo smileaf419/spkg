@@ -1,0 +1,35 @@
+####
+## perl build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.perl.org/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://www.cpan.org/src/5.0/perl-${PKG_VER}.tar.xz")
+DEPS="network/libnsl system/gdbm system/libxcrypt"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+TEST=test
+
+src_configure() {
+	if [[ -z $PKG_FLAGS ]]; then
+		export BUILD_ZLIB=False
+		export BUILD_BZIP2=0
+	fi
+
+	sh Configure -des                                         \
+	             -Dprefix=/usr                                \
+	             -Dvendorprefix=/usr                          \
+	             -Dprivlib=/usr/lib/perl5/${PKG_VER%.*}/core_perl      \
+	             -Darchlib=/usr/lib/perl5/${PKG_VER%.*}/core_perl      \
+	             -Dsitelib=/usr/lib/perl5/${PKG_VER%.*}/site_perl      \
+	             -Dsitearch=/usr/lib/perl5/${PKG_VER%.*}/site_perl     \
+	             -Dvendorlib=/usr/lib/perl5/${PKG_VER%.*}/vendor_perl  \
+	             -Dvendorarch=/usr/lib/perl5/${PKG_VER%.*}/vendor_perl \
+	             -Dman1dir=/usr/share/man/man1                \
+	             -Dman3dir=/usr/share/man/man3                \
+	             -Dpager="/usr/bin/less -isR"                 \
+	             -Duseshrplib                                 \
+	             -Dusethreads
+}
