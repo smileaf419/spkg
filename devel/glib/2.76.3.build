@@ -10,7 +10,7 @@ PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/glib-2.76.1-skip_war
 DEPS="devel/elfutils devel/libffi devel/libpcre2 system/zlib"
 BDEPS="devel/libxslt"
 RDEPS="apps/docbook-xml:4.5 apps/docbook-xsl-nons"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja
@@ -19,7 +19,7 @@ src_configure() {
 	sed -i -e '/subdir.*fuzzing/d' ../meson.build
 	sed -i -e '/install_dir/d' ../gio/tests/meson.build
 	append-cppflags -DG_DISABLE_CAST_CHECKS # https://gitlab.gnome.org/GNOME/glib/issues/1833
-	# Disable man pages till we can fix the docbook-xsl-nons package.
+	## Disable man pages till we can fix the docbook-xsl-nons package.
 	configure_default -Dman=true \
 					  -Dinstalled_tests=false \
 					  -Dnls=enabled \

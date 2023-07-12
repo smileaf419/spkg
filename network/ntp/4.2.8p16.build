@@ -11,15 +11,15 @@ PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp
 DEPS="devel/openssl system/libcap system/readline"
 BDEPS="perl/IO-Socket-SSL accounts/ntp"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 append-cppflags -fPIC -g
 append-cxxflags -D_GNU_SOURCE
 
 src_configure() {
-	# Fix an issue with update-leap
+	## Fix an issue with update-leap
 	sed -e 's/"(\\S+)"/"?([^\\s"]+)"?/' -i scripts/update-leap/update-leap.in
-	# Fix an issue caused by glibc 2.34
+	## Fix an issue caused by glibc 2.34
 	sed -e 's/#ifndef __sun/#if !defined(__sun) \&\& !defined(__GLIBC__)/' -i libntp/work_thread.c
 	autoreconf -vi
 
@@ -31,8 +31,8 @@ src_configure() {
 }
 
 src_test() {
-	# Disable unless we have ruby
-	# Right now installing ruby isn't on the todo list.
+	## Disable unless we have ruby
+	## Right now installing ruby isn't on the todo list.
 	inform " * Disabled as tests require Ruby which isn't available right now."
 	inform " * Tests are also broken on GCC 10+"
 }
