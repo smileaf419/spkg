@@ -128,14 +128,14 @@ src_test() { :; }
 src_install() {
 	install_default
 
-	ln -svfn aspell-${PKG_VER%.*} /usr/lib/aspell
-	install -v -m755 -d /usr/share/doc/aspell-${PKG_VER}/aspell{,-dev}.html
+	ln -svfn aspell-${PKG_VER%.*} $D/usr/lib/aspell
+	install -v -m755 -d $D/usr/share/doc/aspell-${PKG_VER}/aspell{,-dev}.html
 	install -v -m644 manual/aspell.html/* \
-		/usr/share/doc/aspell-${PKG_VER}/aspell.html
+		$D/usr/share/doc/aspell-${PKG_VER}/aspell.html
 	install -v -m644 manual/aspell-dev.html/* \
-		/usr/share/doc/aspell-${PKG_VER}/aspell-dev.html
+		$D/usr/share/doc/aspell-${PKG_VER}/aspell-dev.html
 
 	## Install a few wrappers
-    install -v -m 755 scripts/ispell /usr/bin/
-    install -v -m 755 scripts/aspell /usr/bin/
+    install -v -m 755 scripts/ispell $D/usr/bin/
+    install -v -m 755 scripts/spell  $D/usr/bin/
 }
