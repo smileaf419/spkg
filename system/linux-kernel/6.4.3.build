@@ -10,6 +10,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=6.4
 RESTRICT="strip nobin"
+DOC_LIST+=("/usr/src/linux-${PKG_VER}/Documentation")
 
 URL_BASE="https://cdn.kernel.org/pub/linux/kernel/v$(getMajorVer $PKG_VER).x"
 
