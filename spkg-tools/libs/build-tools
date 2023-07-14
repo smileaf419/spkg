@@ -121,6 +121,8 @@ installPackage() {
 	checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 	(
 		BUILD_SEPERATE_DIR=no
+		export DOC_LIST=("/usr/share/doc")
+
 		source "${PKG_BLD}"
 
 		install -o $BUILD_USER -d "${D}"
@@ -230,8 +232,10 @@ installPackage() {
 
 		if [[ $INSTALL_DOCS == 0 ]]; then
 			echo " * Removing Docs"
-			rm -r "${D}"/usr/share/doc > /dev/null 2>&1
-			rmdir "${D}"/usr/{share,} > /dev/null 2>&1
+			local doc
+			for doc in ${DOC_LIST[@]}; do
+				rm -r "$D/$doc" > /dev/null 2>&1
+			done
 		fi
 
 		if [[ -e "${D}/usr/share/locale" ]]; then
@@ -245,6 +249,8 @@ installPackage() {
 				rm -r "${D}/usr/share/locale/$l"
 			done
 		fi
+
+		find "$D" -type d -depth -exec rmdir -p --ignore-fail-on-non-empty {} +
 
 		stripPackage
 
