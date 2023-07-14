@@ -64,13 +64,18 @@ cleanup() {
 	fi
 	echo " Done"
 
-	if [ -e $INFORMLOG ]; then
-		cat "$INFORMLOG"
-	fi
-
 	## Clean-up our temp files
 	## If an error occurs we should remove our lock file.
 	if [[ -z $PKG_ONLY ]]; then
+		## If we have a PKG_INFORM_LOG add it to our INFORMLOG but only display the current package's.
+		if [ -e $PKG_INFORM_LOG ]; then
+			(
+				[ -e $INFORMLOG ] && echo
+				echo " * $LENTRY :"
+				cat "$PKG_INFORM_LOG"
+			) | tee -a $INFORMLOG
+		fi
+
 		[ -e $SPKG_TMP_DIR/.lock ] && rm -f $SPKG_TMP_DIR/.lock
 		## For security purposes, validate our SPKG_TMP_DIR
 		if [[ ! -z $SPKG_TMP_DIR && -e $SPKG_TMP_DIR ]]; then
@@ -82,6 +87,8 @@ cleanup() {
 				fi
 			fi
 		fi
+	elif [ -e $INFORMLOG ]; then
+		cat "$INFORMLOG"
 	fi
 
 	# TODO: automerge if files were not changed.

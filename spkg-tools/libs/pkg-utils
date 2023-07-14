@@ -13,6 +13,10 @@
 ##
 ### Installed and Db should contain the same named methods but from different pools (PKG_DB_DIR and PKG_CACHE)
 
+## Location of the inform log for the current package.
+## It will be outputted at the end of the build, and its contents added to INFORMLOG
+export PKG_INFORM_LOG=$BUILD_PATH/inform.log
+
 ####
 ## Output a dialog and exit immediately.
 die() { echo "$*" 1>&2 ; exit 77; }
@@ -21,15 +25,7 @@ export -f die
 ####
 ## Output a dialog and append it to a log file.
 ## This logfile will then be outputted again at the very end.
-inform() {
-	echo "$*" | tee -a $INFORMLOG;
-	local w=$(whoami)
-	if [[ $w != $BUILD_USER && $w == 'root' ]]; then
-		chown $BUILD_USER $INFORMLOG
-	else
-		echo " $IMPORTANT $INFORMLOG is not owned by $BUILD_USER and cannot be fixed, this may cause an issue writting later."
-	fi
-}
+inform() { echo "$*" | tee -a $PKG_INFORM_LOG; }
 export -f inform
 
 ####
