@@ -44,8 +44,8 @@ src_install() {
 	install_default -C gdb
 
 	if [ -e gdb/doc/doxy ]; then
-		install -d /usr/share/doc/gdb-${PKG_VER}
+		install -d $D/usr/share/doc/gdb-${PKG_VER}
 		rm -rf gdb/doc/doxy/xml
-		cp -Rv gdb/doc/doxy /usr/share/doc/gdb-${PKG_VER}
+		cp -Rv gdb/doc/doxy $D/usr/share/doc/gdb-${PKG_VER}
 	fi
 }
