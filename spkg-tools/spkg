@@ -38,7 +38,6 @@ ErrorHandler() {
 	case $ERR in
 		0) ;;
 		77)
-			[ -e $SPKG_TMP_DIR/.lock ] && rm -f $SPKG_TMP_DIR/.lock
 			exit 77 ;;
 		*)
 			>&2 echo " $DIALOG_ERROR Unhandled Error $ERR ( got called at $(caller) )"
