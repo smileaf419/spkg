@@ -131,6 +131,7 @@ EOF
 cat > $ROOT/chroot.sh << "EOF"
 #!/bin/bash
 [[ -z $1 ]] && SPKG=${0%/*} || SPKG=$1
+[[ -z $2 ]] && RUN='/bin/bash --login' || shift && RUN=$@
 mount -v --bind /dev $SPKG/dev
 mount -v --bind /dev/pts $SPKG/dev/pts
 mount -vt proc proc $SPKG/proc
@@ -146,7 +147,8 @@ chroot "$SPKG" $ENV -i                        \
         PS1='(chroot) \u:\w\$ '                         \
         LD_LIBRARY_PATH=/usr/lib:/usr/lib64:/lib:/lib64  \
         PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin \
-        /bin/bash --login
+        SPKG_INSTALL_DIR=$PKG_DB_DIR \
+        $RUN
 umount -v $SPKG/dev/{pts,}
 umount -v $SPKG/{proc,sys,run}
 EOF
@@ -196,15 +198,14 @@ DISTRIB_CODENAME="$CODENAME"
 DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
 EOF
 
+cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
+
+$ROOT/chroot.sh $ROOT $ROOT/$PKG_DB_DIR/chroot-finalize.sh $PKG_DB_DIR
+
 echo " * Bootstrapping complete!"
-echo "You will now need to create a $ROOT/etc/spkg.conf"
-echo " A safe default is included within the spkg-tools subdir"
-echo "You should now run $ROOT/chroot.sh"
-echo "Afterwards: spkg @temptools ; Once complete its safe to remove the /tools dir"
-echo " $IMPORTANT Locales need to be installed"
-echo "            You can install them via: $PKG_DB_DIR/spkg-tools/locales"
-echo "And finally: spkg -e @basicsystem"
-echo " Once a default system is created, feel free to alter the USE flag, and reinstall affected packages."
-echo " Altering the USE flag before a system is fully created may run into several problems, and all"
-echo " packages -- even already installed ones -- must be reinstalled for a final system to be created successfully."
+echo " A default system has been created, feel free to alter the USE flag, and reinstall affected packages."
+echo "To Enter your new system run $ROOT/chroot.sh"
+echo "For a guide on how to finalize your new system, please visit:"
+echo "https://github.com/smileaf419/spkg/wiki/Installation#finalizing-the-system"
+echo "Thank you for installing and have fun with $CODENAME - $VERSION =]"
 exit 0
