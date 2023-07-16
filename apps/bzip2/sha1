@@ -1,3 +1,8 @@
 5838187d0018cd59966bb15900ab5c9555b512a0  1.0.8.build
 bf7badf7e248e0ecf465d33c2f5aeec774209227  bzip2-1.0.8.tar.gz
 86fa168b260bb12651ebfa6d47939e926e067036  bzip2-1.0.8-install_docs-1.patch
+fd1b74292cc4f72e2d644eccfb388594802b02ad  1.0.8-r1.build
+c06c8893d6166d9546e3717f378dbe2f8862dab2  bzip2-1.0.4-makefile-CFLAGS.patch
+e3d181469b5d4d9397fc5c92c3b9f4bc86e0f9b7  bzip2-1.0.6-progress.patch
+b4a81b08cf653827614243a609616aa804c4b9f7  bzip2-1.0.3-no-test.patch
+4bf8d8f4221441e3c2fa0b51422b6810e7c4a905  bzip2-1.0.8-saneso.patch
