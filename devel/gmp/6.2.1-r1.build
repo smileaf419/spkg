@@ -32,7 +32,7 @@ src_test() {
 src_install() {
 	install_default
 
-	make DESTDIR="${D}" install-html
+	make DESTDIR="$ROOT/${D}" install-html
 }
 
 bootstrap() {
