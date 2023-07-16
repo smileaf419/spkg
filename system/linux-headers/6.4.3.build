@@ -71,7 +71,6 @@ src_test() { :; }
 src_install() {
 	unset ARCH
 	find usr/include -type f ! -name '*.h' -delete
-	rm usr/include/Makefile
 	mkdir -pv "${D}/${ROOT}/usr"
 	cp -rv usr/include "${D}/${ROOT}/usr"
 }
