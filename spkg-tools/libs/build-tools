@@ -120,7 +120,9 @@ export -f buildPackage
 installPackage() {
 	checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 	(
+		set +h -Eeo pipefail
 		BUILD_SEPERATE_DIR=no
+		local BUILD_FORCE=0
 		export DOC_LIST=("/usr/share/doc")
 
 		source "${PKG_BLD}"
@@ -132,8 +134,13 @@ installPackage() {
 			cd "${D}"
 			tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz"
 
+			## FIXME: Check the USE_FLAGS to see if they have the same relevant flags
+			## If a package's USE is different, we're going to need to compile it as the archive isn't compatible
+			# BUILD_FORCE=1
+		fi
+
 		## Build our source, setup the environment so we can pass things off to our BUILD_USER
-		else
+		if [[ $ARCHIVE_INSTALL == 0 || ! -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" || $BUILD_FORCE == 1 ]]; then
 			## Even if we are trying to install via an archive, if we got here the archive doesn't exist.
 			## Disable the ARCHIVE_INSTALL to allow a package to be built if BUILD_PACKAGE=yes
 			ARCHIVE_INSTALL=0
@@ -209,10 +216,13 @@ installPackage() {
 			IFS=$'\n'
 			SRC_URI=($SRC_URI)
 
-			echo " * src_install"
-			src_install		|| die "Error in src_install"
+			if [[ $MODE != 'bootstrap' ]]; then
+				echo " * src_install"
+				src_install		|| die "Error in src_install"
+			fi
 
 			## Save our USE for use later.
+			## FIXME: Check for IUSE and filter the flags to only contain those.
 			echo $USE > ${D}/USE_FLAGS
 			case $MODULE in
 				kernel)
@@ -228,7 +238,8 @@ installPackage() {
 		archivePackage
 
 		echo " * Removing Libtool Archives (.la)"
-		find "${D}"/usr/lib{,exec,64,32} -name \*.la -delete -print 2> /dev/null # 2>&1
+		cd "$D"
+		find usr/lib{,exec,64,32} -name \*.la -delete -print 2> /dev/null
 
 		if [[ $INSTALL_DOCS == 0 ]]; then
 			echo " * Removing Docs"
@@ -250,7 +261,7 @@ installPackage() {
 			done
 		fi
 
-		find "$D" -type d -depth -exec rmdir -p --ignore-fail-on-non-empty {} +
+		find "$D" -mindepth 1 -type d -exec rmdir -p --ignore-fail-on-non-empty {} +
 
 		stripPackage
 
