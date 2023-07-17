@@ -200,7 +200,7 @@ EOF
 
 cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
 
-$ROOT/chroot.sh $ROOT $ROOT/$PKG_DB_DIR/chroot-finalize.sh $PKG_DB_DIR
+$ROOT/chroot.sh $ROOT $PKG_DB_DIR/chroot-finalize.sh $PKG_DB_DIR
 
 echo " * Bootstrapping complete!"
 echo " A default system has been created, feel free to alter the USE flag, and reinstall affected packages."
