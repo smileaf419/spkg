@@ -42,6 +42,10 @@ LOCALES=(
 "zh_TW UTF-8"
 )
 
+export NORMAL=$(tput sgr0)
+export RED=$(tput setaf 1)
+export GREEN=$(tput setaf 2)
+
 echo " * Generating locales"
 IFS=$'\n'
 num=${#LOCALES[@]}
@@ -59,6 +63,6 @@ for (( c=0; c<$num; c++ )); do
 	else
 		gl=$lang
 	fi
-	echo -n " * Generating [$(($c + 1))/$num] $gl: "
-	localedef -i $lang -f $encoding $gl 2> /dev/null && echo " Ok" || echo " Failed"
+	printf " * Generating [%2d/%2d] %-22s: " $(($c + 1)) $num $gl
+	localedef -i $lang -f $encoding $gl 2> /dev/null && echo " ${GREEN}Ok${NORMAL}" || echo " ${RED}Failed${NORMAL}"
 done
