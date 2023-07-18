@@ -190,8 +190,8 @@ echo " * Cloning repository (if git is installed) ..."
 if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
 	P=${PKG_DB_DIR%/} # strip / at end if exists
 	cd $ROOT/${P%spkg} # strip toplevel dir.
-#	rmdir spkg
-#	git clone https://github.com/smileaf419/spkg
+	rmdir spkg
+	git clone https://github.com/smileaf419/spkg
 
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
