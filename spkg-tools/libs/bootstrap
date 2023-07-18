@@ -80,7 +80,6 @@ chgrp 13 $ROOT/var/log/lastlog
 chmod 664  $ROOT/var/log/lastlog
 chmod 600  $ROOT/var/log/btmp
 install -m755 -d -o 250 -g 250 $ROOT/var/tmp/spkg
-ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
 
 ####
 ## Create Essential Files
@@ -161,24 +160,9 @@ REQUESTED_LIST="@system"
 populate_list
 FETCH_ONLY=1
 ## Attempt to catch the error so we can finish.
-if installList $REQUESTED_LIST; then
+if ! installList $REQUESTED_LIST; then
 	echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
 	echo "    Finally move the downloaded files to: $DISTFILES"
-fi
-
-####
-## Install our repository
-echo " * Cloning repository (if git is installed) ..."
-## if git is installed do this automatically.
-## Otherwise inform the user how to do it.
-if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
-	P=${PKG_DB_DIR%/} # strip / at end if exists
-	cd $ROOT/${P%spkg} # strip toplevel dir.
-	rmdir spkg
-	git clone https://github.com/smileaf419/spkg
-else
-	echo "You will need to copy or clone spkg into $PKG_DB_DIR"
-	echo " git clone https://github.com/smileaf419/spkg"
 fi
 
 ## Used by some Graphical Apps
@@ -198,14 +182,34 @@ DISTRIB_CODENAME="$CODENAME"
 DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
 EOF
 
-cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
+####
+## Install our repository
+echo " * Cloning repository (if git is installed) ..."
+## if git is installed do this automatically.
+## Otherwise inform the user how to do it.
+if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
+	P=${PKG_DB_DIR%/} # strip / at end if exists
+	cd $ROOT/${P%spkg} # strip toplevel dir.
+#	rmdir spkg
+#	git clone https://github.com/smileaf419/spkg
 
-$ROOT/chroot.sh $ROOT $PKG_DB_DIR/chroot-finalize.sh $PKG_DB_DIR
+	## Install our configuration file and symlinks.
+	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
+	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
+
+	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR
+else
+	echo "You will need to copy or clone spkg into $PKG_DB_DIR"
+	echo " git clone https://github.com/smileaf419/spkg"
+	echo
+	echo "Once this is done you will need to copy over the spkg.conf and run:"
+	echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
+fi
 
 echo " * Bootstrapping complete!"
 echo " A default system has been created, feel free to alter the USE flag, and reinstall affected packages."
 echo "To Enter your new system run $ROOT/chroot.sh"
 echo "For a guide on how to finalize your new system, please visit:"
 echo "https://github.com/smileaf419/spkg/wiki/Installation#finalizing-the-system"
-echo "Thank you for installing and have fun with $CODENAME - $VERSION =]"
+echo "Thank you for installing and have fun with Leaf Linux: $CODENAME - $VERSION =]"
 exit 0
