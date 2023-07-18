@@ -620,7 +620,9 @@ installList() {
 			## Compress our log.
 			[[ ! -e "${log}.xz" ]] && xz "$log" || echo " ! Log ${log}.xz exists"
 		fi
-		echo -n " * Running ldconfig .."
-		ldconfig && echo "done!" || die "failed!"
+		if [[ $FETCH_ONLY != 1 ]]; then
+			echo -n " * Running ldconfig .."
+			ldconfig && echo "done!" || die "failed!"
+		fi
 	done
 }
