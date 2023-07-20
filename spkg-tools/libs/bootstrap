@@ -39,7 +39,9 @@ mkdir -p $ROOT/var/{cache,local,log,mail,opt,spool}
 mkdir -p $ROOT/var/{cache,db,lib,lock,log,opt,spool}
 ## Create dirs for spkg
 mkdir -p $PKG_CACHE $DISTFILES
-mkdir -p $ROOT/{$PKG_DB_DIR,$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE}
+mkdir -p $ROOT/{$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE}
+## Our default path is /var/db/spkg but we need the path leading up to that.
+[[ ! -e $ROOT/$(dirname $PKG_DB_DIR) ]] && mkdir -p $ROOT/$(dirname $PKG_DB_DIR)
 
 ####
 ## Create Files
@@ -189,10 +191,10 @@ echo " * Cloning repository (if git is installed) ..."
 ## if git is installed do this automatically.
 ## Otherwise inform the user how to do it.
 if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
-	P=${PKG_DB_DIR%/} # strip / at end if exists
-	cd $ROOT/${P%spkg} # strip toplevel dir.
-	rmdir spkg
-	git clone https://github.com/smileaf419/spkg
+	if [[ ! -e $PKG_DB_DIR ]]; then
+		cd $(dirname $PKG_DB_DIR)
+		git clone https://github.com/smileaf419/spkg
+	fi
 
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
