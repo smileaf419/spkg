@@ -615,7 +615,7 @@ installList() {
 				printf "Completed in %.3f seconds.\n" $( echo $(date "+%s.%N") - $timestart | bc ) | tee -a $log
 			## Log when we started and when we finished if we can't calculate how long it took.
 			else
-				printf "Started at %.3f ended at %.3f.\n" $timestart $(date "+%s.%N") | tee -a $log
+				printf "Completed in %d seconds.\n" $(( $(date "+%s") - ${timestart%.*} )) | tee -a $log
 			fi
 
 			## Compress our log.
