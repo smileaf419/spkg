@@ -126,6 +126,7 @@ export YELLOW=$(tput setaf 3)
 export BLUE=$(tput setaf 4)
 export PURPLE=$(tput setaf 5)
 export LTBLUE=$(tput setaf 6)
+export LTGRAY=$(tput setaf 247)
 export DIM=$(tput dim)
 
 ## Convience vars for colorizing output.
@@ -187,7 +188,7 @@ export PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-$CACHE_DIR/archive}
 ####
 ## Files
 ## Logfile format
-export LOGFILE=${LOGFILE:-%D-%n-%v.log}
+export LOGFILE=${LOGFILE:-%n/%D-%v.log}
 ## Database file used to store all packages explicitely installed not found within @system
 export PKG_WORLD=${PKG_WORLD:-$CACHE_DIR/world}
 
@@ -803,9 +804,25 @@ else
 					echo -n " (forced)"
 				fi
 
+				####
 				## If an IUSE is present, display it
+				## If its enabled, color it GREEN
+				## If its disabled, color it RED
+				## If its not within our USE at all, gray it out.
 				IUSE=$(grep '[^#]*IUSE=' "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
-				[[ ! -z $IUSE ]] && echo -n " [ $IUSE ]"
+				if [[ ! -z $IUSE ]]; then
+					echo -n " [ "
+					for u in $IUSE; do
+						ue=0
+						use-enable $u || ue=$?
+						case $ue in
+							0) echo -n "${GREEN}+$u " ;;
+							1) echo -n "$LTGRAY$u " ;;
+							2) echo -n "${RED}-$u " ;;
+						esac
+					done
+					echo -n "$NORMAL]"
+				fi
 				echo
 
 				## Add to our INSTALL_CHART
