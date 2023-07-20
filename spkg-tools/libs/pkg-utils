@@ -89,6 +89,7 @@ export -f spatch
 spatches() {
 	local PATCHES=(${@:-${PATCHES[@]}})
 
+	local p
 	for p in ${PATCHES[@]}; do
 		[[ $p == http* ]] && p=$DISTFILES/${p##*/}
 		if [[ $p == *.tar.* ]]; then
