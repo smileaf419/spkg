@@ -438,8 +438,8 @@ if [[ $MODE != 'search' && $MODE != 'list' && $MODE != 'update' ]]; then
 	fi
 	if [[ ! -e "$PKG_CACHE/.cache/pip" || $(stat -c '%U' "$PKG_CACHE/.cache/pip") != $BUILD_USER ]]; then
 		mkdir -p $PKG_CACHE/.cache/pip
-		>&2 echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
-		chown -R $BUILD_USER $PKG_CACHE && echo -n '.'
+		>&2 echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE/.cache/pip "
+		chown -R $BUILD_USER $PKG_CACHE/.cache/pip && echo -n '.'
 		>&2 echo " done"
 	fi
 
