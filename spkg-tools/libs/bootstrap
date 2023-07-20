@@ -197,7 +197,11 @@ if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
 	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
 
-	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR
+	## Pass certain options to our chroot environment
+	SPKG_BUILD_OPTS=
+	[[ $SILENT_BUILD == "yes" ]] && SPKG_BUILD_OPTS=-Q
+
+	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $SPKG_BUILD_OPTS
 else
 	echo "You will need to copy or clone spkg into $PKG_DB_DIR"
 	echo " git clone https://github.com/smileaf419/spkg"
