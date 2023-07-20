@@ -130,7 +130,8 @@ EOF
 cat > $ROOT/chroot.sh << "EOF"
 #!/bin/bash
 [[ -z $1 ]] && SPKG=${0%/*} || SPKG=$1
-[[ -z $2 ]] && RUN='/bin/bash --login' || shift && RUN=$@
+RUN='/bin/bash --login'
+[[ ! -z $2 ]] && shift && RUN=$@
 mount -v --bind /dev $SPKG/dev
 mount -v --bind /dev/pts $SPKG/dev/pts
 mount -vt proc proc $SPKG/proc
