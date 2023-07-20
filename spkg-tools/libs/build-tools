@@ -261,7 +261,8 @@ installPackage() {
 			done
 		fi
 
-		find "$D" -mindepth 1 -type d -exec rmdir -p --ignore-fail-on-non-empty {} +
+		echo " * Removing Empty Dirs"
+		find "$D" -mindepth 1 -type d -empty -print -exec rmdir -p --ignore-fail-on-non-empty {} +
 
 		stripPackage
 
