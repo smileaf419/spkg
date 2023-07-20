@@ -317,17 +317,18 @@ fetch_list() {
 	local list=($2)
 	## Used in --updatesha1
 	local update_sha=${4:-0}
+	local fetch_list=()
 
+	## Check if any of the files within the list exist, if they don't add them to a fetch list.
+	## if the files exist, check their sha1sum, if they fail, delete and refetch, files will be checked again after downloading.
 	local length=${#list[@]}
-	local ret=0
+	local l
 	for (( l=0; l<${length}; l++ )); do
-		C=$(( $l + 1 ))
-		file=${list[$l]}
-		[[ $VERBOSE -ge 2 ]] && echo " * Fetching $C of $length: $file"
+		local file=${list[$l]}
 		[[ $file == "" ]] && continue
 		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
-			local SRC_OUTFILE=${file/*=> /}
 			local SRC_FILE=${file/ =>*/}
+			local SRC_OUTFILE=${file/*=> /}
 			# Once a fetch occurs we don't actually need the old filename.
 			# Rename it so as to avoid confusion later.
 			if [[ $3 == 'src' ]]; then
@@ -335,6 +336,24 @@ fetch_list() {
 			elif [[ $3 == 'patch' ]]; then
 				PATCHES[$l]="${SRC_FILE%/*}/${SRC_OUTFILE}"
 			fi
+		else
+			local SRC_OUTFILE=${file##*/}
+		fi
+		if [ ! -e $DISTFILES/$SRC_OUTFILE ] ||
+		   [[ $IGNORE_SHA != 1 ]] && ! checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"; then
+			fetch_list+=($file)
+		fi
+	done
+
+	local length=${#fetch_list[@]}
+	for (( l=0; l<${length}; l++ )); do
+		local C=$(( $l + 1 ))
+		local file=${fetch_list[$l]}
+		[[ $VERBOSE -ge 2 ]] && echo " * Fetching $C of $length: $file"
+		[[ $file == "" ]] && continue
+		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
+			local SRC_FILE=${file/ =>*/}
+			local SRC_OUTFILE=${file/*=> /}
 		else
 			local SRC_FILE=$file
 			local SRC_OUTFILE=${SRC_FILE##*/}
@@ -345,16 +364,16 @@ fetch_list() {
 		fi
 		if ! checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"; then
 			if [[ $IGNORE_SHA == 1 ]]; then
-				ret=2
+				return 2
 			elif [[ $update_sha == 1 ]]; then
 				sha1sum "$DISTFILES/$SRC_OUTFILE" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
 			else
 				[[ $VERBOSE -gt 1 ]] && >&2 echo " !! Sha1sum failed for file: $SRC_OUTFILE"
-				ret=1
+				return 1
 			fi
 		fi
 	done
-	return $ret
+	return 0
 }
 
 ## Check a sha1sum of a given file within the package's sha1 file.
