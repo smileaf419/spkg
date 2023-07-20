@@ -5,4 +5,4 @@ shift
 echo " * Installing Temporary tools"
 spkg $@ @temptools
 echo " * Installing the basic system"
-spkg $@ -f1 @basicsystem
+spkg $@ -e @basicsystem
