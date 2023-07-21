@@ -21,6 +21,16 @@ export HOST_TGT=$(uname -m)-leaf-linux-gnu
 export PATH="$ROOT/tools/bin:$PATH"
 export LD_LIBRARY_PATH=$ROOT/lib:$ROOT/lib64:$ROOT/usr/lib:$ROOT/usr/lib64:$LD_LIBRARY_PATH
 
+if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT/$PKG_DB_DIR ]]; then
+	echo " $IMPORTANT git appears to not be installed and is required to clone the spkg repository."
+	echo " $IMPORTANT you may wish to to create the $ROOT/$PKG_DB_DIR and copy the repository there before continuing."
+	echo "Continue? (Yes/No): "
+	read cont
+	if [[ ${cont^^} != 'Y' || ${cont^^} != 'YES' ]]; then
+		die
+	fi
+fi
+
 ####
 ## Create Essential Dirs.
 echo " * Creating directories ..."
@@ -205,6 +215,9 @@ if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
 	[[ $SILENT_BUILD == "yes" ]] && SPKG_BUILD_OPTS=-Q
 
 	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $SPKG_BUILD_OPTS
+
+	echo " * Cleaning $ROOT/tools"
+	rm -rf $ROOT/tools
 else
 	echo "You will need to copy or clone spkg into $PKG_DB_DIR"
 	echo " git clone https://github.com/smileaf419/spkg"
