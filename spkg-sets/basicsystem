@@ -1,6 +1,4 @@
 # Basic System
-devel/git
-apps/nano
 system/man-pages
 network/iana-etc
 system/glibc
@@ -67,7 +65,6 @@ system/grub
 apps/gzip
 system/iproute2
 system/kbd
-devel/libpipeline
 system/make
 system/patch
 apps/tar
@@ -81,3 +78,5 @@ apps/sysklogd
 system/sysvinit
 system/lfs-bootscripts
 system/timezone-data
+devel/git
+apps/nano
