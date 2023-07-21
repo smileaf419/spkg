@@ -89,3 +89,4 @@ system/texinfo
 system/timezone-data
 network/wget
 system/lfs-bootscripts
+devel/git

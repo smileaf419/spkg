@@ -1,4 +1,6 @@
 # Basic System
+devel/git
+apps/nano
 system/man-pages
 network/iana-etc
 system/glibc
