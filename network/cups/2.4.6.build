@@ -21,7 +21,7 @@ src_configure() {
 	fi
 
 	CONF_FLAGS=(--libdir=/usr/lib
-				--with-systemd=no
+				--with-systemd=/tmp
 				--with-rundir=/run/cups
 				--with-rcdir=/tmp/cupsinit
 				--with-system-groups=lpadmin
@@ -52,6 +52,15 @@ src_install() {
 
 	## Removes bootscript
 	rm -rf ${D}/tmp
+
+	## Keep some empty dirs
+	touch $D/usr/lib/cups/driver/.keep
+	touch $D/usr/share/cups/{data,banners,model,profiles}/.keep
+	touch $D/etc/cups/{ssl,ppd}/.keep
+	touch $D/run/cups/certs/.keep
+	touch $D/var/log/cups/.keep
+	touch $D/var/spool/cups/tmp/.keep
+	touch $D/var/cache/cups/rss/.keep
 
 	mkdir -p ${D}/etc/cups
 	echo "ServerName /run/cups/cups.sock" > ${D}/etc/cups/client.conf
