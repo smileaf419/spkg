@@ -7,6 +7,9 @@
 ## Set the Stack file
 export STACK=$WORKDIR_BASE/stack
 
+## Set the restrictions file
+export RESTRICTIONS=$WORKDIR_BASE/restrictions
+
 ####
 ## Takes a user supplied list and parse it and finding matches for packages.
 ## Store the information within our CHART for easy reference.
@@ -160,7 +163,8 @@ getFullPkgList() {
 	[[ -e $CHART ]] && rm $CHART
 	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
 	[[ -e $STACK ]] && rm $STACK
-	touch $CHART $STACK $INSTALL_CHART
+	[[ -e $RESTRICTIONS ]] && rm $RESTRICTIONS
+	touch $CHART $STACK $INSTALL_CHART $RESTRICTIONS
 
 	SP=
 	local d
@@ -220,7 +224,7 @@ getdep() {
 
 		## Check if its on the stack, if not, add it. if so we'll get to it later.
 		if [[ $PKG_SLOT == 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART $STACK > /dev/null 2>&1 ||
-			[[ $PKG_SLOT != 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART $STACK > /dev/null 2>&1; then
+			[[ $PKG_SLOT != 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $CHART $STACK > /dev/null 2>&1; then
 			return 0
 		else
 			eval echo \"$PKG\" >> $STACK
@@ -247,14 +251,14 @@ getdep() {
 		fi
 
 		## Add our required now Dependencies
-		doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"
+		doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}" || sed "/^$PKG_CAT.$PKG_NAME/d" -i $CHART
 
 		## Check CDEPS
 		if [[ ! -z $CDEPS ]]; then
 			local p
 			for p in $CDEPS; do
 			    local cpkg=$(EntryParser $p)
-				local cp=$(getCategory $cpkg)/$(getName $cpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $cpkg)
+				local cp="$(getCategory $cpkg)/$(getName $cpkg)(/[^/]*){3}/$(getSlot $cpkg)"
 				pkg-has-flag "nodep" && break
 
 				## If its already in the list, ignore it and continue.
@@ -276,7 +280,7 @@ getdep() {
 
 		## Add our package
 		if [[ $PKG_SLOT == 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART > /dev/null 2>&1 ||
-			[[ $PKG_SLOT != 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $CHART > /dev/null 2>&1; then
+			[[ $PKG_SLOT != 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $CHART > /dev/null 2>&1; then
 			getPKG >> $CHART
 			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
 		fi
@@ -301,12 +305,13 @@ getdep() {
 			## Remove our description pair value.
 			sed 's,^[^ ]* ,,')
 
-		doDeps "$dep"
+		doDeps "$dep" || sed "/^$PKG_CAT.$PKG_NAME/d" -i $CHART
 		SP=${SP# }
 	)
 }
 
 ## Process our Dependencies
+## Returns 1 if a restriction fails to resolve.
 doDeps() {
 	local DEPS=($@)
 
@@ -315,57 +320,54 @@ doDeps() {
 	for d in ${DEPS[@]}; do
 		local PKG=$(EntryParser $d)
 		local PKG_VER_RESTRICT=$(getVerRestrict $PKG)
+		## FIXME: We need to check for any PKG_USE restrictions, if so check the respected package for those within the USE_FLAGS file
+		##        If they don't match, that package must be added to the list and set ASK=1
+		##        This will require package specfic USE to be implemented.
+		## FIXME: If we have a restriction we need to save it and retoactively apply the restriction
 		if [ ! -z $PKG_VER_RESTRICT ]; then
 			local dpkg=$(DB-getPkg $PKG)
-#			>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
-#			>&2 echo "PKG: $PKG"
-#			>&2 echo "List: $dpkg"
+			>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
+			>&2 echo "PKG: $PKG"
+			>&2 echo "List: $dpkg"
 			## We need to itterate over the dpkg and ensure we restrict versions to only those that match.
-			local IFS="|"
 			local p
 			local r
 			local opkg=
-			for r in $PKG_VER_RESTRICT; do
-				unset IFS
-				if [[ ${r:0:1} == ">" && ${r:1:2} == "=" ]]; then
-					for p in $dpkg; do
-						if version_ge $(getVersion $p) ${r#>=}; then
-							opkg+="$p\n"
+			local dpkg_name=$(getName $dpkg)
+			local dpkg_cat=$(getCategory $dpkg)
+			local dpkg_slot=$(getSlot $dpkg)
+			for p in $dpkg; do
+				local IFS="|"
+				pver=$(getVersion $p)
+				## FIXME: Itterate over the current PKG_VER_RESTRICT and RESTRICTIONS file.
+				for r in $PKG_VER_RESTRICT; do
+					if [[ ${r:0:1} == ">" ]]; then
+						if [[ ${r:1:2} == "=" ]]; then
+							version_ge $pver ${r#>=} && opkg+="$p\n"
+						else
+							version_gt $pver ${r#>} && opkg+="$p\n"
 						fi
-					done
-				elif [[ "${r:0:1}" == ">" ]]; then
-					for p in $dpkg; do
-						if version_gt $(getVersion $p) ${r#>}; then
-							opkg+="$p\n"
+					elif [[ ${r:0:1} == "<" ]]; then
+						if [[ ${r:1:2} == "=" ]]; then
+							version_le $pver ${r#<=} && opkg+="$p\n"
+						else
+							version_lt $pver ${r#<} && opkg+="$p\n"
 						fi
-					done
-				elif [[ "${r:0:1}" == "<" && ${r:1:2} == "=" ]]; then
-					for p in $dpkg; do
-						if version_le $(getVersion $p) ${r#<=}; then
-							opkg+="$p\n"
-						fi
-					done
-				elif [[ "${r:0:1}" == "<" ]]; then
-					for p in $dpkg; do
-						if version_lt $(getVersion $p) ${r#<}; then
-							opkg+="$p\n"
-						fi
-					done
-				elif [[ "${r:0:1}" == "=" ]]; then
-					for p in $dpkg; do
-						if [[ $(getVersion $p) == ${r#>} ]]; then
-							opkg+="$p\n"
-						fi
-					done
-
-				fi
+					fi
+					## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
+					echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot" >> $RESTRICTIONS
+				done
 			done
+			unset IFS
+
 			dpkg=$(echo -e $opkg | getLatest)
-			if [ -z $dpkg ]; then
-				echo "$DIALOG_ERROR No version to match restrictions of $p"
-				die "$DIALOG_ERROR Error Resolving Dependencies"
+			if [[ $dpkg == "" ]]; then
+				>&2 echo "$DIALOG_ERROR No version to match restrictions of $p"
+#				die "$DIALOG_ERROR Error Resolving Dependencies"
+				return 1
 			fi
 		else
+			## FIXME: check RESTRICTIONS file for any matches
 			local dpkg=$(DB-getPkg $PKG | getLatest)
 			if [ -z $dpkg ]; then
 				die "$DIALOG_ERROR Error Resolving Dependencies: $PKG ($dpkg)"
@@ -373,7 +375,7 @@ doDeps() {
 		fi
 		pkg-has-flag "nodep" && break
 		## If its already in the list, ignore it and continue.
-		grep -E "^$(getCategory $dpkg)/$(getName $dpkg)/[^/]*/[^/]*/[^/]*/$(getSlot $dpkg)" $CHART > /dev/null && continue
+		grep -E "^$(getCategory $dpkg)/$(getName $dpkg)(/[^/]*){3}/$(getSlot $dpkg)" $CHART > /dev/null && continue
 
 		## Identify Circular Dependencies here so we can break out
 		getdep $dpkg $PKG_CAT/$PKG_NAME || local e=$?
