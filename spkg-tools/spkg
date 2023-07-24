@@ -114,9 +114,9 @@ whereAmI() {
 ####
 ## Set Environmental Variables
 ## Sanitize our paths in case our environment may not be complete.
-export PKG_CONFIG_PATH=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig
-export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+export PKG_CONFIG_PATH=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64:$LD_LIBRARY_PATH
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH
 
 ## Set some colors
 export NORMAL=$(tput sgr0)
@@ -125,13 +125,22 @@ export GREEN=$(tput setaf 2)
 export YELLOW=$(tput setaf 3)
 export BLUE=$(tput setaf 4)
 export PURPLE=$(tput setaf 5)
-export LTBLUE=$(tput setaf 6)
-export LTGRAY=$(tput setaf 247)
+export CYAN=$(tput setaf 6)
+export LTGRAY=$(tput setaf 7)
+export DKGRAY=$(tput setaf 8)
+export BRIGHT_RED=$(tput setaf 9)
+export BRIGHT_GREEN=$(tput setaf 10)
+export BRIGHT_YELLOW=$(tput setaf 11)
+export BRIGHT_BLUE=$(tput setaf 12)
+export MAGENTA=$(tput setaf 13)
+export BRIGHT_CYAN=$(tput setaf 14)
+export WHITE=$(tput setaf 15)
+export BLACK=$(tput setaf 16)
 export DIM=$(tput dim)
 
 ## Convience vars for colorizing output.
-export IMPORTANT="$YELLOW!!$NORMAL"
-export DIALOG_ERROR="$RED!!$NORMAL"
+export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
+export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
 
 ####
 ## Ensure our config file exists
@@ -403,7 +412,7 @@ parse_cmdline() {
 						echo    "  --help, -h           This Help Message."
 						exit $? ;;
 					*)
-						die "Unknown option: $1 ! see --help" ;;
+						die "Unknown option: -$opt ! see --help" ;;
 				esac
 				if [[ $opt == -* ]]; then
 					break
@@ -554,11 +563,13 @@ if [[ $MODE == "update" ]]; then
 			done
 		else
 			PKG=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
+			IPK_VER=$(getVerRev $PKG)
 			for p in $PKG; do
 				PKG_SLOT=$(getSlot $p)
 				PKG_VER=0
 				PKG_REV=0
-				DB-getPkg $(getPKG) | getLatest >> $CHART
+				LPKG=$(DB-getPkg $(getPKG) | getLatest)
+				version_gt $(getVerRev $LPKG) $IPK_VER && echo $LPKG >> $CHART
 			done
 		fi
 #		s=$(( $s + 1 ))
@@ -569,6 +580,7 @@ if [[ $MODE == "update" ]]; then
 	else
 		>&2 echo " done"
 	fi
+	PKG_LIST=$(cat $CHART)
 	echo
 #	[ $VERBOSE -ge 1 ] && echo list: $list
 
@@ -755,9 +767,9 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 elif [[ $MODE == "preserved" ]]; then
 	preservedRebuild
 else
-	if [[ $MODE != "update" && $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
+	if [[ $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
 		## Get Dependencies and check if any require updates.
-		getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies: you may need to run: spkg -U"
+		getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"
 		if [[ $VERBOSE -ge 1 ]]; then
 			echo "Package Order (Full List):"
 			for p in $(cat $CHART); do
