@@ -1,2 +1,5 @@
 cc9b2d09449280532bf9c442faf59cdb86f9db46  5.7.build
 2a9a6918bc043790fd2d040f7f125fda462aab83  debianutils-debian-5.7-0.3.tar.bz2
+288a7aa1e4051c9fcc08c37ee0107a1b2a0ab238  5.8.build
+fa10a42e2238c44cbe5349d13daa7b7b993f326f  debianutils_5.8.orig.tar.gz
+103a3875c09e1f1143c5b1e908b234b69c7ac6db  debianutils-3.4.2-no-bs-namespace.patch

@@ -1,0 +1,171 @@
+####
+## udev build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd/"
+DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
+LICENSE="LGPLv2.1 MIT GPLv2"
+LFSRULEVER=20171102
+SRC_URI=("https://github.com/systemd/systemd/archive/v${PKG_VER}/systemd-${PKG_VER}.tar.gz"
+"https://anduin.linuxfromscratch.org/LFS/udev-lfs-${LFSRULEVER}.tar.xz"
+"https://anduin.linuxfromscratch.org/LFS/systemd-man-pages-${PKG_VER}.tar.xz")
+DEPS="apps/xz-utils apps/zstd devel/openssl system/kmod system/zlib"
+BDEPS="devel/gperf apps/unzip"
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+setBuildENV meson ninja
+BUILD_SEPERATE_DIR=yes
+B=systemd-${PKG_VER}
+
+src_test() {
+	# These directories are required for the tests
+	mkdir -pv /usr/lib/udev/rules.d
+	mkdir -pv /etc/udev/rules.d
+
+	test_default
+}
+
+src_configure() {
+	sed -e 's/GROUP="render"/GROUP="video"/' \
+		-e 's/GROUP="sgx", //' \
+		-i ../rules.d/50-udev-default.rules.in
+
+	sed '/systemd-sysctl/s/^/#/' -i ../rules.d/99-systemd.rules.in
+
+CONF_FLAGS=(
+	--prefix=/usr
+	--buildtype=release
+	-Dmode=release
+	-Ddev-kvm-mode=0660
+	-Dlink-udev-shared=false
+	-Dskip-deps=true
+	-Defi=false
+	-Dgnu-efi=false
+	-Dnobody-group=nogroup
+
+	-Dstandalone-binaries=true
+
+	# Disable all optional features
+	-Dadm-group=false
+	-Danalyze=false
+	-Dapparmor=false
+	-Daudit=false
+	-Dbacklight=false
+	-Dbinfmt=false
+	-Dbpf-framework=false
+	-Dbzip2=false
+	-Dcoredump=false
+	-Ddbus=false
+	-Delfutils=false
+	-Denvironment-d=false
+	-Dfdisk=false
+	-Dgcrypt=false
+	-Dglib=false
+	-Dgshadow=false
+	-Dgnutls=false
+	-Dhibernate=false
+	-Dhostnamed=false
+	-Didn=false
+	-Dima=false
+	-Dinitrd=false
+	-Dfirstboot=false
+	-Dldconfig=false
+	-Dlibcryptsetup=false
+	-Dlibcurl=false
+	-Dlibfido2=false
+	-Dlibidn=false
+	-Dlibidn2=false
+	-Dlibiptc=false
+	-Dlocaled=false
+	-Dlogind=false
+	-Dlz4=false
+	-Dmachined=false
+	-Dmicrohttpd=false
+	-Dnetworkd=false
+	-Dnscd=false
+	-Dnss-myhostname=false
+	-Dnss-resolve=false
+	-Dnss-systemd=false
+	-Doomd=false
+	-Dopenssl=false
+	-Dp11kit=false
+	-Dpam=false
+	-Dpcre2=false
+	-Dpolkit=false
+	-Dportabled=false
+	-Dpstore=false
+	-Dpwquality=false
+	-Drandomseed=false
+	-Dresolve=false
+	-Drfkill=false
+	-Dseccomp=false
+	-Dsmack=false
+	-Dsysext=false
+	-Dtimedated=false
+	-Dtimesyncd=false
+	-Dtpm=false
+	-Dqrencode=false
+	-Dquotacheck=false
+	-Duserdb=false
+	-Dutmp=false
+	-Dvconsole=false
+	-Dwheel-group=false
+	-Dxdg-autostart=false
+	-Dxkbcommon=false
+	-Dxz=false
+	-Dzlib=false
+	-Dzstd=false
+)
+
+	configure_default
+}
+
+src_compile() {
+	compile_default udevadm systemd-hwdb \
+					$(grep -o -E "^build (src/libudev|src/udev|rules.d|hwdb.d)[^:]*" \
+					build.ninja | awk '{ print $2 }') \
+					$(realpath libudev.so --relative-to .)
+	rm rules.d/90-vconsole.rules
+}
+
+src_install() {
+	install -vm755 -d $D/{usr/lib,etc}/udev/{hwdb,rules}.d
+	install -vm755 -d $D/usr/{lib,share}/pkgconfig
+	install -vm755 udevadm                     $D/usr/bin/
+	install -vm755 systemd-hwdb                $D/usr/bin/udev-hwdb
+	ln      -sv    ../bin/udevadm              $D/usr/sbin/udevd
+	cp      -av    libudev.so{,*[0-9]}         $D/usr/lib/
+	install -vm644 ../src/libudev/libudev.h    $D/usr/include/
+	install -vm644 src/libudev/*.pc            $D/usr/lib/pkgconfig/
+	install -vm644 src/udev/*.pc               $D/usr/share/pkgconfig/
+	install -vm644 ../src/udev/udev.conf       $D/etc/udev/
+	install -vm644 rules.d/* ../rules.d/{*.rules,README} $D/usr/lib/udev/rules.d/
+	install -vm644 hwdb.d/*  ../hwdb.d/{*.hwdb,README}   $D/usr/lib/udev/hwdb.d/
+	install -vm755 $(find src/udev -type f | grep -F -v ".") $D/usr/lib/udev
+
+	unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz
+	install_default -f udev-lfs-${LFSRULEVER}/Makefile.lfs
+
+	mkdir -pv $D/usr/lib/udev/rules.d
+	mkdir -pv $D/etc/udev/rules.d
+
+	cat > $D/etc/udev/rules.d/65-kvm.rules << "EOF"
+KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
+EOF
+
+	if [[ $INSTALL_DOCS == 1 ]]; then
+		tar -xf ../../systemd-man-pages-${PKG_VER}.tar.xz --strip-components=1       \
+		    -C $D/usr/share/man --wildcards '*/udev*' '*/libudev*'              \
+		                                  '*/systemd-'{hwdb,udevd.service}.8
+		sed 's/systemd\(\\\?-\)/udev-/' $D/usr/share/man/man8/systemd-hwdb.8    \
+		                              > $D/usr/share/man/man8/udev-hwdb.8
+		sed 's|lib.*udevd|sbin/udevd|'                                        \
+		    $D/usr/share/man/man8/systemd-udevd.service.8                       \
+		  > $D/usr/share/man/man8/udevd.8
+		rm  $D/usr/share/man/man8/systemd-*.8
+	fi
+}
+
+post_install() {
+	udevadm hwdb --update
+}

@@ -3,3 +3,5 @@
 12951a6b5957187f00acb2c59cff1589bbc9ddbb  132-r1.build
 b92e9088644282d05e2dd423fbc3d980a7254454  ares-132-gcc-13.patch
 604a919d0eccb20933ce5753d8f2f4312aa13467  ares-132-declare-fseeko-ftello.patch
+2167fb5578d09be0119bb31e6b1bfc068837911e  133.build
+46a4eed24d80c0deadaf4fc36861b6aba5d9d5d4  ares-133.tar.gz
