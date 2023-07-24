@@ -85,10 +85,10 @@ configure_default() {
 			$d/configure ${CONF_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
-		meson setup ${CONF_FLAGS} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
+		meson setup ${CONF_FLAGS[@]} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
-		cmake ${CONF_FLAGS} "$@" -B $d/build -S $d || die " $DIALOG_ERROR Configure Failed!"
+		cmake ${CONF_FLAGS[@]} "$@" -B $d/build -S $d || die " $DIALOG_ERROR Configure Failed!"
 	fi
 }
 export -f configure_default
