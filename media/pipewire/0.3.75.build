@@ -16,7 +16,7 @@ IUSE=ffmpeg
 setBuildENV meson ninja
 
 src_configure() {
+#					  -Dudev=disabled \
 	configure_default -Dsession-managers= \
-					  -Dudev=no \
 					  $(use-enable ffmpeg && echo "--Dffmpeg=enabled")
 }
