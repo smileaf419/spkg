@@ -93,7 +93,7 @@ cleanup() {
 	# TODO: automerge if files were not changed.
 	if [[ $CONFIG_PROTECTED == 'true' ]]; then
 		echo " $YELLOW*$NORMAL System configuration files were protected!"
-		find /etc/ -iname "*.cfg[0-9]*"
+		find $ROOT/etc/ -iname "*.cfg[0-9]*"
 	fi
 }
 
