@@ -1,9 +1,9 @@
 ####
 ## openssh build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.openssh.com"
+DESCRIPTION="Secure SHell - Secure Tunneling suite"
+LICENSE="BSD GPLv2"
 SRC_URI=("https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-${PKG_VER}.tar.gz")
 DEPS="devel/openssl system/libxcrypt system/zlib"
 BDEPS="system/which"
@@ -11,7 +11,7 @@ RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
 IUSE="openrc"
-use-enable openrc && 
+use-enable openrc &&
 	SRC_URI+=("https://cgit.gentoo.org/repo/gentoo.git/plain/net-misc/openssh/files/sshd-r1.initd"
 			  "https://cgit.gentoo.org/repo/gentoo.git/plain/net-misc/openssh/files/sshd-r1.confd")
 
@@ -38,6 +38,7 @@ src_install() {
 	else
 		install-init.d sshd
 	fi
+	touch /var/lib/sshd/.keep
 
 	install -v -m755    contrib/ssh-copy-id "${D}"/usr/bin
 	install -v -m644    contrib/ssh-copy-id.1 "${D}"/usr/share/man/man1
