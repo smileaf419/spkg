@@ -324,12 +324,14 @@ installPackage() {
 				## Check if a file is to be installed in /etc
 				##  If it is, check if the file already exists and
 				##  instead copy it to a backup file.
-				if [[ $CFG_PROTECT == true && $file == */etc/* && -e "${file}" ]]; then
+				if [[ $CFG_PROTECT == "true" && $file == */etc/* && -e "${file}" ]]; then
 					## Check if the file is different
 					## If the file hasn't change, we can safely ignore it.
 					## If the file has changed however, protect it and report it at the end.
 					if ! diff "$D/$file" "$file" > /dev/null 2>&1; then
 						pfile="${file}.cfg$(date +%s)"
+						## Do some housekeeping
+						find $file.cfg[0-9]* -delete > /dev/null 2>&1
 						cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
 						CONFIG_PROTECTED=true
 					else
