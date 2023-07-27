@@ -20,4 +20,5 @@ src_test() { :; }
 
 src_install() {
 	install_default ROOT="${D}"
+	touch $D/etc/inittab.d/.keep
 }
