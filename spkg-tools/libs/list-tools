@@ -215,98 +215,106 @@ getdep() {
 			if [[ $MODE == 'uninstall' ]]; then
 				PKG=$(Installed-getPkg $1)
 			else
-				PKG=$(DB-getPkg $1 | getLatest)
+				PKG=$(DB-getPkg $1)
 			fi
 		else
 			PKG=$1
 		fi
-		setPkgENV $PKG > /dev/null
+		local P
+		for P in $PKG; do
+			setPkgENV $PKG > /dev/null
 
-		## Check if its on the stack, if not, add it. if so we'll get to it later.
-		if [[ $PKG_SLOT == 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART $STACK > /dev/null 2>&1 ||
-			[[ $PKG_SLOT != 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $CHART $STACK > /dev/null 2>&1; then
-			return 0
-		else
-			eval echo \"$PKG\" >> $STACK
-		fi
+			## Check if its on the stack, if not, add it. if so we'll get to it later.
+			if [[ $PKG_SLOT == 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART $STACK > /dev/null 2>&1 ||
+				[[ $PKG_SLOT != 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $CHART $STACK > /dev/null 2>&1; then
+				return 0
+			else
+				eval echo \"$PKG\" >> $STACK
+			fi
 
-		## If we somehow call ourselves..
-		[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/$PKG_SLOT/ ]] && return 1
+			## If we somehow call ourselves..
+			[[ $2 =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME/[^/]*/[^/]*/$PKG_SLOT/ ]] && return 1
 
-		## Print an interesting looking tree.
-		if [[ $VERBOSE -ge 1 ]]; then
-			>&2 echo "$SP$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
-			SP+=" "
-		else
-			>&2 echo -n .
-		fi
+			## Print an interesting looking tree.
+			if [[ $VERBOSE -ge 1 ]]; then
+				>&2 echo "$SP$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
+				SP+=" "
+			else
+				>&2 echo -n .
+			fi
 
-		eval PKG_BLD=$(getBldFile $(getPKG))
-		if [ -e "$PKG_BLD" ]; then
-			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "Sha1sum failed for $PKG_BLD within $PKG_CAT/$PKG_NAME"
-			unset BDEPS RDEPS UDEPS CDEPS DEPS
-			source "$PKG_BLD"
-		else
-			return 2
-		fi
+			eval PKG_BLD=$(getBldFile $(getPKG))
+			if [ -e "$PKG_BLD" ]; then
+				checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "Sha1sum failed for $PKG_BLD within $PKG_CAT/$PKG_NAME"
+				unset BDEPS RDEPS UDEPS CDEPS DEPS
+				source "$PKG_BLD"
+			else
+				return 2
+			fi
 
-		## Add our required now Dependencies
-		doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}" || sed "/^$PKG_CAT.$PKG_NAME/d" -i $CHART
+			## Add our required now Dependencies
+			if ! doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"; then
+				continue
+			fi
 
-		## Check CDEPS
-		if [[ ! -z $CDEPS ]]; then
-			local p
-			for p in $CDEPS; do
-			    local cpkg=$(EntryParser $p)
-				local cp="$(getCategory $cpkg)/$(getName $cpkg)(/[^/]*){3}/$(getSlot $cpkg)"
-				pkg-has-flag "nodep" && break
+			## Check CDEPS
+			if [[ ! -z $CDEPS ]]; then
+				local p
+				for p in $CDEPS; do
+				    local cpkg=$(EntryParser $p)
+					local cp="$(getCategory $cpkg)/$(getName $cpkg)(/[^/]*){3}/$(getSlot $cpkg)"
+					pkg-has-flag "nodep" && break
 
-				## If its already in the list, ignore it and continue.
-				grep -E "^${cp}" $CHART > /dev/null && continue
+					## If its already in the list, ignore it and continue.
+					grep -E "^${cp}" $CHART > /dev/null && continue
 
-				## If its already installed, we don't need to install it twice.
-				[[ $(Installed-getPkgList $cp) != 0 ]] && continue
+					## If its already installed, we don't need to install it twice.
+					[[ $(Installed-getPkgList $cp) != 0 ]] && continue
 
-				if [[ ! -z $PKG_VER_RESTRICT ]]; then
-					cpkg=$(DB-getPkg $cpkg)
-					>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
-					>&2 echo " * Result set: $cpkg"
-				else
-					cpkg=$(DB-getPkg $cpkg | getLatest)
-				fi
-				getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
-			done
-		fi
+					if [[ ! -z $PKG_VER_RESTRICT ]]; then
+						cpkg=$(DB-getPkg $cpkg)
+						>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
+						>&2 echo " * Result set: $cpkg"
+					else
+						cpkg=$(DB-getPkg $cpkg | getLatest)
+					fi
+					getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
+				done
+			fi
 
-		## Add our package
-		if [[ $PKG_SLOT == 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART > /dev/null 2>&1 ||
-			[[ $PKG_SLOT != 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $CHART > /dev/null 2>&1; then
-			getPKG >> $CHART
-			sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
-		fi
+			## Add our package
+			if [[ $PKG_SLOT == 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART > /dev/null 2>&1 ||
+				[[ $PKG_SLOT != 0 ]] && ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $CHART > /dev/null 2>&1; then
+				getPKG >> $CHART
+				sed "/^$PKG_CAT.$PKG_NAME/d" -i $STACK
+			fi
 
-		####
-		## Filter out any dependency found within BDEPS from our RDEPS.
-		## This allows for a complete Runtime dependency without having to worry about
-		## Runtime dependencies also being listed as Build dependencies.
+			####
+			## Filter out any dependency found within BDEPS from our RDEPS.
+			## This allows for a complete Runtime dependency without having to worry about
+			## Runtime dependencies also being listed as Build dependencies.
 
-		## Add a description to each dep so we can pair them.
-		local dep=$((echo ${BDEPS[*]} | sed 's,\(^\| \),\1BDEPS|,g'; echo ${RDEPS[*]} | sed 's,\(^\| \),\1RDEPS|,g') |
-			## Seperate them into lines
-			tr ' ' '\n' |
-			## Sort by the 2nd field
-			sort -t: -k2 |
-			## Generate a 2nd field for uniq
-			tr '|' ' ' |
-			## we only want 1 instance of the value
-			uniq -f 1 |
-			## Get our RDEPS
-			grep RDEPS |
-			## Remove our description pair value.
-			sed 's,^[^ ]* ,,')
+			## Add a description to each dep so we can pair them.
+			local dep=$((echo ${BDEPS[*]} | sed 's,\(^\| \),\1BDEPS|,g'; echo ${RDEPS[*]} | sed 's,\(^\| \),\1RDEPS|,g') |
+				## Seperate them into lines
+				tr ' ' '\n' |
+				## Sort by the 2nd field
+				sort -t: -k2 |
+				## Generate a 2nd field for uniq
+				tr '|' ' ' |
+				## we only want 1 instance of the value
+				uniq -f 1 |
+				## Get our RDEPS
+				grep RDEPS |
+				## Remove our description pair value.
+				sed 's,^[^ ]* ,,')
 
-		doDeps "$dep" || sed "/^$PKG_CAT.$PKG_NAME/d" -i $CHART
-		SP=${SP# }
+			doDeps "$dep" || sed "/^$PKG_CAT.$PKG_NAME/d" -i $CHART
+			SP=${SP# }
+
+			## If we made it this far, we're Ok to exit, else we'd have continued to the next version.
+			break
+		done
 	)
 }
 
@@ -326,7 +334,7 @@ doDeps() {
 		## FIXME: If we have a restriction we need to save it and retoactively apply the restriction
 		if [ ! -z $PKG_VER_RESTRICT ]; then
 			local dpkg=$(DB-getPkg $PKG)
-			>&2 echo " * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
+			>&2 echo -e "\n * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
 			>&2 echo "PKG: $PKG"
 			>&2 echo "List: $dpkg"
 			## We need to itterate over the dpkg and ensure we restrict versions to only those that match.
