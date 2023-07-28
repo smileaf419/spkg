@@ -49,5 +49,6 @@ src_install() {
 	install -v -m644 Linux*/lib/pkgconfig/nss.pc  ${D}/usr/lib/pkgconfig
 
 	# P11-kit
-	ln -sfv ./pkcs11/p11-kit-trust.so ${D}/usr/lib/libnssckbi.so
+	## FIXME: We need to set a libdir so we can actually set this right.
+	ln -sfv ../lib64/pkcs11/p11-kit-trust.so ${D}/usr/lib/libnssckbi.so
 }
