@@ -94,6 +94,7 @@ filterSlot() {
 export -f filterSlot
 
 ## Turns a file path into a / seperated list of data.
+## If a 2nd argument is given, assumes its PKG_FLAGS.
 ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 fileToList() {
 	local list
@@ -126,7 +127,7 @@ fileToList() {
 
 		## Output the slot
 		slot=$(grep '[^#]*SLOT=' "$l" | sed 's,.*SLOT=,,')
-		echo -n "//$slot//"
+		echo -n "//$slot/$2/"
 
 		## Output the Archs
 		arch=$(grep '[^#]*ARCHS=' "$l" | sed -e 's,.*ARCHS=",,' -e 's,".*$,,' -e 's/ /,/g' || true)
@@ -372,11 +373,7 @@ DB-getPkg() {
 	local PKG_SLOT=$(getSlot $1)
 
 	for l in $(DB-getPkgList $1 | filterArch | filterSlot $PKG_SLOT | sort -V); do
-		## Update Values
-		setPkgENV $(fileToList $l) > /dev/null
-		## Ensure we use our saved flags
-		PKG_FLAGS=$flags
-		getPKG
+		fileToList $l $flags
 	done
 }
 export -f DB-getPkg
@@ -411,10 +408,7 @@ Installed-getPkg() {
 
 	for l in $(Installed-getPkgList $PKG_CAT/$PKG_NAME | filterSlot $PKG_SLOT); do
 		[[ $l == 0 ]] && continue
-		setPkgENV $(fileToList $l) > /dev/null
-
-		local file="$path/$PKG_CAT/$PKG_NAME/$PKG_VR/$PKG_VR.build"
-		getPKG
+		fileToList $l
 	done
 	echo
 }
