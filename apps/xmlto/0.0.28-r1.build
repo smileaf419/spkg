@@ -1,17 +1,15 @@
 ####
 ## xmlto build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://pagure.io/xmlto"
+DESCRIPTION="Script for converting XML and DocBook documents to a variety of output formats"
+LICENSE="GPLv2"
 SRC_URI=("https://releases.pagure.org/xmlto/xmlto-${PKG_VER}.tar.bz2")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/app-text/xmlto/files/xmlto-0.0.28-fix-warnings.patch"
+"https://cgit.gentoo.org/repo/gentoo.git/plain/app-text/xmlto/files/xmlto-0.0.28-allow-links.patch")
 DEPS=""
-BDEPS=""
-RDEPS=""
+BDEPS="apps/docbook-xsl-nons apps/docbook-dtd"
+RDEPS="www/links"
 setBuildENV auto make
 ARCHS="x86 x86_64"
 SLOT=0
