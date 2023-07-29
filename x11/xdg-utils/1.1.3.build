@@ -10,8 +10,8 @@ SRC_URI=("https://portland.freedesktop.org/download/xdg-utils-${PKG_VER}.tar.gz"
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=("https://mirrors.slackware.com/slackware/slackware-current/source/x/xdg-utils/xdg-open.no.relative.paths.diff.gz")
 DEPS=""
-BDEPS=""
-RDEPS="apps/mlto www/links"
+BDEPS="apps/xmlto"
+RDEPS=""
 setBuildENV auto make
 ARCHS="x86 x86_64"
 SLOT=0
