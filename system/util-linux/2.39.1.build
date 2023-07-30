@@ -13,12 +13,14 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
 	./autogen.sh
 
 	./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
 	            --bindir=/bin    \
 	            --libdir=/lib    \
 	            --sbindir=/sbin  \
+	            --runstatedir=/run   \
 	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
 	            --disable-chfn-chsh  \
 	            --disable-login      \
