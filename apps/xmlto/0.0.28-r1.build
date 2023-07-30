@@ -15,6 +15,10 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	mv configure.{in,ac}
+	autoupdate
+	autoreconf -fiv
+
 	export LINKS="/usr/bin/links"
 	configure_default
 
