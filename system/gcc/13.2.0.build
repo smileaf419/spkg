@@ -3,7 +3,7 @@
 ## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://gcc.gnu.org/"
 DESCRIPTION="GNU Compiler Collection"
-LICENSE=""
+LICENSE="GPLv3+ LGPLv3+"
 SRC_URI=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz.sig")
 TEST=1
@@ -22,6 +22,7 @@ src_configure() {
 	             --enable-default-ssp     \
 	             --disable-multilib       \
 	             --disable-bootstrap      \
+	             --disable-fixincludes    \
 	             --with-system-zlib
 }
 
