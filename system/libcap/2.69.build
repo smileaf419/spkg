@@ -2,8 +2,8 @@
 ## libcap build
 ## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://sites.google.com/site/fullycapable/"
-DESCRIPTION=""
-LICENSE=""
+DESCRIPTION="POSIX 1003.1e capabilities"
+LICENSE="GPLv2 BSD"
 SRC_URI="https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
@@ -13,9 +13,10 @@ SLOT=0
 TEST=test
 
 src_configure() {
+	## Prevent static libraries from being installed
 	sed -i '/install -m.*STA/d' libcap/Makefile
-	# Fix install locations.
-#		-e '/^PKGCONFIGDIR/ s,$(LIBDIR),$(prefix)/$(lib),' \
+
+	## Fix install locations.
 	sed -e '/^exec_prefix/ s,$(prefix),/,' \
 		-e '/^inc_prefix/ s,lib_,,' \
 		-i Make.Rules
