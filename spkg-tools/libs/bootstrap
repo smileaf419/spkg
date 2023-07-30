@@ -201,8 +201,8 @@ echo " * Cloning repository (if git is installed) ..."
 ## if git is installed do this automatically.
 ## Otherwise inform the user how to do it.
 if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
-	if [[ ! -e $PKG_DB_DIR ]]; then
-		cd $(dirname $PKG_DB_DIR)
+	if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
+		cd $(dirname $ROOT/$PKG_DB_DIR)
 		git clone https://github.com/smileaf419/spkg
 	fi
 
