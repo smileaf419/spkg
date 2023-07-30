@@ -1,0 +1,52 @@
+####
+## lfs-bootscripts build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://linuxfromscratch.org/lfs/view/development/chapter09/bootscripts.html"
+DESCRIPTION="Bootscripts for the base system."
+SRC_URI="https://www.linuxfromscratch.org/lfs/downloads/development/lfs-bootscripts-${PKG_VER}.tar.xz"
+LICENSE=""
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+CFG_PROTECT=false
+
+src_configure() {
+	# As we do not use the version of sysklogd found within the LFS book
+	# Remove the lines pertaining to the kernel logger klogd
+	sed '37,40d;44,47d' -i lfs/init.d/sysklogd
+}
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	install_default
+cat > "${D}"/etc/inittab << "EOF"
+id:3:initdefault:
+
+si::sysinit:/etc/rc.d/init.d/rc S
+
+l0:0:wait:/etc/rc.d/init.d/rc 0
+l1:S1:wait:/etc/rc.d/init.d/rc 1
+l2:2:wait:/etc/rc.d/init.d/rc 2
+l3:3:wait:/etc/rc.d/init.d/rc 3
+l4:4:wait:/etc/rc.d/init.d/rc 4
+l5:5:wait:/etc/rc.d/init.d/rc 5
+l6:6:wait:/etc/rc.d/init.d/rc 6
+
+ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now
+
+su:S06:once:/sbin/sulogin
+s1:1:respawn:/sbin/sulogin
+
+1:2345:respawn:/sbin/agetty --noclear tty1 9600
+2:2345:respawn:/sbin/agetty tty2 9600
+3:2345:respawn:/sbin/agetty tty3 9600
+4:2345:respawn:/sbin/agetty tty4 9600
+5:2345:respawn:/sbin/agetty tty5 9600
+6:2345:respawn:/sbin/agetty tty6 9600
+EOF
+}
