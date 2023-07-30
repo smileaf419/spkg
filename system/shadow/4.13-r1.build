@@ -12,21 +12,31 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	## Disable installation of groups and its man-pages
 	sed -i 's/groups$(EXEEXT) //' src/Makefile.in
 	find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
 	find man -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \;
 	find man -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \;
-	sed -e 's:#ENCRYPT_METHOD DES:ENCRYPT_METHOD SHA512:' \
-		-e 's@#\(SHA_CRYPT_..._ROUNDS 5000\)@\100@'       \
-	    -e 's:/var/spool/mail:/var/mail:'                 \
-	    -i etc/login.defs
 
+	####
+	## Change the default encryption method to YESCRYPT
+	## Fix the mailbox location
+	sed -e 's:#ENCRYPT_METHOD DES:ENCRYPT_METHOD YESCRYPT:' \
+		-e 's:/var/spool/mail:/var/mail:'                   \
+		-i etc/login.defs
+
+	## Enable Cracklib Support
+	# sed -i 's:DICTPATH.*:DICTPATH\t/lib/cracklib/pw_dict:' etc/login.defs
+
+	[ ! -e /usr/bin/passwd ] && touch /usr/bin/passwd ]
 	./configure --sysconfdir=/etc \
 				--bindir=/bin     \
 				--sbindir=/sbin   \
 				--libdir=/lib     \
 	            --disable-static  \
+	            --with-{b,yes}crypt \
 	            --with-group-name-max-length=32
+	            # --with-libcrack
 }
 
 src_test() { :; }
@@ -42,4 +52,10 @@ src_install() {
 post_install() {
 	pwconv
 	grpconv
+
+	mkdir -p /etc/default
+	[ ! -e /etc/default/useradd ] && useradd -D --gid 999
+
+	## Don't create user mailboxes
+	# sed -i '/MAIL/s/yes/no/' /etc/default/useradd
 }
