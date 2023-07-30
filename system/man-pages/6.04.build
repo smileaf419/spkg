@@ -18,6 +18,9 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
+	## Remove Obsolete pages we'll use the ones from libxcrypt
+	rm -v man3/crypt*
+
 	install_default prefix=/usr
 }
 
