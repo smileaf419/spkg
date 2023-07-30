@@ -149,10 +149,6 @@ src_install() {
 	mkdir -pv $D/usr/lib/udev/rules.d
 	mkdir -pv $D/etc/udev/rules.d
 
-	cat > $D/etc/udev/rules.d/65-kvm.rules << "EOF"
-KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
-EOF
-
 	if [[ $INSTALL_DOCS == 1 ]]; then
 		mkdir -p $D/usr/share/man
 		tar -xf $DISTFILES/systemd-man-pages-${PKG_VER}.tar.xz --strip-components=1       \
@@ -168,5 +164,5 @@ EOF
 }
 
 post_install() {
-	udevadm hwdb --update
+	udev-hwdb update
 }
