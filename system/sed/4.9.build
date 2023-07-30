@@ -2,8 +2,8 @@
 ## sed build
 ## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gnu.org/software/sed/"
-DESCRIPTION=""
-LICENSE=""
+DESCRIPTION="Stream EDitor"
+LICENSE="GPLv3"
 SRC_URI=("https://ftp.gnu.org/gnu/sed/sed-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/sed/sed-${PKG_VER}.tar.xz.sig")
 DEPS="system/acl"
