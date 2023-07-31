@@ -66,6 +66,25 @@ buildKernel() {
 #	setKernelConfig CONFIG_DEFAULT_INIT '"/sbin/openrc-init"'
 	setKernelConfig CONFIG_IKCONFIG y
 	setKernelConfig CONFIG_IKCONFIG_PROC y
+	setKernelConfig CONFIG_WERROR n
+	setKernelConfig CONFIG_PSI y
+	setKernelConfig CONFIG_PSI_DEFAULT_DISABLED n
+	setKernelConfig CONFIG_IKHEADERS n
+	setKernelConfig CONFIG_CGROUPS y
+	setKernelConfig CONFIG_MEMCG y
+	setKernelConfig CONFIG_EXPERT n
+	setKernelConfig CONFIG_RELOCATABLE y
+	setKernelConfig CONFIG_RANDOMIZE_BASE y
+	setKernelConfig CONFIG_STACKPROTECTOR y
+	setKernelConfig CONFIG_STACKPROTECTOR_STRONG y
+	setKernelConfig CONFIG_UEVENT_HELPER n
+	setKernelConfig CONFIG_DEVTMPFS y
+	setKernelConfig CONFIG_DEVTMPFS_MOUNT y
+	setKernelConfig CONFIG_FRAMEBUFFER_CONSOLE y
+	setKernelConfig CONFIG_X86_X2APIC y
+	setKernelConfig CONFIG_PSI_MSI y
+	setKernelConfig CONFIG_IOMMU_SUPPORT y
+	setKernelConfig CONFIG_IRQ_REMAP y
 
 	echo " * Running: make oldconfig"
 	make oldconfig
@@ -311,8 +330,6 @@ fetch_file() {
 ##          4: Optionally supply 1 to update the sha1sum if the hash fails and save it within the package's sha1 file within its directory.
 ##             Requires a PKG_BLD be set
 fetch_list() {
-	## Output our message
-	[[ ! -z $1 ]] && echo $1
 	local IFS=$'\n'
 	local list=($2)
 	## Used in --updatesha1
@@ -346,6 +363,10 @@ fetch_list() {
 	done
 
 	local length=${#fetch_list[@]}
+
+	## Output our message
+	[[ $length -gt 0 &&  ! -z $1 ]] && echo $1
+
 	for (( l=0; l<${length}; l++ )); do
 		local C=$(( $l + 1 ))
 		local file=${fetch_list[$l]}
