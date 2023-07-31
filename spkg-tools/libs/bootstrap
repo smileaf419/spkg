@@ -169,7 +169,7 @@ chmod +x "$ROOT/chroot.sh"
 ####
 ## Fetch all required packages as wget will not be available initially
 echo " * Fetching all required files to finalize the install ..."
-REQUESTED_LIST="@system"
+REQUESTED_LIST="@basicsystem"
 populate_list
 FETCH_ONLY=1
 ## Attempt to catch the error so we can finish.
