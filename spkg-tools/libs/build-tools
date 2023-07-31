@@ -127,7 +127,7 @@ installPackage() {
 
 		source "${PKG_BLD}"
 
-		install -o $BUILD_USER -d "${D}"
+		[[ $FETCH_ONLY != 1 ]] && install -o $BUILD_USER -d "${D}"
 
 		## If the archive doesn't exist we can't do an ARCHIVE_INSTALL, build the package instead.
 		if [[ $ARCHIVE_INSTALL == 1 && -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" ]]; then
