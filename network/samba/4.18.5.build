@@ -46,16 +46,19 @@ src_install() {
 
 	mkdir -p ${D}/etc
 	install -v -m644 examples/smb.conf.default ${D}/etc/samba
+	inform "A default config file has been created at /etc/samba/smb.conf.default"
+	inform "You will need to modify this and save it as /etc/samba/smb.conf"
+	inform "Once done, check it with: testparam"
 
-	touch $D/var/log/samba/.keep
+	touch $D/var/{log,lock,cache}/samba/.keep
+	touch $D/var/lib/samba/private/.keep
 
 	sed -e "s;log file =.*;log file = /var/log/samba/%m.log;" \
     	-e "s;path = /usr/spool/samba;path = /var/spool/samba;" \
         -i ${D}/etc/samba/smb.conf.default
 
-	mkdir -pv ${D}/etc/openldap/schema
-
 	if use-enable ldap; then
+		mkdir -pv ${D}/etc/openldap/schema
 		install -v -m644 examples/LDAP/README     ${D}/etc/openldap/schema/README.LDAP
 		install -v -m644 examples/LDAP/samba*     ${D}/etc/openldap/schema
 		install -v -m755 examples/LDAP/{get*,ol*} ${D}/etc/openldap/schema
