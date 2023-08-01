@@ -20,7 +20,7 @@ src_configure() {
 
 	append-ldflags -ltirpc -ltinfow -Wl,--no-as-needed
 	append-cppflags -I/usr/include/tirpc
-	
+
 	CONF_FLAGS="--prefix=/usr" \
 	configure_default --sysconfdir=/etc \
 					  --localstatedir=/var \
@@ -46,6 +46,8 @@ src_install() {
 
 	mkdir -p ${D}/etc
 	install -v -m644 examples/smb.conf.default ${D}/etc/samba
+
+	touch $D/var/log/samba/.keep
 
 	sed -e "s;log file =.*;log file = /var/log/samba/%m.log;" \
     	-e "s;path = /usr/spool/samba;path = /var/spool/samba;" \
