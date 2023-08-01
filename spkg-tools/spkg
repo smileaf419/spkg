@@ -646,7 +646,7 @@ fi
 if [[ $MODE == "search" || $MODE == "list" ]]; then
 	for p in $REQUESTED_LIST; do
 		## Parse the Entry first and grab just the PKG_CAT/PKG_NAME
-		if [[ ${p:0:1} == '@' ]] then
+		if [[ ${p:0:1} == '@' ]]; then
 			PKG_CAT=''
 			PKG_NAME=''
 			list=$(expandSets $p)
