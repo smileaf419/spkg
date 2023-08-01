@@ -1,0 +1,45 @@
+####
+## gmp build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gnu.org/software/gmp/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://ftp.gnu.org/gnu/gmp/gmp-${PKG_VER}.tar.xz")
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/gmp/files/gmp-6.2.1-CVE-2021-43618.patch")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gmp/gmp-${PKG_VER}.tar.xz.sig")
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default --enable-cxx --libdir=/lib
+}
+
+src_compile() {
+	compile_default
+
+	make html
+}
+
+src_test() {
+	make check 2>&1 | tee gmp-check-log
+	TEST=$(awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log)
+#	[ $TEST != 197 ] && die "Passing tests: ${TEST} != 197"
+}
+
+src_install() {
+	install_default
+
+	make DESTDIR="$ROOT/${D}" install-html
+}
+
+bootstrap() {
+	case $PKG_FLAGS in
+		pass1) ./configure --host=$HOST_TGT --build=$(./config.guess) --prefix=/tools ;;
+		pass2) src_configure ;;
+	esac
+	compile_default
+	install_default
+}

@@ -5,11 +5,10 @@ HOMEPAGE="https://wiki.x.org/wiki/"
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://www.x.org/pub/individual/lib/${PKG_NAME}-${PKG_VER}.tar.xz")
-PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

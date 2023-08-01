@@ -11,7 +11,7 @@ BDEPS="devel/perl"
 RDEPS=""
 IUSE="X"
 use-enable X && UDEPS="x11/libICE x11/libSM x11/libX11 x11/libXau x11/libXaw x11/libxcb x11/libXext x11/libXmu x11/libXpm x11/libXt"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

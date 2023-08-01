@@ -1,21 +1,17 @@
 ####
 ## poppler build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://poppler.freedesktop.org/"
 DESCRIPTION="Poppler is a PDF rendering library based on the xpdf-3.0 code base."
 LICENSE="GPLv2 GPLv3"
 DATA_VER=0.4.12
 SRC_URI=("https://poppler.freedesktop.org/poppler-${PKG_VER}.tar.xz"
 "https://poppler.freedesktop.org/poppler-data-${DATA_VER}.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS="devel/glib devel/nspr devel/nss media/fontconfig media/freetype media/lcms media/libjpeg-turbo media/libpng media/openjpeg media/tiff network/curl system/zlib x11/cairo"
 BDEPS=""
 RDEPS=""
 setBuildENV cmake make
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 [[ $ENABLE_TESTS == 1 ]] && BDEPS+="devel/git"

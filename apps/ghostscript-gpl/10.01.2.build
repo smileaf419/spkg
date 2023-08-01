@@ -1,22 +1,18 @@
 ####
 ## ghostscript-gpl build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${PKG_VER//./}/ghostscript-${PKG_VER}.tar.xz"
 "https://downloads.sourceforge.net/gs-fonts/ghostscript-fonts-std-8.11.tar.gz"
 "https://downloads.sourceforge.net/gs-fonts/gnu-gs-fonts-other-6.0.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS="media/fontconfig media/freetype media/lcms media/libjpeg-turbo media/libpng media/openjpeg network/cups system/zlib x11/libICE x11/libSM x11/libX11 x11/libXext x11/libXt"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=ghostscript-${PKG_VER}
 IUSE="tiff"
