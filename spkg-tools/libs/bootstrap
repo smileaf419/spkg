@@ -26,7 +26,7 @@ if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT
 	echo " $IMPORTANT you may wish to to create the $ROOT/$PKG_DB_DIR and copy the repository there before continuing."
 	echo "Continue? (Yes/No): "
 	read cont
-	if [[ ${cont^^} != 'Y' || ${cont^^} != 'YES' ]]; then
+	if [[ ${cont^^} != 'Y' && ${cont^^} != 'YES' ]]; then
 		die
 	fi
 fi
