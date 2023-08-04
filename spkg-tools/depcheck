@@ -1,0 +1,9 @@
+for p in /usr/sbin /usr/lib64 /usr/lib; do
+	>&2 echo "Searching $p"
+	for f in $(find $p -type f); do
+		ldd $f 2> /dev/null | grep 'not found' > /dev/null
+		if [ $? == 0 ]; then
+			echo $f
+		fi
+	done
+done
