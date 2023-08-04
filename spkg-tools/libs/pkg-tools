@@ -101,7 +101,7 @@ fileToList() {
 	[[ $1 != '' ]] && list=$1 || list=$(cat -)
 	for l in $list; do
 		local IFS="/"
-		local p=($list)
+		local p=($l)
 		unset IFS
 
 		## If our path contains 2 version entries, our path should be PKG_CACHE
