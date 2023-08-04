@@ -200,6 +200,8 @@ buildBDeps() {
 		[ $VERBOSE -ge 1 ] && >&2 echo -n " [ USE: $USE ]: "
 		## Before we source it, we need to get the IUSE
 		## Without this the UDEPS will be incomplete.
+		PKG_BLD=$(getBldFile $PKG)
+		PKG_VR=$(getVerRev $PKG)
 		USE+=" $(grep '[^#]*IUSE=' "$PKG_BLD" | sed -e 's,.*IUSE=",,' -e 's,".*$,,' || true)"
 		source "$PKG_BLD"
 		if pkg-restricts "nobin"; then
