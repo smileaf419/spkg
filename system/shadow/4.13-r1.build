@@ -54,7 +54,7 @@ post_install() {
 	grpconv
 
 	mkdir -p /etc/default
-	[ ! -e /etc/default/useradd ] && useradd -D --gid 999
+	[ ! -e /etc/default/useradd ] && useradd -D --gid 999 || true
 
 	## Don't create user mailboxes
 	# sed -i '/MAIL/s/yes/no/' /etc/default/useradd
