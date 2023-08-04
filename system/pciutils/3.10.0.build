@@ -1,9 +1,9 @@
 ####
 ## pciutils build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://mj.ucw.cz/sw/pciutils/"
+DESCRIPTION="PCI Bus Utilities"
+LICENSE="GPLv2"
 SRC_URI="http://mj.ucw.cz/download/linux/pci/pciutils-${PKG_VER}.tar.gz"
 DEPS="system/kmod system/eudev system/zlib"
 BDEPS=""
