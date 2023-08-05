@@ -695,19 +695,16 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 						echo -n "~"
 					fi
 				done; echo $NORMAL
-				## Run this in a subshell to avoid tainting the environment.
 				printf " %12s:" "Installed"
-				(
-					ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
-					[[ $ipkg == '' ]] && echo -n ' none'
-					for i in $ipkg; do
-						echo -n " $(getVerRev $i)"
-						slot=$(getSlot $i)
-						[[ $slot != 0 ]] && echo -n ":$slot"
-					done; echo
-				)
+				ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME)
+				[[ $ipkg == '' ]] && echo -n ' none'
+				for i in $ipkg; do
+					echo -n " $(getVerRev $i)"
+					slot=$(getSlot $i)
+					[[ $slot != 0 ]] && echo -n ":$slot"
+				done; echo
 
-				## Ditto, avoid tainting the environment
+				## Run this in a subshell to avoid tainting the environment.
 				(
 					source "${PKG_BLD}"
 					printf " %12s: %s\n" "Homepage" "$HOMEPAGE"
@@ -736,6 +733,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 					[[ -z $fileDate ]] && fileDate=$curDate
 					age=$(( $curDate - $fileDate ))
 					installed=$(
+						set -e
 						PKG_SLOT=$(getSlot $a)
 						ipkg=$(Installed-getPkg $(getPKG))
 						[[ $ipkg == '' ]] && echo -n ' none'

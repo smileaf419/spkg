@@ -208,6 +208,7 @@ getFullPkgList() {
 getdep() {
 	## Don't taint the environment.
 	(
+		set -e
 		## If we need a version, it matters if we're uninstalling or installing.
 		## If an older version is installed that we need to remove,
 		## we may instead grab the incorrect version and end up with a Pkg not found.

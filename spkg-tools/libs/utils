@@ -193,6 +193,8 @@ buildBDeps() {
 	PKG_FILTER=("system/util-linux" "system/glibc" "system/gcc")
 
 	(
+		set -e
+
 		## Load our saved USE flags.
 		if [ -e $PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/USE_FLAGS ]; then
 			USE=$(cat $PKG_CACHE/$PKG_CAT/$PKG_NAME/$PKG_VR/USE_FLAGS)

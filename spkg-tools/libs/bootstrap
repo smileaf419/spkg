@@ -1,4 +1,7 @@
 #!/bin/bash
+## We need to exit immediately if we encounter an error.
+set -e
+
 echo " * Bootstrapping .. This will take a while.."
 
 ####

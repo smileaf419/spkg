@@ -309,6 +309,7 @@ export -f delGroup
 ## This function in essence calls: make install-[name here]
 install-init.d() {
 	(
+		set -e
 		PKG=$(DB-getPkg system/blfs-bootscripts | getLatest)
 		PKG_VER=$(getVersion $PKG)
 		PKG_BLD=$(getBldFile $PKG)

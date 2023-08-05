@@ -549,6 +549,7 @@ installList() {
 		if [[ $MODE == "uninstall" ]]; then
 			echo "Uninstalling ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
 			(
+				set -e
 				source $(getBldFile $p 1)
 				local d=$(isDependedOn ${PKG_CAT}/$PKG_NAME $O_VER)
 

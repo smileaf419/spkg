@@ -23,6 +23,7 @@ hashdir() {
 	local p
 	for p in $PKG; do
 		(
+			set -e
 			unset SRC_URI PATCHES
 			setPkgENV $p > /dev/null
 			echo -n " $PKG_VR"
