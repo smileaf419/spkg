@@ -1,12 +1,11 @@
 ####
 ## libevent build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://libevent.org"
+DESCRIPTION="An Event Notification Library"
+LICENSE="BSDv3"
 SRC_URI=("https://github.com/libevent/libevent/releases/download/release-${PKG_VER}-stable/libevent-${PKG_VER}-stable.tar.gz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/libevent/libevent/releases/download/release-${PKG_VER}-stable/libevent-${PKG_VER}-stable.tar.gz.asc")
 DEPS="devel/openssl"
 BDEPS=""
 RDEPS=""
