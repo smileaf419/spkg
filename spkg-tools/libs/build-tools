@@ -521,8 +521,9 @@ getBDeps() {
 		echo " None Found"
 		return 0
 	fi
+	cd $D
 	for dep in $bdeps; do
-		deps=$(readelf -d $dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
+		deps=$(readelf -d ./$dep 2> /dev/null | grep NEEDED | sed -e 's,.*\[\(.*\)\].*,\1,')
 		for d in $deps; do
 			for p in $(cat /etc/ld.so.conf); do
 				[ -e $p/$d ] && echo $p/$d

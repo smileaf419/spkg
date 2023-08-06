@@ -204,6 +204,7 @@ buildBDeps() {
 		## Without this the UDEPS will be incomplete.
 		PKG_BLD=$(getBldFile $PKG)
 		PKG_VR=$(getVerRev $PKG)
+		PKG_NVR=$PKG_NAME-$PKG_VR
 		USE+=" $(grep '[^#]*IUSE=' "$PKG_BLD" | sed -e 's,.*IUSE=",,' -e 's,".*$,,' || true)"
 		source "$PKG_BLD"
 		if pkg-restricts "nobin"; then
@@ -313,6 +314,7 @@ fetch_file() {
 
 	## If we already exist, ignore it
 	[ -e "${DISTFILES}/${OUTFILE}" ] && return 0
+#	curl --xattr -o "${DISTFILES}/${OUTFILE}" "$1"
 	wget --xattr -c -O "${DISTFILES}/${OUTFILE}" "$1"
 
 	## If we encounter an Error, delete the file and error out.
@@ -333,6 +335,12 @@ fetch_file() {
 ##          3: Optionally if 'src' or 'patch' is supplied, it will update the variables altering their filename to the renamed value.
 ##          4: Optionally supply 1 to update the sha1sum if the hash fails and save it within the package's sha1 file within its directory.
 ##             Requires a PKG_BLD be set
+## TODO: Multiple File fetching via curl's parallel-immediate and parallel-max options
+## Check if files exist, verify their sha1sum/signatures
+## If any don't exist add them to a fetch list
+## If any fail their checksums report them and die.
+## If any fail and $4 == 1 add them to a fetch list and update the checksums.
+## Finally fetch the list and check any remaining checksums.
 fetch_list() {
 	local IFS=$'\n'
 	local list=($2)
@@ -412,7 +420,10 @@ checkSha1() {
 	[[ ! -e $PKG_DIR/sha1 ]] && return 1
 
 	[[ $VERBOSE -ge 2 ]] && >&2 echo -n "Checking Sha1: $FILE ... "
-	[ ! -e $FILE ] && echo "Failed checking $PKG sha1" && return 1
+	if [ ! -e $FILE ]; then
+		[[ $VERBOSE -gt 1 ]] && >&2 echo "Failed checking $PKG sha1"
+		return 1
+	fi
 	local h=$(sha1sum $FILE | sed 's,  .*/,  ,' 2> /dev/null)
 	[[ $VERBOSE -ge 2 ]] && >&2 echo -n $h
 	if grep "$h" $PKG_DIR/sha1 > /dev/null 2>&1; then

@@ -1,0 +1,14 @@
+#!/bin/bash
+####
+## clean-distfiles
+## Copyright 2023 spkg developers, licensed under GPLv2
+## Helps to keep the logs under control
+
+source /etc/spkg.conf
+
+## Default to 30 days
+CLEAN_DISTFILE_DATE=${CLEAN_DISTFILE_DATE:-90}
+
+echo -n " * Cleaning Downloaded source files (+$CLEAN_DISTFILE_DATE days old) .. "
+CLEANED=$(find $DISTFILES -mtime +$CLEAN_DISTFILE_DATE -print -delete 2> /dev/null| wc -l)
+[[ $? == 0 ]] && echo " cleaned $CLEANED files" || echo " Failed!"
