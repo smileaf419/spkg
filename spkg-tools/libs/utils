@@ -368,8 +368,8 @@ fetch_list() {
 		else
 			local SRC_OUTFILE=${file##*/}
 		fi
-		if [ ! -e $DISTFILES/$SRC_OUTFILE ] ||
-		   [[ $IGNORE_SHA != 1 ]] && ! checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"; then
+		if [[ ! -e $DISTFILES/$SRC_OUTFILE ]] ||
+		   ( [[ $IGNORE_SHA != 1 ]] && ! checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE" ); then
 			fetch_list+=($file)
 		fi
 	done
