@@ -96,7 +96,10 @@ buildPackage() {
 		BUILD_PASS=${MULTILIB:-$LIB}
 
 		for LIB in $BUILD_PASS; do
-			[[ $LIB != 64 ]] && make distclean
+			## Don't set a LIB if we are using our primary.
+			## This allows builds to use /lib$LIB to install into /lib without having to unset LIB or handle it seperately.
+			[[ $LIB == 64 ]] && LIB=
+			[[ ! -z $LIB ]] && make distclean
 			[[ ! -z $MULTILIB ]] && echo " * $LIB bit pass"
 			echo " * src_configure ($LIB)"
 			src_configure $p || die " $DIALOG_ERROR Error in src_configure ($LIB)"
