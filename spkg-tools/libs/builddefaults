@@ -23,6 +23,11 @@
 ## if a global variable is to be set for all functions, it should be done so at the top level, or within src_prepare.
 
 ####
+## Multilib
+## This is the default Other options are 32 and x32
+export LIB=64
+
+####
 ## Bootstrapping is done a bit backwards from how the functions are normally setup
 ## this is because several variables *MUST* be set before the bootstrap code is ran.
 ## As a result bootstrap_default is called and then bootstrap is called from within,
@@ -41,9 +46,9 @@ bootstrap_default() {
 	umask 022
 	set +h
 #	export HOST_TGT=$(uname -m)-leaf-linux-gnu
-	export HOST_TGT=${HOST_TGT:-x86_64-leaf-linux-gnu}
-	export HOST_TGT32=${HOST_TGT32:-i686-leaf-linux-gnu}
-	export HOST_TGTX32=${HOST_TGTX32:-x86_64-leaf-linux-gnux32}
+	export BOOTSTRAP_TGT=${HOST_TGT:-x86_64-leaf-linux-gnu}
+	export BOOTSTRAP_TGT32=${HOST_TGT32:-i686-leaf-linux-gnu}
+	export BOOTSTRAP_TGTX32=${HOST_TGTX32:-x86_64-leaf-linux-gnux32}
 	export PATH="$ROOT/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin"
 	export CONFIG_SITE=$ROOT/usr/share/config.site
 
@@ -74,7 +79,15 @@ configure_default() {
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
-		[[ $MODE == "bootstrap" ]] && CONF_FLAGS+=" --host=$HOST_TGT"
+		if [[ $MODE == "bootstrap" ]]; then
+			if [[ $LIB == 64 ]]; then
+				CONF_FLAGS+=" --host=$HOST_TGT"
+			elif [[ $LIB == 32 ]]; then
+				CONF_FLAGS+=" --host=$HOST_TGT32"
+			elif [[ $LIB == x32 ]]; then
+				CONF_FLAGS+=" --host=$HOST_TGTx32"
+			fi
+		fi
 
 		LDFLAGS="$LDFLAGS"   \
 		CFLAGS="$CFLAGS"     \

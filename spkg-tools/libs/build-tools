@@ -93,14 +93,22 @@ buildPackage() {
 	fi
 
 	if [[ $MODE != "bootstrap" ]]; then
-		echo " * src_configure"
-		src_configure
-		echo " * src_compile"
-		src_compile
-		if [ $ENABLE_TESTS == 1 ]; then
-			echo " * src_test"
-			src_test
-		fi
+		BUILD_PASS=${MULTILIB:-$LIB}
+
+		for LIB in $BUILD_PASS; do
+			[[ $LIB != 64 ]] && make distclean
+			[[ ! -z $MULTILIB ]] && echo " * $LIB bit pass"
+			echo " * src_configure ($LIB)"
+			src_configure $p || die " $DIALOG_ERROR Error in src_configure ($LIB)"
+			echo " * src_compile ($LIB)"
+			src_compile $p || die " $DIALOG_ERROR Error in src_compile ($LIB)"
+			if [ $ENABLE_TESTS == 1 ]; then
+				echo " * src_test ($LIB)"
+				src_test $p || die " $DIALOG_ERROR Error in src_test ($LIB)"
+			fi
+			echo " * src_install ($LIB)"
+			src_install	$p || die " $DIALOG_ERROR Error in src_install ($LIB)"
+		done
 	else
 		echo " * Bootstrapping"
 		bootstrap_default
@@ -170,6 +178,9 @@ installPackage() {
 			## Ensure TEST is exported
 			export TEST
 
+			## Export if available
+			export MULTILIB
+
 			## Export this so packages can override the src_unpack.
 			export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
 
@@ -203,23 +214,6 @@ installPackage() {
 			export USER=$saved_USER
 			export LOGNAME=$saved_LOGNAME
 			export HOME=$saved_HOME
-
-			cd "${BUILD_PATH}/${B}"
-			if [[ $BUILD_SEPERATE_DIR != "no" ]]; then
-				local d
-				[[ $BUILD_SEPERATE_DIR != yes ]] && d=$BUILD_SEPERATE_DIR || d=build
-				install -d -o $BUILD_USER $d
-				cd $d
-			fi
-
-			## We upgrade our SRC_URI again as we won't need to worry about exporting it anymore
-			IFS=$'\n'
-			SRC_URI=($SRC_URI)
-
-			if [[ $MODE != 'bootstrap' ]]; then
-				echo " * src_install"
-				src_install		|| die "Error in src_install"
-			fi
 
 			## Save our USE for use later.
 			## FIXME: Check for IUSE and filter the flags to only contain those.
@@ -363,6 +357,9 @@ installPackage() {
 		## Move our new CONTENTS into its final location.
 		mv "${BUILD_PATH}/CONTENTS" "$CACHE_DIR/CONTENTS"
 
+		## We upgrade our SRC_URI again as we won't need to worry about exporting it anymore
+		IFS=$'\n'
+		SRC_URI=($SRC_URI)
 		echo " * post_install"
 		post_install || die "Error in post_install"
 
@@ -503,6 +500,7 @@ archivePackage() {
 ## Remove unneccessary symbols to reduce the filesize in binaries.
 ## Packages may disable this with RESTRICT=strip
 stripPackage() {
+	[[ $MODE == 'bootstrap' ]] && return
 	pkg-restricts strip && return
 	cd "${D}"
 	echo "Stripping..."

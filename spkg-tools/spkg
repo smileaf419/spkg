@@ -359,6 +359,14 @@ parse_cmdline() {
 						EMPTY_WORLD=1 ;;
 					-ignoresha)
 						IGNORE_SHA1=1 ;;
+					-b1)
+						BOOTSTRAP_STAGE+=1 ;;
+					-b2)
+						BOOTSTRAP_STAGE+=2 ;;
+					-b3)
+						BOOTSTRAP_STAGE+=3 ;;
+					-b4)
+						BOOTSTRAP_STAGE+=4 ;;
 
 					## Output & Debug options
 					v|-verbose)

@@ -3,6 +3,7 @@
 set -e
 
 echo " * Bootstrapping .. This will take a while.."
+BOOTSTRAP_STAGE=${BOOTSTRAP_STAGE:-"1234"}
 
 ####
 ## Set Important Vars
@@ -34,76 +35,79 @@ if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT
 	fi
 fi
 
-####
-## Create Essential Dirs.
-echo " * Creating directories ..."
-## Make a LSB compliant /
-mkdir -p $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib{,32,64},media/{cdrom},mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
-mkdir -p $ROOT/lib/firmware
-## Create /usr hierachy
-mkdir -p $ROOT/usr/{bin,include,lib{,32,64},libexec,local,sbin,share,src}
-## Create /usr/local hierachy
-mkdir -p $ROOT/usr/local/{bin,etc,games,include,lib{,32,64},man,sbin,share,src}
-mkdir -p $ROOT/usr/{,local/}share/{color,dict,doc,info,locale,man}
-mkdir -p $ROOT/usr/{,local/}share/{misc,terminfo,zoneinfo}
-mkdir -p $ROOT/usr/{,local/}share/man/man{1..8}
-mkdir -p $ROOT/var/{cache,local,log,mail,opt,spool}
-## Create the /var Heirachy
-mkdir -p $ROOT/var/{cache,db,lib,lock,log,opt,spool}
-## Create dirs for spkg
-mkdir -p $PKG_CACHE $DISTFILES
-mkdir -p $ROOT/{$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE}
-## Our default path is /var/db/spkg but we need the path leading up to that.
-[[ ! -e $ROOT/$(dirname $PKG_DB_DIR) ]] && mkdir -p $ROOT/$(dirname $PKG_DB_DIR)
+if [[ $BOOTSTRAP_STAGE == *1* ]]; then
+	####
+	## Create Essential Dirs.
+	echo " * Creating directories ..."
+	## Make a LSB compliant /
+	mkdir -p $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib{,32,64},media/{cdrom},mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
+	mkdir -p $ROOT/lib/firmware
+	## Create /usr hierachy
+	mkdir -p $ROOT/usr/{bin,include,lib{,32,64},libexec,local,sbin,share,src}
+	## Create /usr/local hierachy
+	mkdir -p $ROOT/usr/local/{bin,etc,games,include,lib{,32,64},man,sbin,share,src}
+	mkdir -p $ROOT/usr/{,local/}share/{color,dict,doc,info,locale,man}
+	mkdir -p $ROOT/usr/{,local/}share/{misc,terminfo,zoneinfo}
+	mkdir -p $ROOT/usr/{,local/}share/man/man{1..8}
+	mkdir -p $ROOT/var/{cache,local,log,mail,opt,spool}
+	## Create the /var Heirachy
+	mkdir -p $ROOT/var/{cache,db,lib,lock,log,opt,spool}
+	## Create dirs for spkg
+	mkdir -p $PKG_CACHE $DISTFILES
+	mkdir -p $ROOT/{$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE}
+	## Our default path is /var/db/spkg but we need the path leading up to that.
+	[[ ! -e $ROOT/$(dirname $PKG_DB_DIR) ]] && mkdir -p $ROOT/$(dirname $PKG_DB_DIR)
 
-####
-## Create Files
-echo " * Creating files ..."
-touch $PKG_WORLD
-## These files will be needed later.
-cp /etc/ld.so.conf /etc/resolv.conf $ROOT/etc
+	####
+	## Create Files
+	echo " * Creating files ..."
+	touch $PKG_WORLD
+	## These files will be needed later.
+	cp /etc/ld.so.conf /etc/resolv.conf $ROOT/etc
 
-####
-## Fix Permissions
-echo " * Fixing Permissions ..."
-## Fix permissions for our building user, we'll need to fully fix the permissions later.
-chown -R $BUILD_USER $ROOT
-chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
+	####
+	## Fix Permissions
+	echo " * Fixing Permissions ..."
+	## Fix permissions for our building user, we'll need to fully fix the permissions later.
+	chown -R $BUILD_USER $ROOT
+	chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
 
-####
-## Install all packages
-installList $REQUESTED_LIST
+	####
+	## Install all packages
+	installList $REQUESTED_LIST
+fi
 
-## Fix CONTENTS file, filter out our $ROOT
-echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
-## This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
-find $PKG_CACHE -name CONTENTS -exec sed -i "s,^$ROOT,," {} \;
+if [[ $BOOTSTRAP_STAGE == *2* ]]; then
+	## Fix CONTENTS file, filter out our $ROOT
+	echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
+	## This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
+	find $PKG_CACHE -name CONTENTS -exec sed -i "s,^$ROOT,," {} \;
 
-####
-## Fix Permissions (round 2)
-echo " * Finalizing ..."
-## Before we set everything so our BUILD_USER could work on it.
-## Now we need to fix everything for the final system.
-chown -R root:root $ROOT
-ln -sf /run $ROOT/var/run
-ln -sf /run/lock $ROOT/var/lock
-[[ ! -e /root ]] && install -d -m 0750 $ROOT/root || chmod 0750 $ROOT/root
-[[ ! -e $ROOT/tmp ]] && install -d -m 1777 $ROOT/tmp || chmod 1777 $ROOT/tmp
-ln -sf /proc/self/mounts $ROOT/etc/mtab
-touch $ROOT/var/log/{btmp,lastlog,faillog,wtmp}
-chgrp 13 $ROOT/var/log/lastlog
-chmod 664  $ROOT/var/log/lastlog
-chmod 600  $ROOT/var/log/btmp
-install -m755 -d -o 250 -g 250 $ROOT/var/tmp/spkg
+	####
+	## Fix Permissions (round 2)
+	echo " * Finalizing ..."
+	## Before we set everything so our BUILD_USER could work on it.
+	## Now we need to fix everything for the final system.
+	chown -R root:root $ROOT
+	ln -sf /run $ROOT/var/run
+	ln -sf /run/lock $ROOT/var/lock
+	[[ ! -e /root ]] && install -d -m 0750 $ROOT/root || chmod 0750 $ROOT/root
+	[[ ! -e $ROOT/tmp ]] && install -d -m 1777 $ROOT/tmp || chmod 1777 $ROOT/tmp
+	ln -sf /proc/self/mounts $ROOT/etc/mtab
+	touch $ROOT/var/log/{btmp,lastlog,faillog,wtmp}
+	chgrp 13 $ROOT/var/log/lastlog
+	chmod 664  $ROOT/var/log/lastlog
+	chmod 600  $ROOT/var/log/btmp
+	install -m755 -d -o 250 -g 250 $ROOT/var/tmp/spkg
 
-####
-## Create Essential Files
-cat > $ROOT/etc/hosts << EOF
+	####
+	## Create Essential Files
+	cat > $ROOT/etc/hosts << EOF
 127.0.0.1  localhost $(hostname)
 ::1        localhost
 EOF
 
-cat > $ROOT/etc/passwd << "EOF"
+	cat > $ROOT/etc/passwd << "EOF"
 root:x:0:0:root:/root:/bin/bash
 bin:x:1:1:bin:/dev/null:/usr/false
 daemon:x:6:6:Daemon User:/dev/null:/bin/false
@@ -113,7 +117,7 @@ nobody:x:65534:65534:Unprivileged User:/dev/null:/bin/false
 spkg:x:250:250::/var/tmp/spkg/:/bin/bash
 EOF
 
-cat > $ROOT/etc/group << "EOF"
+	cat > $ROOT/etc/group << "EOF"
 root:x:0:
 bin:x:1:daemon
 sys:x:2:
@@ -142,7 +146,7 @@ users:x:999:
 nogroup:x:65534:
 EOF
 
-cat > $ROOT/chroot.sh << "EOF"
+	cat > $ROOT/chroot.sh << "EOF"
 #!/bin/bash
 [[ -z $1 ]] && SPKG=${0%/*} || SPKG=$1
 RUN='/bin/bash --login'
@@ -167,22 +171,22 @@ chroot "$SPKG" $ENV -i                        \
 umount -v $SPKG/dev/{pts,}
 umount -v $SPKG/{proc,sys,run}
 EOF
-chmod +x "$ROOT/chroot.sh"
+	chmod +x "$ROOT/chroot.sh"
 
-####
-## Fetch all required packages as wget will not be available initially
-echo " * Fetching all required files to finalize the install ..."
-REQUESTED_LIST="@basicsystem"
-populate_list
-FETCH_ONLY=1
-## Attempt to catch the error so we can finish.
-if ! installList $REQUESTED_LIST; then
-	echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
-	echo "    Finally move the downloaded files to: $DISTFILES"
-fi
+	####
+	## Fetch all required packages as wget will not be available initially
+	echo " * Fetching all required files to finalize the install ..."
+	REQUESTED_LIST="@basicsystem"
+	populate_list
+	FETCH_ONLY=1
+	## Attempt to catch the error so we can finish.
+	if ! installList $REQUESTED_LIST; then
+		echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
+		echo "    Finally move the downloaded files to: $DISTFILES"
+	fi
 
-## Used by some Graphical Apps
-cat > $ROOT/etc/os-release << "EOF"
+	## Used by some Graphical Apps
+	cat > $ROOT/etc/os-release << "EOF"
 NAME="Leaf Linux"
 VERSION="$VERSION"
 ID=ll
@@ -190,25 +194,34 @@ PRETTY_NAME="Leaf Linux $VERSION (built by spkg)"
 VERSION_CODENAME="$CODENAME"
 EOF
 
-## Shows we respect the LSB
-cat > $ROOT/etc/lsb-release << "EOF"
+	## Shows we respect the LSB
+	cat > $ROOT/etc/lsb-release << "EOF"
 DISTRIB_ID="Leaf Linux"
 DISTRIB_RELEASE="$VERSION"
 DISTRIB_CODENAME="$CODENAME"
 DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
 EOF
+fi
 
 ####
 ## Install our repository
-echo " * Cloning repository (if git is installed) ..."
-## if git is installed do this automatically.
-## Otherwise inform the user how to do it.
-if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
-	if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
+if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
+	echo " * Cloning repository (if git is installed) ..."
+	## if git is installed do this automatically.
+	## Otherwise inform the user how to do it.
+	if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
 		cd $(dirname $ROOT/$PKG_DB_DIR)
 		git clone https://github.com/smileaf419/spkg
+	else
+		echo "You will need to copy or clone spkg into $PKG_DB_DIR"
+		echo " git clone https://github.com/smileaf419/spkg"
+		echo
+		echo "Once this is done you will need to copy over the spkg.conf and run:"
+		echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
 	fi
+fi
 
+if [[ -e $ROOT/$PKG_DB_DIR ]]; then
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
 	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
@@ -217,16 +230,10 @@ if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
 	SPKG_BUILD_OPTS=
 	[[ $SILENT_BUILD == "yes" ]] && SPKG_BUILD_OPTS=-Q
 
-	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $SPKG_BUILD_OPTS
+	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGE "$SPKG_BUILD_OPTS"
 
 	echo " * Cleaning $ROOT/tools"
 	rm -rf $ROOT/tools
-else
-	echo "You will need to copy or clone spkg into $PKG_DB_DIR"
-	echo " git clone https://github.com/smileaf419/spkg"
-	echo
-	echo "Once this is done you will need to copy over the spkg.conf and run:"
-	echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
 fi
 
 echo " * Bootstrapping complete!"
