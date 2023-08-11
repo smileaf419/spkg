@@ -46,9 +46,9 @@ bootstrap_default() {
 	umask 022
 	set +h
 #	export HOST_TGT=$(uname -m)-leaf-linux-gnu
-	export BOOTSTRAP_TGT=${HOST_TGT:-x86_64-leaf-linux-gnu}
-	export BOOTSTRAP_TGT32=${HOST_TGT32:-i686-leaf-linux-gnu}
-	export BOOTSTRAP_TGTX32=${HOST_TGTX32:-x86_64-leaf-linux-gnux32}
+	export BOOTSTRAP_TGT=${BOOTSTRAP_TGT:-x86_64-leaf-linux-gnu}
+	export BOOTSTRAP_TGT32=${BOOTSTRAP_TGT32:-i686-leaf-linux-gnu}
+	export BOOTSTRAP_TGTx32=${BOOTSTRAP_TGTx32:-x86_64-leaf-linux-gnux32}
 	export PATH="$ROOT/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin"
 	export CONFIG_SITE=$ROOT/usr/share/config.site
 
@@ -80,7 +80,7 @@ configure_default() {
 		# customizing the *FLAGS.
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
 		if [[ $MODE == "bootstrap" ]]; then
-			if [[ $LIB == 64 ]]; then
+			if [[ -z $LIB || $LIB == 64 ]]; then
 				CONF_FLAGS+=" --host=$HOST_TGT"
 			elif [[ $LIB == 32 ]]; then
 				CONF_FLAGS+=" --host=$HOST_TGT32"
@@ -89,12 +89,13 @@ configure_default() {
 			fi
 		fi
 
-		LDFLAGS="$LDFLAGS"   \
-		CFLAGS="$CFLAGS"     \
-		CPPFLAGS="$CPPFLAGS" \
-		CXXFLAGS="$CXXFLAGS" \
-		LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-		$SET_ABI             \
+		eval \
+		LDFLAGS=\"$LDFLAGS\"   \
+		CFLAGS=\"$CFLAGS\"     \
+		CPPFLAGS=\"$CPPFLAGS\" \
+		CXXFLAGS=\"$CXXFLAGS\" \
+		LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\" \
+		$SET_ABI               \
 			$d/configure ${CONF_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
