@@ -6,11 +6,32 @@ DESCRIPTION="GNU Compiler Collection"
 LICENSE="GPLv3+ LGPLv3+"
 SRC_URI=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gcc/gcc-${PKG_VER}/gcc-${PKG_VER}.tar.xz.sig")
+if [[ $MODE == 'bootstrap' ]]; then
+	## As we pull in other files from other packages we can't verify the sha1sums as they do no exist within the gcc's sha1 file
+	IGNORE_SHA=1
+	export GMP_VER=$(DB-getPkg devel/gmp | getLatest | getVersion)
+	export MPFR_VER=$(DB-getPkg devel/mpfr | getLatest | getVersion)
+	export MPFR_VER=${MPFR_VER%p*}
+	export MPC_VER=$(DB-getPkg devel/mpc | getLatest | getVersion)
+
+	echo " * GMP Version: $GMP_VER"
+	echo " * MPFR Version: $MPFR_VER"
+	echo " * MPC Version: $MPC_VER"
+
+	SRC_URI+=("https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VER}.tar.xz")
+	SRC_URI+=("https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VER}.tar.gz")
+	SRC_URI+=("https://www.mpfr.org/mpfr-$MPFR_VER/mpfr-$MPFR_VER.tar.xz")
+	if [[ $VERIFY_SIG == 1 ]]; then
+		SRC_URI+=("https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VER}.tar.xz.sig")
+		SRC_URI+=("https://ftp.gnu.org/gnu/mpc/mpc-${MPC_VER}.tar.gz.sig")
+		SRC_URI+=("https://www.mpfr.org/mpfr-${MPFR_VER}/mpfr-${MPFR_VER}.tar.xz.asc")
+	fi
+fi
 TEST=1
 DEPS="apps/zstd devel/gmp devel/mpc devel/mpfr system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 
@@ -72,12 +93,20 @@ bootstrap() {
 	sed -e '/m64=/s/lib64/lib/' \
 		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
 		-i.orig ../gcc/config/i386/t-linux64
-#	local mlist=m64,m32,mx32
-	local mlist=m64
+	local mlist=m64,m32,mx32
+#	local mlist=m64
 	case $PKG_FLAGS in
 		pass1)
+			cd ..
+			unpack $DISTFILES/gmp-$GMP_VER.tar.xz
+			mv gmp{-$GMP_VER,}
+			unpack $DISTFILES/mpfr-$MPFR_VER.tar.xz
+			mv mpfr{-$MPFR_VER,}
+			unpack $DISTFILES/mpc-$MPC_VER.tar.gz
+			mv mpc{-$MPC_VER,}
+			cd -
 			../configure                    \
-			    --target=$HOST_TGT          \
+			    --target=$BOOTSTRAP_TGT     \
 			    --prefix=$ROOT/tools        \
 			    --with-glibc-version=$glibc \
 				--with-sysroot=$ROOT        \
@@ -104,13 +133,13 @@ bootstrap() {
 		;;
 		libstdc++)
 			../libstdc++-v3/configure           \
-			    --host=$HOST_TGT                \
+			    --host=$BOOTSTRAP_TGT           \
 			    --build=$(../config.guess)      \
 			    --prefix=/usr                   \
 			    --enable-multilib               \
 			    --disable-nls                   \
 			    --disable-libstdcxx-pch         \
-		    	--with-gxx-include-dir=/tools/$HOST_TGT/include/c++/${PKG_VER} &&
+				--with-gxx-include-dir=/tools/$BOOTSTRAP_TGT/include/c++/${PKG_VER} &&
 		   	compile_default && install_default &&
 			find "$D/$ROOT"/usr/lib{,64,exec} -name \*.la -delete || true
 		;;
@@ -118,9 +147,9 @@ bootstrap() {
 			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in &&
 			../configure                                       \
 			    --build=$(../config.guess)                     \
-			    --host=$HOST_TGT                               \
-			    --target=$HOST_TGT                             \
-			    LDFLAGS_FOR_TARGET=-L$PWD/$HOST_TGT/libgcc     \
+			    --host=$BOOTSTRAP_TGT                          \
+			    --target=$BOOTSTRAP_TGT                        \
+			    LDFLAGS_FOR_TARGET=-L$PWD/$BOOTSTRAP_TGT/libgcc \
 			    --prefix=/usr                                  \
 			    --with-build-sysroot=$ROOT                     \
     			--enable-default-pie                           \
@@ -144,9 +173,9 @@ bootstrap() {
 
 post_install() {
 	if [[ $PKG_FLAGS == "pass1" ]]; then
-		echo " * Generating limits.h ($HOST_TGT)"
+		echo " * Generating limits.h ($BOOTSTRAP_TGT)"
 		cd $BUILD_PATH/$B &&
 		cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
-				`dirname $($HOST_TGT-gcc -print-libgcc-file-name)`/include/limits.h || die "Error generating limits.h"
+				`dirname $($BOOTSTRAP_TGT-gcc -print-libgcc-file-name)`/include/limits.h || die "Error generating limits.h"
 	fi
 }
