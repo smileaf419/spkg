@@ -57,7 +57,7 @@ bootstrap() {
 	pass1)
 		../configure --prefix=$ROOT/tools \
 		             --with-sysroot=$ROOT \
-		             --target=$HOST_TGT  \
+		             --target=$BOOTSTRAP_TGT  \
 		             --disable-nls       \
 		             --enable-gprofng=no \
 		             --enable-multilib   \
@@ -71,12 +71,9 @@ bootstrap() {
 		## Binutils ships an outdated copy of libtool in the tarball. It lacks sysroot support,
 		## so the produced binaries will be mistakenly linked to libraries from the host distro. (LFS)
 		sed '6009s/$add_dir//' -i ../ltmain.sh
-		../configure                   \
-		    --prefix=/usr              \
+		configure_default              \
 		    --build=$(../config.guess) \
-		    --host=$HOST_TGT           \
 		    --disable-nls              \
-		    --enable-shared            \
 		    --enable-gprofng=no        \
 		    --disable-werror           \
 		    --enable-64-bit-bfd        \
