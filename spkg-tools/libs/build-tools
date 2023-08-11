@@ -207,7 +207,8 @@ installPackage() {
 				chown $BUILD_USER "$BUILD_PATH"
 			fi
 
-			if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			## If we're installing using pip we need root
+			if [[ $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 				su -p -c 'buildPackage' $BUILD_USER || die "$DIALOG_ERROR Building package failed!"
 			else
 				buildPackage || die
