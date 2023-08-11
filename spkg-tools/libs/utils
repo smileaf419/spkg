@@ -30,6 +30,7 @@ setKernelConfig() {
 		echo "$var=$val" >> $KERNEL_CONFIG_FILE
 	fi
 }
+export -f setKernelConfig
 
 ####
 ## This requires a /usr/src/linux symlink to our kernel
@@ -85,6 +86,9 @@ buildKernel() {
 	setKernelConfig CONFIG_PSI_MSI y
 	setKernelConfig CONFIG_IOMMU_SUPPORT y
 	setKernelConfig CONFIG_IRQ_REMAP y
+
+	## Remove Processing of Documentation
+	sed /Documentation/d -i Kconfig
 
 	echo " * Running: make oldconfig"
 	make oldconfig
@@ -324,9 +328,11 @@ fetch_file() {
 		>&2 echo "OUTFILE: $OUTFILE"
 		>&2 echo "1: $1"
 		>&2 echo "2: $2"
+		>&2 echo "$PKG_CAT/$PKG_NAME-$PKG_VERSION"
 		die "Error Downloading";
 	fi
 }
+export -f fetch_file
 
 ####
 ## Fetch a list of files
@@ -352,7 +358,7 @@ fetch_list() {
 	## if the files exist, check their sha1sum, if they fail, delete and refetch, files will be checked again after downloading.
 	local length=${#list[@]}
 	local l
-	for (( l=0; l<${length}; l++ )); do
+	for (( l=0; l<=${length}; l++ )); do
 		local file=${list[$l]}
 		[[ $file == "" ]] && continue
 		if [[ $file =~ (^|[[:space:]])"=>"($|[[:space:]]) ]]; then
@@ -375,11 +381,11 @@ fetch_list() {
 	done
 
 	local length=${#fetch_list[@]}
-
 	## Output our message
 	[[ $length -gt 0 &&  ! -z $1 ]] && echo $1
 
-	for (( l=0; l<${length}; l++ )); do
+	local ret=0
+	for (( l=0; l<=${length}; l++ )); do
 		local C=$(( $l + 1 ))
 		local file=${fetch_list[$l]}
 		[[ $VERBOSE -ge 2 ]] && echo " * Fetching $C of $length: $file"
@@ -397,16 +403,16 @@ fetch_list() {
 		fi
 		if ! checkSha1 ${PKG_BLD%/*} "$DISTFILES/$SRC_OUTFILE"; then
 			if [[ $IGNORE_SHA == 1 ]]; then
-				return 2
+				ret=2
 			elif [[ $update_sha == 1 ]]; then
 				sha1sum "$DISTFILES/$SRC_OUTFILE" | sed 's,  .*/,  ,' >> ${PKG_BLD%/*}/sha1
 			else
 				[[ $VERBOSE -gt 1 ]] && >&2 echo " !! Sha1sum failed for file: $SRC_OUTFILE"
-				return 1
+				ret=1
 			fi
 		fi
 	done
-	return 0
+	return $ret
 }
 
 ## Check a sha1sum of a given file within the package's sha1 file.
