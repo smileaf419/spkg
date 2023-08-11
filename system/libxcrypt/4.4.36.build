@@ -10,10 +10,47 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
 
 src_configure() {
-#	CONF_FLAGS="--prefix=/usr --libdir=/lib --disable-static --enable-shared --with-pkgconfigdir=/usr/lib/pkgconfig"
-	configure_default --libdir=/lib
+	configure_default --libdir=/lib$LIB \
+					  --host=$HOST_TGT
+					  --enable-hashes=strong,glibc \
+					  --enable-obsolete-api=no \
+					  --disable-failure-tokens
 }
 
-src_test() { :; }
+src_install() {
+	if [[ $LIB == 64 ]]; then
+		install_default
+	else
+		mkdir -p $D/$ROOT/usr/lib$LIB/pkgconfig
+		cp -av .libs/libcrypt.so* $D/$ROOT/usr/lib$LIB/
+		make DESTDIR=$D/$ROOT install-pkgconfigDATA
+		ln -svf libxcrypt.pc $D/$ROOT/usr/lib$LIB/pkgconfig/libcrypt.pc
+	fi
+}
+
+bootstrap() {
+	FLAGS="--enable-hashes=strong,glibc --enable-obsolete-api=no --disable-failure-tokens"
+
+	## 64 bit
+	configure_default --libdir=/lib \
+					  $FLAGS
+	compile_default
+	install_default
+
+	## 32/x32 bit
+	for LIB in 32 x32; do
+		make distclean
+		echo " * Building $LIB bit"
+		configure_default --libdir=/lib$LIB \
+						  --target=$BOOTSTRAP_TGT32
+						  $FLAGS
+		compile_default
+		mkdir -p $D/$ROOT/usr/lib$LIB/pkgconfig
+		cp -av .libs/libcrypt.so* $D/$ROOT/usr/lib$LIB/
+		make DESTDIR=$D/$ROOT install-pkgconfigDATA
+		ln -sf libxcrypt.pc $D/$ROOT/usr/lib$LIB/pkgconfig/libcrypt.pc
+	done
+}
