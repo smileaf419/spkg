@@ -15,6 +15,7 @@ IUSE=pcre2
 ARCHS="x86 x86_64"
 SLOT=0
 B=$PKG_NAME-${PKG_VER/_p*}
+MULTILIB="64 32 x32"
 
 PATCH_DATES=(
 20230107
@@ -56,10 +57,13 @@ for p in ${PATCH_DATES[*]}; do
 done
 
 src_configure() {
-	[[ $LIB != 64 ]] &&
+	if [[ $LIB != 64 && ! -z $LIB ]]; then
 		SET_ABI="CC='gcc -m$LIB' CXX='g++ -m$LIB'"
-	$SET_ABI \
-	./configure --prefix=/usr           \
+		LIB=
+	fi
+	CONF_FLAGS=' '
+	configure_default \
+				--prefix=/usr           \
 				--bindir=/bin           \
 				--libdir=/lib$LIB       \
 				--with-shared           \
@@ -118,70 +122,45 @@ bootstrap() {
 		make -C include
 		make -C progs tic
 	popd
-	# Build 64bit
-	./configure --prefix=/usr                \
-				--bindir=/bin                \
-				--libdir=/lib                \
-	            --host=$BOOTSTRAP_TGT        \
-	            --build=$(./config.guess)    \
-	            --without-manpages           \
-	            --with-shared                \
-	            --without-normal             \
-	            --with-cxx-shared            \
-	            --without-debug              \
-	            --without-ada                \
-	            --disable-stripping          \
-	            --enable-widec               \
-	            --without-termlib
-	compile_default
-	mkdir -p "$ROOT/$D/usr/share/terminfo"
-	install_default TIC_PATH=$(pwd)/build/progs/tic
-	echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so
 
-	# Build 32bit
-	make distclean
-
-	CC="$BOOTSTRAP_TGT-gcc -m32"              \
-	CXX="$BOOTSTRAP_TGT-g++ -m32"             \
-	./configure --prefix=/usr           \
-				--host=$BOOTSTRAP_TGT32       \
-				--build=$(./config.guess)    \
-				--libdir=/lib32     \
-				--mandir=/usr/share/man \
-				--with-shared           \
-				--without-normal        \
-				--with-cxx-shared       \
-				--without-debug         \
-				--without-ada           \
-				--disable-stripping     \
-				--enable-widec &&
-	compile_default &&
-	make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
-	ln -s libncursesw.so DESTDIR/lib32/libcursesw.so
-	mkdir -p $D/$ROOT/lib32
-	cp -Rv DESTDIR/lib32/* $D/$ROOT/lib32
-	rm -rf DESTDIR
-
-	# Build x32bit
-	make distclean
-
-	CC="$BOOTSTRAP_TGT-gcc -mx32"             \
-	CXX="$BOOTSTRAP_TGT-g++ -mx32"            \
-	./configure --prefix=/usr           \
-				--host=$BOOTSTRAP_TGTX32      \
-				--build=$(./config.guess)    \
-				--libdir=/libx32    \
-				--mandir=/usr/share/man \
-				--with-shared           \
-				--without-normal        \
-				--with-cxx-shared       \
-				--without-debug         \
-				--without-ada           \
-				--disable-stripping     \
-				--enable-widec &&
-	compile_default &&
-	make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
-	ln -s libncursesw.so DESTDIR/libx32/libcursesw.so
-	mkdir -p $D/$ROOT/libx32
-	cp -Rv DESTDIR/libx32/* $D/$ROOT/libx32
+	for LIB in 64 32 x32; do
+		if [[ $LIB == 64 ]]; then
+			LIB=
+			local TGT=$BOOTSTRAP_TGT
+		elif [[ $LIB == 32 ]]; then
+			make distclean
+			local TGT=$BOOTSTRAP_TGT32
+		elif [[ $LIB == x32 ]]; then
+			make distclean
+			local TGT=$BOOTSTRAP_TGTX32
+		fi
+		CC="$BOOTSTRAP_TGT-gcc -m$LIB"  \
+		CXX="$BOOTSTRAP_TGT-g++ -m$LIB"  \
+		./configure --prefix=/usr         \
+					--bindir=/bin          \
+					--libdir=/lib$LIB       \
+		            --host=$TGT              \
+		            --build=$(./config.guess) \
+		            --without-manpages        \
+		            --with-shared             \
+		            --without-normal          \
+		            --with-cxx-shared         \
+		            --without-debug           \
+		            --without-ada             \
+		            --disable-stripping       \
+		            --enable-widec            \
+		            --without-termlib
+		compile_default
+		if [[ $LIB == 64 || -z $LIB ]]; then
+			mkdir -p "$ROOT/$D/usr/share/terminfo"
+			install_default TIC_PATH=$(pwd)/build/progs/tic
+			echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so
+		else
+			make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
+			ln -s libncursesw.so DESTDIR/lib$LIB/libcursesw.so
+			mkdir -p $D/$ROOT/lib$LIB
+			cp -Rv DESTDIR/lib$LIB/* $D/$ROOT/lib$LIB
+			rm -rf DESTDIR
+		fi
+	done
 }
