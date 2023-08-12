@@ -107,6 +107,7 @@ src_install() {
 	ln -sfv libncurses.so      "${t_D}"/lib$LIB/libcurses.so
 
 	if [[ $LIB != 64 ]]; then
+		mkdir -p $D/lib$LIB
 		cp -R $t_D/lib$LIB/* $D/lib$LIB
 		rm -rf $t_D
 	fi
