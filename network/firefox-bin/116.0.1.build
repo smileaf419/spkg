@@ -1,0 +1,28 @@
+####
+## Firefox build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.mozilla.org/firefox/"
+DESCRIPTION="Mozilla Firefox Web Browser"
+LICENSE=""
+SRC_URI=("https://download-installer.cdn.mozilla.net/pub/firefox/releases/${PKG_VER}/linux-x86_64/en-US/firefox-${PKG_VER}.tar.bz2")
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+B=firefox
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p $D/opt/firefox
+	mv * $D/opt/firefox
+	mkdir -p $D/usr/bin
+	ln -s /opt/firefox/firefox $D/usr/bin/firefox
+}

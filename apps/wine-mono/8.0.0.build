@@ -1,0 +1,25 @@
+####
+## Wine-Mono build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://dl.winehq.org/wine/wine-mono/${PKG_VER}/wine-mono-${PKG_VER}-src.tar.xz")
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+#B=
+
+src_configure() { :; }
+
+src_compile() {
+	make dev
+}
+
+src_test() { :; }
+
+#src_install() { :; }
