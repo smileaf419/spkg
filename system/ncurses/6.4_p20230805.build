@@ -124,19 +124,22 @@ bootstrap() {
 	popd
 
 	for LIB in 64 32 x32; do
+		echo " * Building $LIB bit"
 		if [[ $LIB == 64 ]]; then
 			LIB=
 			local TGT=$BOOTSTRAP_TGT
 		elif [[ $LIB == 32 ]]; then
 			make distclean
 			local TGT=$BOOTSTRAP_TGT32
+			SET_ABI="CC='$BOOTSTRAP_TGT-gcc -m$LIB' CXX='$BOOTSTRAP_TGT-g++ -m$LIB'"
 		elif [[ $LIB == x32 ]]; then
 			make distclean
-			local TGT=$BOOTSTRAP_TGTX32
+			local TGT=$BOOTSTRAP_TGTx32
+			SET_ABI="CC='$BOOTSTRAP_TGT-gcc -m$LIB' CXX='$BOOTSTRAP_TGT-g++ -m$LIB'"
 		fi
-		CC="$BOOTSTRAP_TGT-gcc -m$LIB"  \
-		CXX="$BOOTSTRAP_TGT-g++ -m$LIB"  \
-		./configure --prefix=/usr         \
+		CONF_FLAGS=' '
+		configure_default                \
+					--prefix=/usr         \
 					--bindir=/bin          \
 					--libdir=/lib$LIB       \
 		            --host=$TGT              \
