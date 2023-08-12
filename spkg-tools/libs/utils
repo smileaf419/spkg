@@ -439,6 +439,7 @@ checkSha1() {
 	fi
 	return 0
 }
+export -f checkSha1
 
 ####
 ## install doesn't support preserving permissions
