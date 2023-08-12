@@ -2,6 +2,10 @@
 ## We need to exit immediately if we encounter an error.
 set -e
 
+## Set a limited use found within
+## $PKG_DB_DIR/spkg-tools/spkg.conf
+USE="-gd -X -openrc -java"
+
 echo " * Bootstrapping .. This will take a while.."
 BOOTSTRAP_STAGE=${BOOTSTRAP_STAGE:-"1234"}
 
@@ -182,8 +186,10 @@ EOF
 	REQUESTED_LIST="@basicsystem"
 	populate_list
 	FETCH_ONLY=1
+	EMPTY_WORLD=1
+	getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"
 	## Attempt to catch the error so we can finish.
-	if ! installList $REQUESTED_LIST; then
+	if ! installList $(cat $CHART); then
 		echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
 		echo "    Finally move the downloaded files to: $DISTFILES"
 	fi
@@ -227,6 +233,7 @@ fi
 if [[ -e $ROOT/chroot.sh && -e $ROOT/$PKG_DB_DIR ]]; then
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
+	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf
 	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
 
 	## Pass certain options to our chroot environment
