@@ -80,7 +80,7 @@ bootstrap() {
 		    --without-zstd             \
 		    --enable-multilib &&
 		compile_default V=1 && install_default &&
-		rm -v "$D/$ROOT"/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.{a,la}
+		rm -v "$D/$ROOT"/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.la
 		;;
 	esac
 }
