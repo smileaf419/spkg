@@ -57,7 +57,7 @@ for p in ${PATCH_DATES[*]}; do
 done
 
 src_configure() {
-	if [[ $LIB != 64 && ! -z $LIB ]]; then
+	if [[ ! -z $LIB ]]; then
 		SET_ABI="CC='gcc -m$LIB' CXX='g++ -m$LIB'"
 		LIB=
 	fi
@@ -83,7 +83,7 @@ src_test() { :; }
 
 src_install() {
 	local t_D
-	if [[ $LIB == 64 ]]; then
+	if [[ -z $LIB ]]; then
 		install_default
 		t_D=$D
 
@@ -106,7 +106,7 @@ src_install() {
 	echo "INPUT(-lncursesw)" > "${t_D}"/lib$LIB/libcursesw.so
 	ln -sfv libncurses.so      "${t_D}"/lib$LIB/libcurses.so
 
-	if [[ $LIB != 64 ]]; then
+	if [[ ! -z $LIB ]]; then
 		mkdir -p $D/lib$LIB
 		cp -R $t_D/lib$LIB/* $D/lib$LIB
 		rm -rf $t_D
@@ -126,8 +126,7 @@ bootstrap() {
 
 	for LIB in 64 32 x32; do
 		echo " * Building $LIB bit"
-		if [[ $LIB == 64 ]]; then
-			LIB=
+		if [[ -z $LIB ]]; then
 			local TGT=$BOOTSTRAP_TGT
 		elif [[ $LIB == 32 ]]; then
 			make distclean
@@ -155,7 +154,7 @@ bootstrap() {
 		            --enable-widec            \
 		            --without-termlib
 		compile_default
-		if [[ $LIB == 64 || -z $LIB ]]; then
+		if [[ -z $LIB ]]; then
 			mkdir -p "$ROOT/$D/usr/share/terminfo"
 			install_default TIC_PATH=$(pwd)/build/progs/tic
 			echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so
