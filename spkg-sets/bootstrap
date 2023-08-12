@@ -1,8 +1,5 @@
 ## Pass 1
 system/binutils[pass1]
-devel/gmp[pass1]
-devel/mpfr[pass1]
-devel/mpc[pass1]
 system/gcc[pass1]
 system/linux-headers
 system/glibc
@@ -27,7 +24,4 @@ apps/bzip2
 system/libxcrypt
 ## 2nd Pass
 system/binutils[pass2]
-devel/gmp[pass2]
-devel/mpfr[pass2]
-devel/mpc[pass2]
 system/gcc[pass2]
