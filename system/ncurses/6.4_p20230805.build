@@ -57,10 +57,7 @@ for p in ${PATCH_DATES[*]}; do
 done
 
 src_configure() {
-	if [[ ! -z $LIB ]]; then
-		SET_ABI="CC='gcc -m$LIB' CXX='g++ -m$LIB'"
-		LIB=
-	fi
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB" && export CXX="g++ -m$LIB"
 	CONF_FLAGS=' '
 	configure_default \
 				--prefix=/usr           \
@@ -125,24 +122,18 @@ bootstrap() {
 	popd
 
 	for LIB in 64 32 x32; do
-		echo " * Building $LIB bit"
-		if [[ -z $LIB ]]; then
-			local TGT=$BOOTSTRAP_TGT
-		elif [[ $LIB == 32 ]]; then
+		if [[ $LIB == 64 ]]; then
+			LIB=
+		else
 			make distclean
-			local TGT=$BOOTSTRAP_TGT32
-			SET_ABI="CC='$BOOTSTRAP_TGT-gcc -m$LIB' CXX='$BOOTSTRAP_TGT-g++ -m$LIB'"
-		elif [[ $LIB == x32 ]]; then
-			make distclean
-			local TGT=$BOOTSTRAP_TGTx32
-			SET_ABI="CC='$BOOTSTRAP_TGT-gcc -m$LIB' CXX='$BOOTSTRAP_TGT-g++ -m$LIB'"
+			export CC="$BOOTSTRAP_TGT-gcc -m$LIB"
+			export CXX="$BOOTSTRAP_TGT-g++ -m$LIB"
 		fi
 		CONF_FLAGS=' '
 		configure_default                \
 					--prefix=/usr         \
 					--bindir=/bin          \
 					--libdir=/lib$LIB       \
-		            --host=$TGT              \
 		            --build=$(./config.guess) \
 		            --without-manpages        \
 		            --with-shared             \

@@ -19,18 +19,18 @@ MULTILIB="64 32 x32"
 _SPKG_CLEAN=rm
 
 src_configure() {
-	# Ensure ldconfig and sln are installed into /sbin
+	## Ensure ldconfig and sln are installed into /sbin
 	echo "rootsbindir=/sbin" > ../configparms
 
-	# 64bit build
-	if [[ $LIB == 64 ]]; then
+	if [[ -z $LIB ]]; then
 		mkdir -pv $D/$ROOT/lib{,64}
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
-		## Set to blank so we set a lib dir of /lib instead of /lib64
-		LIB=
+	else
+		export CC="gcc -m$LIB"
+		export CXX="g++ -m$LIB"
 	fi
-	../configure --prefix=/usr                      \
+	configure_default --prefix=/usr                 \
 				 --bindir=/bin                      \
 				 --libdir=/lib$LIB                  \
 				 --enable-kernel=6.4                \
@@ -46,40 +46,36 @@ src_configure() {
 src_compile() {
 	compile_default
 
-	# This test fails in a partial LFS environment
+	## This test fails in a partial LFS environment
 	sed '/test-installation/s@$(PERL)@echo not running@' -i ../Makefile
 }
 
 src_install() {
-	install_default
+	if [[ -z $LIB ]]; then
+		install_default
 
-	# Fix a hardcoded path
-	sed '/RTLDLIST=/s@/usr@@g' -i "${D}/$ROOT"/usr/bin/ldd
+		## Fix a hardcoded path
+		sed '/RTLDLIST=/s@/usr@@g' -i "${D}/$ROOT"/usr/bin/ldd
 
-	cp -v ../nscd/nscd.conf "${D}/$ROOT"/etc/nscd.conf
-	mkdir -pv "${D}/$ROOT"/var/cache/nscd
+		cp -v ../nscd/nscd.conf "${D}/$ROOT"/etc/nscd.conf
+		mkdir -pv "${D}/$ROOT"/var/cache/nscd
+	else
+		make DESTDIR=$PWD/DESTDIR install &&
+		cp -a DESTDIR/lib$LIB $D/$ROOT &&
+		install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-$LIB.h \
+					   $D/$ROOT/usr/include/gnu/ &&
+		if [[ $LIB == 32 ]]; then
+			ln -svf ../lib32/ld-linux.so.2 $D/$ROOT/lib/ld-linux.so.2 || die "Error building glibc 32bit"
+		else
+			ln -svf ../libx32/ld-linux-x32.so.2 $D/$ROOT/lib/ld-linux-x32.so.2 || die "Error building glibc x32bit"
+		fi
+	fi
 }
 
 post_install() {
-#	if [[ $MODE == "bootstrap" ]]; then
-#		echo -n " * Running mkheaders: " &&
-#		$ROOT/tools/libexec/gcc/$BOOTSTRAP_TGT/$(Installed-getPkg system/gcc | getVersion)/install-tools/mkheaders && echo Done
-#	fi
-
 	echo " * Installing Locales"
 	mkdir -p /usr/lib/locale
 
-	# These install the bare amount
-	# for all of them use: make localedata/install-locales
-#	inform " * For a listing of optimal coverage of locales for tests use the script found in spkg-tools/locale"
-#	printf " * Generating [%2d/%2d] %-22s: " 1 4 "C.UTF-8"
-#	(localedef -i POSIX -f UTF-8 C.UTF-8 2> /dev/null || true) && echo " ${GREEN}Ok${NORMAL}" || echo " ${RED}Failed${NORMAL}"
-#	printf " * Generating [%2d/%2d] %-22s: " 2 4 "ja_JP.SJIS"
-#	(localedef -i ja_JP -f SHIFT_JIS ja_JP.SJIS 2> /dev/null || true) && echo " ${GREEN}Ok${NORMAL}" || echo " ${RED}Failed${NORMAL}"
-#	printf " * Generating [%2d/%2d] %-22s: " 3 4 "en_US"
-#	localedef -i en_US -f ISO-8859-1 en_US && echo " ${GREEN}Ok${NORMAL}" || echo " ${RED}Failed${NORMAL}"
-#	printf " * Generating [%2d/%2d] %-22s: " 4 4 "en_US.UTF-8"
-#	localedef -i en_US -f UTF-8 en_US.UTF-8 && echo " ${GREEN}Ok${NORMAL}" || echo " ${RED}Failed${NORMAL}"
 	$INSTALL_PATH/locales
 
 	if [ ! -e "/etc/nsswitch.conf" ]; then
@@ -110,72 +106,40 @@ EOF
 }
 
 bootstrap() {
-	# /lib64  64bit
-	# /lib32  32bit
-	# /lib    Generic Libraries.
+	## /lib    64bit
+	## /lib64  64bit
+	## /lib32  32bit
+	## /libx32 x32bit
 
-	# 64bit build
-	mkdir -pv $D/$ROOT/lib{,64}
-	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
-	ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
-	echo "rootsbindir=/sbin" > configparms
-	../configure --prefix=/usr                      \
-				 --bindir=/bin                      \
-				 --libdir=/lib                      \
-				 --host=$BOOTSTRAP_TGT              \
-				 --build=$(../scripts/config.guess) \
-				 --enable-kernel=6.4                \
-				 --with-headers=$ROOT/usr/include   \
-				 --enable-multi-arch                \
-				 --disable-crypt                    \
-				 libc_cv_slibdir=/lib &&
-	compile_default &&
-	install_default
-	sed '/RTLDLIST=/s@/usr@@g' -i "$D/$ROOT"/bin/ldd
-
-	# 32bit build
-	make clean
-	find .. -name "*.a" -delete
-
-	CC="$BOOTSTRAP_TGT-gcc -m32" \
-	CXX="$BOOTSTRAP_TGT-g++ -m32" \
-	../configure --prefix=/usr                      \
-				 --host=$BOOTSTRAP_TGT32            \
-				 --build=$(../scripts/config.guess) \
-				 --enable-kernel=3.2                \
-				 --with-headers=$ROOT/usr/include   \
-				 --enable-multi-arch                \
-				 --libdir=/lib32                    \
-				 --libexecdir=/lib32                \
-                 --disable-crypt                    \
-				 libc_cv_slibdir=/lib32 &&
-	compile_default &&
-	make DESTDIR=$PWD/DESTDIR install &&
-	cp -a DESTDIR/lib32 $D/$ROOT &&
-	install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-32.h \
-				   $D/$ROOT/usr/include/gnu/ &&
-	ln -svf ../lib32/ld-linux.so.2 $D/$ROOT/lib/ld-linux.so.2 || die "Error building glibc 32bit"
-
-	# x32 build
-	make clean &&
-	find .. -name "*.a" -delete
-
-	CC="$BOOTSTRAP_TGT-gcc -mx32" \
-	CXX="$BOOTSTRAP_TGT-g++ -mx32" \
-	../configure --prefix=/usr                      \
-				 --host=$BOOTSTRAP_TGTX32           \
-				 --build=$(../scripts/config.guess) \
-				 --enable-kernel=3.2                \
-				 --with-headers=$ROOT/usr/include   \
-				 --enable-multi-arch                \
-				 --libdir=/libx32                   \
-				 --libexecdir=/libx32               \
-                 --disable-crypt                    \
-				 libc_cv_slibdir=/libx32 &&
-	compile_default &&
-	make DESTDIR=$PWD/DESTDIR install &&
-	cp -a DESTDIR/libx32 $D/$ROOT &&
-	install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-x32.h \
-				   $D/$ROOT/usr/include/gnu/ &&
-	ln -svf ../libx32/ld-linux-x32.so.2 $D/$ROOT/lib/ld-linux-x32.so.2 || die "Error building glibc x32bit"
+	for LIB in 64 32 x32; do
+		if [[ $LIB == 64 ]]; then
+			LIB=
+			mkdir -pv $D/$ROOT/lib{,64}
+			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
+			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
+			echo "rootsbindir=/sbin" > configparms
+			CONF_FLAGS=' '
+			sed '/RTLDLIST=/s@/usr@@g' -i "$D/$ROOT"/bin/ldd
+		else
+			make clean
+			find .. -name "*.a" -delete
+			export CC="$BOOTSTRAP_TGT-gcc -m$LIB"
+			export CXX="$BOOTSTRAP_TGT-g++ -m$LIB"
+		fi
+		configure_default --prefix=/usr              \
+						  --bindir=/bin               \
+						  --libdir=/lib$LIB            \
+						  --enable-kernel=6.4            \
+						  --enable-multi-arch             \
+						  --disable-crypt                  \
+						  --with-headers=$ROOT/usr/include  \
+						  --build=$(../scripts/config.guess) \
+						  libc_cv_slibdir=/lib$LIB &&
+		compile_default
+		if [[ -z $LIB ]]; then
+			install_default
+		else
+			src_install
+		fi
+	done
 }

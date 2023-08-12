@@ -41,8 +41,7 @@ bootstrap() {
 	configure_default \
 				--bindir=/bin                      \
 	            --build=$(sh support/config.guess) \
-	            --host=$HOST_TGT                   \
 	            --without-bash-malloc &&
-	compile_default && 
+	compile_default &&
 	src_install
 }
