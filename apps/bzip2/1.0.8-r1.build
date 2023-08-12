@@ -17,6 +17,7 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
 
 src_configure() {
 	## Ensure installation of Symlinks
@@ -30,8 +31,19 @@ src_configure() {
 		-i Makefile
 
 	append-ldflags -fPIC
+
+	[[ $LIB != 64 && ! -z $LIB ]] && sed -e "s/^CC=.*/CC=gcc -m$LIB/" -i Makefile{,-libbz2_so}
+
 	make -f Makefile-libbz2_so
-	make clean
+	[[ $LIB == 64 ]] && make clean
+}
+
+src_compile() {
+	if [[ $LIB == 64 || -z $LIB ]]; then
+		compile_default
+	else
+		compile_default libbz2.a
+	fi
 }
 
 src_install() {
@@ -39,18 +51,20 @@ src_install() {
 	mkdir -p $D/$ROOT/usr/include
 
 	make PREFIX="${D}/$ROOT" install
-	cp -av libbz2.so* "${D}/$ROOT"/lib
-	ln -sv libbz2.so.${PKG_VER} "${D}/$ROOT"/lib/libbz2.so
 
-	cp -v bzip2-shared "${D}/$ROOT"/bin/bzip2
-	for i in "${D}/$ROOT"/bin/{bzcat,bunzip2}; do
-		ln -sfv bzip2 $i
-	done
-	rm -fv "${D}/$ROOT"/lib/libbz2.a
-}
-
-bootstrap() {
-	src_configure
-	compile_default
-	src_install
+	if [[ $LIB == 64 || -z $LIB ]]; then
+		cp -av libbz2.so* "${D}/$ROOT"/lib
+		ln -sv libbz2.so.${PKG_VER} "${D}/$ROOT"/lib/libbz2.so
+		cp -v bzip2-shared "${D}/$ROOT"/bin/bzip2
+		for i in "${D}/$ROOT"/bin/{bzcat,bunzip2}; do
+			ln -sfv bzip2 $i
+		done
+		rm -fv "${D}/$ROOT"/lib/libbz2.a
+	else
+		install -Dm755 libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so.$PKG_VER
+		ln -sf libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so
+		ln -sf libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so.1
+		ln -sf libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so.1.0
+		install -Dm644 libbz2.a $D/usr/lib$LIB/libbz2.a
+	fi
 }

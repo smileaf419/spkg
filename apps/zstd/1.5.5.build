@@ -12,15 +12,29 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
 
 src_configure() { :; }
 
 src_compile() {
+	if [[ $LIB == 64 ]]; then
+		LIB=
+	else
+		export CC="gcc -m$LIB"
+	fi
 	compile_default prefix=/usr libdir=/lib exec_prefix=/bin
 }
 
 src_install() {
-	install_default prefix=/usr libdir=/lib exec_prefix=/
 	#PKGCONFIGDIR="/usr/lib/pkgconfig"
-	rm -v "$ROOT/$D"/lib/libzstd.a
+	if [[ $LIB == 64 || -z $LIB ]]; then
+		install_default prefix=/usr libdir=/lib exec_prefix=/
+		rm -v "$ROOT/$D"/lib/libzstd.a
+	else
+		make prefix=/usr DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/usr/lib$LIB
+		cp -Rv DESTDIR/usr/lib/* $D/usr/lib$LIB/
+		sed -e "/^libdir/s/lib$/lib$LIB/" -i $D/usr/lib$LIB/pkgconfig/libzstd.pc
+		rm -rf DESTDIR
+	fi
 }

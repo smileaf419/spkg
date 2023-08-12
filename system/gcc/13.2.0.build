@@ -144,6 +144,14 @@ bootstrap() {
 			find "$D/$ROOT"/usr/lib{,64,exec} -name \*.la -delete || true
 		;;
 		pass2)
+			cd ..
+			unpack $DISTFILES/gmp-$GMP_VER.tar.xz
+			mv gmp{-$GMP_VER,}
+			unpack $DISTFILES/mpfr-$MPFR_VER.tar.xz
+			mv mpfr{-$MPFR_VER,}
+			unpack $DISTFILES/mpc-$MPC_VER.tar.gz
+			mv mpc{-$MPC_VER,}
+			cd -
 			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in &&
 			../configure                                       \
 			    --build=$(../config.guess)                     \

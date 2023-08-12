@@ -10,8 +10,15 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
 
 src_configure() {
+	if [[ $LIB == 64 ]]; then
+		LIB=
+	else
+		append_cflags -m$LIB
+		append_cxxflags -m$LIB
+	fi
 #	sed -i '/^pkgconfigdir/ s,${libdir},/usr/lib,' Makefile.in
 	./configure --prefix=/usr \
 				--libdir=/lib \
@@ -19,7 +26,15 @@ src_configure() {
 }
 
 src_install() {
-	install_default
+	if [[ $LIB == 64 ]]; then
+		install_default
+		LIB=
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/usr/lib$LIB
+		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		rm -rf DESTDIR
+	fi
+	rm -f "${D}"/lib$LIB/libz.a
 
-	rm -f "${D}"/lib/libz.a
 }

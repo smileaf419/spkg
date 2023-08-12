@@ -45,7 +45,7 @@ export -f bootstrap
 bootstrap_default() {
 	umask 022
 	set +h
-#	export HOST_TGT=$(uname -m)-leaf-linux-gnu
+	export HOST_TGT=$(uname -m)-leaf-linux-gnu
 	export BOOTSTRAP_TGT=${BOOTSTRAP_TGT:-x86_64-leaf-linux-gnu}
 	export BOOTSTRAP_TGT32=${BOOTSTRAP_TGT32:-i686-leaf-linux-gnu}
 	export BOOTSTRAP_TGTx32=${BOOTSTRAP_TGTx32:-x86_64-leaf-linux-gnux32}
@@ -88,6 +88,15 @@ configure_default() {
 				CONF_FLAGS+=" --host=$HOST_TGTx32"
 			fi
 		fi
+
+		>&2 echo "LDFLAGS=$LDFLAGS"
+		>&2 echo "CFLAGS=$CFLAGS"
+		>&2 echo "CPPFLAGS=$CPPFLAGS"
+		>&2 echo "CXXFLAGS=$CXXFLAGS"
+		>&2 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+		>&2 echo "SET_ABI=$SET_ABI"
+		>&2 echo "CONF_FLAGS=${CONF_FLAGS[@]}"
+		>&2 echo "@=$@"
 
 		eval \
 		LDFLAGS=\"$LDFLAGS\"   \

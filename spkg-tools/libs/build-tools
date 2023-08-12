@@ -608,7 +608,7 @@ installList() {
 			## Save what time we started installing so we can output how long it took at the end.
 			local timestart=$(date "+%s.%N")
 
-			if [[ $SILENT_BUILD == "no" ]]; then
+			if [[ $SILENT_BUILD == "no" || $FETCH_ONLY == 1 ]]; then
 				set -o pipefail
 				installPackage 2>&1 | tee $log
 				[ $PIPESTATUS != 0 ] && die "Error installing package: ${PKG_NVR}"
