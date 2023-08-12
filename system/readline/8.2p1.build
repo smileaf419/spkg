@@ -19,6 +19,8 @@ for p in $(seq 1 $PATCH_LEVEL); do
 	PATCHES+=("https://ftp.gnu.org/pub/gnu/$PKG_NAME/$PKG_NAME-$PV-patches/$PKG_NAME${PV//./}-$p => $PKG_NAME-$PV-${p#0}.patch")
 done
 B=$PKG_NAME-$PV
+MULTILIB="64 32 x32"
+_SPKG_CLEAN=distclean
 
 src_patch() {
 	[[ $P == '' ]] && return 0
@@ -34,7 +36,8 @@ src_configure() {
 	sed -i '/MV.*old/d' Makefile.in
 	sed -i '/{OLDSUFF}/c:' support/shlib-install
 
-	configure_default --with-curses --libdir=/lib
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	configure_default --with-curses --libdir=/lib$LIB
 }
 
 src_compile() {
@@ -44,7 +47,14 @@ src_compile() {
 src_test() { :; }
 
 src_install() {
-	install_default SHLIB_LIBS="-lncursesw"
-	mkdir -p "${D}"/usr/share/doc/readline-${PV}
-	install -v -m644 doc/*.{ps,pdf,html,dvi} "${D}"/usr/share/doc/readline-${PV}
+	if [[ -z $LIB ]]; then
+		install_default SHLIB_LIBS="-lncursesw"
+		mkdir -p "${D}"/usr/share/doc/readline-${PV}
+		install -v -m644 doc/*.{ps,pdf,html,dvi} "${D}"/usr/share/doc/readline-${PV}
+	else
+		make SHLIB_LIBS="-lncursesw" DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		rm -rf DESTDIR
+	fi
 }

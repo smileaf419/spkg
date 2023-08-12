@@ -13,6 +13,8 @@ BDEPS="devel/gperf"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+_SPKG_CLEAN=rm
+MULTILIB="64 32 x32"
 
 src_test() {
 	# These directories are required for the tests
@@ -27,25 +29,36 @@ src_configure() {
 		-e 's/GROUP="sgx", //' \
 		-i rules/50-udev-default.rules
 
+	local arch=x86_64
+	[[ $LIB == 32 ]] && arch=i686
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB -march=$arch" && CXX="g++ -m$LIB -march=$arch"
+
 	configure_default \
 				--bindir=/bin     \
 	            --sbindir=/sbin   \
-	            --libdir=/lib     \
+	            --libdir=/lib$LIB \
 	            --sysconfdir=/etc \
 	            --enable-manpages
 }
 
 src_install() {
-	install_default
+	if [[ -z $LIB ]]; then
+		install_default
 
-	unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz
-	install_default -f udev-lfs-${LFSRULEVER}/Makefile.lfs
+		unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz
+		install_default -f udev-lfs-${LFSRULEVER}/Makefile.lfs
 
-	mkdir -pv $D/{usr/lib,etc}/udev/rules.d
+		mkdir -pv $D/{usr/lib,etc}/udev/rules.d
+		touch $D/{usr/lib,etc}/udev/rules.d/.keep
 
-	cat > $D/etc/udev/rules.d/65-kvm.rules << "EOF"
+		cat > $D/etc/udev/rules.d/65-kvm.rules << "EOF"
 KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
 EOF
+	else
+		mkdir -pv $D/lib$LIB/pkgconfig &&
+		cp -av libudev.so{,*[0-9]} $D/lib$LIB/ &&
+		sed -e "s;/lib;&32;g" src/libudev/libudev.pc > /lib$LIB/pkgconfig/libudev.pc
+	fi
 }
 
 post_install() {

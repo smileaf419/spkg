@@ -11,28 +11,25 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 MULTILIB="64 32 x32"
+_SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ $LIB == 64 ]]; then
-		LIB=
-	else
+	if [[ ! -z $LIB ]]; then
 		append_cflags -m$LIB
 		append_cxxflags -m$LIB
 	fi
-#	sed -i '/^pkgconfigdir/ s,${libdir},/usr/lib,' Makefile.in
 	./configure --prefix=/usr \
-				--libdir=/lib \
+				--libdir=/lib$LIB \
 				--enable-shared
 }
 
 src_install() {
-	if [[ $LIB == 64 ]]; then
+	if [[ -z $LIB ]]; then
 		install_default
-		LIB=
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/usr/lib$LIB
-		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
 		rm -rf DESTDIR
 	fi
 	rm -f "${D}"/lib$LIB/libz.a

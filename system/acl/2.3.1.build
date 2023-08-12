@@ -11,8 +11,20 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
 
 src_configure() {
-	sed -i '/^pkgconfdir/ s,$(libdir),/usr/lib,' Makefile.*
-	./configure --prefix=/usr --libdir=/lib --disable-static
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	configure_default --libdir=/lib$LIB
+}
+
+src_install() {
+	if [[ -z $LIB ]]; then
+		install_default
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		rm -rf DESTDIR
+	fi
 }

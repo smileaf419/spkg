@@ -11,6 +11,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
+MULTILIB="64 32 x32"
 
 src_configure() {
 	## Prevent static libraries from being installed
@@ -23,11 +24,28 @@ src_configure() {
 }
 
 src_compile() {
-	compile_default prefix=/usr lib=lib
+	if [[ -z $LIB ]]; then
+		compile_default prefix=/usr lib=lib
+	else
+		local arch=x86_64
+		[[ $LIB == 32 ]] && arch=i686
+		compile_default CC="gcc -m$LIB -march=$arch"
+	fi
 }
 
 src_install() {
-	install_default prefix="/usr" lib=lib
+	if [[ -z $LIB ]]; then
+		install_default prefix="/usr" lib=lib
+	else
+		local arch=x86_64
+		[[ $LIB == 32 ]] && arch=i686
+		install_default CC="gcc -m$LIB -march=$arch" lib=lib$LIB prefix=$PWD/DESTDIR/usr -C libcap
+		mkdir -p $D/usr/lib$LIB
+		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		sed -e "s|^libdir=.*|libdir=/usr/lib$LIB|" -i $D/usr/lib$LIB/pkgconfig/lib{cap,psx}.pc
+		chmod -v 755 $D/usr/lib$LIB/libcap.so.$PKG_VER
+		rm -rf DESTDIR
+	fi
 #	install -v -m755 pam_cap/pam_cap.so "${D}/usr/lib/security"
 #	mkdir -p "${D}/etc/security"
 #	install -v -m644 pam_cap/capability.conf "${D}/etc/security"

@@ -15,6 +15,8 @@ use-enable gd && UDEPS="media/gd apps/bzip2 devel/expat devel/libpcre media/font
 ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
+MULTILIB="64 32 x32"
+_SPKG_CLEAN=rm
 
 src_configure() {
 	# Ensure ldconfig and sln are installed into /sbin

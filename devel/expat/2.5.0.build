@@ -10,9 +10,24 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
+
+src_configure() {
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	configure_default --libdir=/usr/lib$LIB
+}
 
 src_install() {
-	install_default
+	if [[ -z $LIB ]]; then
+		install_default
+		install -v -m644 doc/*.{html,css} "${D}"/usr/share/doc/expat-${PKG_VER}
 
-	install -v -m644 doc/*.{html,css} "${D}"/usr/share/doc/expat-${PKG_VER}
+		## Ensure we can't clean out the docs
+		sed -e "/^am__append_1/ s/doc//" -i Makefile
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/usr/lib$LIB
+		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		rm -rf DESTDIR
+	fi
 }

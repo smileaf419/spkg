@@ -8,9 +8,10 @@ SRC_URI="https://www.openssl.org/source/openssl-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS="apps/ca-certificates"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
+MULTILIB="64 32 x32"
 
 src_configure() {
 	append-cppflags -fno-strict-aliasing
@@ -20,21 +21,25 @@ src_configure() {
 
 	./config --prefix=/usr         \
 	         --openssldir=/etc/ssl \
-			 --libdir=/lib         \
+			 --libdir=/lib$LIB     \
 	         shared                \
 	         zlib-dynamic
 }
 
 src_install() {
-	sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
-	install_default MANSUFFIX=ssl
-	touch "$D"/etc/ssl/{certs,private}/.keep
-	mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
-	cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
+	if [[ -z $LIB ]]; then
+		sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+		install_default MANSUFFIX=ssl
+		touch "$D"/etc/ssl/{certs,private}/.keep
+		mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
+		cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
 
-	mv "$D"{/usr,}/bin
-#	mkdir -p "$D/usr/lib"
-#	mv "$D"{,/usr}/lib/pkgconfig
+		mv "$D"{/usr,}/bin
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+	fi
 }
 
 post_install() {

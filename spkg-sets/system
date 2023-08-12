@@ -48,6 +48,7 @@ devel/mpfr
 system/gawk
 devel/mpc
 system/gcc
+devel/isl
 system/linux-headers
 system/glibc
 system/grep

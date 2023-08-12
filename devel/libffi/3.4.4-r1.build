@@ -10,7 +10,21 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+_SPKG_CLEAN=distclean
+MULTILIB="64 32 x32"
 
 src_configure() {
-	configure_default --with-gcc-arch=native
+	[[ ! -z $LIB ]] && CC="gcc -m$LIB" && CXX="g++ -m$LIB"
+	configure_default --with-gcc-arch=native --libdir=/usr/lib$LIB
+}
+
+src_install() {
+	if [[ -z $LIB ]]; then
+		install_default
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/usr/lib$LIB
+		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		rm -rf DESTDIR
+	fi
 }

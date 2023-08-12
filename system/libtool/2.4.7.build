@@ -11,9 +11,21 @@ BDEPS=""
 RDEPS="system/autoconf system/automake"
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
+
+src_configure() {
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	configure_default --libdir="/usr/lib$LIB"
+}
 
 src_install() {
-	install_default
-
-	rm -fv "${D}/usr/lib/libltdl.a"
+	if [[ -z $LIB ]]; then
+		install_default
+		rm -fv "${D}/usr/lib/libltdl.a"
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/usr/lib$LIB
+		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		rm -rf DESTDIR
+	fi
 }

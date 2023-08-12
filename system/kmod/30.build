@@ -10,27 +10,41 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
 
 src_configure() {
-	./configure --prefix=/usr          \
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	CONF_FLAGS=' '
+	configure_default  --prefix=/usr   \
 	            --sysconfdir=/etc      \
 	            --bindir=/bin          \
 	            --sbindir=/sbin        \
-	            --libdir=/lib          \
+	            --libdir=/lib$LIB      \
 	            --with-openssl         \
 	            --with-xz              \
 	            --with-zstd            \
-	            --with-zlib
+	            --with-zlib            \
+	            [[ ! -z $LIB ]] && echo "--with-rootlibdir=/lib$LIB"
 }
 
 src_test() { :; }
 
 src_install() {
-	install_default
-	mkdir -p "$D/sbin"
-	for target in depmod insmod modinfo modprobe rmmod; do
-		ln -sfv ../bin/kmod "${D}"/sbin/$target
-	done
+	if [[ -z $LIB ]]; then
+		install_default
+		mkdir -p "$D/sbin"
+		for target in depmod insmod modinfo modprobe rmmod; do
+			ln -sfv ../bin/kmod "${D}"/sbin/$target
+		done
 
-	ln -sfv kmod "${D}"/bin/lsmod
+		ln -sfv kmod "${D}"/bin/lsmod
+
+		## Keep man pages as they can't be regenerated without xsltproc
+		sed -e "s/^CLEANFILES =.*/CLEANFILES =/" -i man/Makefile
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* /lib$LIB
+		rm -rf DESTDIR
+	fi
 }

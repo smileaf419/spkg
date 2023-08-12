@@ -11,15 +11,17 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
+_SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ ! -z $LIB && $LIB != 64 ]]; then
+	if [[ ! -z $LIB ]]; then
 		## Don't set CONF_FLAGS as it'll override --prefix and others we want.
 		conf_flags="--includedir=/usr/include/m$LIB/gmp"
 	fi
 	configure_default --enable-cxx --libdir=/lib$LIB $conf_flags
 
-	[[ ! -z $LIB && $LIB != 64 ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile
+	[[ ! -z $LIB ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile
 }
 
 src_compile() {
@@ -37,7 +39,7 @@ src_test() {
 }
 
 src_install() {
-	if [[ -z $LIB || $LIB == 64 ]]; then
+	if [[ -z $LIB ]]; then
 		install_default
 		make DESTDIR="$ROOT/${D}" install-html
 	else
@@ -51,11 +53,10 @@ src_install() {
 bootstrap() {
 	case $PKG_FLAGS in
 		pass1)
-			LIB=
 			CONF_FLAGS="--build=$(./config.guess) --prefix=/tools"
-			src_configure $LIB
-			compile_default $LIB
-			install_default $LIB
+			src_configure
+			compile_default
+			install_default
 			;;
 		pass2)
 			for LIB in 64 32 x32; do
@@ -74,9 +75,9 @@ bootstrap() {
 				fi
 				export PKG_CONFIG_PATH="/usr/lib$LIB/pkgconfig"
 
-				src_configure $LIB
-				compile_default $LIB
-				install_default $LIB
+				src_configure
+				compile_default
+				install_default
 			done
 			;;
 		esac

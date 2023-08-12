@@ -1,7 +1,3 @@
-b8fef696cf5c30c7e187b6b2de57627b3cf0f618  23.1.3.build
-d9ef25e57bd4787a67fbc5d9bb2193b357c23a3f  mesa-23.1.3.tar.xz
-9d97b8b825610827ea6e5050fa943ae432123dd5  mesa-22.3.6-add_xdemos-1.patch
-1016aeddea9eecdad99165b4b03c15d7315877fa  23.1.4.build
-d534f7854afa284ca73cfa9aa2d7a1e1adccfc50  mesa-23.1.4.tar.xz
-1016aeddea9eecdad99165b4b03c15d7315877fa  23.1.5.build
+0d2067a0bdeee00be9376c0929e7161f47cbe2d6  23.1.5.build
 f3c9716cfb80d3f82ae138e7d495816d08a3dc3e  mesa-23.1.5.tar.xz
+9d97b8b825610827ea6e5050fa943ae432123dd5  mesa-add_xdemos-2.patch

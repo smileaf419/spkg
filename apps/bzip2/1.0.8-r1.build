@@ -32,14 +32,14 @@ src_configure() {
 
 	append-ldflags -fPIC
 
-	[[ $LIB != 64 && ! -z $LIB ]] && sed -e "s/^CC=.*/CC=gcc -m$LIB/" -i Makefile{,-libbz2_so}
+	[[ ! -z $LIB ]] && sed -e "s/^CC=.*/CC=gcc -m$LIB/" -i Makefile{,-libbz2_so}
 
 	make -f Makefile-libbz2_so
-	[[ $LIB == 64 ]] && make clean
+	[[ -z $LIB ]] && make clean
 }
 
 src_compile() {
-	if [[ $LIB == 64 || -z $LIB ]]; then
+	if [[ -z $LIB ]]; then
 		compile_default
 	else
 		compile_default libbz2.a
@@ -52,7 +52,7 @@ src_install() {
 
 	make PREFIX="${D}/$ROOT" install
 
-	if [[ $LIB == 64 || -z $LIB ]]; then
+	if [[ -z $LIB ]]; then
 		cp -av libbz2.so* "${D}/$ROOT"/lib
 		ln -sv libbz2.so.${PKG_VER} "${D}/$ROOT"/lib/libbz2.so
 		cp -v bzip2-shared "${D}/$ROOT"/bin/bzip2
@@ -61,10 +61,10 @@ src_install() {
 		done
 		rm -fv "${D}/$ROOT"/lib/libbz2.a
 	else
-		install -Dm755 libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so.$PKG_VER
-		ln -sf libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so
-		ln -sf libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so.1
-		ln -sf libbz2.so.$PKG_VER $D/usr/lib$LIB/libbz2.so.1.0
-		install -Dm644 libbz2.a $D/usr/lib$LIB/libbz2.a
+		install -Dm755 libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so.$PKG_VER
+		ln -sf libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so
+		ln -sf libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so.1
+		ln -sf libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so.1.0
+		install -Dm644 libbz2.a $D/lib$LIB/libbz2.a
 	fi
 }

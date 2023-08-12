@@ -17,23 +17,21 @@ MULTILIB="64 32 x32"
 src_configure() { :; }
 
 src_compile() {
-	if [[ $LIB == 64 ]]; then
-		LIB=
-	else
+	if [[ ! -z $LIB ]]; then
 		export CC="gcc -m$LIB"
 	fi
-	compile_default prefix=/usr libdir=/lib exec_prefix=/bin
+	compile_default prefix=/usr libdir=/lib exec_prefix=/
 }
 
 src_install() {
 	#PKGCONFIGDIR="/usr/lib/pkgconfig"
-	if [[ $LIB == 64 || -z $LIB ]]; then
+	if [[ -z $LIB ]]; then
 		install_default prefix=/usr libdir=/lib exec_prefix=/
 		rm -v "$ROOT/$D"/lib/libzstd.a
 	else
 		make prefix=/usr DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/usr/lib$LIB
-		cp -Rv DESTDIR/usr/lib/* $D/usr/lib$LIB/
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib/* $D/lib$LIB/
 		sed -e "/^libdir/s/lib$/lib$LIB/" -i $D/usr/lib$LIB/pkgconfig/libzstd.pc
 		rm -rf DESTDIR
 	fi
