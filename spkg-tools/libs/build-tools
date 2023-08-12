@@ -106,17 +106,17 @@ buildPackage() {
 					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
 				fi
 			fi
-			[[ ! -z $MULTILIB ]] && echo " * $LIB bit pass"
-			echo " * src_configure ($LIB)"
-			src_configure $p || die " $DIALOG_ERROR Error in src_configure ($LIB)"
-			echo " * src_compile ($LIB)"
-			src_compile $p || die " $DIALOG_ERROR Error in src_compile ($LIB)"
+			[[ ! -z $MULTILIB ]] && echo " * ${LIB:-64} bit pass"
+			echo " * src_configure (${LIB:-64})"
+			src_configure $p || die " $DIALOG_ERROR Error in src_configure (${LIB:-64})"
+			echo " * src_compile (${LIB:-64})"
+			src_compile $p || die " $DIALOG_ERROR Error in src_compile (${LIB:-64})"
 			if [ $ENABLE_TESTS == 1 ]; then
-				echo " * src_test ($LIB)"
-				src_test $p || die " $DIALOG_ERROR Error in src_test ($LIB)"
+				echo " * src_test (${LIB:-64})"
+				src_test $p || die " $DIALOG_ERROR Error in src_test (${LIB:-64})"
 			fi
-			echo " * src_install ($LIB)"
-			src_install	$p || die " $DIALOG_ERROR Error in src_install ($LIB)"
+			echo " * src_install (${LIB:-64})"
+			src_install	$p || die " $DIALOG_ERROR Error in src_install (${LIB:-64})"
 		done
 	else
 		echo " * Bootstrapping"
