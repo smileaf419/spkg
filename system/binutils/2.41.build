@@ -53,16 +53,18 @@ src_install() {
 }
 
 bootstrap() {
+	sed '6009s/$add_dir//' -i ../ltmain.sh
 	case $PKG_FLAGS in
 	pass1)
-		../configure --prefix=$ROOT/tools \
-		             --with-sysroot=$ROOT \
-		             --target=$BOOTSTRAP_TGT  \
-		             --disable-nls       \
-		             --enable-gprofng=no \
-		             --enable-multilib   \
-		             --disable-werror &&
-		compile_default &&
+		CONF_FLAGS=' '
+		../configure --prefix=$ROOT/tools    \
+					 --with-sysroot=$ROOT    \
+					 --target=$BOOTSTRAP_TGT \
+					 --disable-nls           \
+					 --enable-gprofng=no     \
+					 --enable-multilib       \
+					 --disable-werror &&
+		compile_default V=1 &&
 		## As we set a ROOT/tools, we cannot use install_default or it'd install into ROOT/ROOT/tools
 		## But we require the prefix to be the actual install.
 		make DESTDIR=$D install
@@ -70,7 +72,6 @@ bootstrap() {
 	pass2)
 		## Binutils ships an outdated copy of libtool in the tarball. It lacks sysroot support,
 		## so the produced binaries will be mistakenly linked to libraries from the host distro. (LFS)
-		sed '6009s/$add_dir//' -i ../ltmain.sh
 		configure_default              \
 		    --build=$(../config.guess) \
 		    --disable-nls              \
