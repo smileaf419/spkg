@@ -112,9 +112,9 @@ export -f spatches
 filter-flags() {
 	local flags=$@
 	for flag in $flags; do
-		CFLAGS=$(echo $CFLAGS|sed "s,$flag,,")
-		CXXFLAGS=$(echo $CXXFLAGS|sed "s,$flag,,")
-		CPPFLAGS=$(echo $CPPFLAGS|sed "s,$flag,,")
+		CFLAGS=$(echo $CFLAGS|sed "s,$flag[^ ]*,,")
+		CXXFLAGS=$(echo $CXXFLAGS|sed "s,$flag[^ ]*,,")
+		CPPFLAGS=$(echo $CPPFLAGS|sed "s,$flag[^ ]*,,")
 	done
 	export CFLAGS CXXFLAGS CPPFLAGS
 }
