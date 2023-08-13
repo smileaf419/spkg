@@ -46,6 +46,8 @@ bootstrap_default() {
 	umask 022
 	set +h
 	export HOST_TGT=$(uname -m)-leaf-linux-gnu
+	export HOST_TGT32=i686-leaf-linux-gnu
+	export HOST_TGTx32=${HOST_TGT}x32
 	export BOOTSTRAP_TGT=${BOOTSTRAP_TGT:-x86_64-leaf-linux-gnu}
 	export BOOTSTRAP_TGT32=${BOOTSTRAP_TGT32:-i686-leaf-linux-gnu}
 	export BOOTSTRAP_TGTx32=${BOOTSTRAP_TGTx32:-x86_64-leaf-linux-gnux32}
