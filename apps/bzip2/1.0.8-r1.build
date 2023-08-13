@@ -35,7 +35,7 @@ src_configure() {
 	[[ ! -z $LIB ]] && sed -e "s/^CC=.*/CC=gcc -m$LIB/" -i Makefile{,-libbz2_so}
 
 	make -f Makefile-libbz2_so
-	[[ -z $LIB ]] && make clean
+	[[ -z $LIB ]] && make clean || true
 }
 
 src_compile() {
@@ -59,12 +59,12 @@ src_install() {
 		for i in "${D}/$ROOT"/bin/{bzcat,bunzip2}; do
 			ln -sfv bzip2 $i
 		done
-		rm -fv "${D}/$ROOT"/lib/libbz2.a
 	else
-		install -Dm755 libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so.$PKG_VER
-		ln -sf libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so
-		ln -sf libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so.1
-		ln -sf libbz2.so.$PKG_VER $D/lib$LIB/libbz2.so.1.0
-		install -Dm644 libbz2.a $D/lib$LIB/libbz2.a
+		install -Dm755 libbz2.so.$PKG_VER $D/$ROOT/lib$LIB/libbz2.so.$PKG_VER
+		ln -sf libbz2.so.$PKG_VER $D/$ROOT/lib$LIB/libbz2.so
+		ln -sf libbz2.so.$PKG_VER $D/$ROOT/lib$LIB/libbz2.so.1
+		ln -sf libbz2.so.$PKG_VER $D/$ROOT/lib$LIB/libbz2.so.1.0
+		install -Dm644 libbz2.a $D/$ROOT/lib$LIB/libbz2.a
 	fi
+	rm -fv "${D}/$ROOT"/lib$LIB/libbz2.a
 }
