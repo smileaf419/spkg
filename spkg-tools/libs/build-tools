@@ -244,7 +244,7 @@ installPackage() {
 
 		echo " * Removing Libtool Archives (.la)"
 		cd "$D"
-		find {usr,}/lib{,exec,64,32,x32} -name \*.la -delete -print 2> /dev/null
+		find {usr/,}lib{,exec,64,32,x32} -name \*.la -delete -print 2> /dev/null
 
 		if [[ $INSTALL_DOCS == 0 ]]; then
 			echo " * Removing Docs"
