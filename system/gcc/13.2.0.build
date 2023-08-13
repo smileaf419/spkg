@@ -36,7 +36,7 @@ SLOT=0
 BUILD_SEPERATE_DIR=yes
 
 src_configure() {
-	../configure --prefix=/usr            \
+	configure_default --prefix=/usr       \
 	             LD=ld                    \
 	             --enable-languages=c,c++ \
 	             --enable-default-pie     \
