@@ -4,7 +4,7 @@
 HOMEPAGE="https://core.tcl.tk/expect/"
 DESCRIPTION=""
 LICENSE=""
-SRC_URI="https://prdownloads.sourceforge.net/expect/expect${PKG_VER}.tar.gz"
+SRC_URI=("https://downloads.sourceforge.net/project/expect/Expect/$PKG_VER/expect$PKG_VER.tar.gz")
 DEPS="devel/tcl"
 BDEPS=""
 RDEPS=""
