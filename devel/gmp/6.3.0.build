@@ -16,12 +16,20 @@ _SPKG_CLEAN=distclean
 
 src_configure() {
 	if [[ ! -z $LIB ]]; then
+		cp -v configfsf.guess config.guess
+		cp -v configfsf.sub   config.sub
 		## Don't set CONF_FLAGS as it'll override --prefix and others we want.
 		conf_flags="--includedir=/usr/include/m$LIB/gmp"
+		SET_ABI="ABI='$LIB'"
+		local arch=x86-64
+		[[ $LIB == 32 ]] && arch=i686
+		CFLAGS="-m$LIB -O2 -pedantic -fomit-frame-pointer -mtune=generic -march=$arch"
+		export CXXFLAGS=$CFLAGS
+		export PKG_CONFIG_PATH="/usr/lib$LIB/pkgconfig"
 	fi
 	configure_default --enable-cxx --libdir=/lib$LIB $conf_flags
 
-	[[ ! -z $LIB ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile
+	[[ ! -z $LIB ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile || true
 }
 
 src_compile() {
@@ -29,7 +37,7 @@ src_compile() {
 
 	## Only build/install this once
 	## bootstrap sets a LIB=64 where-as non-bootstrap sets LIB=
-	[[ -z $LIB ]] && make html
+	[[ -z $LIB ]] && make html || true
 }
 
 src_test() {
@@ -44,8 +52,10 @@ src_install() {
 		make DESTDIR="$ROOT/${D}" install-html
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		cp -Rv DESTDIR/usr/lib$LIB/* /usr/lib$LIB
-		cp -Rv DESTDIR/usr/include/m$LIB/* /usr/include/m$LIB/
+		mkdir -p $D/lib$LIB
+		mkdir -p $D/usr/include/m$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		cp -Rv DESTDIR/usr/include/m$LIB/* $D/usr/include/m$LIB/
 		rm -rf DESTDIR
 	fi
 }
