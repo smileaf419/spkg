@@ -14,7 +14,6 @@ MULTILIB="64 32 x32"
 
 src_configure() {
 	configure_default --libdir=/lib$LIB \
-					  --host=$HOST_TGT
 					  --enable-hashes=strong,glibc \
 					  --enable-obsolete-api=no \
 					  --disable-failure-tokens
