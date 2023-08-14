@@ -35,7 +35,7 @@ parse_cmdline() {
 
 if [ ! -d $LOGDIR ];
 	then mkdir -p "$LOGDIR" || die "Failed to create: LOGDIR: $LOGDIR"; fi
-#test -w $LOGDIR || die "Cannot write to PKG_ARCHIVE_DIR: $LOGDIR"
+#test -w $LOGDIR || die "Cannot write to LOGDIR: $LOGDIR"
 
 parse_cmdline $@
 
@@ -43,7 +43,7 @@ cd $LOGDIR
 if [[ $LIST == 1 ]]; then
 	find * -iwholename \*$LOG\* -type f |sort -k2 -t- -V -r | uniq -s9
 else
-	LOGFILE=$(find -iwholename *$LOG[/-]\* -type f | sort | tail -n1)
+	LOGFILE=$(find -iwholename *$LOG[/-]\* -type f | sort -V | tail -n1)
 	echo "LOGFILE: $LOGFILE ($LOG)"
 	[[ -z $LOGFILE ]] && { echo " ! Log not found!"; exit 1; }
 	xzcat $LOGFILE 2> /dev/null ||
