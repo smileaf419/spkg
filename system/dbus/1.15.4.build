@@ -36,7 +36,6 @@ src_test() { :; }
 src_install() {
 	install_default
 
-	chown -v root:messagebus ${D}/usr/libexec/dbus-daemon-launch-helper
 	chmod -v 4750 ${D}/usr/libexec/dbus-daemon-launch-helper
 
 	# if elogind is installed
@@ -58,5 +57,6 @@ EOF
 }
 
 post_install() {
+	chown -v root:messagebus /usr/libexec/dbus-daemon-launch-helper
 	dbus-uuidgen --ensure
 }

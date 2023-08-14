@@ -23,7 +23,6 @@ src_test() { :; }
 src_install() {
 	mkdir -vpm755 ${D}/usr/share/xml/docbook/xml-dtd-${PKG_VER}
 	mkdir -vpm755 ${D}/etc/xml
-	chown -R root:root .
 	cp -fav docbook.cat *.dtd ent/ *.mod \
 		${D}/usr/share/xml/docbook/xml-dtd-${PKG_VER}
 }

@@ -23,6 +23,4 @@ src_compile() {
 
 src_test() { :; }
 
-src_install() {
-	chown -R root:root "$D"
-}
+src_install() { :; }

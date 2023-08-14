@@ -1,14 +1,10 @@
 ####
 ## docbook-dtd build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://docbook.org/sgml/"
+DESCRIPTION="Docbook SGML DTD"
+LICENSE="docbook"
 SRC_URI=("https://www.docbook.org/sgml/${PKG_VER}/docbook-${PKG_VER}.zip")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS=""
 BDEPS=""
 RDEPS="apps/sgml-common apps/unzip"
@@ -19,7 +15,8 @@ SLOT=0
 B=.
 
 src_configure() {
-	sed -i -e '/ISO 8879/d' -e '/sgml/d' docbook.cat
+	## Remove the ENT definitions from the catalog file.
+	sed -i -e '/ISO 8879/d' -e '/gml/d' docbook.cat
 }
 
 src_compile() { :; }
@@ -28,7 +25,6 @@ src_test() { :; }
 
 src_install() {
 	install -vd "${D}"/usr/share/sgml/docbook/sgml-dtd-${PKG_VER}
-	chown -R root:root .
 
 	install -vpm644 docbook.cat "${D}"/usr/share/sgml/docbook/sgml-dtd-${PKG_VER}/catalog
 	cp -fav *.dtd *.mod *.dcl "${D}"/usr/share/sgml/docbook/sgml-dtd-${PKG_VER}

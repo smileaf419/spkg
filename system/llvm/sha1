@@ -1,4 +1,4 @@
-66d77ed0dfcdda983e276f0637b60bac7cc5f7b3  16.0.5-r1.build
+43f849e4f6ddc3bbaf2a870c7c8f84e5af3f3e01  16.0.5-r1.build
 ce2c4a55b249a3076e89c31d920f06a65510c4dc  llvm-16.0.5.src.tar.xz
 3330310405697793ec3d24a63233e22713e1c808  cmake-16.0.5.src.tar.xz
 5e856869b1a0e323d27fc7d9f11bc0dedfd355de  third-party-16.0.5.src.tar.xz
@@ -13,7 +13,7 @@ a9af2a45f6a17cf9590f6d6d9e266c3095d21b12  libcxxabi-16.0.5.src.tar.xz
 ab728c9c3ddfcdff033a2ef8b9f84723dc403f18  polly-16.0.5.src.tar.xz
 4ffcc154f67d8c31d52fe51ecfb6495fa7b16257  libunwind-16.0.5.src.tar.xz
 1b0a1be68d6bae77fb1ee60f554fb8eaba1b63d0  clang-16.0.5-enable_default_ssp-1.patch
-c5c1b1059c94a2e62bde5f64bd2e19905b2e9628  16.0.6.build
+561fbd400150eb485bdeb087ccaf696975f062d2  16.0.6.build
 072d2fb4b10f95d06189de00eb7f7e9b35c54e9a  llvm-16.0.6.src.tar.xz
 0de534cfef38697e115c3ae80634765f05e78e5b  cmake-16.0.6.src.tar.xz
 5b1a58de6ed9d154a38edb6386a5749576e0b96a  third-party-16.0.6.src.tar.xz

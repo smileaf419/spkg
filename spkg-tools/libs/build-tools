@@ -237,6 +237,8 @@ installPackage() {
 				python)
 					echo > ${D}/PYTHON_MODULE ;;
 			esac
+			echo " * Fixing Permissions"
+			chown -R root:root $D
 		fi
 
 		## Archive it up before we do any post modifications.

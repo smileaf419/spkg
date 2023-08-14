@@ -56,8 +56,6 @@ src_test() {
 src_install() {
 	install_default
 
-	chown -v -R root:root \
-	    "$ROOT/${D}"/usr/lib/gcc/$(gcc -dumpmachine)/${PKG_VER}/include{,-fixed}
 	ln -svr /usr/bin/cpp "$ROOT/${D}"/usr/lib
 	mkdir -p "$ROOT/${D}"/usr/lib/bfd-plugins
 	ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/${PKG_VER}/liblto_plugin.so \

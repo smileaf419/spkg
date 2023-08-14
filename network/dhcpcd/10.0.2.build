@@ -26,5 +26,8 @@ src_configure() {
 src_install() {
 	install_default
 	install-init.d service-dhcpcd
-	chown -v dhcpcd:dhcpcd "$D/var/lib/dhcpcd"
+}
+
+post_install() {
+	chown -v dhcpcd:dhcpcd /var/lib/dhcpcd
 }

@@ -163,7 +163,6 @@ src_install() {
 	## Ensure lit-cpuid is installed:
 	if [ ! -r $D/usr/bin/lit-cpuid ]; then
 	cp -a build/bin/lit-cpuid $D/usr/bin/lit-cpuid
-	chown root:root $D/usr/bin/lit-cpuid
 	chmod 755 $D/usr/bin/lit-cpuid
 	fi
 
