@@ -30,13 +30,14 @@ src_configure() {
 		export CC="gcc -m$LIB"
 		export CXX="g++ -m$LIB"
 	fi
-	configure_default --prefix=/usr                 \
-				 --bindir=/bin                      \
-				 --libdir=/lib$LIB                  \
-				 --enable-kernel=6.4                \
-				 --with-headers=/usr/include        \
-				 --enable-multi-arch                \
-				 libc_cv_slibdir=/lib$LIB           \
+	configure_default --prefix=/usr     \
+				 --bindir=/bin           \
+				 --libdir=/lib$LIB         \
+				 --libexecdir=/lib$LIB      \
+				 --enable-kernel=6.4          \
+				 --with-headers=/usr/include   \
+				 --enable-multi-arch             \
+				 libc_cv_slibdir=/lib$LIB         \
                  --disable-werror                   \
                  --enable-stack-protector=strong    \
                  $(use-enable gd || echo --with-gd=no)
@@ -118,16 +119,16 @@ bootstrap() {
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
 			echo "rootsbindir=/sbin" > configparms
 			CONF_FLAGS=' '
-			sed '/RTLDLIST=/s@/usr@@g' -i "$D/$ROOT"/bin/ldd
 		else
 			make clean
 			find .. -name "*.a" -delete
 			export CC="$BOOTSTRAP_TGT-gcc -m$LIB"
 			export CXX="$BOOTSTRAP_TGT-g++ -m$LIB"
 		fi
-		configure_default --prefix=/usr              \
-						  --bindir=/bin               \
-						  --libdir=/lib$LIB            \
+		configure_default --prefix=/usr            \
+						  --bindir=/bin             \
+						  --libdir=/lib$LIB           \
+						  --libexecdir=/lib$LIB        \
 						  --enable-kernel=6.4            \
 						  --enable-multi-arch             \
 						  --with-headers=$ROOT/usr/include  \
