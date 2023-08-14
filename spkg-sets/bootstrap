@@ -21,7 +21,6 @@ system/sed
 apps/tar
 apps/xz-utils
 apps/bzip2
-system/libxcrypt
 ## 2nd Pass
 system/binutils[pass2]
 system/gcc[pass2]
