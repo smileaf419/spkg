@@ -16,7 +16,7 @@ MULTILIB="64 32 x32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	[[ ! -z $LIB ]] && export CC='gcc -m$LIB'
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
 	configure_default --bindir=/bin --libdir=/lib$LIB
 }
 
@@ -31,7 +31,7 @@ src_install() {
 }
 
 bootstrap() {
-	[[ ! -z $LIB ]] && export CC='gcc -m$LIB'
+	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
 	configure_default \
 				--bindir=/bin                     \
 				--libdir=/lib$LIB                 \
