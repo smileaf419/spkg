@@ -44,12 +44,12 @@ src_test() { :; }
 src_install() {
 	install_default
 	make -C man DESTDIR="${D}" install-man
-
-	# Fix permissions so we can login as root.
-	chmod 4111 ${D}/bin/su
 }
 
 post_install() {
+	# Fix permissions so we can login as root.
+	chmod 4111 /bin/su
+
 	pwconv
 	grpconv
 
