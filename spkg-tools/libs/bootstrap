@@ -70,7 +70,8 @@ if [[ $BOOTSTRAP_STAGE == *1* ]]; then
 	echo " * Creating files ..."
 	touch $PKG_WORLD
 	## These files will be needed later.
-	cp /etc/ld.so.conf /etc/resolv.conf $ROOT/etc
+	cp /etc/resolv.conf $ROOT/etc
+	for d in '' /usr /usr/local; do for l in '' 32 x32 64; do echo $d/lib$l; done; done > $ROOT/etc/ld.so.conf
 
 	####
 	## Fix Permissions
