@@ -4,7 +4,9 @@
 HOMEPAGE="http://isl.gforge.inria.fr/"
 DESCRIPTION=""
 LICENSE=""
-SRC_URI=("https://gcc.gnu.org/pub/gcc/infrastructure/isl-${PKG_VER}.tar.bz2")
+SRC_URI=(
+"https://libisl.sourceforge.io/isl-0.26.tar.xz")
+#"https://gcc.gnu.org/pub/gcc/infrastructure/isl-${PKG_VER}.tar.bz2")
 DEPS=""
 BDEPS=""
 RDEPS=""
