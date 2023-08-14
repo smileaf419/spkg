@@ -131,7 +131,6 @@ bootstrap() {
 						  --libdir=/lib$LIB            \
 						  --enable-kernel=6.4            \
 						  --enable-multi-arch             \
-						  --disable-crypt                  \
 						  --with-headers=$ROOT/usr/include  \
 						  --build=$(../scripts/config.guess) \
 						  libc_cv_slibdir=/lib$LIB &&
