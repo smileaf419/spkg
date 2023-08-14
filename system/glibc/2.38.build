@@ -39,7 +39,6 @@ src_configure() {
 				 libc_cv_slibdir=/lib$LIB           \
                  --disable-werror                   \
                  --enable-stack-protector=strong    \
-                 --disable-crypt                    \
                  $(use-enable gd || echo --with-gd=no)
 }
 
