@@ -29,7 +29,8 @@ src_compile() {
 	else
 		local arch=x86_64
 		[[ $LIB == 32 ]] && arch=i686
-		compile_default CC="gcc -m$LIB -march=$arch"
+		export CC="gcc -m$LIB -march=$arch"
+		compile_default
 	fi
 }
 
@@ -39,7 +40,8 @@ src_install() {
 	else
 		local arch=x86_64
 		[[ $LIB == 32 ]] && arch=i686
-		install_default CC="gcc -m$LIB -march=$arch" lib=lib$LIB prefix=$PWD/DESTDIR/usr -C libcap
+		export CC="gcc -m$LIB -march=$arch"
+		install_default lib=lib$LIB prefix=$PWD/DESTDIR/usr -C libcap
 		mkdir -p $D/usr/lib$LIB
 		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
 		sed -e "s|^libdir=.*|libdir=/usr/lib$LIB|" -i $D/usr/lib$LIB/pkgconfig/lib{cap,psx}.pc
