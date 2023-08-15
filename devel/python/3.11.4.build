@@ -24,6 +24,7 @@ src_configure() {
 	else
 		CXX="/usr/bin/g++" \
 		configure_default \
+			--build=$(./config.guess) \
 			--with-system-expat  \
 			--with-system-ffi    \
 			--enable-optimizations \
