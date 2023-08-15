@@ -24,7 +24,7 @@ src_configure() {
 	            --with-xz              \
 	            --with-zstd            \
 	            --with-zlib            \
-	            [[ ! -z $LIB ]] && echo "--with-rootlibdir=/lib$LIB"
+	            $([[ ! -z $LIB ]] && echo "--with-rootlibdir=/lib$LIB")
 }
 
 src_test() { :; }
