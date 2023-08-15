@@ -36,12 +36,16 @@ SLOT=0
 BUILD_SEPERATE_DIR=yes
 
 src_configure() {
-	configure_default --prefix=/usr       \
-	             LD=ld                    \
+	sed -e '/m64=/s/lib64/lib/' \
+		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
+		-i.orig gcc/config/i386/t-linux64
+	mlist=m64,m32,mx32
+	configure_default LD=ld               \
 	             --enable-languages=c,c++ \
 	             --enable-default-pie     \
 	             --enable-default-ssp     \
-	             --disable-multilib       \
+	             --enable-multilib        \
+	             --with-multilib-list=$mlist \
 	             --disable-bootstrap      \
 	             --disable-fixincludes    \
 	             --with-system-zlib
@@ -56,11 +60,11 @@ src_test() {
 src_install() {
 	install_default
 
-	ln -svr /usr/bin/cpp "$ROOT/${D}"/usr/lib
+	ln -svfr /usr/bin/cpp "$ROOT/${D}"/usr/lib
 	mkdir -p "$ROOT/${D}"/usr/lib/bfd-plugins
 	ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/${PKG_VER}/liblto_plugin.so \
         "$ROOT/${D}"/usr/lib/bfd-plugins/
-	ln -sv gcc "$ROOT/${D}"/usr/bin/cc
+	ln -sfv gcc "$ROOT/${D}"/usr/bin/cc
 
 if [ TEST == 1 ]; then
 	# Test!
@@ -75,9 +79,9 @@ if [ TEST == 1 ]; then
 	rm -v dummy.c a.out dummy.log
 fi
 
-	if [[ $MODE != 'bootstrap' ]]; then
+	if [[ $MODE != 'bootstrap' && -z $LIB ]]; then
 		mkdir -pv "${D}"/usr/share/gdb/auto-load/usr/lib
-		mv -v "${D}"/usr/lib*/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib
+		mv -v "${D}"/usr/lib64/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib
 	fi
 }
 
