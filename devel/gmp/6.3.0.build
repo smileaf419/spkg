@@ -21,12 +21,13 @@ src_configure() {
 		## Don't set CONF_FLAGS as it'll override --prefix and others we want.
 		SET_ABI="ABI=$LIB"
 		local arch=x86-64
-		local TGT=$HOST_TGT32
-		[[ $LIB == 32 ]] && arch=i686 && TGT=$HOST_TGTx32
+		local TGT=$HOST_TGTx32
+		[[ $LIB == 32 ]] && arch=i686 && TGT=$HOST_TGT32
 		CFLAGS="-m$LIB -O2 -pedantic -fomit-frame-pointer -mtune=generic -march=$arch"
 		conf_flags="--includedir=/usr/include/m$LIB/gmp --host=$TGT"
 		export CXXFLAGS=$CFLAGS
 		export PKG_CONFIG_PATH="/usr/lib$LIB/pkgconfig"
+		export CPPFLAGS=
 	fi
 	configure_default --enable-cxx --libdir=/lib$LIB $conf_flags
 
