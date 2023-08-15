@@ -81,14 +81,14 @@ configure_default() {
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
-		if [[ $MODE == "bootstrap" ]]; then
-			if [[ -z $LIB || $LIB == 64 ]]; then
-				CONF_FLAGS+=" --host=$HOST_TGT"
-			elif [[ $LIB == 32 ]]; then
-				CONF_FLAGS+=" --host=$HOST_TGT32"
-			elif [[ $LIB == x32 ]]; then
-				CONF_FLAGS+=" --host=$HOST_TGTx32"
-			fi
+		if [[ -z $LIB || $LIB == 64 ]]; then
+			CONF_FLAGS+=" --host=$HOST_TGT"
+		elif [[ $LIB == 32 ]]; then
+			CONF_FLAGS+=" --host=$HOST_TGT32"
+			filter-flags -march
+#			append-cflags -march=i686
+		elif [[ $LIB == x32 ]]; then
+			CONF_FLAGS+=" --host=$HOST_TGTx32"
 		fi
 
 		>&2 echo "LDFLAGS=$LDFLAGS"
