@@ -39,12 +39,12 @@ src_install() {
 
 		ln -sfv kmod "${D}"/bin/lsmod
 
-		## Keep man pages as they can't be regenerated without xsltproc
-		sed -e "s/^CLEANFILES =.*/CLEANFILES =/" -i man/Makefile
 	else
 		make DESTDIR=$PWD/DESTDIR install
 		mkdir -p $D/lib$LIB
 		cp -Rv DESTDIR/lib$LIB/* /lib$LIB
 		rm -rf DESTDIR
 	fi
+	## Keep man pages as they can't be regenerated without xsltproc
+	sed -e "s/^CLEANFILES =.*/CLEANFILES =/" -i man/Makefile
 }

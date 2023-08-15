@@ -15,12 +15,11 @@ _SPKG_CLEAN=distclean
 
 src_configure() {
 	if [[ ! -z $LIB ]]; then
-		append_cflags -m$LIB
-		append_cxxflags -m$LIB
+		filter-flags -m
+		append-cflags -m$LIB
+		append-cxxflags -m$LIB
 	fi
-	./configure --prefix=/usr \
-				--libdir=/lib$LIB \
-				--enable-shared
+	./configure --prefix=/usr --libdir=/lib$LIB
 }
 
 src_install() {
