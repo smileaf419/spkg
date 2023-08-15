@@ -99,8 +99,10 @@ buildPackage() {
 			## Don't set a LIB if we are using our primary.
 			## This allows builds to use /lib$LIB to install into /lib without having to unset LIB or handle it seperately.
 			[[ $LIB == 64 ]] && LIB=
+			CONF_FLAGS=
 			if [[ ! -z $LIB ]]; then
 				if [[ $_SPKG_CLEAN != rm ]]; then
+					echo " * Run make ${_SPKG_CLEAN:-clean}"
 					make ${_SPKG_CLEAN:-clean}
 				else
 					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
@@ -194,8 +196,12 @@ installPackage() {
 			## Export this so packages can override the src_unpack.
 			export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
 
+			####
+			## Internal Flags
 			## We are not preparing
 			export _PREPARE_ONLY=0
+			## How do we clean in between multilibs
+			export _SPKG_CLEAN
 
 			## When we pass commands to our BUILD_USER these does not get updated
 			## Set it here to avoid permission issues when packages call for
@@ -238,7 +244,7 @@ installPackage() {
 					echo > ${D}/PYTHON_MODULE ;;
 			esac
 			echo " * Fixing Permissions"
-			chown -R root:root $D
+			chown -Rv root:root $D
 		fi
 
 		## Archive it up before we do any post modifications.
