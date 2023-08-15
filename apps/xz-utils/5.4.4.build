@@ -25,6 +25,7 @@ src_install() {
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/lib$LIB
 		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
 		rm -rf DESTDIR
 	fi
