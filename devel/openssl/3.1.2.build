@@ -23,7 +23,9 @@ src_configure() {
 	         --openssldir=/etc/ssl \
 			 --libdir=/lib$LIB     \
 	         shared                \
-	         zlib-dynamic
+	         zlib-dynamic          \
+	         $([[ $LIB == 32 ]] && echo "linux-x86") \
+	         $([[ $LIB == x32 ]] && echo "linux-x32")
 }
 
 src_install() {
