@@ -5,11 +5,13 @@ HOMEPAGE="https://cmake.org/"
 DESCRIPTION="Cross platform Make"
 LICENSE="CMake"
 SRC_URI="https://cmake.org/files/v${PKG_VER%.*}/cmake-${PKG_VER}.tar.gz"
-DEPS="apps/libarchive devel/expat devel/libuv network/curl system/zlib"
+DEPS="apps/libarchive devel/expat devel/libuv system/zlib"
 BDEPS=""
 RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
+IUSE="curl"
+use-enable curl && UDEP="network/curl"
 
 src_configure() {
 	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
@@ -19,6 +21,7 @@ src_configure() {
 				--no-system-jsoncpp \
 				--no-system-cppdap \
 				--no-system-librhash \
+				$(use-enable curl || echo "--no-system-curl") \
 				--docdir=/share/doc/cmake-${PKG_VER}
 }
 
