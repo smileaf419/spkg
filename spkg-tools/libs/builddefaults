@@ -87,8 +87,12 @@ configure_default() {
 			CONF_FLAGS+=" --host=$HOST_TGT32"
 			filter-flags -march
 #			append-cflags -march=i686
+			LD_LIBRARY_PATH+=":/lib32:/usr/lib32"
+			PKG_CONFIG_PATH+=":/lib32/pkgconfig:/usr/lib32/pkgconfig"
 		elif [[ $LIB == x32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
+			LD_LIBRARY_PATH+=":/libx32:/usr/libx32"
+			PKG_CONFIG_PATH+=":/libx32/pkgconfig:/usr/libx32/pkgconfig"
 		fi
 
 		>&2 echo "LDFLAGS=$LDFLAGS"

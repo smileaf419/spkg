@@ -114,8 +114,8 @@ whereAmI() {
 ####
 ## Set Environmental Variables
 ## Sanitize our paths in case our environment may not be complete.
-export PKG_CONFIG_PATH=/lib/pkgconfig:/lib32/pkgconfig:/libx32/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib32/pkgconfig:/usr/libx32/pkgconfig:/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=/lib:/lib32:/libx32:/lib64:/usr/lib:/usr/lib32:/usr/libx32:/usr/lib64:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64:$LD_LIBRARY_PATH
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH
 
 ## Set some colors
