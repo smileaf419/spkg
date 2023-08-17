@@ -114,9 +114,9 @@ whereAmI() {
 ####
 ## Set Environmental Variables
 ## Sanitize our paths in case our environment may not be complete.
-export PKG_CONFIG_BASE=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
+export PKG_CONFIG_BASE=/lib/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig
 export PKG_CONFIG_PATH=$PKG_CONFIG_BASE
-export LD_LIBRARY_BASE=/lib:/lib64:/usr/lib:/usr/lib64:/usr/local/lib:/usr/local/lib64
+export LD_LIBRARY_BASE=/lib:/usr/lib:/usr/local/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_BASE
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH
 

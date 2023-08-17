@@ -83,8 +83,8 @@ configure_default() {
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
 		if [[ -z $LIB || $LIB == 64 ]]; then
 			[[ $MODE == 'bootstrap' ]] && CONF_FLAGS+=" --host=$HOST_TGT"
-			LD_LIBRARY_PATH=$LD_LIBRARY_BASE
-			PKG_CONFIG_PATH=$PKG_CONFIG_BASE
+			LD_LIBRARY_PATH="$LD_LIBRARY_BASE:/lib64:/usr/lib64"
+			PKG_CONFIG_PATH="$PKG_CONFIG_BASE:/lib64/pkgconfig:/usr/lib64/pkgconfig"
 		elif [[ $LIB == 32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGT32"
 			filter-flags -march
