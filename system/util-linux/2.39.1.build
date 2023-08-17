@@ -14,9 +14,7 @@ SLOT=0
 MULTILIB="64 32 x32"
 
 src_configure() {
-	if [[ $LIB == 64 || -z $LIB ]]; then
-		LIB=
-	else
+	if [[ ! -z $LIB ]]; then
 		SET_ABI="CC='gcc -m$LIB'"
 	fi
 	sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
@@ -46,12 +44,12 @@ src_configure() {
 src_test() { :; }
 
 src_install() {
-	if [[ $LIB != 64 && -z $LIB ]]; then
+	if [[ -z $LIB ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/usr/lib$LIB
-		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
 		rm -rf DESTDIR
 	fi
 }
