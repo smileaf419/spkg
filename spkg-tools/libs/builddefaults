@@ -82,17 +82,18 @@ configure_default() {
 		# customizing the *FLAGS.
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
 		if [[ -z $LIB || $LIB == 64 ]]; then
-			CONF_FLAGS+=" --host=$HOST_TGT"
+			[[ $MODE == 'bootstrap' ]] && CONF_FLAGS+=" --host=$HOST_TGT"
+			LD_LIBRARY_PATH=$LD_LIBRARY_BASE
+			PKG_CONFIG_PATH=$PKG_CONFIG_BASE
 		elif [[ $LIB == 32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGT32"
 			filter-flags -march
-#			append-cflags -march=i686
-			LD_LIBRARY_PATH+=":/lib32:/usr/lib32"
-			PKG_CONFIG_PATH+=":/lib32/pkgconfig:/usr/lib32/pkgconfig"
+			LD_LIBRARY_PATH="$LD_LIBRARY_BASE:/lib32:/usr/lib32"
+			PKG_CONFIG_PATH="$PKG_CONFIG_BASE:/lib32/pkgconfig:/usr/lib32/pkgconfig"
 		elif [[ $LIB == x32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
-			LD_LIBRARY_PATH+=":/libx32:/usr/libx32"
-			PKG_CONFIG_PATH+=":/libx32/pkgconfig:/usr/libx32/pkgconfig"
+			LD_LIBRARY_PATH="$LD_LIBRARY_BASE:/libx32:/usr/libx32"
+			PKG_CONFIG_PATH="$PKG_CONFIG_BASE:/libx32/pkgconfig:/usr/libx32/pkgconfig"
 		fi
 
 		>&2 echo "LDFLAGS=$LDFLAGS"
@@ -190,8 +191,8 @@ python_install() {
 	[[ -z $SPKG_PIP_INSTALL_COMPILED ]] &&
 		_PIP_INSTALL_OPTS=${_PIP_INSTALL_OPTS:-"--no-index --find-links dist --no-cache-dir"}
 
-	>&2 echo " * Running pip with $_PIP_INSTALL_OPTS --no-deps"
-	if ! eval python -m pip install -v --upgrade --prefix=$D/usr $_PIP_INSTALL_OPTS --no-deps --no-user --force-reinstall $PKG_NAME; then
+	>&2 echo " * Running pip with $_PIP_INSTALL_OPTS --upgrade --no-deps --no-user --force-reinstall --ignore-installed (prefix: $D/usr)"
+	if ! eval python -m pip install -v --upgrade --prefix=$D/usr $_PIP_INSTALL_OPTS --no-deps --no-user --force-reinstall --ignore-installed $PKG_NAME; then
 		echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
 		fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
 		python $DISTFILES/get-pip.py
