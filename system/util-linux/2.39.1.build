@@ -23,10 +23,12 @@ src_configure() {
 	CONF_FLAGS=' '
 	configure_default \
 				ADJTIME_PATH=/var/lib/hwclock/adjtime   \
-	            --bindir=/bin     \
-	            --libdir=/lib$LIB  \
-	            --sbindir=/sbin     \
-	            --runstatedir=/run   \
+	            --bindir=/bin       \
+	            --libdir=/lib$LIB    \
+	            --exec-prefix=/      \
+	            --with-pkgconfigdir=/lib$LIB/pkgconfig \
+	            --sbindir=/sbin       \
+	            --runstatedir=/run    \
 	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
 	            --disable-chfn-chsh  \
 	            --disable-login      \
@@ -36,9 +38,13 @@ src_configure() {
 	            --disable-runuser    \
 	            --disable-pylibmount \
 	            --disable-static     \
+	            --disable-wall       \
 	            --without-python     \
 	            --without-systemd    \
 	            --without-systemdsystemunitdir
+
+	## This causes issues during install. we'll do this later anyway.
+	grep 'chown root:root' -rl  | xargs sed '/chown root:root/d' -i 2> /dev/null || true
 }
 
 src_test() { :; }
