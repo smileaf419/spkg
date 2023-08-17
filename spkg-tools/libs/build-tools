@@ -93,9 +93,8 @@ buildPackage() {
 	fi
 
 	if [[ $MODE != "bootstrap" ]]; then
-		BUILD_PASS=${MULTILIB:-$LIB}
-
-		for LIB in $BUILD_PASS; do
+		for LIB in ${MULTILIB:-64}; do
+			[[ $ABI_LIBS != *$LIB* ]] && continue
 			## Don't set a LIB if we are using our primary.
 			## This allows builds to use /lib$LIB to install into /lib without having to unset LIB or handle it seperately.
 			[[ $LIB == 64 ]] && LIB=
