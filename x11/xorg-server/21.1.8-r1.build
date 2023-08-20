@@ -23,7 +23,8 @@ src_configure() {
 		  --localstatedir=/var  \
 		  --libdir=/usr/lib     \
 		  -Dsuid_wrapper=true   \
-		  -Dxkb_output_dir=/var/lib/xkb
+		  -Dxkb_output_dir=/var/lib/xkb \
+		  -Dglamor=true
 }
 
 src_test() {
