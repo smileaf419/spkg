@@ -7,18 +7,28 @@ LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SRC_URI=("https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/snapshot/util-linux-${PKG_VER}.tar.gz")
 #SRC_URI=("https://www.kernel.org/pub/linux/utils/util-linux/v${PKG_VER%.*}/util-linux-${PKG_VER}.tar.xz")
 DEPS="apps/bzip2 apps/xz-utils apps/zstd system/file system/eudev system/libxcrypt system/ncurses system/readline system/zlib"
-BDEPS=""
+BDEPS="system/autoconf system/automake system/libtool"
 RDEPS=""
-ARCHS="x86 x86_64"
+ARCHS="~x86 ~x86_64"
 SLOT=0
+MULTILIB="64 32 x32"
 
 src_configure() {
+	if [[ ! -z $LIB ]]; then
+		SET_ABI="CC='gcc -m$LIB'"
+	fi
+	sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
 	./autogen.sh
 
-	./configure ADJTIME_PATH=/var/lib/hwclock/adjtime   \
-	            --bindir=/bin    \
-	            --libdir=/lib    \
-	            --sbindir=/sbin  \
+	CONF_FLAGS=' '
+	configure_default \
+				ADJTIME_PATH=/var/lib/hwclock/adjtime   \
+	            --bindir=/bin       \
+	            --libdir=/lib$LIB    \
+	            --exec-prefix=/      \
+	            --with-pkgconfigdir=/lib$LIB/pkgconfig \
+	            --sbindir=/sbin       \
+	            --runstatedir=/run    \
 	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
 	            --disable-chfn-chsh  \
 	            --disable-login      \
@@ -28,9 +38,24 @@ src_configure() {
 	            --disable-runuser    \
 	            --disable-pylibmount \
 	            --disable-static     \
+	            --disable-wall       \
 	            --without-python     \
 	            --without-systemd    \
 	            --without-systemdsystemunitdir
+
+	## This causes issues during install. we'll do this later anyway.
+	grep 'chown root:root' -rl  | xargs sed '/chown root:root/d' -i 2> /dev/null || true
 }
 
 src_test() { :; }
+
+src_install() {
+	if [[ -z $LIB ]]; then
+		install_default
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		rm -rf DESTDIR
+	fi
+}

@@ -1,3 +1,5 @@
 2f57a404d07fb8813bf9d428c04ff733d880996d  2.6.1.build
 277d1bc797ca23072f2de244a6c58ea43d65abb5  kbd-2.6.1.tar.xz
 44f2fb0ac18db4f717421db756db4897f88dc08c  kbd-2.6.1-backspace-1.patch
+15e3251a2a5fad0dd18677ec9153ab3bc2ab64b4  2.6.2.build
+d20d72c20bf87ee60b65747748bccf8c3ebf1cee  kbd-2.6.2.tar.xz
