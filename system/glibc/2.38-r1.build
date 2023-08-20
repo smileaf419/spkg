@@ -6,7 +6,11 @@ DESCRIPTION="GNU libc C Library"
 LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"
 SRC_URI=("https://ftp.gnu.org/gnu/glibc/glibc-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/glibc/glibc-${PKG_VER}.tar.xz.sig")
-PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/glibc-2.38-fhs-1.patch")
+PATCHES=(
+"https://www.linuxfromscratch.org/patches/lfs/development/glibc-${PKG_VER}-fhs-1.patch"
+#"https://sourceware.org/git/?p=glibc.git;a=patch;h=542b1105852568c3ebc712225ae78b8c8ba31a78 => glibc-2.38-posix-memalign-1.patch"
+#"https://sourceware.org/git/?p=glibc.git;a=patch;h=0dc7fc1cf094406a138e4d1bcf9553e59edcf89d => glibc-2.38-posix-memalign-2.patch"
+)
 DEPS=""
 BDEPS="system/linux-headers"
 RDEPS="system/libxcrypt"
@@ -111,34 +115,32 @@ bootstrap() {
 	## /lib32  32bit
 	## /libx32 x32bit
 
-	for LIB in 64 32 x32; do
+	for LIB in 64 x32 32; do
 		if [[ $LIB == 64 ]]; then
 			LIB=
 			mkdir -pv $D/$ROOT/lib{,64}
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
 			echo "rootsbindir=/sbin" > configparms
-			CONF_FLAGS=' '
 		else
-			make clean
+			declare -p
+			die
+			rm -rf ./*
 			find .. -name "*.a" -delete
 			export CC="$HOST_TGT-gcc -m$LIB"
 			export CXX="$HOST_TGT-g++ -m$LIB"
 		fi
-		configure_default --prefix=/usr            \
-						  --bindir=/bin             \
-						  --libdir=/lib$LIB           \
-						  --libexecdir=/lib$LIB        \
-						  --enable-kernel=6.4            \
-						  --enable-multi-arch             \
-						  --with-headers=$ROOT/usr/include  \
-						  --build=$(../scripts/config.guess) \
-						  libc_cv_slibdir=/lib$LIB &&
-		compile_default
-		if [[ -z $LIB ]]; then
-			install_default
-		else
-			src_install
-		fi
+		../configure --prefix=/usr            \
+					 --bindir=/bin             \
+					 --libdir=/lib$LIB           \
+					 --libexecdir=/lib$LIB        \
+					 --enable-kernel=6.4            \
+					 --enable-multi-arch             \
+					 --with-headers=$ROOT/usr/include  \
+					 --build=$(../scripts/config.guess) \
+					 --host=$HOST_TGT                   \
+					 libc_cv_slibdir=/lib$LIB &&
+		compile_default &&
+		src_install
 	done
 }

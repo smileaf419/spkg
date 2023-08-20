@@ -7,8 +7,6 @@ DESCRIPTION="GNU Binary tools"
 LICENSE="GPL-3+"
 SRC_URI=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz.sig")
-PATCHES=()
-#https://gitweb.gentoo.org/repo/gentoo.git/plain/sys-devel/binutils/files/binutils-configure-LANG.patch")
 DEPS="apps/zstd system/flex system/zlib"
 BDEPS=""
 RDEPS=""
@@ -48,21 +46,23 @@ src_test() {
 
 src_install() {
 	install_default tooldir=/usr
-	rm -fv ${D}/usr/lib/lib{bfd,ctf,ctf-nobfd,libsframe,opcodes}.a
+	rm -fv ${D}/usr/lib${LIB:-64}/lib{bfd,ctf,ctf-nobfd,libsframe,opcodes}.a
 	rm -fv ${D}/usr/share/man/man1/gprofng.1
 }
 
 bootstrap() {
+	## Binutils ships an outdated copy of libtool in the tarball. It lacks sysroot support,
+	## so the produced binaries will be mistakenly linked to libraries from the host distro. (LFS)
 	sed '6009s/$add_dir//' -i ../ltmain.sh
 	case $PKG_FLAGS in
 	pass1)
 		CONF_FLAGS=' '
-		../configure --prefix=$ROOT/tools    \
-					 --with-sysroot=$ROOT    \
-					 --target=$BOOTSTRAP_TGT \
-					 --disable-nls           \
-					 --enable-gprofng=no     \
-					 --enable-multilib       \
+		../configure --prefix=$ROOT/tools \
+					 --with-sysroot=$ROOT \
+					 --target=$HOST_TGT   \
+					 --disable-nls        \
+					 --enable-gprofng=no  \
+					 --enable-multilib    \
 					 --disable-werror &&
 		compile_default V=1 &&
 		## As we set a ROOT/tools, we cannot use install_default or it'd install into ROOT/ROOT/tools
@@ -70,8 +70,6 @@ bootstrap() {
 		make DESTDIR=$D install
 		;;
 	pass2)
-		## Binutils ships an outdated copy of libtool in the tarball. It lacks sysroot support,
-		## so the produced binaries will be mistakenly linked to libraries from the host distro. (LFS)
 		configure_default              \
 		    --build=$(../config.guess) \
 		    --disable-nls              \
@@ -81,7 +79,8 @@ bootstrap() {
 		    --without-zstd             \
 		    --enable-multilib &&
 		compile_default V=1 && install_default &&
-		rm -v "$D/$ROOT"/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.la
+		rm -v "$D/$ROOT"/usr/lib${LIB:-64}/lib{bfd,ctf,ctf-nobfd,opcodes}.la
 		;;
 	esac
 }
+

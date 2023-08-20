@@ -89,7 +89,9 @@ bootstrap() {
 	local glibc=$(DB-getPkg system/glibc | getLatest | getVersion)
 	if [[ $glibc == 0 || $glibc == '' ]]; then
 		echo " * Expected version got:  $glibc"
-		die " !! Error getting installed glibc version!"
+		echo " $DIALOG_ERROR Error getting installed glibc version!"
+		glibc=2.38
+		echo " $IMPORTANT Defaulting to $glibc"
 	fi
 	echo " * Using glibc: $glibc"
 	sed -e '/m64=/s/lib64/lib/' \
@@ -108,7 +110,7 @@ bootstrap() {
 			mv mpc{-$MPC_VER,}
 			cd -
 			../configure                    \
-			    --target=$BOOTSTRAP_TGT     \
+			    --target=$HOST_TGT          \
 			    --prefix=$ROOT/tools        \
 			    --with-glibc-version=$glibc \
 				--with-sysroot=$ROOT        \
@@ -116,6 +118,7 @@ bootstrap() {
 				--without-headers           \
 			    --enable-default-pie        \
 			    --enable-default-ssp        \
+			    --enable-initfini-array     \
 			    --disable-nls               \
 			    --disable-shared            \
 				--enable-multilib           \
@@ -135,13 +138,13 @@ bootstrap() {
 		;;
 		libstdc++)
 			../libstdc++-v3/configure           \
-			    --host=$BOOTSTRAP_TGT           \
+			    --host=$HOST_TGT                \
 			    --build=$(../config.guess)      \
 			    --prefix=/usr                   \
 			    --enable-multilib               \
 			    --disable-nls                   \
 			    --disable-libstdcxx-pch         \
-				--with-gxx-include-dir=/tools/$BOOTSTRAP_TGT/include/c++/${PKG_VER} &&
+				--with-gxx-include-dir=$ROOT/tools/$HOST_TGT/include/c++/${PKG_VER} &&
 		   	compile_default && install_default &&
 			find "$D/$ROOT"/usr/lib{,64,exec} -name \*.la -delete || true
 		;;
@@ -157,9 +160,9 @@ bootstrap() {
 			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in &&
 			../configure                                       \
 			    --build=$(../config.guess)                     \
-			    --host=$BOOTSTRAP_TGT                          \
-			    --target=$BOOTSTRAP_TGT                        \
-			    LDFLAGS_FOR_TARGET=-L$PWD/$BOOTSTRAP_TGT/libgcc \
+			    --host=$HOST_TGT                               \
+			    --target=$HOST_TGT                             \
+			    LDFLAGS_FOR_TARGET=-L$PWD/$HOST_TGT/libgcc     \
 			    --prefix=/usr                                  \
 			    --with-build-sysroot=$ROOT                     \
     			--enable-default-pie                           \
@@ -173,9 +176,9 @@ bootstrap() {
 			    --disable-libquadmath                          \
 			    --disable-libssp                               \
 			    --disable-libvtv                               \
-			    --enable-languages=c,c++
-			compile_default
-			install_default
+			    --enable-languages=c,c++ &&
+			compile_default &&
+			install_default &&
 			ln -sv gcc "$D/$ROOT"/usr/bin/cc
 		;;
 	esac
@@ -183,9 +186,9 @@ bootstrap() {
 
 post_install() {
 	if [[ $PKG_FLAGS == "pass1" ]]; then
-		echo " * Generating limits.h ($BOOTSTRAP_TGT)"
+		echo " * Generating limits.h ($HOST_TGT)"
 		cd $BUILD_PATH/$B &&
 		cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
-				`dirname $($BOOTSTRAP_TGT-gcc -print-libgcc-file-name)`/include/limits.h || die "Error generating limits.h"
+				`dirname $($HOST_TGT-gcc -print-libgcc-file-name)`/include/limits.h || die "Error generating limits.h"
 	fi
 }

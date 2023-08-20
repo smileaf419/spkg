@@ -45,12 +45,9 @@ export -f bootstrap
 bootstrap_default() {
 	umask 022
 	set +h
-	export HOST_TGT=$(uname -m)-leaf-linux-gnu
+	export HOST_TGT=x86_64-leaf-linux-gnu
 	export HOST_TGT32=i686-leaf-linux-gnu
 	export HOST_TGTx32=${HOST_TGT}x32
-	export BOOTSTRAP_TGT=${BOOTSTRAP_TGT:-x86_64-leaf-linux-gnu}
-	export BOOTSTRAP_TGT32=${BOOTSTRAP_TGT32:-i686-leaf-linux-gnu}
-	export BOOTSTRAP_TGTx32=${BOOTSTRAP_TGTx32:-x86_64-leaf-linux-gnux32}
 	export PATH="$ROOT/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin"
 	export CONFIG_SITE=$ROOT/usr/share/config.site
 
@@ -80,7 +77,7 @@ configure_default() {
 		# Not all packages support these options.
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
-		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
+		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --libdir=/usr/lib${LIB:-64} --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
 		if [[ -z $LIB || $LIB == 64 ]]; then
 			[[ $MODE == 'bootstrap' ]] && CONF_FLAGS+=" --host=$HOST_TGT"
 			LD_LIBRARY_PATH="$LD_LIBRARY_BASE:/lib64:/usr/lib64"

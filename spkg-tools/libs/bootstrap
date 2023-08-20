@@ -26,7 +26,7 @@ SUPPORTED_ARCHS="x86 x86_64 ~x86 ~x86_64"
 checkinlist $ARCH $SUPPORTED_ARCHS || die "$ARCH is not currently supported! Supported Archs: $SUPPORTED_ARCHS"
 
 ## We need our main target set globally
-export BOOTSTRAP_TGT=$(uname -m)-leaf-linux-gnu
+export HOST_TGT=$(uname -m)-leaf-linux-gnu
 ## Add our temp /tools to our path
 export PATH="$ROOT/tools/bin:$PATH"
 ## Ensure we find our new libs first
