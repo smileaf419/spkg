@@ -1,11 +1,10 @@
 ####
 ## font-alias build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.x.org/wiki/ https://gitlab.freedesktop.org/xorg/font/alias"
+DESCRIPTION="X.Org font aliases"
+LICENSE="MIT"
 SRC_URI=("https://www.x.org/pub/individual/font/${PKG_NAME}-${PKG_VER}.tar.xz")
-PATCHES=()
 DEPS=""
 BDEPS="media/font-util"
 RDEPS="x11/mkfontscale"
@@ -13,14 +12,16 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
-	./configure --prefix=/usr \
+	configure_default \
 				--sysconfdir=/etc \
-				--localstatedir=/var \
-				--disable-static
+				--localstatedir=/var
 }
 
 src_test() { :; }
 
 post_install() {
+	for d in 100dpi 75dpi misc; do
+		mkfontdir /usr/share/fonts/X11/$d
+	done
 	fc-cache
 }
