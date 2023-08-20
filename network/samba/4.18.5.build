@@ -1,23 +1,20 @@
 ####
 ## samba build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.samba.org"
+DESCRIPTION="Windows interoperability suite of programs for Linux and Unix."
+LICENSE="GPLv3"
 SRC_URI="https://download.samba.org/pub/samba/stable/samba-${PKG_VER}.tar.gz"
 DEPS="apps/libarchive devel/python devel/icu devel/jansson devel/libtasn1 devel/popt network/gnutls network/libtirpc system/acl system/libcap system/libxcrypt system/ncurses system/readline system/zlib"
 BDEPS="perl/JSON network/rpcsvc-proto perl/Parse-Yapp python/iso8601 python/cryptography python/pyasn1"
 RDEPS="devel/lmdb"
 IUSE="ldap"
 use-enable ldap && UDEPS="network/openldap"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 
 src_configure() {
-	# Fix building with glibc 2.36
-	sed -i '/mount.h/d' lib/replace/system/filesys.h
-
 	append-ldflags -ltirpc -ltinfow -Wl,--no-as-needed
 	append-cppflags -I/usr/include/tirpc
 
