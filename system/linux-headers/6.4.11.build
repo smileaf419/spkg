@@ -18,7 +18,7 @@ if [[ $MODE != "search" ]]; then
 	MV=$(getMajorVer $PKG_VER)
 	MiV=$(getMinorVer $PKG_VER)
 	MicV=$(getMicroVer $PKG_VER)
-	VerIncr=10
+	VerIncr=15
 	VerStart=1
 
 	## If our MicV becomes too high, it becomes too time consuming to download all the patches
@@ -29,7 +29,7 @@ if [[ $MODE != "search" ]]; then
 			B=linux-$MV-$MiV
 		else
 			SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.${MicV}.tar.xz")
-			B=linux-$MV.$Miv.$MicV
+			B=linux-$MV.$MiV.$MicV
 		fi
 	## If we've not reach our threshold yet, grab the original
 	elif [ $MicV -lt $VerIncr ]; then
