@@ -86,8 +86,8 @@ configure_default() {
 		elif [[ $LIB == x32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
 		fi
-		LD_LIBRARY_PATH="$LD_LIBRARY_BASE:/lib${LIB:-64}:/usr/lib${LIB:-64}"
-		PKG_CONFIG_PATH="$PKG_CONFIG_BASE:/lib${LIB:-64}/pkgconfig:/usr/lib${LIB:-64}/pkgconfig"
+		LD_LIBRARY_PATH="/lib${LIB:-64}:/usr/lib${LIB:-64}:$LD_LIBRARY_BASE"
+		PKG_CONFIG_PATH="/lib${LIB:-64}/pkgconfig:/usr/lib${LIB:-64}/pkgconfig:$PKG_CONFIG_BASE"
 
 		>&2 echo "LDFLAGS=$LDFLAGS"
 		>&2 echo "CFLAGS=$CFLAGS"
@@ -99,6 +99,8 @@ configure_default() {
 		>&2 echo "@=$@"
 
 		eval \
+		CC=\"$CC\" \
+		CXX=\"$CXX\" \
 		LDFLAGS=\"$LDFLAGS\"   \
 		CFLAGS=\"$CFLAGS\"     \
 		CPPFLAGS=\"$CPPFLAGS\" \
