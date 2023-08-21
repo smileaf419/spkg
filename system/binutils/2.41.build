@@ -51,12 +51,8 @@ src_install() {
 }
 
 bootstrap() {
-	## Binutils ships an outdated copy of libtool in the tarball. It lacks sysroot support,
-	## so the produced binaries will be mistakenly linked to libraries from the host distro. (LFS)
-	sed '6009s/$add_dir//' -i ../ltmain.sh
 	case $PKG_FLAGS in
 	pass1)
-		CONF_FLAGS=' '
 		../configure --prefix=$ROOT/tools \
 					 --with-sysroot=$ROOT \
 					 --target=$HOST_TGT   \
@@ -70,6 +66,9 @@ bootstrap() {
 		make DESTDIR=$D install
 		;;
 	pass2)
+		## Binutils ships an outdated copy of libtool in the tarball. It lacks sysroot support,
+		## so the produced binaries will be mistakenly linked to libraries from the host distro. (LFS)
+		sed '6009s/$add_dir//' -i ../ltmain.sh
 		configure_default              \
 		    --build=$(../config.guess) \
 		    --disable-nls              \
