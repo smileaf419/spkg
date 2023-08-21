@@ -14,6 +14,7 @@ setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="~x86 ~x86_64"
 SLOT=0
+MULTILIB="64 x32 32"
 
 src_test() { :; }
 
@@ -24,6 +25,6 @@ src_install() {
 	install -m644 doc/{CodingStyle,manual.pdf,SubmittingPatches,user.pod} \
 			$D/usr/share/doc/isl-$PKG_VER
 
-	mkdir -pv $D/usr/share/gdb/auto-load/usr/lib
-	mv -v $D/usr/lib/libisl*gdb.py $D/usr/share/gdb/auto-load/usr/lib
+	mkdir -pv $D/usr/share/gdb/auto-load/usr/lib${LIB:-64}
+	mv -v $D/usr/lib${LIB:-64}/libisl*gdb.py $D/usr/share/gdb/auto-load/usr/lib${LIB:-64}
 }
