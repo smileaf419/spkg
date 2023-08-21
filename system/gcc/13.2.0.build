@@ -144,9 +144,9 @@ bootstrap() {
 			    --enable-multilib               \
 			    --disable-nls                   \
 			    --disable-libstdcxx-pch         \
-				--with-gxx-include-dir=$ROOT/tools/$HOST_TGT/include/c++/${PKG_VER} &&
+				--with-gxx-include-dir=/tools/$HOST_TGT/include/c++/${PKG_VER} &&
 		   	compile_default && install_default &&
-			find "$D/$ROOT"/usr/lib{,64,exec} -name \*.la -delete || true
+			find "$D/$ROOT"/usr -name \*.la -delete || true
 		;;
 		pass2)
 			cd ..
