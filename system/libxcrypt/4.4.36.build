@@ -13,6 +13,7 @@ SLOT=0
 MULTILIB="64 32 x32"
 
 src_configure() {
+	CONF_FLAGS=' '
 	configure_default --libdir=/lib$LIB \
 					  --enable-hashes=strong,glibc \
 					  --enable-obsolete-api=no \

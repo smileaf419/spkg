@@ -123,10 +123,8 @@ bootstrap() {
 		make -C progs tic
 	popd
 
-	for LIB in 64 32 x32; do
-		if [[ $LIB == 64 ]]; then
-			LIB=
-		else
+	for LIB in 64 x32 32; do
+		if [[ $LIB != 64 ]]; then
 			make distclean
 			export CC="$HOST_TGT-gcc -m$LIB"
 			export CXX="$HOST_TGT-g++ -m$LIB"
@@ -147,10 +145,10 @@ bootstrap() {
 		            --enable-widec            \
 		            --without-termlib
 		compile_default
-		if [[ -z $LIB ]]; then
-			mkdir -p "$ROOT/$D/usr/share/terminfo"
+		if [[ $LIB == 64 ]]; then
+			mkdir -p $ROOT/$D/usr/{lib,share}
 			install_default TIC_PATH=$(pwd)/build/progs/tic
-			echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so
+			echo "INPUT(-lncursesw)" > $D/$ROOT/lib${LIB:-64}/libncurses.so
 		else
 			make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
 			ln -s libncursesw.so DESTDIR/lib$LIB/libcursesw.so
