@@ -12,32 +12,31 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 B=xz-${PKG_VER}
-MULTILIB="64 32 x32"
+MULTILIB="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	[[ $LIB != 64 ]] && export CC="gcc -m$LIB"
 	configure_default --bindir=/bin --libdir=/lib$LIB
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ $LIB == 64 ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		mkdir -p $D/$ROOT/lib$LIB
+		cp -Rv DESTDIR/lib$LIB/* $D/$ROOT/lib$LIB
 		rm -rf DESTDIR
 	fi
 }
 
 bootstrap() {
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	[[ $LIB != 64 ]] && export CC="gcc -m$LIB"
 	configure_default \
 				--bindir=/bin                     \
-				--libdir=/lib$LIB                 \
 				--build=$(build-aux/config.guess) \
-				--disable-static                  \
 				--disable-doc
 	compile_default && src_install
+	rm -v $D/$ROOT/usr/lib$LIB/liblzma.la
 }
