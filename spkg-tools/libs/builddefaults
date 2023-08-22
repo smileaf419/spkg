@@ -89,18 +89,9 @@ configure_default() {
 		LD_LIBRARY_PATH="/lib${LIB:-64}:/usr/lib${LIB:-64}:$LD_LIBRARY_BASE"
 		PKG_CONFIG_PATH="/lib${LIB:-64}/pkgconfig:/usr/lib${LIB:-64}/pkgconfig:$PKG_CONFIG_BASE"
 
-		>&2 echo "LDFLAGS=$LDFLAGS"
-		>&2 echo "CFLAGS=$CFLAGS"
-		>&2 echo "CPPFLAGS=$CPPFLAGS"
-		>&2 echo "CXXFLAGS=$CXXFLAGS"
-		>&2 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-		>&2 echo "SET_ABI=$SET_ABI"
-		>&2 echo "CONF_FLAGS=${CONF_FLAGS[@]}"
-		>&2 echo "@=$@"
+		declare -p
 
 		eval \
-		CC=\"$CC\" \
-		CXX=\"$CXX\" \
 		LDFLAGS=\"$LDFLAGS\"   \
 		CFLAGS=\"$CFLAGS\"     \
 		CPPFLAGS=\"$CPPFLAGS\" \
