@@ -27,7 +27,7 @@ if [[ $MODE == 'bootstrap' ]]; then
 		SRC_URI+=("https://www.mpfr.org/mpfr-${MPFR_VER}/mpfr-${MPFR_VER}.tar.xz.asc")
 	fi
 fi
-TEST=1
+TEST=0
 DEPS="apps/zstd devel/gmp devel/mpc devel/mpfr system/zlib"
 BDEPS=""
 RDEPS=""
@@ -66,7 +66,7 @@ src_install() {
         "$ROOT/${D}"/usr/lib/bfd-plugins/
 	ln -sfv gcc "$ROOT/${D}"/usr/bin/cc
 
-if [ TEST == 1 ]; then
+if [ $TEST == 1 ]; then
 	# Test!
 	echo 'int main(){}' > dummy.c
 	cc dummy.c -v -Wl,--verbose &> dummy.log
@@ -97,18 +97,19 @@ bootstrap() {
 	sed -e '/m64=/s/lib64/lib/' \
 		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
 		-i.orig ../gcc/config/i386/t-linux64
-	local mlist=m64,m32,mx32
-#	local mlist=m64
+	if [[ $PKG_FLAGS == pass* ]]; then
+		cd ..
+		unpack $DISTFILES/gmp-$GMP_VER.tar.xz
+		mv gmp{-$GMP_VER,}
+		unpack $DISTFILES/mpfr-$MPFR_VER.tar.xz
+		mv mpfr{-$MPFR_VER,}
+		unpack $DISTFILES/mpc-$MPC_VER.tar.gz
+		mv mpc{-$MPC_VER,}
+		cd -
+	fi
+	local mlist=m64,mx32,m32
 	case $PKG_FLAGS in
 		pass1)
-			cd ..
-			unpack $DISTFILES/gmp-$GMP_VER.tar.xz
-			mv gmp{-$GMP_VER,}
-			unpack $DISTFILES/mpfr-$MPFR_VER.tar.xz
-			mv mpfr{-$MPFR_VER,}
-			unpack $DISTFILES/mpc-$MPC_VER.tar.gz
-			mv mpc{-$MPC_VER,}
-			cd -
 			../configure                    \
 			    --target=$HOST_TGT          \
 			    --prefix=$ROOT/tools        \
@@ -118,11 +119,11 @@ bootstrap() {
 				--without-headers           \
 			    --enable-default-pie        \
 			    --enable-default-ssp        \
-			    --enable-initfini-array     \
 			    --disable-nls               \
 			    --disable-shared            \
 				--enable-multilib           \
 				--with-multilib-list=$mlist \
+			    --enable-initfini-array     \
 				--disable-decimal-float     \
 			    --disable-threads           \
 			    --disable-libatomic         \
@@ -146,39 +147,30 @@ bootstrap() {
 			    --disable-libstdcxx-pch         \
 				--with-gxx-include-dir=/tools/$HOST_TGT/include/c++/${PKG_VER} &&
 		   	compile_default && install_default &&
-			find "$D/$ROOT"/usr -name \*.la -delete || true
+			rm -v $D/$ROOT/usr/lib/lib{stdc++,stdc++fs,supc++}.la
 		;;
 		pass2)
-			cd ..
-			unpack $DISTFILES/gmp-$GMP_VER.tar.xz
-			mv gmp{-$GMP_VER,}
-			unpack $DISTFILES/mpfr-$MPFR_VER.tar.xz
-			mv mpfr{-$MPFR_VER,}
-			unpack $DISTFILES/mpc-$MPC_VER.tar.gz
-			mv mpc{-$MPC_VER,}
-			cd -
-			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in &&
+			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in
 			../configure                                       \
-			    --build=$(../config.guess)                     \
-			    --host=$HOST_TGT                               \
-			    --target=$HOST_TGT                             \
-			    LDFLAGS_FOR_TARGET=-L$PWD/$HOST_TGT/libgcc     \
-			    --prefix=/usr                                  \
-			    --with-build-sysroot=$ROOT                     \
-    			--enable-default-pie                           \
-    			--enable-default-ssp                           \
-				--enable-initfini-array                        \
-    			--disable-nls                                  \
+				--build=$(../config.guess)                     \
+				--host=$HOST_TGT                               \
+				--target=$HOST_TGT                             \
+				LDFLAGS_FOR_TARGET=-L$PWD/$HOST_TGT/libgcc     \
+				--prefix=/usr                                  \
+				--with-build-sysroot=$ROOT                     \
+				--enable-default-pie                           \
+				--enable-default-ssp                           \
+				--disable-nls                                  \
 				--enable-multilib --with-multilib-list=$mlist  \
-				--disable-decimal-float                        \
-			    --disable-libatomic                            \
-			    --disable-libgomp                              \
-			    --disable-libquadmath                          \
-			    --disable-libssp                               \
-			    --disable-libvtv                               \
-			    --enable-languages=c,c++ &&
-			compile_default &&
-			install_default &&
+				--disable-libatomic                            \
+				--disable-libgomp                              \
+				--disable-libquadmath                          \
+				--disable-libsanitizer                         \
+				--disable-libssp                               \
+				--disable-libvtv                               \
+				--enable-languages=c,c++
+			compile_default
+			install_default
 			ln -sv gcc "$D/$ROOT"/usr/bin/cc
 		;;
 	esac
