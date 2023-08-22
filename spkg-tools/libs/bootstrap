@@ -231,7 +231,7 @@ if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
 	fi
 fi
 
-if [[ -e $ROOT/chroot.sh && -e $ROOT/$PKG_DB_DIR ]]; then
+if [[ $BOOTSTRAP_STAGE == *3* || $BOOSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroot.sh && -e $ROOT/$PKG_DB_DIR ]]; then
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
 	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf
