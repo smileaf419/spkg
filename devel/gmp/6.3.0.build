@@ -21,15 +21,14 @@ src_configure() {
 		## Don't set CONF_FLAGS as it'll override --prefix and others we want.
 		SET_ABI="ABI=$LIB"
 		local arch=x86-64
-		local TGT=$HOST_TGTx32
-		[[ $LIB == 32 ]] && arch=i686 && TGT=$HOST_TGT32
-		CFLAGS="-m$LIB -O2 -pedantic -fomit-frame-pointer -mtune=generic -march=$arch"
-		conf_flags="--includedir=/usr/include/m$LIB/gmp --host=$TGT"
+		filter-flags -march
+		append-cflags -m$LIB -O2 -pedantic -fomit-frame-pointer -mtune=generic -march=$arch
+		CONF_FLAGS="--prefix=/usr --disable-static --includedir=/usr/include/m$LIB/gmp"
 		export CXXFLAGS=$CFLAGS
 		export PKG_CONFIG_PATH="/usr/lib$LIB/pkgconfig"
 		export CPPFLAGS=
 	fi
-	configure_default --enable-cxx --libdir=/lib$LIB $conf_flags
+	configure_default --enable-cxx --libdir=/lib$LIB
 
 	[[ ! -z $LIB ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile || true
 }
@@ -70,18 +69,11 @@ bootstrap() {
 			compile_default
 			install_default
 			;;
-		pass2)
-			for LIB in 64 32 x32; do
+		*)
+			for LIB in 64 x32 32; do
+				CONF_FLAGS=
 				if [[ $LIB != 64 ]]; then
-					SET_ABI="ABI=$LIB"
-					cp -v configfsf.guess config.guess
-					cp -v configfsf.sub   config.sub
-					append-cflags -m$LIB -O2 -pedantic -fomit-frame-pointer -mtune=generic
-					if [[ $LIB == 32 ]]; then
-						append-cflags -march=i686
-					elif [[ $LIB == x32 ]]; then
-						append-cflags -march=x86-64
-					fi
+					make distclean
 				else
 					LIB=
 				fi
