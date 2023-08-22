@@ -19,17 +19,17 @@ use-enable gd && UDEPS="media/gd apps/bzip2 devel/expat devel/libpcre media/font
 ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
-MULTILIB="64 32 x32"
+MULTILIB="64 x32 32"
 _SPKG_CLEAN=rm
 
 src_configure() {
 	## Ensure ldconfig and sln are installed into /sbin
 	echo "rootsbindir=/sbin" > ../configparms
 
-	if [[ -z $LIB ]]; then
+	if [[ $LIB == 64 ]]; then
 		mkdir -pv $D/$ROOT/lib{,64}
-		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
-		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
+		ln -sfv ../lib64/ld-linux-x86-64.so.2 $D/$ROOT/lib
+		ln -sfv ../lib64/ld-linux-x86-64.so.2 $D/$ROOT/lib/ld-lsb-x86-64.so.3
 	else
 		export CC="gcc -m$LIB"
 		export CXX="g++ -m$LIB"
@@ -55,8 +55,7 @@ src_compile() {
 }
 
 src_install() {
-	## We have to check for 64 as well as it could be coming from bootstrap()
-	if [[ -z $LIB || $LIB == 64 ]]; then
+	if [[ $LIB == 64 ]]; then
 		install_default
 
 		## Fix a hardcoded path
@@ -114,16 +113,15 @@ EOF
 
 bootstrap() {
 	## /lib    64bit
-	## /lib64  64bit
+	## /lib64  64bit with multilib
 	## /lib32  32bit
 	## /libx32 x32bit
 
 	for LIB in 64 x32 32; do
 		if [[ $LIB == 64 ]]; then
-			LIB=
 			mkdir -pv $D/$ROOT/lib{,64}
-			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
-			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
+			ln -sfv ../lib64/ld-linux-x86-64.so.2 $D/$ROOT/lib
+			ln -sfv ../lib64/ld-linux-x86-64.so.2 $D/$ROOT/lib/ld-lsb-x86-64.so.3
 			echo "rootsbindir=/sbin" > configparms
 			local TGT=$HOST_TGT
 		else
@@ -134,7 +132,7 @@ bootstrap() {
 			export CC="$HOST_TGT-gcc -m$LIB"
 			export CXX="$HOST_TGT-g++ -m$LIB"
 		fi
-		LD_LIBRARY_PATH="/lib${LIB:-64}:/usr/lib${LIB:-64}:$LD_LIBRARY_BASE"
+		LD_LIBRARY_PATH="/lib$LIB:/usr/lib$LIB:$LD_LIBRARY_BASE"
 
 		../configure --prefix=/usr            \
 					 --bindir=/bin             \
