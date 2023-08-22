@@ -15,13 +15,16 @@ SLOT=0
 src_configure() {
 	# Warning about egrep and fgrep being obsolete can cause some tests to fail.
 	sed -i "s/echo/#echo/" src/egrep.sh
-	configure_default --bindir=/bin
+	configure_default --bindir=/bin $@
+}
+
+src_install() {
+	install_default
+	ln -s "$D/$ROOT/{,usr/}bin/grep"
 }
 
 bootstrap() {
-	sed -i "s/echo/#echo/" src/egrep.sh
-	configure_default --host=$HOST_TGT --disable-perl-regexp --bindir=/bin
+	src_configure --disable-perl-regexp
 	compile_default
-	install_default
-	ln -s "$D/$ROOT/{,usr/}bin/grep"
+	src_install
 }
