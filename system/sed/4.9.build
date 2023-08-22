@@ -28,6 +28,9 @@ src_compile() {
 src_install() {
 	install_default
 
+	mkdir -p "$D/$ROOT/usr/bin"
+	ln -s "$D/$ROOT"/{,usr/}bin/sed
+
 	if [ -e doc/sed.html ]; then
 		install -d -m755           "${D}"/usr/share/doc/sed-${PKG_VER}
 		install -m644 doc/sed.html "${D}"/usr/share/doc/sed-${PKG_VER}
@@ -35,9 +38,11 @@ src_install() {
 }
 
 bootstrap() {
-	./configure --prefix=/usr --host=$HOST_TGT --disable-acl --bindir=/bin
+	./configure --prefix=/usr \
+				--bindir=/bin  \
+				--disable-acl   \
+				--host=$HOST_TGT \
+				--build=$(./build-aux/config.guess)
 	compile_default
-	install_default
-	mkdir -p "$D/$ROOT/usr/bin"
-	ln -s "$D/$ROOT"/{,usr/}bin/sed
+	src_install
 }
