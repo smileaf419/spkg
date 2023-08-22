@@ -34,12 +34,12 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
+MULTILIB=64
 
 src_configure() {
-	sed -e '/m64=/s/lib64/lib/' \
-		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
+	sed -e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
 		-i.orig gcc/config/i386/t-linux64
-	mlist=m64,m32,mx32
+	mlist=m64,mx32,m32
 	configure_default LD=ld               \
 	             --enable-languages=c,c++ \
 	             --enable-default-pie     \
@@ -61,9 +61,9 @@ src_install() {
 	install_default
 
 	ln -svfr /usr/bin/cpp "$ROOT/${D}"/usr/lib
-	mkdir -p "$ROOT/${D}"/usr/lib/bfd-plugins
+	mkdir -p "$ROOT/${D}"/usr/lib$LIB/bfd-plugins
 	ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/${PKG_VER}/liblto_plugin.so \
-        "$ROOT/${D}"/usr/lib/bfd-plugins/
+        "$ROOT/${D}"/usr/lib$LIB/bfd-plugins/
 	ln -sfv gcc "$ROOT/${D}"/usr/bin/cc
 
 if [ $TEST == 1 ]; then
@@ -79,9 +79,10 @@ if [ $TEST == 1 ]; then
 	rm -v dummy.c a.out dummy.log
 fi
 
-	if [[ $MODE != 'bootstrap' && -z $LIB ]]; then
-		mkdir -pv "${D}"/usr/share/gdb/auto-load/usr/lib
-		mv -v "${D}"/usr/lib64/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib
+	if [[ $MODE != 'bootstrap' ]]; then
+		mkdir -pv "${D}"/usr/share/gdb/auto-load/usr/lib$LIB
+		[[ $LIB == 64 ]] && ln -s ../lib64 $D/usr/share/gdb/auto-load/usr/lib
+		mv -v "${D}"/usr/lib$LIB/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib$LIB
 	fi
 }
 
@@ -94,8 +95,7 @@ bootstrap() {
 		echo " $IMPORTANT Defaulting to $glibc"
 	fi
 	echo " * Using glibc: $glibc"
-	sed -e '/m64=/s/lib64/lib/' \
-		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
+	sed -e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
 		-i.orig ../gcc/config/i386/t-linux64
 	if [[ $PKG_FLAGS == pass* ]]; then
 		cd ..
@@ -147,7 +147,7 @@ bootstrap() {
 			    --disable-libstdcxx-pch         \
 				--with-gxx-include-dir=/tools/$HOST_TGT/include/c++/${PKG_VER} &&
 		   	compile_default && install_default &&
-			rm -v $D/$ROOT/usr/lib/lib{stdc++,stdc++fs,supc++}.la
+			rm -v $D/$ROOT/usr/lib*/lib{stdc++,stdc++fs,supc++}.la
 		;;
 		pass2)
 			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in
