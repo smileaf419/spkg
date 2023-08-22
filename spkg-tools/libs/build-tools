@@ -120,7 +120,8 @@ buildPackage() {
 		done
 	else
 		echo " * Bootstrapping"
-		[[ $LIB == 64 ]] && LIB=
+		## Don't set a LIB if we are not building for multiple ARCHS
+		[[ -z $MULTILIB && $LIB == 64 ]] && LIB=
 		bootstrap_default
 	fi
 }
