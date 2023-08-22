@@ -23,9 +23,10 @@ src_install() {
 }
 
 bootstrap() {
-	FORCE_UNSAFE_CONFIGURE=1                      \
-	./configure --prefix=/usr                     \
-				--host=$HOST_TGT                  \
+	FORCE_UNSAFE_CONFIGURE=1   \
+	./configure --prefix=/usr   \
+				--bindir=/bin    \
+				--host=$HOST_TGT  \
 				--build=$(build-aux/config.guess)
 	compile_default && install_default
 }
