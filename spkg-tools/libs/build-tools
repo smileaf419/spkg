@@ -95,9 +95,8 @@ buildPackage() {
 	if [[ $MODE != "bootstrap" ]]; then
 		for LIB in ${MULTILIB:-64}; do
 			[[ $ABI_LIBS != *$LIB* ]] && continue
-			## Don't set a LIB if we are using our primary.
-			## This allows builds to use /lib$LIB to install into /lib without having to unset LIB or handle it seperately.
-			[[ $LIB == 64 ]] && LIB=
+			## Don't set a LIB if we are not building for multiple ARCHS
+			[[ -z $MULTILIB && $LIB == 64 ]] && LIB=
 			CONF_FLAGS=
 			if [[ ! -z $LIB ]]; then
 				if [[ $_SPKG_CLEAN != rm ]]; then
@@ -242,8 +241,10 @@ installPackage() {
 				python)
 					echo > ${D}/PYTHON_MODULE ;;
 			esac
-			echo " * Fixing Permissions"
-			chown -Rv root:root $D
+			if [[ $BUILD_USER != 'root' ]]; then
+				echo " * Fixing Permissions"
+				chown -Rv root:root $D
+			fi
 		fi
 
 		## Archive it up before we do any post modifications.
