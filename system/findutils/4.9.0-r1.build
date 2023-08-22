@@ -21,7 +21,7 @@ src_configure() {
 }
 
 bootstrap() {
-	CONF_FLAGS="--prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin --host=$HOST_TGT --build=$(build-aux/config.guess)"
+	CONF_FLAGS="--prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin --build=$(build-aux/config.guess)"
 	case $(uname -m) in
 		i?86) SET_ABI="TIME_T_32_BIT_OK=yes" ;;
 	esac
