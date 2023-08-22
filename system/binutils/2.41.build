@@ -10,12 +10,12 @@ SRC_URI=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz")
 DEPS="apps/zstd system/flex system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 [[ ${ARCH#\~} == "x86" ]] && SET_ABI="ABI=32"
 IUSE="java"
-## Should add an opensource java and depend on a virtual or something that supplies that instead of this.
+## FIXME: Should add an opensource java and depend on a virtual or something that supplies that instead of this.
 use-enable java && UDEPS="devel/sun-jdk"
 
 src_configure() {
@@ -42,6 +42,13 @@ src_compile() {
 
 src_test() {
 	MAKEOPTS="-j1" test_default -k
+
+	## List Failures
+	grep '^FAIL:' $(find -name '*.log')
+
+	## Source: LFS https://linuxfromscratch.org/~thomas/multilib/chapter08/binutils.html
+	inform "Twelve tests fail in the gold test suite when the --enable-default-pie and --enable-default-ssp options are passed to GCC."
+	inform "Three tests in the gprofng suite are also known to fail."
 }
 
 src_install() {
@@ -77,8 +84,8 @@ bootstrap() {
 		    --enable-64-bit-bfd        \
 		    --without-zstd             \
 		    --enable-multilib &&
-		compile_default V=1 && install_default &&
-		rm -v "$D/$ROOT"/usr/lib${LIB:-64}/lib{bfd,ctf,ctf-nobfd,opcodes}.la
+		compile_default V=1 && install_default
+		rm -v $D/$ROOT/usr/lib*/lib{bfd,ctf,ctf-nobfd,opcodes,sframe}.{a,la} || true
 		;;
 	esac
 }
