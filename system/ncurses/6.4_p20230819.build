@@ -83,6 +83,8 @@ src_test() { :; }
 src_install() {
 	local t_D
 	if [[ $LIB == 64 ]]; then
+		## A symlink to terminfo is created here.
+		mkdir $D/$ROOT/usr/lib
 		install_default
 		t_D=$D
 
