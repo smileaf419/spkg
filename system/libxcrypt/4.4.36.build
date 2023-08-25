@@ -10,18 +10,19 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+MULTILIB="64 x32 32"
 
 src_configure() {
-	CONF_FLAGS=' '
-	configure_default --libdir=/lib$LIB \
-					  --enable-hashes=strong,glibc \
-					  --enable-obsolete-api=no \
-					  --disable-failure-tokens
+	[[ $LIB != 64 ]] && export CC="$HOST_TGT-gcc -m$LIB"
+	CONF_FLAGS=
+	configure_default --enable-hashes=strong,glibc \
+					  --enable-obsolete-api=glibc \
+					  --disable-failure-tokens \
+					  --disable-static
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ $LIB == 64 ]]; then
 		install_default
 	else
 		mkdir -p $D/$ROOT/lib$LIB/pkgconfig
@@ -29,4 +30,13 @@ src_install() {
 		make DESTDIR=$D/$ROOT install-pkgconfigDATA
 		ln -svf libxcrypt.pc $D/$ROOT/lib$LIB/pkgconfig/libcrypt.pc
 	fi
+}
+
+bootstrap() {
+	for LIB in $MULTILIB; do
+		make distclean
+		src_configure
+		compile_default
+		src_install
+	done
 }
