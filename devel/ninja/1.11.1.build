@@ -2,9 +2,9 @@
 ## ninja build
 ## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://ninja-build.org/"
-DESCRIPTION=""
-LICENSE=""
-SRC_URI="https://github.com/ninja-build/ninja/archive/v${PKG_VER}/ninja-${PKG_VER}.tar.gz"
+DESCRIPTION="A small build system with a focus on speed"
+LICENSE="Apache-2.0"
+SRC_URI="https://github.com/ninja-build/ninja/archive/refs/tags/v${PKG_VER}.tar.gz => ninja-$PKG_VER.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS="devel/python"
