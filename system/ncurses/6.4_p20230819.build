@@ -136,7 +136,7 @@ bootstrap() {
 		configure_default                \
 					--prefix=/usr         \
 					--bindir=/bin          \
-					--libdir=/lib$ABILIB       \
+					--libdir=/lib$ABILIB    \
 		            --build=$(./config.guess) \
 		            --without-manpages        \
 		            --with-shared             \
@@ -145,8 +145,7 @@ bootstrap() {
 		            --without-debug           \
 		            --without-ada             \
 		            --disable-stripping       \
-		            --enable-widec            \
-		            --without-termlib
+		            --enable-widec
 		compile_default
 		if [[ $ABILIB == 64 ]]; then
 			mkdir -p $D/$ROOT/usr/{lib,share}
