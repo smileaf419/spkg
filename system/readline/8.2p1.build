@@ -36,7 +36,7 @@ src_configure() {
 	sed -i '/MV.*old/d' Makefile.in
 	sed -i '/{OLDSUFF}/c:' support/shlib-install
 
-	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
 	configure_default --with-curses --libdir=/lib$ABILIB
 }
 
@@ -47,7 +47,7 @@ src_compile() {
 src_test() { :; }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default SHLIB_LIBS="-lncursesw"
 		mkdir -p "${D}"/usr/share/doc/readline-${PV}
 		install -v -m644 doc/*.{ps,pdf,html,dvi} "${D}"/usr/share/doc/readline-${PV}

@@ -14,7 +14,7 @@ ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ ! -z $ABILIB ]]; then
+	if [[ $ABILIB != 64  ]]; then
 		filter-flags -m
 		append-cflags -m$ABILIB
 		append-cxxflags -m$ABILIB
@@ -23,7 +23,7 @@ src_configure() {
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install

@@ -15,7 +15,7 @@ ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ ! -z $ABILIB ]]; then
+	if [[ $ABILIB != 64 ]]; then
 		cp -v configfsf.guess config.guess
 		cp -v configfsf.sub   config.sub
 		## Don't set CONF_FLAGS as it'll override --prefix and others we want.
@@ -30,7 +30,7 @@ src_configure() {
 	fi
 	configure_default --enable-cxx --libdir=/lib$ABILIB
 
-	[[ ! -z $ABILIB ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile || true
+	[[ $ABILIB != 64 ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile || true
 }
 
 src_compile() {
@@ -38,7 +38,7 @@ src_compile() {
 
 	## Only build/install this once
 	## bootstrap sets a ABILIB=64 where-as non-bootstrap sets ABILIB=
-	[[ -z $ABILIB ]] && make html || true
+	[[ $ABILIB == 64 ]] && make html || true
 }
 
 src_test() {
@@ -48,7 +48,7 @@ src_test() {
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 		make DESTDIR="$ROOT/${D}" install-html
 	else

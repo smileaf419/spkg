@@ -31,7 +31,7 @@ src_configure() {
 	sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
 
 	CONF_FLAGS=' '
-	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
 	configure_default --prefix=/usr                \
 				--libdir=/lib$ABILIB                \
 	            --disable-debuginfod         \
@@ -44,7 +44,7 @@ src_test() {
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default -C libelf
 	else
 		make DESTDIR=$PWD/DESTDIR -C libelf install

@@ -57,7 +57,7 @@ for p in ${PATCH_DATES[*]}; do
 done
 
 src_configure() {
-	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB" && export CXX="g++ -m$ABILIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB" && export CXX="g++ -m$ABILIB"
 	CONF_FLAGS=' '
 	configure_default \
 				--prefix=/usr           \
@@ -80,7 +80,7 @@ src_test() { :; }
 
 src_install() {
 	local t_D
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 		t_D=$D
 
@@ -145,7 +145,7 @@ bootstrap() {
 		            --enable-widec            \
 		            --without-termlib
 		compile_default
-		if [[ -z $ABILIB ]]; then
+		if [[ $ABILIB == 64 ]]; then
 			mkdir -p "$ROOT/$D/usr/share/terminfo"
 			install_default TIC_PATH=$(pwd)/build/progs/tic
 			echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so

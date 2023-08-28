@@ -31,7 +31,7 @@ src_configure() {
 
 	local arch=x86_64
 	[[ $ABILIB == 32 ]] && arch=i686
-	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB" && CXX="g++ -m$ABILIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB" && CXX="g++ -m$ABILIB"
 
 	configure_default \
 				--bindir=/bin     \
@@ -42,7 +42,7 @@ src_configure() {
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 
 		unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz

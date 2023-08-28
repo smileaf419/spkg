@@ -14,12 +14,12 @@ _SPKG_CLEAN=distclean
 ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ ! -z $ABILIB ]] && CC="gcc -m$ABILIB" && CXX="g++ -m$ABILIB"
+	[[ $ABILIB != 64 ]] && CC="gcc -m$ABILIB" && CXX="g++ -m$ABILIB"
 	configure_default --with-gcc-arch=native --libdir=/usr/lib$ABILIB
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install

@@ -13,12 +13,12 @@ SLOT=0
 ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
 	configure_default --libdir=/usr/lib$ABILIB
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 		install -v -m644 doc/*.{html,css} "${D}"/usr/share/doc/expat-${PKG_VER}
 

@@ -16,12 +16,12 @@ ABILIBS="64 x32 32"
 
 src_configure() {
 #	sed -i '/^pkgconfdir/ s,$(libdir),/usr/lib,' Makefile.*
-	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
 	configure_default --libdir=/lib$ABILIB --sysconfdir=/etc
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install

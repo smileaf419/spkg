@@ -13,7 +13,7 @@ SLOT=0
 ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
 	CONF_FLAGS=' '
 	configure_default  --prefix=/usr   \
 	            --sysconfdir=/etc      \
@@ -30,7 +30,7 @@ src_configure() {
 src_test() { :; }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 		mkdir -p "$D/sbin"
 		for target in depmod insmod modinfo modprobe rmmod; do

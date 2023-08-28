@@ -22,7 +22,7 @@ src_configure() {
 	## Ensure ldconfig and sln are installed into /sbin
 	echo "rootsbindir=/sbin" > ../configparms
 
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		mkdir -pv $D/$ROOT/lib{,64}
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
@@ -51,7 +51,7 @@ src_compile() {
 }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 
 		## Fix a hardcoded path
@@ -135,7 +135,7 @@ bootstrap() {
 						  --build=$(../scripts/config.guess) \
 						  libc_cv_slibdir=/lib$ABILIB &&
 		compile_default
-		if [[ -z $ABILIB ]]; then
+		if [[ $ABILIB == 64 ]]; then
 			install_default
 		else
 			src_install

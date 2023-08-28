@@ -56,7 +56,7 @@ src_compile() {
 }
 
 src_install() {
-	if [[ -z $ABILIB || $ABILIB == 64 ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 
 		## Fix a hardcoded path
