@@ -108,7 +108,7 @@ src_install() {
 	echo "INPUT(-lncursesw)" > "${t_D}"/lib$ABILIB/libcursesw.so
 	ln -sfv libncurses.so      "${t_D}"/lib$ABILIB/libcurses.so
 
-	if [[ ! -z $ABILIB ]]; then
+	if [[ $ABILIB != 64 ]]; then
 		mkdir -p $D/lib$ABILIB
 		cp -R $t_D/lib$ABILIB/* $D/lib$ABILIB
 		rm -rf $t_D
