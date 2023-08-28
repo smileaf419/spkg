@@ -32,11 +32,13 @@ src_install() {
 }
 
 bootstrap() {
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default \
-				--bindir=/bin                     \
-				--build=$(build-aux/config.guess) \
-				--disable-doc
-	compile_default && src_install
-	rm -v $D/$ROOT/usr/lib$ABILIB/liblzma.la
+	for ABILIB in $ABILIBS; do
+		[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
+		configure_default \
+					--bindir=/bin                     \
+					--build=$(build-aux/config.guess) \
+					--disable-doc
+		compile_default && src_install
+		rm -v $D/$ROOT/usr/lib$ABILIB/liblzma.la
+	done
 }
