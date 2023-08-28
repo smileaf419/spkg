@@ -124,8 +124,13 @@ buildPackage() {
 		echo " * Bootstrapping"
 		ABILIBS=$(echo $BUILD_ABI $ABILIBS | tr ' ' '\n' | sort | uniq -d)
 		## Don't set an ABILIB if we are not building for multiple ARCHS
-		[[ -z $ABILIBS && $ABILIB == 64 ]] && ABILIB=
-		[[ -z $ABILIBS ]] && ABILIBS=64
+		if [[ -z $ABILIBS ]]; then
+			[[ $ABILIB == 64 ]] && ABILIB=
+			ABILIBS=64
+		## But if we are building for multiple ARCHS ensure we set the inital ABILIB to 64.
+		elif [[ -z $ABILIB ]]; then
+			ABILIB=64
+		fi
 		bootstrap_default 2>> /tmp/output
 		set +x
 	fi
