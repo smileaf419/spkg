@@ -4,21 +4,19 @@
 HOMEPAGE="https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/"
 DESCRIPTION="Various useful Linux utilities"
 LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
-SRC_URI=("https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/snapshot/util-linux-${PKG_VER}.tar.gz")
-#SRC_URI=("https://www.kernel.org/pub/linux/utils/util-linux/v${PKG_VER%.*}/util-linux-${PKG_VER}.tar.xz")
+SRC_URI=("https://www.kernel.org/pub/linux/utils/util-linux/v${PKG_VER%.*}/util-linux-${PKG_VER}.tar.xz")
 DEPS="apps/bzip2 apps/xz-utils apps/zstd system/file system/eudev system/libxcrypt system/ncurses system/readline system/zlib"
 BDEPS="system/autoconf system/automake system/libtool"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
+_SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ ! -z $ABILIB ]]; then
+	if [[ $ABILIB != 64 ]]; then
 		SET_ABI="CC='gcc -m$ABILIB'"
 	fi
-	sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
-	./autogen.sh
 
 	CONF_FLAGS=' '
 	configure_default \
@@ -26,7 +24,6 @@ src_configure() {
 	            --bindir=/bin       \
 	            --libdir=/lib$ABILIB    \
 	            --exec-prefix=/      \
-	            --with-pkgconfigdir=/lib$ABILIB/pkgconfig \
 	            --sbindir=/sbin       \
 	            --runstatedir=/run    \
 	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
@@ -50,7 +47,8 @@ src_configure() {
 src_test() { :; }
 
 src_install() {
-	if [[ -z $ABILIB ]]; then
+	mkdir -pv $D/$ROOT/var/lib/hwclock
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
