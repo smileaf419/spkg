@@ -73,9 +73,3 @@ src_install() {
 	mkdir -pv "${D}/${ROOT}/usr"
 	cp -rv usr/include "${D}/${ROOT}/usr"
 }
-
-bootstrap() {
-	src_configure
-	src_compile
-	src_install
-}
