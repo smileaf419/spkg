@@ -11,7 +11,7 @@ RDEPS="apps/ca-certificates"
 ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 src_configure() {
 	append-cppflags -fno-strict-aliasing
@@ -21,16 +21,16 @@ src_configure() {
 
 	./config --prefix=/usr         \
 	         --openssldir=/etc/ssl \
-			 --libdir=/lib$LIB     \
+			 --libdir=/lib$ABILIB     \
 	         shared                \
 	         zlib-dynamic          \
-	         $([[ $LIB == 32 ]] && echo "linux-x86") \
-	         $([[ $LIB == x32 ]] && echo "linux-x32")
+	         $([[ $ABILIB == 32 ]] && echo "linux-x86") \
+	         $([[ $ABILIB == x32 ]] && echo "linux-x32")
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
-		sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+	if [[ -z $ABILIB ]]; then
+		sed -i '/INSTALL_ABILIBS/s/libcrypto.a libssl.a//' Makefile
 		install_default MANSUFFIX=ssl
 		touch "$D"/etc/ssl/{certs,private}/.keep
 		mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
@@ -39,8 +39,8 @@ src_install() {
 		mv "$D"{/usr,}/bin
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		mkdir -p $D/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
 	fi
 }
 

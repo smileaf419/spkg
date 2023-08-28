@@ -29,8 +29,6 @@ checkinlist $ARCH $SUPPORTED_ARCHS || die "$ARCH is not currently supported! Sup
 export HOST_TGT=$(uname -m)-leaf-linux-gnu
 ## Add our temp /tools to our path
 export PATH="$ROOT/tools/bin:$PATH"
-## Ensure we find our new libs first
-export LD_LIBRARY_PATH=$ROOT/lib:$ROOT/lib64:$ROOT/usr/lib:$ROOT/usr/lib64:$LD_LIBRARY_PATH
 
 if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT/$PKG_DB_DIR ]]; then
 	echo " $IMPORTANT git appears to not be installed and is required to clone the spkg repository."
@@ -72,6 +70,7 @@ if [[ $BOOTSTRAP_STAGE == *1* ]]; then
 	## These files will be needed later.
 	cp /etc/resolv.conf $ROOT/etc
 	for d in '' /usr /usr/local; do for l in '' 32 x32 64; do echo $d/lib$l; done; done > $ROOT/etc/ld.so.conf
+	ldconfig -r$ROOT
 
 	####
 	## Fix Permissions
@@ -213,25 +212,25 @@ DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
 EOF
 fi
 
-####
-## Install our repository
-if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
-	echo " * Cloning repository (if git is installed) ..."
-	## if git is installed do this automatically.
-	## Otherwise inform the user how to do it.
-	if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
-		cd $(dirname $ROOT/$PKG_DB_DIR)
-		git clone https://github.com/smileaf419/spkg
-	else
-		echo "You will need to copy or clone spkg into $PKG_DB_DIR"
-		echo " git clone https://github.com/smileaf419/spkg"
-		echo
-		echo "Once this is done you will need to copy over the spkg.conf and run:"
-		echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
-	fi
-fi
-
 if [[ $BOOTSTRAP_STAGE == *3* || $BOOSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroot.sh && -e $ROOT/$PKG_DB_DIR ]]; then
+	####
+	## Install our repository
+	if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
+		echo " * Cloning repository (if git is installed) ..."
+		## if git is installed do this automatically.
+		## Otherwise inform the user how to do it.
+		if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
+			cd $(dirname $ROOT/$PKG_DB_DIR)
+			git clone https://github.com/smileaf419/spkg
+		else
+			echo "You will need to copy or clone spkg into $PKG_DB_DIR"
+			echo " git clone https://github.com/smileaf419/spkg"
+			echo
+			echo "Once this is done you will need to copy over the spkg.conf and run:"
+			echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
+		fi
+	fi
+
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
 	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf

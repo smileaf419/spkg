@@ -11,34 +11,34 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ ! -z $LIB ]]; then
+	if [[ ! -z $ABILIB ]]; then
 		cp -v configfsf.guess config.guess
 		cp -v configfsf.sub   config.sub
 		## Don't set CONF_FLAGS as it'll override --prefix and others we want.
-		SET_ABI="ABI=$LIB"
+		SET_ABI="ABI=$ABILIB"
 		local arch=x86-64
 		filter-flags -march
-		append-cflags -m$LIB -O2 -pedantic -fomit-frame-pointer -mtune=generic -march=$arch
-		CONF_FLAGS="--prefix=/usr --disable-static --includedir=/usr/include/m$LIB/gmp"
+		append-cflags -m$ABILIB -O2 -pedantic -fomit-frame-pointer -mtune=generic -march=$arch
+		CONF_FLAGS="--prefix=/usr --disable-static --includedir=/usr/include/m$ABILIB/gmp"
 		export CXXFLAGS=$CFLAGS
-		export PKG_CONFIG_PATH="/usr/lib$LIB/pkgconfig"
+		export PKG_CONFIG_PATH="/usr/lib$ABILIB/pkgconfig"
 		export CPPFLAGS=
 	fi
-	configure_default --enable-cxx --libdir=/lib$LIB
+	configure_default --enable-cxx --libdir=/lib$ABILIB
 
-	[[ ! -z $LIB ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile || true
+	[[ ! -z $ABILIB ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile || true
 }
 
 src_compile() {
 	compile_default
 
 	## Only build/install this once
-	## bootstrap sets a LIB=64 where-as non-bootstrap sets LIB=
-	[[ -z $LIB ]] && make html || true
+	## bootstrap sets a ABILIB=64 where-as non-bootstrap sets ABILIB=
+	[[ -z $ABILIB ]] && make html || true
 }
 
 src_test() {
@@ -48,15 +48,15 @@ src_test() {
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 		make DESTDIR="$ROOT/${D}" install-html
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$LIB
-		mkdir -p $D/usr/include/m$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
-		cp -Rv DESTDIR/usr/include/m$LIB/* $D/usr/include/m$LIB/
+		mkdir -p $D/lib$ABILIB
+		mkdir -p $D/usr/include/m$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+		cp -Rv DESTDIR/usr/include/m$ABILIB/* $D/usr/include/m$ABILIB/
 		rm -rf DESTDIR
 	fi
 }
@@ -70,14 +70,14 @@ bootstrap() {
 			install_default
 			;;
 		*)
-			for LIB in 64 x32 32; do
+			for ABILIB in $ABILIBS; do
 				CONF_FLAGS=
-				if [[ $LIB != 64 ]]; then
+				if [[ $ABILIB != 64 ]]; then
 					make distclean
 				else
-					LIB=
+					ABILIB=
 				fi
-				export PKG_CONFIG_PATH="/usr/lib$LIB/pkgconfig"
+				export PKG_CONFIG_PATH="/usr/lib$ABILIB/pkgconfig"
 
 				src_configure
 				compile_default

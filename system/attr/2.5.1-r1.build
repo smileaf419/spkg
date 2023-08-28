@@ -12,21 +12,21 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 src_configure() {
 #	sed -i '/^pkgconfdir/ s,$(libdir),/usr/lib,' Makefile.*
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
-	configure_default --libdir=/lib$LIB --sysconfdir=/etc
+	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
+	configure_default --libdir=/lib$ABILIB --sysconfdir=/etc
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		mkdir -p $D/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
 		rm -rf DESTDIR
 	fi
 }

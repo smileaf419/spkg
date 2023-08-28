@@ -15,7 +15,7 @@ IUSE=pcre2
 ARCHS="x86 x86_64"
 SLOT=0
 B=$PKG_NAME-${PKG_VER/_p*}
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 PATCH_DATES=(
 20230107
@@ -57,12 +57,12 @@ for p in ${PATCH_DATES[*]}; do
 done
 
 src_configure() {
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB" && export CXX="g++ -m$LIB"
+	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB" && export CXX="g++ -m$ABILIB"
 	CONF_FLAGS=' '
 	configure_default \
 				--prefix=/usr           \
 				--bindir=/bin           \
-				--libdir=/lib$LIB       \
+				--libdir=/lib$ABILIB       \
 				--with-shared           \
 				--mandir=/usr/share/man \
 				--without-debug         \
@@ -73,14 +73,14 @@ src_configure() {
 				--with-termlib          \
 				$(use-enable pcre2 && echo ' --with-pcre2' || echo ' --without-pcre2') \
 				--without-hashed-db \
-				--with-pkg-config-libdir=/lib$LIB/pkgconfig
+				--with-pkg-config-libdir=/lib$ABILIB/pkgconfig
 }
 
 src_test() { :; }
 
 src_install() {
 	local t_D
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 		t_D=$D
 
@@ -92,20 +92,20 @@ src_install() {
 		make DESTDIR=$t_D install
 	fi
 
-	mkdir -p $t_D/lib$LIB/pkgconfig
+	mkdir -p $t_D/lib$ABILIB/pkgconfig
 	for lib in ncurses form panel menu ; do
-	    rm -vf                    "${t_D}"/lib$LIB/lib${lib}.so
-	    echo "INPUT(-l${lib}w)" > "${t_D}"/lib$LIB/lib${lib}.so
-	    ln -sfv ${lib}w.pc        "${t_D}"/lib$LIB/pkgconfig/${lib}.pc
+	    rm -vf                    "${t_D}"/lib$ABILIB/lib${lib}.so
+	    echo "INPUT(-l${lib}w)" > "${t_D}"/lib$ABILIB/lib${lib}.so
+	    ln -sfv ${lib}w.pc        "${t_D}"/lib$ABILIB/pkgconfig/${lib}.pc
 	done
 
-	rm -vf                     "${t_D}"/lib$LIB/libcursesw.so
-	echo "INPUT(-lncursesw)" > "${t_D}"/lib$LIB/libcursesw.so
-	ln -sfv libncurses.so      "${t_D}"/lib$LIB/libcurses.so
+	rm -vf                     "${t_D}"/lib$ABILIB/libcursesw.so
+	echo "INPUT(-lncursesw)" > "${t_D}"/lib$ABILIB/libcursesw.so
+	ln -sfv libncurses.so      "${t_D}"/lib$ABILIB/libcurses.so
 
-	if [[ ! -z $LIB ]]; then
-		mkdir -p $D/lib$LIB
-		cp -R $t_D/lib$LIB/* $D/lib$LIB
+	if [[ ! -z $ABILIB ]]; then
+		mkdir -p $D/lib$ABILIB
+		cp -R $t_D/lib$ABILIB/* $D/lib$ABILIB
 		rm -rf $t_D
 	fi
 }
@@ -121,19 +121,19 @@ bootstrap() {
 		make -C progs tic
 	popd
 
-	for LIB in 64 32 x32; do
-		if [[ $LIB == 64 ]]; then
-			LIB=
+	for ABILIB in $ABILIBS; do
+		if [[ $ABILIB == 64 ]]; then
+			ABILIB=
 		else
 			make distclean
-			export CC="$HOST_TGT-gcc -m$LIB"
-			export CXX="$HOST_TGT-g++ -m$LIB"
+			export CC="$HOST_TGT-gcc -m$ABILIB"
+			export CXX="$HOST_TGT-g++ -m$ABILIB"
 		fi
 		CONF_FLAGS=' '
 		configure_default                \
 					--prefix=/usr         \
 					--bindir=/bin          \
-					--libdir=/lib$LIB       \
+					--libdir=/lib$ABILIB       \
 		            --build=$(./config.guess) \
 		            --without-manpages        \
 		            --with-shared             \
@@ -145,15 +145,15 @@ bootstrap() {
 		            --enable-widec            \
 		            --without-termlib
 		compile_default
-		if [[ -z $LIB ]]; then
+		if [[ -z $ABILIB ]]; then
 			mkdir -p "$ROOT/$D/usr/share/terminfo"
 			install_default TIC_PATH=$(pwd)/build/progs/tic
 			echo "INPUT(-lncursesw)" > $D/$ROOT/lib/libncurses.so
 		else
 			make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
-			ln -s libncursesw.so DESTDIR/lib$LIB/libcursesw.so
-			mkdir -p $D/$ROOT/lib$LIB
-			cp -Rv DESTDIR/lib$LIB/* $D/$ROOT/lib$LIB
+			ln -s libncursesw.so DESTDIR/lib$ABILIB/libcursesw.so
+			mkdir -p $D/$ROOT/lib$ABILIB
+			cp -Rv DESTDIR/lib$ABILIB/* $D/$ROOT/lib$ABILIB
 			rm -rf DESTDIR
 		fi
 	done

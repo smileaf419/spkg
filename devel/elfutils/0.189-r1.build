@@ -15,7 +15,7 @@ BDEPS="system/flex system/m4 system/gettext"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 append-cppflags -g
 
@@ -31,9 +31,9 @@ src_configure() {
 	sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
 
 	CONF_FLAGS=' '
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
 	configure_default --prefix=/usr                \
-				--libdir=/lib$LIB                \
+				--libdir=/lib$ABILIB                \
 	            --disable-debuginfod         \
 	            --enable-libdebuginfod=dummy
 }
@@ -44,13 +44,13 @@ src_test() {
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default -C libelf
 	else
 		make DESTDIR=$PWD/DESTDIR -C libelf install
-		install -vDm644 config/libelf.pc DESTDIR/lib$LIB/pkgconfig/libelf.pc
-		mkdir -p $D/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		install -vDm644 config/libelf.pc DESTDIR/lib$ABILIB/pkgconfig/libelf.pc
+		mkdir -p $D/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
 		rm -rf DESTDIR
 	fi
 }

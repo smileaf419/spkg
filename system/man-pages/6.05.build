@@ -23,7 +23,3 @@ src_install() {
 
 	install_default prefix=/usr
 }
-
-bootstrap() {
-	install_default
-}

@@ -11,11 +11,11 @@ BDEPS="system/autoconf system/automake system/libtool"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 src_configure() {
-	if [[ ! -z $LIB ]]; then
-		SET_ABI="CC='gcc -m$LIB'"
+	if [[ ! -z $ABILIB ]]; then
+		SET_ABI="CC='gcc -m$ABILIB'"
 	fi
 	sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
 	./autogen.sh
@@ -24,9 +24,9 @@ src_configure() {
 	configure_default \
 				ADJTIME_PATH=/var/lib/hwclock/adjtime   \
 	            --bindir=/bin       \
-	            --libdir=/lib$LIB    \
+	            --libdir=/lib$ABILIB    \
 	            --exec-prefix=/      \
-	            --with-pkgconfigdir=/lib$LIB/pkgconfig \
+	            --with-pkgconfigdir=/lib$ABILIB/pkgconfig \
 	            --sbindir=/sbin       \
 	            --runstatedir=/run    \
 	            --docdir=/usr/share/doc/util-linux-${PKG_VER} \
@@ -50,12 +50,12 @@ src_configure() {
 src_test() { :; }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		mkdir -p $D/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
 		rm -rf DESTDIR
 	fi
 }

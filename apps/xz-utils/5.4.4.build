@@ -12,31 +12,31 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 B=xz-${PKG_VER}
-MULTILIB="64 x32 32"
+ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	[[ $LIB != 64 ]] && export CC="gcc -m$LIB"
-	configure_default --bindir=/bin --libdir=/lib$LIB
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
+	configure_default --bindir=/bin --libdir=/lib$ABILIB
 }
 
 src_install() {
-	if [[ $LIB == 64 ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/$ROOT/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/$ROOT/lib$LIB
+		mkdir -p $D/$ROOT/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/$ROOT/lib$ABILIB
 		rm -rf DESTDIR
 	fi
 }
 
 bootstrap() {
-	[[ $LIB != 64 ]] && export CC="gcc -m$LIB"
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
 	configure_default \
 				--bindir=/bin                     \
 				--build=$(build-aux/config.guess) \
 				--disable-doc
 	compile_default && src_install
-	rm -v $D/$ROOT/usr/lib$LIB/liblzma.la
+	rm -v $D/$ROOT/usr/lib$ABILIB/liblzma.la
 }

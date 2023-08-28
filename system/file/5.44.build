@@ -32,7 +32,7 @@ bootstrap() {
 		compile_default
 	popd
 
-	./configure --prefix=/usr --host=$HOST_TGT --build=$(./config.guess) --bindir=/bin --libdir=/lib
+	configure_default --build=$(./config.guess) --bindir=/bin --libdir=/lib
 	compile_default FILE_COMPILE=$(pwd)/build/src/file
 	src_install
 }

@@ -117,7 +117,9 @@ whereAmI() {
 export PKG_CONFIG_BASE=/lib/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig
 export PKG_CONFIG_PATH=$PKG_CONFIG_BASE
 export LD_LIBRARY_BASE=/lib:/usr/lib:/usr/local/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_BASE
+export LD_LIBRARY_PATH=$LD_LIBRARY_BASE:/lib64:/usr/lib64:/usr/local/lib64
+[[ -e /lib32 || -e /usr/lib32 ]] && LD_LIBRARY_PATH+=:/lib32:/usr/lib32:/usr/local/lib32
+[[ -e /libx32 ||  -e /usr/libx32 ]] && LD_LIBRARY_PATH+=:/libx32:/usr/libx32:/usr/local/libx32
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH
 
 ## Set some colors
@@ -158,7 +160,7 @@ export MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|se
 export CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 export CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
 export ARCH=${ARCH:-$(uname -m)}
-export ABI_LIBS="64 x32 32"
+export BUILD_LIBS="64 x32 32"
 export USE=${USE:-}
 export PAGE=${PAGE:-letter}
 export ENABLE_TESTS=${ENABLE_TESTS:-0}

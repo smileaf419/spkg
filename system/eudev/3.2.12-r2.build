@@ -14,7 +14,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 _SPKG_CLEAN=distclean
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 src_test() {
 	# These directories are required for the tests
@@ -30,19 +30,19 @@ src_configure() {
 		-i rules/50-udev-default.rules
 
 	local arch=x86_64
-	[[ $LIB == 32 ]] && arch=i686
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB" && CXX="g++ -m$LIB"
+	[[ $ABILIB == 32 ]] && arch=i686
+	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB" && CXX="g++ -m$ABILIB"
 
 	configure_default \
 				--bindir=/bin     \
 	            --sbindir=/sbin   \
-	            --libdir=/lib$LIB \
+	            --libdir=/lib$ABILIB \
 	            --sysconfdir=/etc \
 	            --enable-manpages
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 
 		unpack "${DISTFILES}"/udev-lfs-${LFSRULEVER}.tar.xz
@@ -55,9 +55,9 @@ src_install() {
 KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
 EOF
 	else
-		mkdir -pv $D/lib$LIB/pkgconfig
+		mkdir -pv $D/lib$ABILIB/pkgconfig
 		make DESTDIR=$PWD/DESTDIR install
-		cp -r DESTDIR/lib$LIB/* $D/lib$LIB/
+		cp -r DESTDIR/lib$ABILIB/* $D/lib$ABILIB/
 		rm -rf DESTDIR
 	fi
 }

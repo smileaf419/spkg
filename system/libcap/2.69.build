@@ -11,7 +11,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 src_configure() {
 	## Prevent static libraries from being installed
@@ -24,28 +24,28 @@ src_configure() {
 }
 
 src_compile() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		compile_default prefix=/usr lib=lib
 	else
 		local arch=x86_64
-		[[ $LIB == 32 ]] && arch=i686
-		export CC="gcc -m$LIB -march=$arch"
+		[[ $ABILIB == 32 ]] && arch=i686
+		export CC="gcc -m$ABILIB -march=$arch"
 		compile_default
 	fi
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default prefix="/usr" lib=lib
 	else
 		local arch=x86_64
-		[[ $LIB == 32 ]] && arch=i686
-		export CC="gcc -m$LIB -march=$arch"
-		install_default lib=lib$LIB prefix=$PWD/DESTDIR/usr -C libcap
-		mkdir -p $D/usr/lib$LIB
-		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
-		sed -e "s|^libdir=.*|libdir=/usr/lib$LIB|" -i $D/usr/lib$LIB/pkgconfig/lib{cap,psx}.pc
-		chmod -v 755 $D/usr/lib$LIB/libcap.so.$PKG_VER
+		[[ $ABILIB == 32 ]] && arch=i686
+		export CC="gcc -m$ABILIB -march=$arch"
+		install_default lib=lib$ABILIB prefix=$PWD/DESTDIR/usr -C libcap
+		mkdir -p $D/usr/lib$ABILIB
+		cp -Rv DESTDIR/usr/lib$ABILIB/* $D/usr/lib$ABILIB
+		sed -e "s|^libdir=.*|libdir=/usr/lib$ABILIB|" -i $D/usr/lib$ABILIB/pkgconfig/lib{cap,psx}.pc
+		chmod -v 755 $D/usr/lib$ABILIB/libcap.so.$PKG_VER
 		rm -rf DESTDIR
 	fi
 #	install -v -m755 pam_cap/pam_cap.so "${D}/usr/lib/security"

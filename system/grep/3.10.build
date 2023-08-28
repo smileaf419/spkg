@@ -18,10 +18,14 @@ src_configure() {
 	configure_default --bindir=/bin
 }
 
-bootstrap() {
-	sed -i "s/echo/#echo/" src/egrep.sh
-	configure_default --host=$HOST_TGT --disable-perl-regexp --bindir=/bin
-	compile_default
+src_install() {
 	install_default
 	ln -s "$D/$ROOT/{,usr/}bin/grep"
+}
+
+bootstrap() {
+	sed -i "s/echo/#echo/" src/egrep.sh
+	configure_default --disable-perl-regexp --bindir=/bin
+	compile_default
+	src_install
 }

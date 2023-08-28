@@ -13,18 +13,14 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
-	conf_opts="--prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin"
-	case $(uname -m) in
-		i?86)   TIME_T_32_BIT_OK=yes ./configure $conf_opts ;;
-		x86_64) ./configure $conf_opts ;;
-	esac
-}
-
-bootstrap() {
-	CONF_FLAGS="--prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin --build=$(build-aux/config.guess)"
+	CONF_FLAGS="--prefix=/usr --localstatedir=/var/lib/locate --bindir=/bin $@"
 	case $(uname -m) in
 		i?86) SET_ABI="TIME_T_32_BIT_OK=yes" ;;
 	esac
 	configure_default
+}
+
+bootstrap() {
+	src_configure --build=$(build-aux/config.guess)
 	compile_default && install_default
 }

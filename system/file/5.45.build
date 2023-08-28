@@ -10,23 +10,23 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	[[ $LIB != 64 ]] && export CC="gcc -m$LIB"
-	configure_default --libdir=/lib$LIB --bindir=/bin
+	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
+	configure_default --libdir=/lib$ABILIB --bindir=/bin
 }
 
 src_install() {
-	if [[ $LIB == 64 ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 		mkdir -p "$D/$ROOT"/usr/bin
 		ln -sf /bin/file "$D/$ROOT"/usr/bin/file
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/$ROOT/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/$ROOT/lib$LIB
+		mkdir -p $D/$ROOT/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/$ROOT/lib$ABILIB
 		rm -rf DESTDIR
 	fi
 }
@@ -43,7 +43,7 @@ bootstrap() {
 	popd
 
 	CONF_FLAGS=' '
-	configure_default --build=$(./config.guess) --bindir=/bin --libdir=/lib$LIB
+	configure_default --build=$(./config.guess) --bindir=/bin --libdir=/lib$ABILIB
 	compile_default FILE_COMPILE=$(pwd)/build/src/file
 	src_install
 	rm -v $D/$ROOT/lib*/libmagic.la

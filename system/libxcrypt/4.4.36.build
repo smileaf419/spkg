@@ -10,10 +10,10 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 x32 32"
+ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ $LIB != 64 ]] && export CC="$HOST_TGT-gcc -m$LIB"
+	[[ $ABILIB != 64 ]] && export CC="$HOST_TGT-gcc -m$ABILIB"
 	CONF_FLAGS=
 	configure_default --enable-hashes=strong,glibc \
 					  --enable-obsolete-api=glibc \
@@ -22,18 +22,18 @@ src_configure() {
 }
 
 src_install() {
-	if [[ $LIB == 64 ]]; then
+	if [[ $ABILIB == 64 ]]; then
 		install_default
 	else
-		mkdir -p $D/$ROOT/lib$LIB/pkgconfig
-		cp -av .libs/libcrypt.so* $D/$ROOT/lib$LIB/
+		mkdir -p $D/$ROOT/lib$ABILIB/pkgconfig
+		cp -av .libs/libcrypt.so* $D/$ROOT/lib$ABILIB/
 		make DESTDIR=$D/$ROOT install-pkgconfigDATA
-		ln -svf libxcrypt.pc $D/$ROOT/lib$LIB/pkgconfig/libcrypt.pc
+		ln -svf libxcrypt.pc $D/$ROOT/lib$ABILIB/pkgconfig/libcrypt.pc
 	fi
 }
 
 bootstrap() {
-	for LIB in $MULTILIB; do
+	for ABILIB in $ABILIBS; do
 		make distclean
 		src_configure
 		compile_default

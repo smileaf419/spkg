@@ -53,7 +53,7 @@ src_test() {
 
 src_install() {
 	install_default tooldir=/usr
-	rm -fv ${D}/usr/lib${LIB:-64}/lib{bfd,ctf,ctf-nobfd,libsframe,opcodes}.a
+	rm -fv ${D}/usr/lib${ABILIB:-64}/lib{bfd,ctf,ctf-nobfd,libsframe,opcodes}.a
 	rm -fv ${D}/usr/share/man/man1/gprofng.1
 }
 

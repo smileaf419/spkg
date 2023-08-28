@@ -38,11 +38,9 @@ src_install() {
 }
 
 bootstrap() {
-	./configure --prefix=/usr \
-				--bindir=/bin  \
-				--disable-acl   \
-				--host=$HOST_TGT \
-				--build=$(./build-aux/config.guess)
+	configure_default --bindir=/bin  \
+					  --disable-acl   \
+					  --build=$(./build-aux/config.guess)
 	compile_default
 	src_install
 }

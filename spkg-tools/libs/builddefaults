@@ -25,7 +25,7 @@
 ####
 ## Multilib
 ## This is the default Other options are 32 and x32
-export LIB=64
+export ABILIB=64
 
 ####
 ## Bootstrapping is done a bit backwards from how the functions are normally setup
@@ -50,7 +50,12 @@ bootstrap_default() {
 	export HOST_TGTx32=${HOST_TGT}x32
 	export PATH="$ROOT/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin"
 	export CONFIG_SITE=$ROOT/usr/share/config.site
+	## Ensure we find our new libs first
+#	LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:$LD_LIBRARY_BASE"
+#	LD_LIBRARY_PATH=$ROOT/lib:$ROOT/lib64:$ROOT/usr/lib:$ROOT/usr/lib64:$LD_LIBRARY_PATH
+#	LD_LIBRARY_PATH=$ROOT/tools/lib:$LD_LIBRARY_PATH
 
+	declare -p >> /tmp/output
 	# The above code *MUST* be ran
 	bootstrap
 }
@@ -77,27 +82,27 @@ configure_default() {
 		# Not all packages support these options.
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
-		[[ -z $MULTILIB && $LIB == 64 ]] && LIB=
-		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --libdir=/usr/lib$LIB --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
-		if [[ -z $LIB || $LIB == 64 ]]; then
+		[[ -z $ABILIBS && $ABILIB == 64 ]] && ABILIB=
+		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --libdir=/usr/lib$ABILIB --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
+		if [[ -z $ABILIB || $ABILIB == 64 ]]; then
 			[[ $MODE == 'bootstrap' ]] && CONF_FLAGS+=" --host=$HOST_TGT"
-		elif [[ $LIB == 32 ]]; then
+		elif [[ $ABILIB == 32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGT32"
 			filter-flags -march
-		elif [[ $LIB == x32 ]]; then
+		elif [[ $ABILIB == x32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
 		fi
-		LD_LIBRARY_PATH="/lib$LIB:/usr/lib$LIB:$LD_LIBRARY_BASE"
-		PKG_CONFIG_PATH="/lib$LIB:/pkgconfig:/usr/lib$LIB/pkgconfig:$PKG_CONFIG_BASE"
+#		LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:$LD_LIBRARY_BASE"
+		PKG_CONFIG_PATH="/lib$ABILIB:/pkgconfig:/usr/lib$ABILIB/pkgconfig:$PKG_CONFIG_BASE"
 
 		declare -p
 
+#		LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\" \
 		eval \
 		LDFLAGS=\"$LDFLAGS\"   \
 		CFLAGS=\"$CFLAGS\"     \
 		CPPFLAGS=\"$CPPFLAGS\" \
 		CXXFLAGS=\"$CXXFLAGS\" \
-		LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\" \
 		$SET_ABI               \
 			$d/configure ${CONF_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then

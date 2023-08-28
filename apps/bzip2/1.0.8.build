@@ -43,9 +43,3 @@ src_install() {
 	done
 	rm -fv "${D}/$ROOT"/lib/libbz2.a
 }
-
-bootstrap() {
-	src_configure
-	compile_default
-	src_install
-}

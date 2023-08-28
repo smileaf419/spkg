@@ -92,13 +92,14 @@ buildPackage() {
 		cd $d
 	fi
 
+#	exec 3<> /tmp/output
 	if [[ $MODE != "bootstrap" ]]; then
-		for LIB in ${MULTILIB:-64}; do
-			[[ $ABI_LIBS != *$LIB* ]] && continue
+		for ABILIB in $ABILIBS; do
+			[[ $BUILD_ABI != *$ABILIB* ]] && continue
 			## Don't set a LIB if we are not building for multiple ARCHS
-			[[ -z $MULTILIB && $LIB == 64 ]] && LIB=
+			[[ -z $ABILIBS && $ABILIB == 64 ]] && ABILIB=
 			CONF_FLAGS=
-			if [[ ! -z $LIB ]]; then
+			if [[ ! -z $ABILIB ]]; then
 				if [[ $_SPKG_CLEAN != rm ]]; then
 					echo " * Run make ${_SPKG_CLEAN:-clean}"
 					make ${_SPKG_CLEAN:-clean}
@@ -106,24 +107,29 @@ buildPackage() {
 					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
 				fi
 			fi
-			[[ ! -z $MULTILIB ]] && echo " * ${LIB:-64} bit pass"
-			echo " * src_configure (${LIB:-64})"
-			src_configure $p || die " $DIALOG_ERROR Error in src_configure (${LIB:-64})"
-			echo " * src_compile (${LIB:-64})"
-			src_compile $p || die " $DIALOG_ERROR Error in src_compile (${LIB:-64})"
+			[[ ! -z $ABILIBS ]] && echo " * ${ABILIB:-64} bit pass"
+			echo " * src_configure (${ABILIB:-64})"
+			src_configure $p || die " $DIALOG_ERROR Error in src_configure (${ABILIB:-64})"
+			echo " * src_compile (${ABILIB:-64})"
+			src_compile $p || die " $DIALOG_ERROR Error in src_compile (${ABILIB:-64})"
 			if [ $ENABLE_TESTS == 1 ]; then
-				echo " * src_test (${LIB:-64})"
-				src_test $p || die " $DIALOG_ERROR Error in src_test (${LIB:-64})"
+				echo " * src_test (${ABILIB:-64})"
+				src_test $p || die " $DIALOG_ERROR Error in src_test (${ABILIB:-64})"
 			fi
-			echo " * src_install (${LIB:-64})"
-			src_install	$p || die " $DIALOG_ERROR Error in src_install (${LIB:-64})"
+			echo " * src_install (${ABILIB:-64})"
+			src_install	$p || die " $DIALOG_ERROR Error in src_install (${ABILIB:-64})"
 		done
 	else
+		set -x
 		echo " * Bootstrapping"
-		## Don't set a LIB if we are not building for multiple ARCHS
-		[[ -z $MULTILIB && $LIB == 64 ]] && LIB=
-		bootstrap_default
+		ABILIBS=$(echo $BUILD_ABI $ABILIBS | tr ' ' '\n' | sort | uniq -d)
+		## Don't set an ABILIB if we are not building for multiple ARCHS
+		[[ -z $ABILIBS && $ABILIB == 64 ]] && ABILIB=
+		[[ -z $ABILIBS ]] && ABILIBS=64
+		bootstrap_default 2>> /tmp/output
+		set +x
 	fi
+#	exec 3>&-
 }
 export -f buildPackage
 
@@ -190,7 +196,7 @@ installPackage() {
 			export TEST
 
 			## Export if available
-			export MULTILIB
+			export ABILIBS
 
 			## Export this so packages can override the src_unpack.
 			export LDFLAGS CXXFLAGS CFLAGS CPPFLAGS
@@ -381,7 +387,9 @@ installPackage() {
 		IFS=$'\n'
 		SRC_URI=($SRC_URI)
 		echo " * post_install"
+		set -x
 		post_install || die "Error in post_install"
+		set +x
 
 		if [[ $MODULE == kernel ]]; then
 			local K_VER=$(readlink -f /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
@@ -645,7 +653,8 @@ installList() {
 		fi
 		if [[ $FETCH_ONLY != 1 ]]; then
 			echo -n " * Running ldconfig .."
-			ldconfig && echo "done!" || die "failed!"
+			[[ $MODE == 'bootstrap' ]] && local ld_opts="-r $ROOT"
+			ldconfig $ld_opts && echo "done!" || die "failed!"
 		fi
 	done
 }

@@ -34,12 +34,13 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
-MULTILIB=64
+ABILIBS=64
 
 src_configure() {
-	sed -e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
-		-i.orig gcc/config/i386/t-linux64
-	mlist=m64,mx32,m32
+	sed -e '/m64=/s/lib64/lib/' \
+		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
+		-i.orig ../gcc/config/i386/t-linux64
+	local mlist="m"$(echo $ABILIBS | sed "s/ /,m/g")
 	configure_default LD=ld               \
 	             --enable-languages=c,c++ \
 	             --enable-default-pie     \
@@ -61,9 +62,9 @@ src_install() {
 	install_default
 
 	ln -svfr /usr/bin/cpp "$ROOT/${D}"/usr/lib
-	mkdir -p "$ROOT/${D}"/usr/lib$LIB/bfd-plugins
+	mkdir -p "$ROOT/${D}"/usr/lib/bfd-plugins
 	ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/${PKG_VER}/liblto_plugin.so \
-        "$ROOT/${D}"/usr/lib$LIB/bfd-plugins/
+        "$ROOT/${D}"/usr/lib/bfd-plugins/
 	ln -sfv gcc "$ROOT/${D}"/usr/bin/cc
 
 if [ $TEST == 1 ]; then
@@ -80,23 +81,21 @@ if [ $TEST == 1 ]; then
 fi
 
 	if [[ $MODE != 'bootstrap' ]]; then
-		mkdir -pv "${D}"/usr/share/gdb/auto-load/usr/lib$LIB
-		[[ $LIB == 64 ]] && ln -s ../lib64 $D/usr/share/gdb/auto-load/usr/lib
-		mv -v "${D}"/usr/lib$LIB/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib$LIB
+		mkdir -pv "${D}"/usr/share/gdb/auto-load/usr/lib
+		mv -v "${D}"/usr/lib/*gdb.py "${D}"/usr/share/gdb/auto-load/usr/lib
 	fi
 }
 
 bootstrap() {
+	declare -p
 	local glibc=$(DB-getPkg system/glibc | getLatest | getVersion)
 	if [[ $glibc == 0 || $glibc == '' ]]; then
-		echo " * Expected version got:  $glibc"
+		echo " * Expected version got: $glibc"
 		echo " $DIALOG_ERROR Error getting installed glibc version!"
 		glibc=2.38
 		echo " $IMPORTANT Defaulting to $glibc"
 	fi
 	echo " * Using glibc: $glibc"
-	sed -e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
-		-i.orig ../gcc/config/i386/t-linux64
 	if [[ $PKG_FLAGS == pass* ]]; then
 		cd ..
 		unpack $DISTFILES/gmp-$GMP_VER.tar.xz
@@ -106,8 +105,12 @@ bootstrap() {
 		unpack $DISTFILES/mpc-$MPC_VER.tar.gz
 		mv mpc{-$MPC_VER,}
 		cd -
+		sed -e '/m64=/s/lib64/lib/' \
+			-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
+			-i.orig ../gcc/config/i386/t-linux64
 	fi
-	local mlist=m64,mx32,m32
+#	local mlist=m64,mx32,m32
+	local mlist="m"$(echo $ABILIBS | sed "s/ /,m/g")
 	case $PKG_FLAGS in
 		pass1)
 			../configure                    \
@@ -147,7 +150,7 @@ bootstrap() {
 			    --disable-libstdcxx-pch         \
 				--with-gxx-include-dir=/tools/$HOST_TGT/include/c++/${PKG_VER} &&
 		   	compile_default && install_default &&
-			rm -v $D/$ROOT/usr/lib*/lib{stdc++,stdc++fs,supc++}.la
+			rm -v $D/$ROOT/usr/lib*/lib{stdc++,stdc++fs,supc++}.la || die
 		;;
 		pass2)
 			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in

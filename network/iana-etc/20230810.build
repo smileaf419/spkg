@@ -22,7 +22,3 @@ src_install() {
 	mkdir -p "${D}/$ROOT/etc"
 	cp services protocols "${D}/$ROOT/etc"
 }
-
-bootstrap() {
-	src_install
-}

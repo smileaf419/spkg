@@ -10,27 +10,27 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
+	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
 	CONF_FLAGS=' '
 	configure_default  --prefix=/usr   \
 	            --sysconfdir=/etc      \
 	            --bindir=/bin          \
 	            --sbindir=/sbin        \
-	            --libdir=/lib$LIB      \
+	            --libdir=/lib$ABILIB      \
 	            --with-openssl         \
 	            --with-xz              \
 	            --with-zstd            \
 	            --with-zlib            \
-	            $([[ ! -z $LIB ]] && echo "--with-rootlibdir=/lib$LIB")
+	            $([[ ! -z $ABILIB ]] && echo "--with-rootlibdir=/lib$ABILIB")
 }
 
 src_test() { :; }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 		mkdir -p "$D/sbin"
 		for target in depmod insmod modinfo modprobe rmmod; do
@@ -41,8 +41,8 @@ src_install() {
 
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* /lib$LIB
+		mkdir -p $D/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* /lib$ABILIB
 		rm -rf DESTDIR
 	fi
 	## Keep man pages as they can't be regenerated without xsltproc

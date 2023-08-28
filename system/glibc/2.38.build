@@ -15,29 +15,29 @@ use-enable gd && UDEPS="media/gd apps/bzip2 devel/expat devel/libpcre media/font
 ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 _SPKG_CLEAN=rm
 
 src_configure() {
 	## Ensure ldconfig and sln are installed into /sbin
 	echo "rootsbindir=/sbin" > ../configparms
 
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		mkdir -pv $D/$ROOT/lib{,64}
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
 	else
-		export CC="gcc -m$LIB"
-		export CXX="g++ -m$LIB"
+		export CC="gcc -m$ABILIB"
+		export CXX="g++ -m$ABILIB"
 	fi
 	configure_default --prefix=/usr     \
 				 --bindir=/bin           \
-				 --libdir=/lib$LIB         \
-				 --libexecdir=/lib$LIB      \
+				 --libdir=/lib$ABILIB         \
+				 --libexecdir=/lib$ABILIB      \
 				 --enable-kernel=6.4          \
 				 --with-headers=/usr/include   \
 				 --enable-multi-arch             \
-				 libc_cv_slibdir=/lib$LIB         \
+				 libc_cv_slibdir=/lib$ABILIB         \
                  --disable-werror                   \
                  --enable-stack-protector=strong    \
                  $(use-enable gd || echo --with-gd=no)
@@ -51,7 +51,7 @@ src_compile() {
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 
 		## Fix a hardcoded path
@@ -61,10 +61,10 @@ src_install() {
 		mkdir -pv "${D}/$ROOT"/var/cache/nscd
 	else
 		make DESTDIR=$PWD/DESTDIR install &&
-		cp -a DESTDIR/lib$LIB $D/$ROOT &&
-		install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-$LIB.h \
+		cp -a DESTDIR/lib$ABILIB $D/$ROOT &&
+		install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-$ABILIB.h \
 					   $D/$ROOT/usr/include/gnu/ &&
-		if [[ $LIB == 32 ]]; then
+		if [[ $ABILIB == 32 ]]; then
 			ln -svf ../lib32/ld-linux.so.2 $D/$ROOT/lib/ld-linux.so.2 || die "Error building glibc 32bit"
 		else
 			ln -svf ../libx32/ld-linux-x32.so.2 $D/$ROOT/lib/ld-linux-x32.so.2 || die "Error building glibc x32bit"
@@ -111,9 +111,9 @@ bootstrap() {
 	## /lib32  32bit
 	## /libx32 x32bit
 
-	for LIB in 64 32 x32; do
-		if [[ $LIB == 64 ]]; then
-			LIB=
+	for ABILIB in $ABILIBS; do
+		if [[ $ABILIB == 64 ]]; then
+			ABILIB=
 			mkdir -pv $D/$ROOT/lib{,64}
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
@@ -122,20 +122,20 @@ bootstrap() {
 		else
 			make clean
 			find .. -name "*.a" -delete
-			export CC="$HOST_TGT-gcc -m$LIB"
-			export CXX="$HOST_TGT-g++ -m$LIB"
+			export CC="$HOST_TGT-gcc -m$ABILIB"
+			export CXX="$HOST_TGT-g++ -m$ABILIB"
 		fi
 		configure_default --prefix=/usr            \
 						  --bindir=/bin             \
-						  --libdir=/lib$LIB           \
-						  --libexecdir=/lib$LIB        \
+						  --libdir=/lib$ABILIB        \
+						  --libexecdir=/lib$ABILIB     \
 						  --enable-kernel=6.4            \
 						  --enable-multi-arch             \
 						  --with-headers=$ROOT/usr/include  \
 						  --build=$(../scripts/config.guess) \
-						  libc_cv_slibdir=/lib$LIB &&
+						  libc_cv_slibdir=/lib$ABILIB &&
 		compile_default
-		if [[ -z $LIB ]]; then
+		if [[ -z $ABILIB ]]; then
 			install_default
 		else
 			src_install

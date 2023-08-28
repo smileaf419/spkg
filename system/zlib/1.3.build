@@ -10,27 +10,27 @@ BDEPS=""
 RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ ! -z $LIB ]]; then
+	if [[ ! -z $ABILIB ]]; then
 		filter-flags -m
-		append-cflags -m$LIB
-		append-cxxflags -m$LIB
+		append-cflags -m$ABILIB
+		append-cxxflags -m$ABILIB
 	fi
-	./configure --prefix=/usr --libdir=/lib$LIB
+	./configure --prefix=/usr --libdir=/lib$ABILIB
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$LIB
-		cp -Rv DESTDIR/lib$LIB/* $D/lib$LIB
+		mkdir -p $D/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
 		rm -rf DESTDIR
 	fi
-	rm -f "${D}"/lib$LIB/libz.a
+	rm -f "${D}"/lib$ABILIB/libz.a
 
 }

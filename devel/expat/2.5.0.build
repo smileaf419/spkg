@@ -10,15 +10,15 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-MULTILIB="64 32 x32"
+ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ ! -z $LIB ]] && export CC="gcc -m$LIB"
-	configure_default --libdir=/usr/lib$LIB
+	[[ ! -z $ABILIB ]] && export CC="gcc -m$ABILIB"
+	configure_default --libdir=/usr/lib$ABILIB
 }
 
 src_install() {
-	if [[ -z $LIB ]]; then
+	if [[ -z $ABILIB ]]; then
 		install_default
 		install -v -m644 doc/*.{html,css} "${D}"/usr/share/doc/expat-${PKG_VER}
 
@@ -26,8 +26,8 @@ src_install() {
 		sed -e "/^am__append_1/ s/doc//" -i Makefile
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/usr/lib$LIB
-		cp -Rv DESTDIR/usr/lib$LIB/* $D/usr/lib$LIB
+		mkdir -p $D/usr/lib$ABILIB
+		cp -Rv DESTDIR/usr/lib$ABILIB/* $D/usr/lib$ABILIB
 		rm -rf DESTDIR
 	fi
 }

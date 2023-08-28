@@ -28,8 +28,6 @@ src_install() {
 bootstrap() {
 	sed -i 's/extras//' Makefile.in
 
-	./configure --prefix=/usr   \
-				--host=$HOST_TGT \
-				--build=$(build-aux/config.guess)
+	configure_default --build=$(build-aux/config.guess)
 	compile_default && install_default
 }
