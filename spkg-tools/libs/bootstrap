@@ -212,7 +212,7 @@ DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
 EOF
 fi
 
-if [[ $BOOTSTRAP_STAGE == *3* || $BOOSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroot.sh && -e $ROOT/$PKG_DB_DIR ]]; then
+if [[ $BOOTSTRAP_STAGE == *3* || $BOOSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroot.sh ]]; then
 	####
 	## Install our repository
 	if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
@@ -229,6 +229,10 @@ if [[ $BOOTSTRAP_STAGE == *3* || $BOOSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroot
 			echo "Once this is done you will need to copy over the spkg.conf and run:"
 			echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
 		fi
+	else
+		echo " * Updating Repository ..."
+		cd $ROOT/$PKG_DB_DIR
+		git pull
 	fi
 
 	## Install our configuration file and symlinks.
