@@ -93,6 +93,16 @@ buildPackage() {
 	fi
 
 #	exec 3<> /tmp/output
+	ABILIBS=$(echo $BUILD_ABI $ABILIBS | tr ' ' '\n' | sort | uniq -d)
+	## Don't set an ABILIB if we are not building for multiple ARCHS
+	if [[ -z $ABILIBS ]]; then
+		[[ $ABILIB == 64 ]] && ABILIB=
+		ABILIBS=64
+	## But if we are building for multiple ARCHS ensure we set the inital ABILIB to 64.
+	elif [[ -z $ABILIB ]]; then
+		ABILIB=64
+	fi
+
 	if [[ $MODE != "bootstrap" ]]; then
 		for ABILIB in $ABILIBS; do
 			[[ $BUILD_ABI != *$ABILIB* ]] && continue
@@ -120,19 +130,8 @@ buildPackage() {
 			src_install	$p || die " $DIALOG_ERROR Error in src_install (${ABILIB:-64})"
 		done
 	else
-		set -x
 		echo " * Bootstrapping"
-		ABILIBS=$(echo $BUILD_ABI $ABILIBS | tr ' ' '\n' | sort | uniq -d)
-		## Don't set an ABILIB if we are not building for multiple ARCHS
-		if [[ -z $ABILIBS ]]; then
-			[[ $ABILIB == 64 ]] && ABILIB=
-			ABILIBS=64
-		## But if we are building for multiple ARCHS ensure we set the inital ABILIB to 64.
-		elif [[ -z $ABILIB ]]; then
-			ABILIB=64
-		fi
-		bootstrap_default 2>> /tmp/output
-		set +x
+		bootstrap_default
 	fi
 #	exec 3>&-
 }
