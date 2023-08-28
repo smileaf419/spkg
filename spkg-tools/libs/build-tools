@@ -391,9 +391,7 @@ installPackage() {
 		IFS=$'\n'
 		SRC_URI=($SRC_URI)
 		echo " * post_install"
-		set -x
 		post_install || die "Error in post_install"
-		set +x
 
 		if [[ $MODULE == kernel ]]; then
 			local K_VER=$(readlink -f /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
