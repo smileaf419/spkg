@@ -160,7 +160,7 @@ export MAKEOPTS=${MAKEOPTS:-"-j"$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|se
 export CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 export CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
 export ARCH=${ARCH:-$(uname -m)}
-export BUILD_LIBS="64 x32 32"
+export BUILD_ABI=${BUILD_ABI:-"64 x32 32"}
 export USE=${USE:-}
 export PAGE=${PAGE:-letter}
 export ENABLE_TESTS=${ENABLE_TESTS:-0}
