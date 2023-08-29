@@ -106,17 +106,8 @@ buildPackage() {
 	if [[ $MODE != "bootstrap" ]]; then
 		for ABILIB in $ABILIBS; do
 			[[ $BUILD_ABI != *$ABILIB* ]] && continue
-			## Don't set a LIB if we are not building for multiple ARCHS
-			[[ -z $ABILIBS && $ABILIB == 64 ]] && ABILIB=
+			export PKG_CONFIG_PATH="/lib$ABILIB/pkgconfig:/usr/lib$ABILIB/pkgconfig:$PKG_CONFIG_BASE"
 			CONF_FLAGS=
-			if [[ ! -z $ABILIB ]]; then
-				if [[ $_SPKG_CLEAN != rm ]]; then
-					echo " * Run make ${_SPKG_CLEAN:-clean}"
-					make ${_SPKG_CLEAN:-clean}
-				else
-					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
-				fi
-			fi
 			[[ ! -z $ABILIBS ]] && echo " * ${ABILIB:-64} bit pass"
 			echo " * src_configure (${ABILIB:-64})"
 			src_configure $p || die " $DIALOG_ERROR Error in src_configure (${ABILIB:-64})"
@@ -128,6 +119,16 @@ buildPackage() {
 			fi
 			echo " * src_install (${ABILIB:-64})"
 			src_install	$p || die " $DIALOG_ERROR Error in src_install (${ABILIB:-64})"
+
+			## No need to clean if we're only building for 1 ABI.
+			if [[ ! -z $ABILIBS && $ABILIBS != $ABILIB ]]; then
+				if [[ $_SPKG_CLEAN != rm ]]; then
+					echo " * Run make ${_SPKG_CLEAN:-clean}"
+					make ${_SPKG_CLEAN:-clean}
+				else
+					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
+				fi
+			fi
 		done
 	else
 		echo " * Bootstrapping"
