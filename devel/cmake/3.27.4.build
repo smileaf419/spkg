@@ -10,17 +10,19 @@ BDEPS=""
 RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
-IUSE="curl"
+IUSE="curl nghttp2"
 use-enable curl && UDEP="network/curl"
+use-enable nghttp2 && UDEP="network/nghttp2"
 
 src_configure() {
 	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
 	./bootstrap --prefix=/usr \
 				--system-libs \
-				--mandir=/share/man \
-				--no-system-jsoncpp \
-				--no-system-cppdap \
+				--mandir=/share/man  \
+				--no-system-jsoncpp  \
+				--no-system-cppdap   \
 				--no-system-librhash \
+				$(use-enable nghttp2 || echo "--no-system-nghttp2") \
 				$(use-enable curl || echo "--no-system-curl") \
 				--docdir=/share/doc/cmake-${PKG_VER}
 }
