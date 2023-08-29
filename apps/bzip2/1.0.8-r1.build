@@ -30,7 +30,7 @@ src_configure() {
 		-e '/^DOCDIR/s,share,usr/share,' \
 		-i Makefile
 
-	append-ldflags -fPIC
+	append-cflags -fPIC
 
 	[[ $ABILIB != 64 ]] && sed -e "s/^CC=.*/CC=gcc -m$ABILIB/" -i Makefile{,-libbz2_so}
 
