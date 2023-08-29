@@ -18,6 +18,7 @@ SLOT=0
 TEST=test
 
 src_configure() {
+	append-cflags -fPIC
 	## Used in @temptools
 	if [[ $PKG_FLAGS == *nodep* ]]; then
 		./configure --prefix=/usr --enable-shared --without-ensurepip
