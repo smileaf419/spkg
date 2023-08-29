@@ -22,5 +22,5 @@ src_test() {
 
 src_install() {
 	install_default
-	sed -i "s/iconv //" "${D}"/usr/lib/pkgconfig/libarchive.pc
+	sed -i "s/iconv //" "${D}"/usr/lib$ABILIB/pkgconfig/libarchive.pc
 }
