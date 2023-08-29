@@ -458,6 +458,7 @@ sinstall() {
 ## Once the rebuild is complete the now obsolete files are removed.
 preservedRebuild() {
 	MODE='rebuild'
+	FORCE=1
 	## Files were preserved, process them here to ensure we don't break our system.
 	if [ -e $PRESERVED_LOG ]; then
 		echo " * Gathering list of packages to rebuild"
@@ -467,22 +468,28 @@ preservedRebuild() {
 		for f in $(cat $PRESERVED_LOG); do
 			echo -n "$f:"
 			local pkgs=$(checkFileDep $f | sort|uniq)
-			echo " $pkgs"
-			for d in $pkgs; do
-				#  B=${A%/*}; C=${A##*/}; echo $B-$C
-				local cn=${d%/*}
-				local v=${d##*/}
-				setPkgENV $cn-$v > /dev/null
-				setupENV $PKG > /dev/null
-				echo $PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT
-				PKG_LIST+=" $PKG"
-			done
+			if [[ ! -z $pkgs ]]; then
+				echo " $pkgs"
+				for d in $pkgs; do
+					#  B=${A%/*}; C=${A##*/}; echo $B-$C
+					local cn=${d%/*}
+					local v=${d##*/}
+					setPkgENV $cn-$v > /dev/null
+					setupENV $PKG > /dev/null
+					echo $PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT
+					PKG_LIST+=" $PKG"
+				done
+			else
+				echo " none found"
+				rm "$f" 2> /dev/null && echo " << $f" || echo " <! $f"
+				sed "/^${f//\//\\/}\$/d" -i $PRESERVED_LOG
+			fi
 		done
 
-		installList $PKG_LIST
-		for f in $(cat $PRESERVED_LOG); do
-			rm "$f" 2> /dev/null && echo " << $f" || echo " <! $f"
-		done
-		rm $PRESERVED_LOG
+		if [[ -z $PKG_LIST ]]; then
+			rm $PRESERVED_LOG
+			return 1
+		fi
 	fi
+	return 0
 }

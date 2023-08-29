@@ -572,7 +572,7 @@ getBldFile() {
 	local PKG_VR=$(getVerRev $data)
 	local Installed=${2:-0}
 
-	if [[ $MODE == "uninstall" || $Installed == 1 ]]; then
+	if [[ $MODE == "uninstall" || $Installed == 1 || $MODE == 'rebuild' ]]; then
 		PKG_BLD=$PKG_CACHE/${PKG_CAT}/${PKG_NAME}/${PKG_VR}/${PKG_VR}.build
 	else
 		PKG_BLD=$PKG_DB_DIR/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build

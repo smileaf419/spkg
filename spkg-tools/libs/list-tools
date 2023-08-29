@@ -213,7 +213,7 @@ getdep() {
 		## If an older version is installed that we need to remove,
 		## we may instead grab the incorrect version and end up with a Pkg not found.
 		if [[ $(getVersion $1) == 0 ]]; then
-			if [[ $MODE == 'uninstall' ]]; then
+			if [[ $MODE == 'uninstall' || $MODE == 'rebuild' ]]; then
 				PKG=$(Installed-getPkg $1)
 			else
 				PKG=$(DB-getPkg $1)

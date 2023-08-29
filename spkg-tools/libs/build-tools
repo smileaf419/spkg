@@ -661,3 +661,116 @@ installList() {
 		fi
 	done
 }
+
+buildList() {
+	if [[ $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
+		## Get Dependencies and check if any require updates.
+		getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"
+		if [[ $VERBOSE -ge 1 ]]; then
+			echo "Package Order (Full List):"
+			for p in $(cat $CHART); do
+				PKG_CAT=$(getCategory $p)
+				PKG_NAME=$(getName $p)
+				PKG_VR=$(getVerRev $p)
+				PKG_SLOT=$(getSlot $p)
+				echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
+			done
+			echo -e "\nPackage Order:"
+		fi
+	fi
+
+	timestart=$(date "+%s.%N")
+	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
+	for p in $(cat $CHART); do
+		PKG_CAT=$(getCategory $p)
+		PKG_NAME=$(getName $p)
+		PKG_VR=$(getVerRev $p)
+
+		## Install
+		if [[ $MODE != "uninstall" ]]; then
+			## By default we don't install already installed packages, even when requested
+			## check forced or empty world.
+			O_VER=$(Installed-getPkg $p | getVerRev)
+			PKG_SLOT=$(getSlot $p)
+
+			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
+				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"/[^/]*/[^/]*/[^/]*/$PKG_SLOT) ||
+				! -z $EMPTY_WORLD ]]; then
+				PKG_SLOT=$(getSlot $p)
+				if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+					echo -n "~"
+				elif grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
+					echo -n "+"
+				else
+					echo -n " "
+				fi
+				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
+				[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
+				echo -n " [ $O_VER ]"
+				## Only mention it's been forced if its within the *_LIST & FORCE
+				if ! version_gt $PKG_VR $O_VER && [[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
+					echo -n " (forced)"
+				fi
+
+				####
+				## If an IUSE is present, display it
+				## If its enabled, color it GREEN
+				## If its disabled, color it RED
+				## If its not within our USE at all, gray it out.
+				IUSE=$(grep '[^#]*IUSE=' "$(getBldFile $p)" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
+				if [[ ! -z $IUSE ]]; then
+					echo -n " [ "
+					for u in $IUSE; do
+						ue=0
+						use-enable $u || ue=$?
+						case $ue in
+							0) echo -n "${GREEN}+$u " ;;
+							1) echo -n "$LTGRAY$u " ;;
+							2) echo -n "${RED}-$u " ;;
+						esac
+					done
+					echo -n "$NORMAL]"
+				fi
+				echo
+
+				## Add to our INSTALL_CHART
+				Install-addPkg $p
+			elif [[ $VERBOSE -gt 1 ]]; then
+				>&2 echo "$PKG_CAT/$PKG_NAME not requested or not forced ($REQUESTED_LIST)"
+			fi
+
+		## Uninstall
+		elif [[	$REQUESTED_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
+			echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
+			[[ $FORCE == 1 ]] && echo -n " (forced)"
+			echo
+
+			## Add to our INSTALL_CHART
+			Install-addPkg $PKG
+		fi
+	done
+	if [[ -e /usr/bin/bc ]]; then
+		>&2 printf " * version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
+	fi
+
+	[[ ! -e $INSTALL_CHART ]] && die "Nothing to upgrade."
+	[ $PRETEND == 1 ] && exit 0
+	if [[ $ASK == 1 ]]; then
+		echo -n "Ok to continue? [${GREEN}Yes${NORMAL}/${RED}No${NORMAL}] "
+		read cont
+		if [[ ! -z $cont && ${cont^^} != 'Y' && ${cont^^} != 'YES' ]]; then
+			exit 0
+		fi
+	fi
+
+	## Install our list
+	## If our INSTALL_CHART or CHART don't exist, don't error out
+	## the user may have installed something else or ran another command
+	installList $(cat $INSTALL_CHART) && {
+		[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART;
+		[[ -e $CHART ]] && rm $CHART
+	}
+
+	## Check for any preserved files
+	preservedRebuild && buildList || exit 0
+}
