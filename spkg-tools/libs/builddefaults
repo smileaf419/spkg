@@ -93,7 +93,6 @@ configure_default() {
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
 		fi
 #		LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:$LD_LIBRARY_BASE"
-		PKG_CONFIG_PATH="/lib$ABILIB:/pkgconfig:/usr/lib$ABILIB/pkgconfig:$PKG_CONFIG_BASE"
 
 		declare -p
 
