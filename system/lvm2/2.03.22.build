@@ -52,5 +52,5 @@ src_test() { :; }
 src_install() {
 	install_default #pkgconfigdir="$D"/usr/lib/pkgconfig
 
-	rm "${D}"/usr/lib/udev/rules.d/69-dm-lvm.rules
+	rm -f "${D}"/usr/lib/udev/rules.d/69-dm-lvm.rules
 }
