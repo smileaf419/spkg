@@ -19,7 +19,9 @@ src_compile() { :; }
 
 src_test() { :; }
 
-src_install() {
+src_install() { :; }
+
+post_install() {
 	addGroup lpadmin -g 19
 	addUser lp                  \
 		-d /var/spool/cups      \

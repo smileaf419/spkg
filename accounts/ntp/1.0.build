@@ -19,7 +19,9 @@ src_compile() { :; }
 
 src_test() { :; }
 
-src_install() {
+src_install() { :; }
+
+post_install() {
 	addGroup ntp -g 87
 	addUser ntp                        \
 		-c "Network_Time_Protocol" \
