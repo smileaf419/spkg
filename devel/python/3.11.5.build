@@ -23,11 +23,11 @@ src_configure() {
 		./configure --prefix=/usr --enable-shared --without-ensurepip
 	else
 		CXX="/usr/bin/g++" \
-		configure_default \
+		./configure --prefix=/usr    \
 			--build=$(./config.guess) \
-			--with-system-expat  \
-			--with-system-ffi    \
-			--enable-optimizations \
+			--with-system-expat       \
+			--with-system-ffi         \
+			--enable-optimizations    \
 			--with-ensurepip=install
 	fi
 	use-enable sqlite || echo MODULE__SQLITE3_STATE=disabled >> Makefile
@@ -47,7 +47,7 @@ EOF
 
 	ln -s /usr/bin/python3 "${D}"/usr/bin/python
 	sed -e '/def warn_if_run_as_root/a\    return' \
-	    -i "${D}"/usr/lib/python${PKG_VER%.*}/site-packages/pip/_internal/cli/req_command.py
+	    -i "${D}"/usr/lib$ABILIB/python${PKG_VER%.*}/site-packages/pip/_internal/cli/req_command.py
 
 	if [[ $INSTALL_DOCS == 1 ]]; then
 		install -v -dm755 "${D}"/usr/share/doc/python-${PKG_VER}/html
