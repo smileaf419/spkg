@@ -18,6 +18,8 @@ B=
 src_configure() { :; }
 
 src_compile() {
+	source /etc/profile.d/openjdk.sh
+
 	java -jar $DISTFILES/BuildTools.jar --rev $PKG_VER
 }
 
