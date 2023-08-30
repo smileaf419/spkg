@@ -5,10 +5,11 @@ HOMEPAGE="https://www.openssh.com"
 DESCRIPTION="Secure SHell - Secure Tunneling suite"
 LICENSE="BSD GPLv2"
 SRC_URI=("https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-${PKG_VER}.tar.gz")
+PATCHES=("https://github.com/openssh/openssh-portable/commit/cb4ed12ffc332d1f72d054ed92655b5f1c38f621.patch => openssh-9.4p1-zlib.patch")
 DEPS="devel/openssl system/libxcrypt system/zlib"
 BDEPS="system/which"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 IUSE="openrc"
 use-enable openrc &&
@@ -16,6 +17,8 @@ use-enable openrc &&
 			  "https://cgit.gentoo.org/repo/gentoo.git/plain/net-misc/openssh/files/sshd-r1.confd")
 
 src_configure() {
+	autoreconf -fiv
+
 	./configure --prefix=/usr \
 				--sysconfdir=/etc/ssh \
 				--with-privsep-path=/var/lib/sshd \
