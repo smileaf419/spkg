@@ -4,8 +4,8 @@
 HOMEPAGE="https://www.xiph.org/paranoia"
 DESCRIPTION="An Advanced CDDA reader with error correction"
 LICENSE="GPLv2 LGPLv2.1"
-SRC_URI=("https://downloads.xiph.org/releases/cdparanoia/cdparanoia-III-${PKG_VER}.src.tgz")
-#"https://dev.gentoo.org/~pacho/cdparanoia/cdparanoia-3.10.2-patches.tar.xz")
+SRC_URI=("https://downloads.xiph.org/releases/cdparanoia/cdparanoia-III-${PKG_VER}.src.tgz"
+"https://dev.gentoo.org/~pacho/cdparanoia/cdparanoia-3.10.2-patches.tar.xz")
 PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/media-sound/cdparanoia/files/cdparanoia-missing-sys_types_h.patch?id=301f5e6332309bfe2bdc10aea941bbe0bd9a16cb => cdparanoia-missing-sys_types_h.patch")
 DEPS=""
 BDEPS=""
@@ -15,8 +15,17 @@ SLOT=0
 B=cdparanoia-III-${PKG_VER}
 
 src_configure() {
-#	unpack "$DISTFILES/cdparanoia-3.10.2-patches.tar.xz"
-#	spatches patches/*.patch
+	unpack "$DISTFILES/cdparanoia-3.10.2-patches.tar.xz"
+	spatches patches/*.patch
+
+	mv configure.guess config.guess
+	mv configure.sub config.sub
+
+	sed -i -e '/configure.\(guess\|sub\)/d' configure.in || die
+
+	mv configure.{in,ac} || die
+
+	autoreconf -fiv
 
 	./configure --prefix=/usr \
 				--mandir=/usr/share/man
@@ -24,12 +33,12 @@ src_configure() {
 
 src_compile() {
 	# Parallel building not supported.
-	make -j1
+	make -j1 -I$PWD/interface
 }
 
 src_test() { :; }
 
 src_install() {
-	make prefix="${D}/usr" install
-	chmod -v 755 "${D}"/usr/lib/libcdda_*.so.0.${PKG_VER}
+	install_default
+	chmod -v 755 "${D}"/usr/lib*/libcdda_*.so.0.${PKG_VER}
 }
