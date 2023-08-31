@@ -1,8 +1,6 @@
 ####
 ## nvidia-drivers build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE="https://www.nvidia.com/download/index.aspx"
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
 LICENSE="NVIDIA-r2 BSD BSD-2 GPL-2 MIT"
@@ -36,10 +34,8 @@ src_compile() { :; }
 
 src_test() { :; }
 
-src_install() { :; }
-
-post_install() {
+src_install() {
 	cd $BUILD_PATH/$B
 	unset ARCH
-	./nvidia-installer -e --ui=none -j4 -z -q
+	./nvidia-installer -e --ui=none -j4 -z -q --kernel-source-path=/usr/src/linux -k $(readlink -f /usr/src/linux | sed 's,.*-,,')
 }
