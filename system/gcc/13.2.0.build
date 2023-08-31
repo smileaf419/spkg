@@ -34,13 +34,15 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
-ABILIBS=64
+ABILIBS="64 x32 32"
 
 src_configure() {
 	sed -e '/m64=/s/lib64/lib/' \
 		-e '/m32=/s/m32=.*/m32=..\/lib32$(call if_multiarch,:i386-linux-gnu)/' \
 		-i.orig ../gcc/config/i386/t-linux64
+#	local mlist="m64,mx32,m32"
 	local mlist="m"$(echo $ABILIBS | sed "s/ /,m/g")
+	echo " * Configuring for $ABILIBS ($mlist)"
 	configure_default LD=ld               \
 	             --enable-languages=c,c++ \
 	             --enable-default-pie     \
