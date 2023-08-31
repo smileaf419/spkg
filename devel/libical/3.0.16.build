@@ -23,10 +23,6 @@ src_configure() {
 	      -DICAL_GLIB_VAPI=true
 }
 
-src_compile() {
-	make -j1
-}
-
 src_test() {
 	test_default
 	inform " * Known failure of glib tests"
