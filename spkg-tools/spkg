@@ -274,7 +274,7 @@ parse_cmdline() {
 	local a=0
 	local o=
 	for (( a=0; a<$#; a++ )); do
-		opt=${opts[$a]}
+		local opt=${opts[$a]}
 		local val=${opts[$a+1]}
 		if [[ $opt == -* ]] ; then
 			opt=${opt#-}
