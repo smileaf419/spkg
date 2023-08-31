@@ -57,7 +57,6 @@ userBuildPackage() {
 	echo " * src_configure (${ABILIB:-64})"
 	src_configure $p || die " $DIALOG_ERROR Error in src_configure (${ABILIB:-64})"
 	echo " * src_compile (${ABILIB:-64})"
-	pwd
 	src_compile $p || die " $DIALOG_ERROR Error in src_compile (${ABILIB:-64})"
 	if [ $ENABLE_TESTS == 1 ]; then
 		echo " * src_test (${ABILIB:-64})"
