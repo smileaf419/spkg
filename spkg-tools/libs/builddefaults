@@ -82,13 +82,13 @@ configure_default() {
 		# Not all packages support these options.
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
-		[[ -z $ABILIBS && $ABILIB == 64 ]] && ABILIB=
+		[[ -z $ABILIBS || $ABILIBS == $ABILIB ]] && ABILIB=
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --libdir=/usr/lib$ABILIB --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
 		if [[ -z $ABILIB || $ABILIB == 64 ]]; then
 			[[ $MODE == 'bootstrap' ]] && CONF_FLAGS+=" --host=$HOST_TGT"
 		elif [[ $ABILIB == 32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGT32"
-			filter-flags -march
+#			filter-flags -march
 		elif [[ $ABILIB == x32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
 		fi
