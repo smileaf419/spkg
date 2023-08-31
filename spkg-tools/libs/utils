@@ -417,7 +417,8 @@ fetch_list() {
 
 ## Check a sha1sum of a given file within the package's sha1 file.
 checkSha1() {
-	[[ $IGNORE_SHA1 == 1 || $MODE == 'uninstall' ]] && return 0
+	## If we are told to ignore the sha, OR if we are using a build from PKG_CACHE
+	[[ $IGNORE_SHA1 == 1 || $MODE == 'uninstall' || $MODE == 'rebuild' ]] && return 0
 	local PKG_DIR=$1
 	local FILE=$2
 
