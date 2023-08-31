@@ -137,9 +137,9 @@ export -f python_compile
 compile_default() {
 	if [[ $buildTool == "make" ]]; then
 		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == "no" ]] && cd build
-		make $MAKEOPTS $@ || die " $DIALOG_ERROR Compile Failed!"
+		make $MAKEOPTS $@ || die " $DIALOG_ERROR make compile failed! ($(pwd))"
 	elif [[ $buildTool == "ninja" ]]; then
-		ninja || die " $DIALOG_ERROR Compile Failed!"
+		ninja || die " $DIALOG_ERROR ninja compile failed! ($(pwd))"
 
 	## Compile the python module
 	## Build options maybe overridden via _PIP_COMPILE_OPTS
@@ -150,7 +150,7 @@ compile_default() {
 		if [[ $BUILD_SEPERATE_DIR != no ]]; then
 			[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
 		fi
-		cmake --build $d/build
+		cmake --build $d/build || die " $DIALOG_ERROR cmake compile failed! ($(pwd))"
 	fi
 	return 0
 }
