@@ -116,7 +116,8 @@ buildPackage() {
 	fi
 
 #	exec 3<> /tmp/output
-	ABILIBS=$(echo $BUILD_ABI $ABILIBS | tr ' ' '\n' | sort | uniq -d)
+	ABILIBS=$(echo $BUILD_ABI $ABILIBS | tr ' ' '\n' | sort | uniq -d | tr '\n' ' ')
+	ABILIBS=${ABILIBS% }
 	## Don't set an ABILIB if we are not building for multiple ARCHS
 	if [[ -z $ABILIBS ]]; then
 		[[ $ABILIB == 64 ]] && ABILIB=
