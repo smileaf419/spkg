@@ -51,6 +51,22 @@ setBuildENV() {
 export -f setBuildENV
 
 ####
+## userBuildPackage
+## This function is meant to do all the building as our BUILD_USER
+userBuildPackage() {
+	echo " * src_configure (${ABILIB:-64})"
+	src_configure $p || die " $DIALOG_ERROR Error in src_configure (${ABILIB:-64})"
+	echo " * src_compile (${ABILIB:-64})"
+	pwd
+	src_compile $p || die " $DIALOG_ERROR Error in src_compile (${ABILIB:-64})"
+	if [ $ENABLE_TESTS == 1 ]; then
+		echo " * src_test (${ABILIB:-64})"
+		src_test $p || die " $DIALOG_ERROR Error in src_test (${ABILIB:-64})"
+	fi
+}
+export -f userBuildPackage
+
+####
 ## buildPackage does the bulk amount of the work for any package.
 ## This functions is meant to be ran as BUILD_USER
 ## The call order of user-defined functions is:
@@ -63,7 +79,11 @@ export -f setBuildENV
 ##  src_test
 buildPackage() {
 	if [[ ! -z $SRC_URI ]]; then
-		src_unpack
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_unpack' $BUILD_USER || die " $DIALOG_ERROR Error while unpacking!"
+		else
+			src_unpack || die " $DIALOG_ERROR Error while unpacking!"
+		fi
 
 		## Enter our Build Dir
 		if [ ! -d "${BUILD_PATH}/${B}" ]; then
@@ -76,7 +96,11 @@ buildPackage() {
 
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
-		src_patch || die "Error While Patching"
+		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+			su -p -c 'src_patch' $BUILD_USER || die " $DIALOG_ERROR Error while patching!"
+		else
+			src_patch || die " $DIALOG_ERROR Error while patching!"
+		fi
 	fi
 
 	echo " * src_prepare"
@@ -109,14 +133,14 @@ buildPackage() {
 			export PKG_CONFIG_PATH="/lib$ABILIB/pkgconfig:/usr/lib$ABILIB/pkgconfig:$PKG_CONFIG_BASE"
 			CONF_FLAGS=
 			[[ ! -z $ABILIBS ]] && echo " * ${ABILIB:-64} bit pass"
-			echo " * src_configure (${ABILIB:-64})"
-			src_configure $p || die " $DIALOG_ERROR Error in src_configure (${ABILIB:-64})"
-			echo " * src_compile (${ABILIB:-64})"
-			src_compile $p || die " $DIALOG_ERROR Error in src_compile (${ABILIB:-64})"
-			if [ $ENABLE_TESTS == 1 ]; then
-				echo " * src_test (${ABILIB:-64})"
-				src_test $p || die " $DIALOG_ERROR Error in src_test (${ABILIB:-64})"
+
+			## If we're installing using pip we need root
+			if [[ $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
+				su -p -c 'userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
+			else
+				userBuildPackage
 			fi
+
 			echo " * src_install (${ABILIB:-64})"
 			src_install	$p || die " $DIALOG_ERROR Error in src_install (${ABILIB:-64})"
 
@@ -230,12 +254,7 @@ installPackage() {
 				chown $BUILD_USER "$BUILD_PATH"
 			fi
 
-			## If we're installing using pip we need root
-			if [[ $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
-				su -p -c 'buildPackage' $BUILD_USER || die "$DIALOG_ERROR Building package failed!"
-			else
-				buildPackage || die
-			fi
+			buildPackage || die
 
 			## Restore our environment
 			export USER=$saved_USER
@@ -253,10 +272,6 @@ installPackage() {
 				python)
 					echo > ${D}/PYTHON_MODULE ;;
 			esac
-			if [[ $BUILD_USER != 'root' ]]; then
-				echo " * Fixing Permissions"
-				chown -Rv root:root $D
-			fi
 		fi
 
 		## Archive it up before we do any post modifications.
