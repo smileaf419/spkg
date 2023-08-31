@@ -131,7 +131,6 @@ buildPackage() {
 		for ABILIB in $ABILIBS; do
 			[[ $BUILD_ABI != *$ABILIB* ]] && continue
 			export PKG_CONFIG_PATH="/lib$ABILIB/pkgconfig:/usr/lib$ABILIB/pkgconfig:$PKG_CONFIG_BASE"
-			CONF_FLAGS=
 			[[ ! -z $ABILIBS ]] && echo " * ${ABILIB:-64} bit pass"
 
 			## If we're installing using pip we need root
@@ -153,6 +152,7 @@ buildPackage() {
 					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
 				fi
 			fi
+			unset CONF_FLAGS
 		done
 	else
 		echo " * Bootstrapping"
@@ -179,6 +179,7 @@ installPackage() {
 		local BUILD_FORCE=0
 		export DOC_LIST=("/usr/share/doc")
 
+		unset CONF_FLAGS
 		source "${PKG_BLD}"
 
 		[[ $FETCH_ONLY != 1 ]] && install -o $BUILD_USER -d "${D}"
