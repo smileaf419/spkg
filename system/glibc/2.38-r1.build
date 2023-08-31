@@ -68,8 +68,8 @@ src_install() {
 		touch $D/$ROOT/var/cache/nscd/.keep
 	else
 		make DESTDIR=$PWD/DESTDIR install &&
+		mkdir -p $D/$ROOT/{lib,usr/include/gnu} &&
 		cp -a DESTDIR/lib$ABILIB $D/$ROOT &&
-		mkdir -p $D/$ROOT/usr/include/gnu &&
 		install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-$ABILIB.h \
 					   $D/$ROOT/usr/include/gnu/
 		if [[ $ABILIB == 32 ]]; then
@@ -120,33 +120,35 @@ bootstrap() {
 	## /libx32 x32bit
 
 	for ABILIB in $ABILIBS; do
+		echo " * Building for $ABILIB"
 		if [[ $ABILIB == 64 ]]; then
 			ABILIB=
+			unset CC CXX
 			mkdir -pv $D/$ROOT/lib{,64}
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
 			echo "rootsbindir=/sbin" > configparms
 			local TGT=$HOST_TGT
 		else
-			make clean
-			find .. -name "*.a" -delete
 			local TGT=$HOST_TGTx32
-			[[ $ABILIB == 32 ]] && filter-flags -march && TGT=$HOST_TGT32
+			[[ $ABILIB == 32 ]] && TGT=$HOST_TGT32
 			export CC="$HOST_TGT-gcc -m$ABILIB"
 			export CXX="$HOST_TGT-g++ -m$ABILIB"
 		fi
 
 		../configure --prefix=/usr            \
 					 --bindir=/bin             \
-					 --libdir=/lib$ABILIB      \
-					 --libexecdir=/lib$ABILIB   \
+					 --libdir=/lib$ABILIB        \
+					 --libexecdir=/lib$ABILIB     \
 					 --enable-kernel=6.4            \
 					 --enable-multi-arch             \
 					 --with-headers=$ROOT/usr/include  \
 					 --build=$(../scripts/config.guess) \
 					 --host=$TGT                          \
 					 libc_cv_slibdir=/lib$ABILIB &&
-		compile_default &&
+		compile_default -s &&
 		src_install
+		make -s clean
+		find .. -name "*.a" -delete -print
 	done
 }
