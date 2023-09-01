@@ -67,7 +67,7 @@ src_configure() {
 	CONF_FLAGS='--prefix=/usr'
 	configure_default \
 				--bindir=/bin           \
-				--libdir=$(libdir 1)    \
+				--libdir=$(libdir)      \
 				--with-shared           \
 				--mandir=/usr/share/man \
 				--without-debug         \
@@ -132,12 +132,15 @@ bootstrap() {
 	for ABILIB in $ABILIBS; do
 		unset CONF_FLAGS
 		case $ABILIB in
-			64) unset CC ;;
+			64) unset CC CXX ;;
 			*) export CC="$HOST_TGT-gcc -m$ABILIB"; export CXX="$HOST_TGT-g++ -m$ABILIB" ;;
 		esac
 		_LIB_ROOT_INSTALL=1
-		configure_default                \
-					--bindir=/bin          \
+		## Set a CONF_FLAG as docdir isn't a valid option.
+		CONF_FLAGS="--prefix=/usr"
+		configure_default                  \
+					--bindir=/bin           \
+					--libdir=$(libdir)       \
 		            --build=$(./config.guess) \
 		            --without-manpages        \
 		            --with-shared             \
