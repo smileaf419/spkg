@@ -87,7 +87,11 @@ configure_default() {
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
 		[[ -z $ABILIBS || $ABILIBS == $ABILIB ]] && ABILIB=
-		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --libdir=/usr/lib$ABILIB --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
+
+		## Set some default flags that most every package will want to set.
+		## if libs are being installed into /lib* set _LIB_ROOT_INSTALL=1
+		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --libdir=$(libdir) --disable-static --enable-shared --docdir=/usr/share/doc/${PKG_NVR}}
+
 		if [[ -z $ABILIB || $ABILIB == 64 ]]; then
 			[[ $MODE == 'bootstrap' ]] && CONF_FLAGS+=" --host=$HOST_TGT"
 		elif [[ $ABILIB == 32 ]]; then
@@ -96,7 +100,7 @@ configure_default() {
 		elif [[ $ABILIB == x32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
 		fi
-#		LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:$LD_LIBRARY_BASE"
+#		LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:/usr/local/lib$ABILIB:$LD_LIBRARY_BASE"
 
 		declare -p
 

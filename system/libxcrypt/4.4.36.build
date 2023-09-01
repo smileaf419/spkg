@@ -17,6 +17,7 @@ src_configure() {
 		64) unset CC ;;
 		*) export CC="$HOST_TGT-gcc -m$ABILIB" ;;
 	esac
+	_LIB_ROOT_INSTALL=1
 	configure_default --enable-hashes=strong,glibc \
 					  --enable-obsolete-api=glibc \
 					  --disable-failure-tokens \
@@ -36,6 +37,7 @@ src_install() {
 
 bootstrap() {
 	for ABILIB in $ABILIBS; do
+		unset CONF_FLAGS
 		src_configure
 		compile_default
 		src_install

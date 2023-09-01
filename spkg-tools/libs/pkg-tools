@@ -580,3 +580,14 @@ getBldFile() {
 	echo $PKG_BLD
 }
 export -f getBldFile
+
+####
+## Helper function for builds to specify where to install their libs
+## By setting _LIB_ROOT_INSTALL=1 or passing a 1 to this function
+## It will output /lib[ABILIB] else /usr/lib[ABILIB]
+libdir() {
+	_LIB_ROOT_INSTALL=${_LIB_ROOT_INSTALL:-${@:-0}}
+	[[ $_LIB_ROOT_INSTALL == 0 ]] && echo -n "/usr"
+	echo "/lib$ABILIB"
+}
+export -f libdir
