@@ -28,6 +28,10 @@
 export ABILIB=64
 
 ####
+## Set a default globally
+export HOST_TGT=${HOST_TGT:-x86_64-pc-linux-gnu}
+
+####
 ## Bootstrapping is done a bit backwards from how the functions are normally setup
 ## this is because several variables *MUST* be set before the bootstrap code is ran.
 ## As a result bootstrap_default is called and then bootstrap is called from within,
