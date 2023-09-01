@@ -14,12 +14,12 @@ ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ $ABILIB != 64  ]]; then
-		filter-flags -m
+	filter-flags -m
+	if [[ $ABILIB != 64 ]]; then
 		append-cflags -m$ABILIB
 		append-cxxflags -m$ABILIB
 	fi
-	./configure --prefix=/usr --libdir=/lib$ABILIB
+	./configure --prefix=/usr --libdir=$(libdir 1)
 }
 
 src_install() {
