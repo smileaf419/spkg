@@ -487,10 +487,10 @@ preservedRebuild() {
 			fi
 		done
 
-		if [[ -z $PKG_LIST ]]; then
-			rm $PRESERVED_LOG
-			return 1
+		if [[ ! -z $PKG_LIST ]]; then
+			return 0
 		fi
+		rm $PRESERVED_LOG
 	fi
-	return 0
+	return 1
 }
