@@ -13,8 +13,10 @@ SLOT=0
 ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ $ABILIB != 64 ]] && export CC="$HOST_TGT-gcc -m$ABILIB"
-	CONF_FLAGS=
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="$HOST_TGT-gcc -m$ABILIB" ;;
+	esac
 	configure_default --enable-hashes=strong,glibc \
 					  --enable-obsolete-api=glibc \
 					  --disable-failure-tokens \
@@ -34,9 +36,9 @@ src_install() {
 
 bootstrap() {
 	for ABILIB in $ABILIBS; do
-		make distclean
 		src_configure
 		compile_default
 		src_install
+		make distclean
 	done
 }
