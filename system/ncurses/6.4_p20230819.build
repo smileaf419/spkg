@@ -59,12 +59,15 @@ for p in ${PATCH_DATES[*]}; do
 done
 
 src_configure() {
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
+	esac
 	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB" && export CXX="g++ -m$ABILIB"
 	CONF_FLAGS=' '
+	_LIB_ROOT_INSTALL=1
 	configure_default \
-				--prefix=/usr           \
 				--bindir=/bin           \
-				--libdir=/lib$ABILIB       \
 				--with-shared           \
 				--mandir=/usr/share/man \
 				--without-debug         \
@@ -127,16 +130,14 @@ bootstrap() {
 	popd
 
 	for ABILIB in $ABILIBS; do
-		if [[ $ABILIB != 64 ]]; then
-			make distclean
-			export CC="$HOST_TGT-gcc -m$ABILIB"
-			export CXX="$HOST_TGT-g++ -m$ABILIB"
-		fi
-		CONF_FLAGS=' '
+		unset CONF_FLAGS
+		case $ABILIB in
+			64) unset CC ;;
+			*) export CC="$HOST_TGT-gcc -m$ABILIB"; export CXX="$HOST_TGT-g++ -m$ABILIB" ;;
+		esac
+		_LIB_ROOT_INSTALL=1
 		configure_default                \
-					--prefix=/usr         \
 					--bindir=/bin          \
-					--libdir=/lib$ABILIB    \
 		            --build=$(./config.guess) \
 		            --without-manpages        \
 		            --with-shared             \
@@ -159,5 +160,6 @@ bootstrap() {
 			cp -Rv DESTDIR/lib$ABILIB/* $D/$ROOT/lib$ABILIB
 			rm -rf DESTDIR
 		fi
+		make distclean
 	done
 }
