@@ -13,41 +13,35 @@ SLOT=0
 TEST=test
 ABILIBS="64 x32 32"
 
-src_configure() {
+src_prepare() {
 	## Prevent static libraries from being installed
 	sed -i '/install -m.*STA/d' libcap/Makefile
-
-	## Fix install locations.
-	sed -e '/^exec_prefix/ s,$(prefix),/,' \
-		-e '/^inc_prefix/ s,lib_,,' \
-		-i Make.Rules
 }
 
-src_compile() {
-	if [[ $ABILIB == 64 ]]; then
-		compile_default prefix=/usr lib=lib
-	else
-		local arch=x86_64
-		[[ $ABILIB == 32 ]] && arch=i686
-		export CC="gcc -m$ABILIB -march=$arch"
-		compile_default
-	fi
+src_configure() {
+	case $ABILIB in
+		64) unset CC ;;
+		*)
+			local arch=x86_64
+			[[ $ABILIB == 32 ]] && arch=i686
+			export CC="gcc -m$ABILIB -march=$arch"
+		;;
+	esac
 }
 
 src_install() {
 	if [[ $ABILIB == 64 ]]; then
-		install_default prefix="/usr" lib=lib
+		install_default
 	else
-		local arch=x86_64
-		[[ $ABILIB == 32 ]] && arch=i686
-		export CC="gcc -m$ABILIB -march=$arch"
-		install_default lib=lib$ABILIB prefix=$PWD/DESTDIR/usr -C libcap
-		mkdir -p $D/usr/lib$ABILIB
-		cp -Rv DESTDIR/usr/lib$ABILIB/* $D/usr/lib$ABILIB
-		sed -e "s|^libdir=.*|libdir=/usr/lib$ABILIB|" -i $D/usr/lib$ABILIB/pkgconfig/lib{cap,psx}.pc
-		chmod -v 755 $D/usr/lib$ABILIB/libcap.so.$PKG_VER
+		install_default lib=lib$ABILIB -C libcap
+		mkdir -p $D/lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+		sed -e "s|^libdir=.*|libdir=/lib$ABILIB|" -i $D/lib$ABILIB/pkgconfig/lib{cap,psx}.pc
+		chmod -v 755 $D/lib$ABILIB/libcap.so.$PKG_VER
 		rm -rf DESTDIR
 	fi
+
+	## Install for PAM compatiblity
 #	install -v -m755 pam_cap/pam_cap.so "${D}/usr/lib/security"
 #	mkdir -p "${D}/etc/security"
 #	install -v -m644 pam_cap/capability.conf "${D}/etc/security"

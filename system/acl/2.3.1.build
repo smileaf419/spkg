@@ -14,8 +14,11 @@ SLOT=0
 ABILIBS="64 x32 32"
 
 src_configure() {
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default --libdir=/lib$ABILIB
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	configure_default
 }
 
 src_install() {

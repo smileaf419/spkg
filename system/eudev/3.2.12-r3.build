@@ -35,12 +35,17 @@ src_configure() {
 
 	local arch=x86_64
 	[[ $ABILIB == 32 ]] && arch=i686
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB" && CXX="g++ -m$ABILIB"
+	case $ABILIB in
+		64) unset CC CXX ;;
+		*)
+			export CC="gcc -m$ABILIB"
+			export CXX="g++ -m$ABILIB"
+		;;
+	esac
 
 	configure_default \
 				--bindir=/bin     \
 	            --sbindir=/sbin   \
-	            --libdir=/lib$ABILIB \
 	            --sysconfdir=/etc \
 	            --enable-manpages
 }

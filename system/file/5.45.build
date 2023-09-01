@@ -14,8 +14,12 @@ ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default --libdir=/lib$ABILIB --bindir=/bin
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	_LIB_ROOT_INSTALL=1
+	configure_default --bindir=/bin
 }
 
 src_install() {
@@ -42,8 +46,8 @@ bootstrap() {
 		compile_default
 	popd
 
-	CONF_FLAGS=' '
-	configure_default --build=$(./config.guess) --bindir=/bin --libdir=/lib$ABILIB
+	_LIB_ROOT_INSTALL=1
+	configure_default --build=$(./config.guess) --bindir=/bin
 	compile_default FILE_COMPILE=$(pwd)/build/src/file
 	src_install
 	rm -v $D/$ROOT/lib*/libmagic.la

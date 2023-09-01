@@ -13,9 +13,11 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 
-src_configure() {
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default --libdir="/usr/lib$ABILIB"
+src_prepare() {
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
 }
 
 src_install() {

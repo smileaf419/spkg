@@ -18,17 +18,20 @@ src_configure() {
 	if [[ $ABILIB != 64 ]]; then
 		cp -v configfsf.guess config.guess
 		cp -v configfsf.sub   config.sub
-		## Don't set CONF_FLAGS as it'll override --prefix and others we want.
 		SET_ABI="ABI=$ABILIB"
 		local arch=x86-64
-		filter-flags -march
-		append-cflags -m$ABILIB -O2 -pedantic -fomit-frame-pointer -mtune=generic -march=$arch
+		filter-flags -march -m[x3]*
+		append-cflags -m$ABILIB -pedantic -fomit-frame-pointer -mtune=generic -march=$arch
 		CONF_FLAGS="--prefix=/usr --disable-static --includedir=/usr/include/m$ABILIB/gmp"
 		export CXXFLAGS=$CFLAGS
 		export PKG_CONFIG_PATH="/usr/lib$ABILIB/pkgconfig"
 		export CPPFLAGS=
+	else
+		unset SET_ABI CONF_FLAGS
+		filter-flags -march -m[x3]* -mtune -fomit-frame-pointer -pedantic
 	fi
-	configure_default --enable-cxx --libdir=/lib$ABILIB
+	_LIB_ROOT_INSTALL=1
+	configure_default --enable-cxx --libdir=$(libdir 1)
 
 	[[ $ABILIB != 64 ]] && sed 's/$(exec_prefix)\/include/$\(includedir\)/' -i Makefile || true
 }

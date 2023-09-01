@@ -19,7 +19,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 
-src_configure() {
+src_prepare() {
 	## Ensure installation of Symlinks
 	## Fix man page installation
 	## Fix installation of header files
@@ -31,11 +31,16 @@ src_configure() {
 		-i Makefile
 
 	append-cflags -fPIC
+}
 
-	[[ $ABILIB != 64 ]] && sed -e "s/^CC=.*/CC=gcc -m$ABILIB/" -i Makefile{,-libbz2_so}
+src_configure() {
+	case $ABILIB in
+		64) sed -e "s/^CC=.*/CC=gcc/" -i Makefile{,-libbz2_so} ;;
+		*) sed -e "s/^CC=.*/CC=gcc -m$ABILIB/" -i Makefile{,-libbz2_so} ;;
+	esac
 
 	make -f Makefile-libbz2_so
-	[[ $ABILIB == 64 ]] && make clean || true
+	make clean || true
 }
 
 src_compile() {

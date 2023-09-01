@@ -17,9 +17,8 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
-append-cppflags -g
 
-src_configure() {
+src_prepare() {
 	# Rather than PATCHES for auto patching, we need to unpack/patch an archive
 	SRC_URI=($SRC_URI)
 	PATCH=${SRC_URI[1]##*/}
@@ -30,12 +29,16 @@ src_configure() {
 	# Not using Static libs
 	sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
 
-	CONF_FLAGS=' '
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default --prefix=/usr                \
-				--libdir=/lib$ABILIB                \
-	            --disable-debuginfod         \
-	            --enable-libdebuginfod=dummy
+	append-cppflags -g
+}
+
+src_configure() {
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	configure_default --disable-debuginfod \
+					  --enable-libdebuginfod=dummy
 }
 
 src_test() {

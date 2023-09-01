@@ -17,17 +17,18 @@ ABILIBS="64 x32 32"
 src_configure() { :; }
 
 src_compile() {
-	if [[ $ABILIB != 64 ]]; then
-		export CC="gcc -m$ABILIB"
-	fi
-	compile_default prefix=/usr libdir=/lib exec_prefix=/
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	compile_default prefix=/usr libdir=$(libdir 1) exec_prefix=/
 }
 
 src_install() {
 	#PKGCONFIGDIR="/usr/lib/pkgconfig"
 	if [[ $ABILIB == 64 ]]; then
-		install_default prefix=/usr libdir=/lib exec_prefix=/
-		rm -v "$ROOT/$D"/lib/libzstd.a
+		install_default prefix=/usr libdir=$(libdir 1) exec_prefix=/
+		rm -v "$ROOT/$D"/lib$ABILIB/libzstd.a
 	else
 		make prefix=/usr libdir=/lib DESTDIR=$PWD/DESTDIR install
 		mkdir -p $D/lib$ABILIB

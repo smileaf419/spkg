@@ -16,8 +16,12 @@ ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default --bindir=/bin --libdir=/lib$ABILIB
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	_LIB_ROOT_INSTALL=1
+	configure_default --bindir=/bin
 }
 
 src_install() {
@@ -32,10 +36,11 @@ src_install() {
 }
 
 bootstrap() {
+	_LIB_ROOT_INSTALL=1
 	configure_default \
 				--bindir=/bin                     \
 				--build=$(build-aux/config.guess) \
 				--disable-doc
 	compile_default && src_install
-	rm -v $D/$ROOT/usr/lib$ABILIB/liblzma.la
+	rm -v $D/$ROOT/lib$ABILIB/liblzma.la
 }

@@ -13,11 +13,15 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
+_SPKG_CLEAN=distclean
 
 src_configure() {
-#	sed -i '/^pkgconfdir/ s,$(libdir),/usr/lib,' Makefile.*
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default --libdir=/lib$ABILIB --sysconfdir=/etc
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	_LIB_ROOT_INSTALL=1
+	configure_default --sysconfdir=/etc
 }
 
 src_install() {
