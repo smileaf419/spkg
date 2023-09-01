@@ -237,6 +237,8 @@ installPackage() {
 			export _PREPARE_ONLY=0
 			## How do we clean in between multilibs
 			export _SPKG_CLEAN
+			## If we need to install libs into /lib* instead of /usr/lib*
+			export _LIB_ROOT_INSTALL
 
 			## When we pass commands to our BUILD_USER these does not get updated
 			## Set it here to avoid permission issues when packages call for
