@@ -31,13 +31,12 @@ src_configure() {
 		mkdir -pv $D/$ROOT/lib{,64}
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
+		unset CC CXX
 	else
 		export CC="gcc -m$ABILIB"
 		export CXX="g++ -m$ABILIB"
 	fi
-	configure_default --prefix=/usr     \
-				 --bindir=/bin           \
-				 --libdir=/lib$ABILIB      \
+	configure_default --bindir=/bin        \
 				 --libexecdir=/lib$ABILIB   \
 				 --enable-kernel=6.4          \
 				 --with-headers=/usr/include   \
