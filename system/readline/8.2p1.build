@@ -36,8 +36,12 @@ src_configure() {
 	sed -i '/MV.*old/d' Makefile.in
 	sed -i '/{OLDSUFF}/c:' support/shlib-install
 
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB"
-	configure_default --with-curses --libdir=/lib$ABILIB
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	_LIB_ROOT_INSTALL=1
+	configure_default --with-curses
 }
 
 src_compile() {

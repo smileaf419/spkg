@@ -14,15 +14,15 @@ ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 
 src_configure() {
-	if [[ $ABILIB != 64 ]]; then
-		SET_ABI="CC='gcc -m$ABILIB'"
-	fi
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
 
-	CONF_FLAGS=' '
+	_LIB_ROOT_INSTALL=1
 	configure_default \
 				ADJTIME_PATH=/var/lib/hwclock/adjtime   \
 	            --bindir=/bin       \
-	            --libdir=/lib$ABILIB    \
 	            --exec-prefix=/      \
 	            --sbindir=/sbin       \
 	            --runstatedir=/run    \
