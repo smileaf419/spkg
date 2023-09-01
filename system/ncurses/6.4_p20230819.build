@@ -60,14 +60,14 @@ done
 
 src_configure() {
 	case $ABILIB in
-		64) unset CC ;;
+		64) unset CC CXX ;;
 		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
 	esac
-	[[ $ABILIB != 64 ]] && export CC="gcc -m$ABILIB" && export CXX="g++ -m$ABILIB"
-	CONF_FLAGS=' '
 	_LIB_ROOT_INSTALL=1
+	CONF_FLAGS='--prefix=/usr'
 	configure_default \
 				--bindir=/bin           \
+				--libdir=$(libdir 1)    \
 				--with-shared           \
 				--mandir=/usr/share/man \
 				--without-debug         \
