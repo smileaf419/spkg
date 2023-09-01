@@ -15,8 +15,9 @@ ABILIBS="64 x32 32"
 src_configure() {
 	case $ABILIB in
 		64) unset CC ;;
-		*) export CC="$HOST_TGT-gcc -m$ABILIB" ;;
+		*) export CC="gcc -m$ABILIB" ;;
 	esac
+	[[ $MODE == 'bootstrap' ]] && CC="$HOST_TGT-$CC"
 	_LIB_ROOT_INSTALL=1
 	configure_default --enable-hashes=strong,glibc \
 					  --enable-obsolete-api=glibc \
