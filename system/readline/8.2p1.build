@@ -30,12 +30,14 @@ src_patch() {
 	patch_default $PATCHES
 }
 
-src_configure() {
+src_prepare() {
 	# Probably not required as we're always installing into a clean temp root.
 	# But included from LFS.
 	sed -i '/MV.*old/d' Makefile.in
 	sed -i '/{OLDSUFF}/c:' support/shlib-install
+}
 
+src_configure() {
 	case $ABILIB in
 		64) unset CC ;;
 		*) export CC="gcc -m$ABILIB" ;;
