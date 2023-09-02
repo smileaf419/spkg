@@ -240,7 +240,7 @@ if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroo
 	## If we're using an unstable ARCH, set it in our config
 	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf
 	## Set our BUILD_ABI to the same as the one it got built for.
-	sed "s,^BUILD_ABI.*$,BUILD_ABI=\"$BUILD_ABI\"" -i $ROOT/etc/spkg.conf
+	sed "s,^BUILD_ABI.*$,BUILD_ABI=\"$BUILD_ABI\"," -i $ROOT/etc/spkg.conf
 
 	## Install a link to our script
 	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
