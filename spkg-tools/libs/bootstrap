@@ -237,8 +237,14 @@ if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroo
 
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
+	## If we're using an unstable ARCH, set it in our config
 	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf
+	## Set our BUILD_ABI to the same as the one it got built for.
+	sed "s,^BUILD_ABI.*$,BUILD_ABI=\"$BUILD_ABI\"" -i $ROOT/etc/spkg.conf
+
+	## Install a link to our script
 	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
+	## FIXME: Add links to other helper scripts?
 
 	## Pass certain options to our chroot environment
 	SPKG_BUILD_OPTS=
