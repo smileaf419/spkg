@@ -36,7 +36,10 @@ src_configure() {
 		export CC="gcc -m$ABILIB"
 		export CXX="g++ -m$ABILIB"
 	fi
-	configure_default --bindir=/bin        \
+	## Set a CONF_FLAG as it'll set a libdir=lib64 and we need lib
+	CONF_FLAGS="--prefix=/usr"
+	configure_default --bindir=/bin       \
+				 --libdir=/lib$ABILIB      \
 				 --libexecdir=/lib$ABILIB   \
 				 --enable-kernel=6.4          \
 				 --with-headers=/usr/include   \
