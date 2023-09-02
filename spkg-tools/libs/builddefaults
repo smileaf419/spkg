@@ -86,7 +86,7 @@ configure_default() {
 		# Not all packages support these options.
 		# Allow them to override and still benefit from the use of
 		# customizing the *FLAGS.
-		[[ -z $ABILIBS || $ABILIBS == $ABILIB ]] && ABILIB=
+		[[ -z $ABILIBS || $BUILD_ABI == $ABILIB ]] && ABILIB=
 
 		## Set some default flags that most every package will want to set.
 		## if libs are being installed into /lib* set _LIB_ROOT_INSTALL=1
