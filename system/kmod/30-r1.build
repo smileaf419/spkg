@@ -18,6 +18,7 @@ src_configure() {
 		64) unset CC ;;
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
+	_LIB_ROOT_INSTALL=1
 	configure_default --sysconfdir=/etc \
 					  --bindir=/bin     \
 					  --sbindir=/sbin   \
@@ -43,7 +44,7 @@ src_install() {
 	else
 		make DESTDIR=$PWD/DESTDIR install
 		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* /lib$ABILIB
+		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
 		rm -rf DESTDIR
 	fi
 	## Keep man pages as they can't be regenerated without xsltproc

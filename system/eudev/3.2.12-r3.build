@@ -43,6 +43,7 @@ src_configure() {
 		;;
 	esac
 
+	_LIB_ROOT_INSTALL=1
 	configure_default \
 				--bindir=/bin     \
 	            --sbindir=/sbin   \
