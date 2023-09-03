@@ -32,6 +32,7 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+BUILD_SEPERATE_DIR=yes
 
 src_configure() {
 	sed -e '/m64=/s/lib64/lib/' \
