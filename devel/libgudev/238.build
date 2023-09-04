@@ -9,9 +9,11 @@ LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/libgudev/${PKG_VER}/libgudev-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
-DEPS="devel/glib system/eudev>3.2.12"
+## Currently restricts cannot reference nor takes revisions into account.
+#DEPS="devel/glib system/eudev>3.2.12-r2"
+DEPS="devel/glib system/eudev"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
