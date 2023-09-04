@@ -91,3 +91,4 @@ system/timezone-data
 network/wget
 system/lfs-bootscripts
 devel/git
+apps/unzip
