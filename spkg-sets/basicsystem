@@ -79,5 +79,6 @@ apps/sysklogd
 system/sysvinit
 system/lfs-bootscripts
 system/timezone-data
+apps/unzip
 devel/git
 apps/nano
