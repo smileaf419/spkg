@@ -148,6 +148,7 @@ export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
 
 ####
 ## Ensure our config file exists
+cmd_USE=$USE
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
 else
@@ -161,7 +162,7 @@ export CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 export CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
 export ARCH=${ARCH:-$(uname -m)}
 export BUILD_ABI=${BUILD_ABI:-"64 x32 32"}
-export USE=${USE:-}
+export USE="$USE $cmd_USE"; unset cmd_USE
 export PAGE=${PAGE:-letter}
 export ENABLE_TESTS=${ENABLE_TESTS:-0}
 export INSTALL_DOCS=${INSTALL_DOCS:-0}
