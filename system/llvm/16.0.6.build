@@ -108,7 +108,15 @@ src_configure() {
 	## Nuke LLVM libunwind as it conflicts with the one already on the system:
 	rm -fr ../projects/libunwind
 
-	CC=gcc CXX=g++                                \
+	## Check if we're already installed, if so use llvm to compile rather than gcc
+	if [[ ! -z $(Installed-getPkg system/llvm | getLatest) ]]; then
+		CC='clang'
+		CXX='clang++'
+	else
+		CC='gcc'
+		CXX='g++'
+	fi
+
 	configure_default                             \
 		-DCMAKE_C_FLAGS:STRING="$CFLAGS"          \
 		-DCMAKE_CXX_FLAGS:STRING="$CFLAGS"        \
@@ -127,9 +135,9 @@ src_configure() {
 		-DLIBCXX_INCLUDE_BENCHMARKS=OFF           \
 		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF         \
 		-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON      \
-		-DCMAKE_C_COMPILER="clang"                \
-		-DCMAKE_CXX_COMPILER="clang++"            \
-		-DLLVM_USE_LINKER=lld                     \
+		-DCMAKE_C_COMPILER="$CC"                  \
+		-DCMAKE_CXX_COMPILER="$CXX"               \
+		$( [[ $CC == 'clang' ]] && echo '-DLLVM_USE_LINKER=lld' )\
 		-Wno-dev -G Ninja
 
 
