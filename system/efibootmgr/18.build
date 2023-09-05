@@ -1,0 +1,27 @@
+####
+## * build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/rhboot/efibootmgr/archive/$PKG_VER/efibootmgr-$PKG_VER.tar.gz")
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+#B=
+
+src_configure() { :; }
+
+src_compile() {
+	compile_default EFIDIR=leaf EFI_LOADER=grubx64.efi
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default EFIDIR=leaf
+}
