@@ -25,7 +25,8 @@ SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_V
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxx-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxxabi-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/polly-${PKG_VER}.src.tar.xz"
-"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libunwind-${PKG_VER}.src.tar.xz")
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libunwind-${PKG_VER}.src.tar.xz"
+)
 
 PATCHES=(
 #"https://www.linuxfromscratch.org/patches/blfs/svn/clang-16.0.5-enable_default_ssp-1.patch"
@@ -39,7 +40,7 @@ SLOT=0
 setBuildENV cmake ninja
 BUILD_SEPERATE_DIR=yes
 B=llvm-${PKG_VER}.src
-IUSE="doc"
+IUSE="doc gcc"
 ## FIXME: These dependencies are not available
 # use-enable doc && UDEPS="sphinx recommonmark doxygen"
 [[ $ENABLE_TESTS == 1 ]] && UDEPS+=" network/rsync python/psutil"
@@ -105,16 +106,27 @@ src_configure() {
 	mkdir -p include
 	## Copy this LLVM libunwind header or it won't be found:
 	cp -a ../projects/libunwind/include/mach-o include
-	## Nuke LLVM libunwind as it conflicts with the one already on the system:
-	rm -fr ../projects/libunwind
 
 	## Check if we're already installed, if so use llvm to compile rather than gcc
-	if [[ ! -z $(Installed-getPkg system/llvm | getLatest) ]]; then
+	if [[ ! -z $(Installed-getPkg system/llvm | getLatest) ]] && ! use-enable gcc; then
+		echo " * Build System: clang"
 		CC='clang'
 		CXX='clang++'
+		CONF_ADD_FLAGS=(-DLLVM_USE_LINKER=lld
+		-DLLVM_ENABLE_ZLIB=ON
+		-DLLVM_ENABLE_ASSERTIONS=OFF
+		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=NO
+		-DLIBCXX_INCLUDE_BENCHMARKS=OFF
+		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF
+		-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON
+		)
 	else
+		echo " * Build System: GCC"
 		CC='gcc'
 		CXX='g++'
+		## These projects seem to have issues building under GCC
+		## libunwind uses -nostdlib which does not exist in GCC, but does in clang
+		rm -fr ../projects/{libunwind,libcxx{,abi},compiler-rt}
 	fi
 
 	configure_default                             \
@@ -128,16 +140,9 @@ src_configure() {
 		-DLLVM_BINUTILS_INCDIR=/usr/include       \
 		-DLLVM_INCLUDE_BENCHMARKS=OFF             \
 		-DCLANG_DEFAULT_PIE_ON_LINUX=ON           \
-		-DLLVM_ENABLE_ZLIB=ON                     \
-		-DLLVM_ENABLE_ASSERTIONS=OFF              \
-		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=NO   \
-		-DLLVM_INSTALL_UTILS=ON                   \
-		-DLIBCXX_INCLUDE_BENCHMARKS=OFF           \
-		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF         \
-		-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON      \
 		-DCMAKE_C_COMPILER="$CC"                  \
 		-DCMAKE_CXX_COMPILER="$CXX"               \
-		$( [[ $CC == 'clang' ]] && echo '-DLLVM_USE_LINKER=lld' )\
+		-DLLVM_CCACHE_BUILD=OFF                   \
 		-Wno-dev -G Ninja
 
 
@@ -156,7 +161,7 @@ src_configure() {
 }
 
 src_test() {
-	ninja check-all
+	sh -c 'ulimit -c 0 && ninja check-all'
 }
 
 src_install() {
@@ -199,14 +204,12 @@ src_install() {
 	cp bin/FileCheck "${D}"/usr/bin
 
 	if use-enable doc; then
-		install -v -d -m755 /usr/share/doc/llvm-${PKG_VER}
-		mv -v /usr/share/doc/LLVM/llvm /usr/share/doc/llvm-${PKG_VER}
-		rmdir -v --ignore-fail-on-non-empty /usr/share/doc/LLVM
+		install -v -d -m755 $D/usr/share/doc/llvm-${PKG_VER}
+		mv -v $D/usr/share/doc/LLVM/llvm $D/usr/share/doc/llvm-${PKG_VER}
+		rmdir -v --ignore-fail-on-non-empty $D/usr/share/doc/LLVM
 
-		install -v -d -m755 /usr/share/doc/llvm-${PKG_VER}
-		mv -v /usr/share/doc/LLVM/clang /usr/share/doc/llvm-${PKG_VER}
-		rmdir -v --ignore-fail-on-non-empty /usr/share/doc/LLVM
-
-		## FIXME: Doxygen documentation was suppose to be built, how to install it?
+		install -v -d -m755 $D/usr/share/doc/llvm-${PKG_VER}
+		mv -v $D/usr/share/doc/LLVM/clang $D/usr/share/doc/llvm-${PKG_VER}
+		rmdir -v --ignore-fail-on-non-empty $D/usr/share/doc/LLVM
 	fi
 }
