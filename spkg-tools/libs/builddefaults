@@ -111,7 +111,7 @@ configure_default() {
 		CPPFLAGS=\"$CPPFLAGS\" \
 		CXXFLAGS=\"$CXXFLAGS\" \
 		$SET_ABI               \
-			$d/configure ${CONF_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
+			$d/configure ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
 		meson setup ${CONF_FLAGS[@]} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
