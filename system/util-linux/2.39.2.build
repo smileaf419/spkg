@@ -39,9 +39,6 @@ src_configure() {
 	            --without-python     \
 	            --without-systemd    \
 	            --without-systemdsystemunitdir
-
-	## This causes issues during install. we'll do this later anyway.
-	grep 'chown root:root' -rl  | xargs sed '/chown root:root/d' -i 2> /dev/null || true
 }
 
 src_test() { :; }
