@@ -213,6 +213,12 @@ checkinlist() {
 }
 export -f checkinlist
 
+## Helper Function returns 0 if the package is installed, 1 if not.
+is-installed() {
+	[[ ! -z $(Installed-getPkg $1) ]]
+}
+export -f is-installed
+
 ####
 ## Check if a config option (1) is set to either Y/M(2)
 ## Display a dialog describing the config option(3)
