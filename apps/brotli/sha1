@@ -1,3 +1,5 @@
-a34d115a86e503f37bb0ff9ccfb63d4a92002a2e  1.0.9-r2.build
+5f969f1fea1d0dfc7e518e4632e3bf5709f64c9b  1.0.9-r2.build
 ddfefdf2593b3f03eec221a7f4ceaa710e5a2e6b  brotli-1.0.9.tar.gz
 eeb7c565d18be2a0aa04964562b305f1bdadeb6d  brotli-1.0.9-pkgconfig.patch
+d64f3b7ee46f1de3a8df402def41f2244421994b  1.1.0.build
+2b048546afec020cf922f6af75058cc60fcf4fbf  brotli-1.1.0.tar.gz

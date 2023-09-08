@@ -5,7 +5,7 @@ HOMEPAGE="https://sourceware.org/bzip2/"
 DESCRIPTION="A high-quality data compressor."
 SRC_URI=("https://www.sourceware.org/pub/bzip2/bzip2-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.sourceware.org/pub/bzip2/bzip2-${PKG_VER}.tar.gz.sig")
-PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/bzip2-${PKG_VER}-install_docs-1.patch")
+PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/bzip2-1.0.8-install_docs-1.patch")
 LICENSE="BZIP2"
 DEPS=""
 BDEPS=""

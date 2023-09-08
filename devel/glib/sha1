@@ -4,3 +4,5 @@ b96bf17d0802efb5ea1788a412da171b03df013d  glib-skip_warnings-1.patch
 84738141459ed94447a0bec482b649be2b1296be  glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch
 35db185c404c3f8f235752c244c47bdc3f150f30  2.77.1.build
 a5e6913821419d273e09a46f0a6ef06d044fa6ad  glib-2.77.1.tar.xz
+35db185c404c3f8f235752c244c47bdc3f150f30  2.77.3.build
+a06d54af1c28c0bf51e454c9d806701e3b1802d9  glib-2.77.3.tar.xz

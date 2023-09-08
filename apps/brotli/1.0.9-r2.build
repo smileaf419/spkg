@@ -5,7 +5,7 @@ HOMEPAGE="https://github.com/google/brotli"
 DESCRIPTION="Brotli compression format"
 LICENSE="MIT"
 SRC_URI=("https://github.com/google/brotli/archive/v${PKG_VER}/brotli-${PKG_VER}.tar.gz")
-PATCHES=("https://github.com/google/brotli/commit/09b0992b6acb7faa6fd3b23f9bc036ea117230fc.patch => brotli-${PKG_VER}-pkgconfig.patch")
+PATCHES=("https://github.com/google/brotli/commit/09b0992b6acb7faa6fd3b23f9bc036ea117230fc.patch => brotli-1.0.9-pkgconfig.patch")
 DEPS=""
 BDEPS="devel/python"
 RDEPS=""

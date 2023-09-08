@@ -6,7 +6,7 @@ DESCRIPTION="GnuPG is a complete and free implementation of the OpenPGP standard
 LICENSE="GPLv3"
 SRC_URI=("https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${PKG_VER}.tar.bz2.sig")
-PATCHES=("https://github.com/gpg/gnupg/commit/dc13361524c1477b2106c7385f2059f9ea111b84.patch => gnupg-$PKG_VER-use-ldap.patch")
+PATCHES=("https://github.com/gpg/gnupg/commit/dc13361524c1477b2106c7385f2059f9ea111b84.patch => gnupg-2.4.3-use-ldap.patch")
 DEPS="apps/bzip2 devel/sqlite devel/libassuan devel/libgcrypt devel/libgpg-error devel/libksba devel/npth network/gnutls system/readline system/zlib"
 BDEPS=""
 RDEPS="apps/p11-kit devel/nettle apps/pinentry"
