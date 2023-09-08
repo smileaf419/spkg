@@ -18,6 +18,11 @@ src_configure() {
 	unpack ${DISTFILES}/makemkv-oss-${PKG_VER}.tar.gz
 
 	cd ${BUILD_PATH}/makemkv-oss-${PKG_VER}
+
+	## Fix a Bug cased by the removal of a depreciated method:
+	## https://forum.makemkv.com/forum/viewtopic.php?p=132993#p132993
+	sed -i "s/av_mallocz_array/av_calloc/g" libffabi/src/ffabi.c
+
 	./configure --disable-gui
 }
 
