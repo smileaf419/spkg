@@ -27,7 +27,6 @@ src_configure() {
 	echo "rootsbindir=/sbin" > ../configparms
 
 	if [[ $ABILIB == 64 ]]; then
-		ABILIB=
 		mkdir -pv $D/$ROOT/lib{,64}
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
 		ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64/ld-lsb-x86-64.so.3
@@ -123,7 +122,6 @@ bootstrap() {
 	for ABILIB in $ABILIBS; do
 		echo " * Building for $ABILIB"
 		if [[ $ABILIB == 64 ]]; then
-			ABILIB=
 			unset CC CXX
 			mkdir -pv $D/$ROOT/lib{,64}
 			ln -sfv ../lib/ld-linux-x86-64.so.2 $D/$ROOT/lib64
