@@ -66,7 +66,8 @@ src_configure() {
 		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
 	esac
 	_LIB_ROOT_INSTALL=1
-	CONF_FLAGS='--prefix=/usr'
+	## Set a CONF_FLAGS as docdir isn't a valid option.
+	CONF_FLAGS=--prefix=/usr
 	configure_default \
 				--bindir=/bin           \
 				--libdir=$(libdir)      \
@@ -80,7 +81,7 @@ src_configure() {
 				--with-termlib          \
 				$(use-enable pcre2 && echo ' --with-pcre2' || echo ' --without-pcre2') \
 				--without-hashed-db \
-				--with-pkg-config-libdir=/lib$ABILIB/pkgconfig
+				--with-pkg-config-libdir=/$(libdir)/pkgconfig
 }
 
 src_test() { :; }
@@ -89,7 +90,6 @@ src_install() {
 	local t_D
 	if [[ $ABILIB == 64 ]]; then
 		## A symlink to terminfo is created here.
-		mkdir -p $D/$ROOT/usr/lib
 		install_default
 		t_D=$D
 
@@ -98,24 +98,23 @@ src_install() {
 		cp -v -R doc/* "${D}"/usr/share/doc/ncurses-${PKG_VER/_p*}
 	else
 		t_D=$PWD/DESTDIR
-		mkdir -p $t_D/usr/lib
 		make DESTDIR=$t_D install
 	fi
 
-	mkdir -p $t_D/lib$ABILIB/pkgconfig
+	mkdir -p $t_D/$(libdir)/pkgconfig
 	for lib in ncurses form panel menu ; do
-	    rm -vf                    "${t_D}"/lib$ABILIB/lib${lib}.so
-	    echo "INPUT(-l${lib}w)" > "${t_D}"/lib$ABILIB/lib${lib}.so
-	    ln -sfv ${lib}w.pc        "${t_D}"/lib$ABILIB/pkgconfig/${lib}.pc
+	    rm -vf                    "${t_D}"/$(libdir)/lib${lib}.so
+	    echo "INPUT(-l${lib}w)" > "${t_D}"/$(libdir)/lib${lib}.so
+	    ln -sfv ${lib}w.pc        "${t_D}"/$(libdir)/pkgconfig/${lib}.pc
 	done
 
-	rm -vf                     "${t_D}"/lib$ABILIB/libcursesw.so
-	echo "INPUT(-lncursesw)" > "${t_D}"/lib$ABILIB/libcursesw.so
-	ln -sfv libncurses.so      "${t_D}"/lib$ABILIB/libcurses.so
+	rm -vf                     "${t_D}"/$(libdir)/libcursesw.so
+	echo "INPUT(-lncursesw)" > "${t_D}"/$(libdir)/libcursesw.so
+	ln -sfv libncurses.so      "${t_D}"/$(libdir)/libcurses.so
 
 	if [[ $ABILIB != 64 ]]; then
-		mkdir -p $D/lib$ABILIB
-		cp -R $t_D/lib$ABILIB/* $D/lib$ABILIB
+		mkdir -p $D/$(libdir)
+		cp -R $t_D/$(libdir)/* $D/$(libdir)
 		rm -rf $t_D
 	fi
 }
@@ -138,9 +137,9 @@ bootstrap() {
 			*) export CC="$HOST_TGT-gcc -m$ABILIB"; export CXX="$HOST_TGT-g++ -m$ABILIB" ;;
 		esac
 		_LIB_ROOT_INSTALL=1
-		## Set a CONF_FLAG as docdir isn't a valid option.
-		CONF_FLAGS="--prefix=/usr"
-		configure_default                  \
+		## Set a CONF_FLAGS as docdir isn't a valid option.
+		CONF_FLAGS=--prefix=/usr
+		configure_default                 \
 					--bindir=/bin           \
 					--libdir=$(libdir)       \
 		            --build=$(./config.guess) \
@@ -156,13 +155,13 @@ bootstrap() {
 		if [[ $ABILIB == 64 ]]; then
 			mkdir -p $D/$ROOT/usr/{lib,share}
 			install_default TIC_PATH=$(pwd)/build/progs/tic
-			echo "INPUT(-lncursesw)" > $D/$ROOT/lib$ABILIB/libncurses.so
+			echo "INPUT(-lncursesw)" > $D/$ROOT/$(libdir)/libncurses.so
 		else
 			mkdir -p $PWD/DESTDIR/usr/lib
 			make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
-			ln -s libncursesw.so DESTDIR/lib$ABILIB/libcursesw.so
-			mkdir -p $D/$ROOT/lib$ABILIB
-			cp -Rv DESTDIR/lib$ABILIB/* $D/$ROOT/lib$ABILIB
+			ln -s libncursesw.so DESTDIR/$(libdir)/libcursesw.so
+			mkdir -p $D/$ROOT/$(libdir)
+			cp -Rv DESTDIR/$(libdir)/* $D/$ROOT/$(libdir)
 			rm -rf DESTDIR
 		fi
 		make distclean

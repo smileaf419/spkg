@@ -57,20 +57,21 @@ src_install() {
 
 	make PREFIX="${D}/$ROOT" install
 
+	_LIB_ROOT_INSTALL=1
 	if [[ $ABILIB == 64 ]]; then
-		mkdir -p $D/$ROOT/lib$ABILIB
-		cp -av libbz2.so* "${D}/$ROOT"/lib$ABILIB
-		ln -sv libbz2.so.${PKG_VER} "${D}/$ROOT"/lib$ABILIB/libbz2.so
+		mkdir -p $D/$ROOT/$(libdir)
+		cp -av libbz2.so* "${D}/$ROOT"/$(libdir)
+		ln -sv libbz2.so.${PKG_VER} "${D}/$ROOT"/$(libdir)/libbz2.so
 		cp -v bzip2-shared "${D}/$ROOT"/bin/bzip2
 		for i in "${D}/$ROOT"/bin/{bzcat,bunzip2}; do
 			ln -sfv bzip2 $i
 		done
-		rm -fv $D/$ROOT/lib$ABILIB/libbz2.a
+		rm -fv $D/$ROOT/$(libdir)/libbz2.a
 	else
-		install -Dm755 libbz2.so.$PKG_VER $D/$ROOT/lib$ABILIB/libbz2.so.$PKG_VER
-		ln -sf libbz2.so.$PKG_VER $D/$ROOT/lib$ABILIB/libbz2.so
-		ln -sf libbz2.so.$PKG_VER $D/$ROOT/lib$ABILIB/libbz2.so.1
-		ln -sf libbz2.so.$PKG_VER $D/$ROOT/lib$ABILIB/libbz2.so.1.0
-		install -Dm644 libbz2.a $D/$ROOT/lib$ABILIB/libbz2.a
+		install -Dm755 libbz2.so.$PKG_VER $D/$ROOT/$(libdir)/libbz2.so.$PKG_VER
+		ln -sf libbz2.so.$PKG_VER $D/$ROOT/$(libdir)/libbz2.so
+		ln -sf libbz2.so.$PKG_VER $D/$ROOT/$(libdir)/libbz2.so.1
+		ln -sf libbz2.so.$PKG_VER $D/$ROOT/$(libdir)/libbz2.so.1.0
+		install -Dm644 libbz2.a $D/$ROOT/$(libdir)/libbz2.a
 	fi
 }

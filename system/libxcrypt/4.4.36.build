@@ -26,19 +26,20 @@ src_configure() {
 }
 
 src_install() {
-	if [[ $ABILIB == 64 ]]; then
+	if [[ -z $ABILIB || $ABILIB == 64 ]]; then
 		install_default
 	else
-		mkdir -p $D/$ROOT/lib$ABILIB/pkgconfig
-		cp -av .libs/libcrypt.so* $D/$ROOT/lib$ABILIB/
+		mkdir -p $D/$ROOT/$(libdir)/pkgconfig
+		cp -av .libs/libcrypt.so* $D/$ROOT/$(libdir)/
 		make DESTDIR=$D/$ROOT install-pkgconfigDATA
-		ln -svf libxcrypt.pc $D/$ROOT/lib$ABILIB/pkgconfig/libcrypt.pc
+		ln -svf libxcrypt.pc $D/$ROOT/$(libdir)/pkgconfig/libcrypt.pc
 	fi
 }
 
 bootstrap() {
 	for ABILIB in $ABILIBS; do
 		unset CONF_FLAGS
+		_LIB_ROOT_INSTALL=1
 		src_configure
 		compile_default
 		src_install

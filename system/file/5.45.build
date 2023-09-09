@@ -23,7 +23,7 @@ src_configure() {
 }
 
 src_install() {
-	if [[ $ABILIB == 64 ]]; then
+	if [[ -z $ABILIB || $ABILIB == 64 ]]; then
 		install_default
 		mkdir -p "$D/$ROOT"/usr/bin
 		ln -sf /bin/file "$D/$ROOT"/usr/bin/file
