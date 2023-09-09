@@ -116,15 +116,24 @@ buildPackage() {
 	fi
 
 #	exec 3<> /tmp/output
-	ABILIBS=$(echo $BUILD_ABI $ABILIBS | tr ' ' '\n' | sort | uniq -d | tr '\n' ' ')
-	ABILIBS=${ABILIBS% }
+	local a=($ABILIBS)
+	ABILIBS=${a[0]}
+	for (( l=1; l<${#a[@]}; l++ )); do
+		[[ " $BUILD_ABI" == *[[:space:]]${a[$l]}* ]] && ABILIBS+=" ${a[$l]}"
+	done
+
 	## Don't set an ABILIB if we are not building for multiple ARCHS
 	if [[ -z $ABILIBS ]]; then
-		[[ $ABILIB == 64 ]] && ABILIB=
-		ABILIBS=64
+		case $(uname -m) in
+			x86_64) ABILIBS=64 ;;
+			i*86)   ABILIBS=32 ;;
+		esac
 	## But if we are building for multiple ARCHS ensure we set the inital ABILIB to 64.
 	elif [[ -z $ABILIB ]]; then
-		ABILIB=64
+		case $(uname -m) in
+			x86_64) ABILIB=64 ;;
+			i*86)   ABILIB=32 ;;
+		esac
 	fi
 
 	if [[ $MODE != "bootstrap" ]]; then

@@ -588,6 +588,8 @@ export -f getBldFile
 libdir() {
 	_LIB_ROOT_INSTALL=${_LIB_ROOT_INSTALL:-${@:-0}}
 	[[ $_LIB_ROOT_INSTALL == 0 ]] && echo -n "/usr"
-	echo "/lib$ABILIB"
+	local abi=$ABILIB
+	[[ ! -z $ABILIBS && $abi == $ABILIBS ]] && abi=
+	echo "/lib$abi"
 }
 export -f libdir
