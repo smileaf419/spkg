@@ -19,6 +19,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 _SPKG_CLEAN=distclean
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 src_test() {
 	# These directories are required for the tests
@@ -33,8 +34,6 @@ src_configure() {
 		-e 's/GROUP="sgx", //' \
 		-i rules/50-udev-default.rules
 
-	local arch=x86_64
-	[[ $ABILIB == 32 ]] && arch=i686
 	case $ABILIB in
 		64) unset CC CXX ;;
 		*)
@@ -43,7 +42,6 @@ src_configure() {
 		;;
 	esac
 
-	_LIB_ROOT_INSTALL=1
 	configure_default \
 				--bindir=/bin     \
 	            --sbindir=/sbin   \
@@ -65,10 +63,11 @@ src_install() {
 KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
 EOF
 	else
-		mkdir -pv $D/lib$ABILIB/pkgconfig
-		make DESTDIR=$PWD/DESTDIR install
-		cp -r DESTDIR/lib$ABILIB/* $D/lib$ABILIB/
-		rm -rf DESTDIR
+		install_default
+#		mkdir -pv $D/lib$ABILIB/pkgconfig
+#		make DESTDIR=$PWD/DESTDIR install
+#		cp -r DESTDIR/lib$ABILIB/* $D/lib$ABILIB/
+#		rm -rf DESTDIR
 	fi
 }
 

@@ -12,6 +12,7 @@ ARCHS="~x86 ~x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
+_LIB_ROOT_INSTALL=1
 
 src_configure() {
 	filter-flags -m
@@ -19,18 +20,17 @@ src_configure() {
 		append-cflags -m$ABILIB
 		append-cxxflags -m$ABILIB
 	fi
-	./configure --prefix=/usr --libdir=$(libdir 1)
+	./configure --prefix=/usr --libdir=$(libdir)
 }
 
 src_install() {
-	if [[ $ABILIB == 64 ]]; then
+#	if [[ $ABILIB == 64 ]]; then
 		install_default
-	else
-		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
-		rm -rf DESTDIR
-	fi
-	rm -f "${D}"/lib$ABILIB/libz.a
-
+#	else
+#		make DESTDIR=$PWD/DESTDIR install
+#		mkdir -p $D/lib$ABILIB
+#		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+#		rm -rf DESTDIR
+#	fi
+	rm -f "${D}"/$(libdir)/libz.a
 }

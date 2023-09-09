@@ -12,13 +12,13 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
+_LIB_ROOT_INSTALL=1
 
 src_configure() {
 	case $ABILIB in
 		64) unset CC ;;
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
-	_LIB_ROOT_INSTALL=1
 	configure_default --bindir=/bin
 }
 
@@ -29,8 +29,8 @@ src_install() {
 		ln -sf /bin/file "$D/$ROOT"/usr/bin/file
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/$ROOT/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/$ROOT/lib$ABILIB
+		mkdir -p $D/$ROOT/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$ROOT/$(libdir)
 		rm -rf DESTDIR
 	fi
 }
@@ -46,7 +46,6 @@ bootstrap() {
 		compile_default
 	popd
 
-	_LIB_ROOT_INSTALL=1
 	configure_default --build=$(./config.guess) --bindir=/bin
 	compile_default FILE_COMPILE=$(pwd)/build/src/file
 	src_install

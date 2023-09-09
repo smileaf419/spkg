@@ -14,13 +14,13 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
+_LIB_ROOT_INSTALL=1
 
 src_configure() {
 	case $ABILIB in
 		64) unset CC ;;
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
-	_LIB_ROOT_INSTALL=1
 	configure_default --sysconfdir=/etc
 }
 
@@ -29,8 +29,8 @@ src_install() {
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
 		rm -rf DESTDIR
 	fi
 }

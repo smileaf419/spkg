@@ -12,6 +12,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
+_LIB_ROOT_INSTALL=1
 
 src_configure() {
 	case $ABILIB in
@@ -19,7 +20,6 @@ src_configure() {
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
 
-	_LIB_ROOT_INSTALL=1
 	configure_default \
 				ADJTIME_PATH=/var/lib/hwclock/adjtime   \
 	            --bindir=/bin       \
@@ -49,8 +49,8 @@ src_install() {
 		install_default
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
 		rm -rf DESTDIR
 	fi
 }

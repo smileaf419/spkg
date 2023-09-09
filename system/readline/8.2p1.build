@@ -21,6 +21,7 @@ done
 B=$PKG_NAME-$PV
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
+_LIB_ROOT_INSTALL=1
 
 src_patch() {
 	[[ $P == '' ]] && return 0
@@ -42,7 +43,6 @@ src_configure() {
 		64) unset CC ;;
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
-	_LIB_ROOT_INSTALL=1
 	configure_default --with-curses
 }
 
@@ -59,8 +59,8 @@ src_install() {
 		install -v -m644 doc/*.{ps,pdf,html,dvi} "${D}"/usr/share/doc/readline-${PV}
 	else
 		make SHLIB_LIBS="-lncursesw" DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
 		rm -rf DESTDIR
 	fi
 }

@@ -12,6 +12,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 src_prepare() {
 	## Prevent static libraries from being installed
@@ -33,11 +34,11 @@ src_install() {
 	if [[ $ABILIB == 64 ]]; then
 		install_default
 	else
-		install_default lib=lib$ABILIB -C libcap
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
-		sed -e "s|^libdir=.*|libdir=/lib$ABILIB|" -i $D/lib$ABILIB/pkgconfig/lib{cap,psx}.pc
-		chmod -v 755 $D/lib$ABILIB/libcap.so.$PKG_VER
+		install_default lib=$(libdir) -C libcap
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
+		sed -e "s|^libdir=.*|libdir=/$(libdir)|" -i $D/$(libdir)/pkgconfig/lib{cap,psx}.pc
+		chmod -v 755 $D/$(libdir)/libcap.so.$PKG_VER
 		rm -rf DESTDIR
 	fi
 

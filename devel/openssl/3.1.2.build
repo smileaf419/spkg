@@ -12,6 +12,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 src_configure() {
 	append-cppflags -fno-strict-aliasing
@@ -21,7 +22,7 @@ src_configure() {
 
 	./config --prefix=/usr         \
 	         --openssldir=/etc/ssl \
-			 --libdir=/lib$ABILIB     \
+			 --libdir=$(libdir)     \
 	         shared                \
 	         zlib-dynamic          \
 	         $([[ $ABILIB == 32 ]] && echo "linux-x86") \
@@ -39,8 +40,8 @@ src_install() {
 		mv "$D"{/usr,}/bin
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
 	fi
 }
 

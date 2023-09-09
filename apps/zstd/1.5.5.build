@@ -13,6 +13,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 src_configure() { :; }
 
@@ -21,19 +22,19 @@ src_compile() {
 		64) unset CC ;;
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
-	compile_default prefix=/usr libdir=$(libdir 1) exec_prefix=/
+	compile_default prefix=/usr libdir=$(libdir) exec_prefix=/
 }
 
 src_install() {
 	#PKGCONFIGDIR="/usr/lib/pkgconfig"
 	if [[ $ABILIB == 64 ]]; then
-		install_default prefix=/usr libdir=$(libdir 1) exec_prefix=/
-		rm -v "$ROOT/$D"/lib$ABILIB/libzstd.a
+		install_default prefix=/usr libdir=$(libdir) exec_prefix=/
+		rm -v "$ROOT/$D"/$(libdir)/libzstd.a
 	else
 		make prefix=/usr libdir=/lib DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib/* $D/lib$ABILIB/
-		sed -e "/^libdir/s/lib$/lib$ABILIB/" -i $D/lib$ABILIB/pkgconfig/libzstd.pc
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/lib/* $D/$(libdir)/
+		sed -e "/^libdir/s/lib$/$(libdir)/" -i $D/$(libdir)/pkgconfig/libzstd.pc
 		rm -rf DESTDIR
 	fi
 }

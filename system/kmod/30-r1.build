@@ -12,13 +12,13 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 src_configure() {
 	case $ABILIB in
 		64) unset CC ;;
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
-	_LIB_ROOT_INSTALL=1
 	configure_default --sysconfdir=/etc \
 					  --bindir=/bin     \
 					  --sbindir=/sbin   \
@@ -26,7 +26,7 @@ src_configure() {
 					  --with-xz         \
 					  --with-zstd       \
 					  --with-zlib       \
-					  $([[ $ABILIB != 64 ]] && echo "--with-rootlibdir=/lib$ABILIB")
+					  $([[ $ABILIB != 64 ]] && echo --with-rootlibdir=/$(libdir))
 }
 
 src_test() { :; }
@@ -42,10 +42,11 @@ src_install() {
 		ln -sfv kmod "${D}"/bin/lsmod
 
 	else
-		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/lib$ABILIB
-		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
-		rm -rf DESTDIR
+		install_default
+#		make DESTDIR=$PWD/DESTDIR install
+#		mkdir -p $D/lib$ABILIB
+#		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
+#		rm -rf DESTDIR
 	fi
 	## Keep man pages as they can't be regenerated without xsltproc
 	sed -e "s/^CLEANFILES =.*/CLEANFILES =/" -i man/Makefile

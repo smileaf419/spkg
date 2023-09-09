@@ -17,6 +17,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
+_LIB_ROOT_INSTALL=1
 
 src_prepare() {
 	# Rather than PATCHES for auto patching, we need to unpack/patch an archive
@@ -50,11 +51,10 @@ src_install() {
 	if [[ $ABILIB == 64 ]]; then
 		install_default -C libelf
 	else
-		_LIB_ROOT_INSTALL=1
 		make DESTDIR=$PWD/DESTDIR -C libelf install
 		install -vDm644 config/libelf.pc DESTDIR/$(libdir)/pkgconfig/libelf.pc
 		mkdir -p $D/$(libdir)
-		cp -Rv DESTDIR/lib$ABILIB/* $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
 		rm -rf DESTDIR
 	fi
 }

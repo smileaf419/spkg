@@ -48,7 +48,7 @@ EOF
 
 	ln -s /usr/bin/python3 "${D}"/usr/bin/python
 	sed -e '/def warn_if_run_as_root/a\    return' \
-	    -i "${D}"/usr/lib$ABILIB/python${PKG_VER%.*}/site-packages/pip/_internal/cli/req_command.py
+	    -i "${D}"/usr/$(libdir)/python${PKG_VER%.*}/site-packages/pip/_internal/cli/req_command.py
 
 	if [[ $INSTALL_DOCS == 1 ]]; then
 		install -v -dm755 "${D}"/usr/share/doc/python-${PKG_VER}/html

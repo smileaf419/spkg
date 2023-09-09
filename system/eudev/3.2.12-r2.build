@@ -36,7 +36,6 @@ src_configure() {
 	configure_default \
 				--bindir=/bin     \
 	            --sbindir=/sbin   \
-	            --libdir=/lib$ABILIB \
 	            --sysconfdir=/etc \
 	            --enable-manpages
 }
@@ -55,10 +54,11 @@ src_install() {
 KERNEL=="kvm", GROUP="kvm", MODE="0660", TAG+="uaccess"
 EOF
 	else
-		mkdir -pv $D/lib$ABILIB/pkgconfig
-		make DESTDIR=$PWD/DESTDIR install
-		cp -r DESTDIR/lib$ABILIB/* $D/lib$ABILIB/
-		rm -rf DESTDIR
+		install_default
+#		mkdir -pv $D/lib$ABILIB/pkgconfig
+#		make DESTDIR=$PWD/DESTDIR install
+#		cp -r DESTDIR/lib$ABILIB/* $D/lib$ABILIB/
+#		rm -rf DESTDIR
 	fi
 }
 

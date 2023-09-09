@@ -28,8 +28,8 @@ src_install() {
 		install -v -m644 doc/*.{html,css} "${D}"/usr/share/doc/expat-${PKG_VER}
 	else
 		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/usr/lib$ABILIB
-		cp -Rv DESTDIR/usr/lib$ABILIB/* $D/usr/lib$ABILIB
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
 		rm -rf DESTDIR
 	fi
 }

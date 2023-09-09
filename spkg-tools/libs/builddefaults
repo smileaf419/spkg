@@ -197,13 +197,32 @@ python_install() {
 export -f python_install
 
 ####
-## Install our package using the our set build-tool
+## Install our package
 install_default() {
+	case $(uname -m) in
+		x86_64) local abi=64 ;;
+		i*86)   local abi=32 ;;
+	esac
+	if [[ $ABILIB == $abi ]]; then
+		install_tool $@
+	else
+		DESTDIR=$PWD/DESTDIR install_tool $@
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
+		rm -rf DESTDIR
+	fi
+}
+export -f install_default
+
+####
+## Install our package using the our set build-tool
+install_tool() {
+	DESTDIR=${DESTDIR:-$D/$ROOT}
 	if [[ $buildTool == "make" ]]; then
-		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == "no" ]] && cd build
-		make DESTDIR="${D}/$ROOT" $@ install || die " $DIALOG_ERROR Install Failed!"
+		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == no ]] && cd build
+		make DESTDIR="$DESTDIR" $@ install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
-		DESTDIR="${D}/$ROOT" ninja install || die " $DIALOG_ERROR Install Failed!"
+		DESTDIR="$DESTDIR" ninja install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
 		python_install
 	elif [[ $buildTool == "cmake" ]]; then
@@ -211,10 +230,10 @@ install_default() {
 		if [[ $BUILD_SEPERATE_DIR != no ]]; then
 			[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
 		fi
-		DESTDIR="$D/$ROOT" cmake --install $d/build
+		DESTDIR="$DESTDIR" cmake --install $d/build
 	fi
 }
-export -f install_default
+export -f install_tool
 
 ####
 ## Uninstall the package using our set build-tool

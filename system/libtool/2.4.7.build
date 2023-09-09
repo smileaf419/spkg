@@ -21,13 +21,13 @@ src_prepare() {
 }
 
 src_install() {
-	if [[ $ABILIB == 64 ]]; then
+#	if [[ $ABILIB == 64 ]]; then
 		install_default
-		rm -fv "${D}/usr/lib/libltdl.a"
-	else
-		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/usr/lib$ABILIB
-		cp -Rv DESTDIR/usr/lib$ABILIB/* $D/usr/lib$ABILIB
-		rm -rf DESTDIR
-	fi
+		rm -fv "${D}/usr/$(libdir)/libltdl.a"
+#	else
+#		make DESTDIR=$PWD/DESTDIR install
+#		mkdir -p $D/usr/lib$ABILIB
+#		cp -Rv DESTDIR/usr/lib$ABILIB/* $D/usr/lib$ABILIB
+#		rm -rf DESTDIR
+#	fi
 }
