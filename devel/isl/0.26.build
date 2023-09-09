@@ -4,8 +4,7 @@
 HOMEPAGE="http://isl.gforge.inria.fr/"
 DESCRIPTION=""
 LICENSE=""
-SRC_URI=(
-"https://libisl.sourceforge.io/isl-0.26.tar.xz")
+SRC_URI=("https://libisl.sourceforge.io/isl-0.26.tar.xz")
 #"https://gcc.gnu.org/pub/gcc/infrastructure/isl-${PKG_VER}.tar.bz2")
 DEPS=""
 BDEPS=""
@@ -25,6 +24,6 @@ src_install() {
 	install -m644 doc/{CodingStyle,manual.pdf,SubmittingPatches,user.pod} \
 			$D/usr/share/doc/isl-$PKG_VER
 
-	mkdir -pv $D/usr/share/gdb/auto-load/usr/lib${ABILIB:-64}
-	mv -v $D/usr/lib${ABILIB:-64}/libisl*gdb.py $D/usr/share/gdb/auto-load/usr/lib${ABILIB:-64}
+	mkdir -pv $D/usr/share/gdb/auto-load/$(libdir)
+	mv -v $D/$(libdir)/libisl*gdb.py $D/usr/share/gdb/auto-load/$(libdir)
 }
