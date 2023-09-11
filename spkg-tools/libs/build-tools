@@ -322,7 +322,7 @@ installPackage() {
 		local CACHE_DIR="${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
 		mkdir -p "$CACHE_DIR"
 		## Copy over our build file so we can reference it in uninstalls
-		cp "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
+		cp -u "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
 		if [ -e ${D}/KERNEL_MODULE ]; then
 			mv ${D}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
 		elif [ -e ${D}/PERL_MODULE ]; then
