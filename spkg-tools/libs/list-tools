@@ -186,6 +186,7 @@ getFullPkgList() {
 	else
 		>&2 echo " done"
 	fi
+	unset flist
 }
 
 ####
