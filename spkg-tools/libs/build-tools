@@ -144,6 +144,7 @@ buildPackage() {
 
 			## If we're installing using pip we need root
 			if [[ $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
+				chown -Rv $BUILD_USER $BUILD_PATH/$B
 				su -p -c 'userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
 			else
 				userBuildPackage
