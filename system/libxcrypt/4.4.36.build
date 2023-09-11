@@ -11,6 +11,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 src_configure() {
 	case $ABILIB in
@@ -18,7 +19,6 @@ src_configure() {
 		*) export CC="gcc -m$ABILIB" ;;
 	esac
 	[[ $MODE == 'bootstrap' ]] && CC="$HOST_TGT-$CC"
-	_LIB_ROOT_INSTALL=1
 	configure_default --enable-hashes=strong,glibc \
 					  --enable-obsolete-api=glibc \
 					  --disable-failure-tokens \
@@ -39,7 +39,6 @@ src_install() {
 bootstrap() {
 	for ABILIB in $ABILIBS; do
 		unset CONF_FLAGS
-		_LIB_ROOT_INSTALL=1
 		src_configure
 		compile_default
 		src_install

@@ -18,6 +18,7 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 src_prepare() {
 	## Ensure installation of Symlinks
@@ -57,7 +58,6 @@ src_install() {
 
 	make PREFIX="${D}/$ROOT" install
 
-	_LIB_ROOT_INSTALL=1
 	if [[ $ABILIB == 64 ]]; then
 		mkdir -p $D/$ROOT/$(libdir)
 		cp -av libbz2.so* "${D}/$ROOT"/$(libdir)
