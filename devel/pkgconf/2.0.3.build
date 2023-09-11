@@ -18,7 +18,7 @@ src_configure() {
 	autoreconf -fiv
 
 	## Fix regression (Source: LFS)
-	sed -i 's/str\(cmp.*package\)/strn\1, strlen(pkg->why)/' cli/main.c
+	sed -i 's/str\(cmp.*package\)/strn\1, strlen(pkg->why)/' ../cli/main.c
 
 	configure_default
 }
