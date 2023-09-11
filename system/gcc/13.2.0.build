@@ -112,7 +112,8 @@ bootstrap() {
 			-i.orig ../gcc/config/i386/t-linux64
 	fi
 #	local mlist=m64,mx32,m32
-	local mlist="m"$(echo $ABILIBS | sed "s/ /,m/g")
+	local mlist="m"$(echo $BUILD_ABI | sed "s/ /,m/g")
+	echo " * Using Multilib List: $mlist"
 	case $PKG_FLAGS in
 		pass1)
 			../configure                    \
