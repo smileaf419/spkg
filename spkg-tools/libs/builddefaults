@@ -225,13 +225,13 @@ install_tool() {
 	elif [[ $buildTool == "ninja" ]]; then
 		DESTDIR="$DESTDIR" ninja install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
-		python_install
+		python_install || die " $DIALOG_ERROR Install Failed!"
 	elif [[ $buildTool == "cmake" ]]; then
 		local d=.
 		if [[ $BUILD_SEPERATE_DIR != no ]]; then
 			[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
 		fi
-		DESTDIR="$DESTDIR" cmake --install $d/build
+		DESTDIR="$DESTDIR" cmake --install $d/build || die " $DIALOG_ERROR Install Failed!"
 	fi
 }
 export -f install_tool
