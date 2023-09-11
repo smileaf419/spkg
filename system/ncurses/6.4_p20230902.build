@@ -16,6 +16,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 B=$PKG_NAME-${PKG_VER/_p*}
 ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
 
 PATCH_DATES=(
 20230107
@@ -65,7 +66,6 @@ src_configure() {
 		64) unset CC CXX ;;
 		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
 	esac
-	_LIB_ROOT_INSTALL=1
 	## Set a CONF_FLAGS as docdir isn't a valid option.
 	CONF_FLAGS=--prefix=/usr
 	configure_default \
@@ -136,7 +136,6 @@ bootstrap() {
 			64) unset CC CXX ;;
 			*) export CC="$HOST_TGT-gcc -m$ABILIB"; export CXX="$HOST_TGT-g++ -m$ABILIB" ;;
 		esac
-		_LIB_ROOT_INSTALL=1
 		## Set a CONF_FLAGS as docdir isn't a valid option.
 		CONF_FLAGS=--prefix=/usr
 		configure_default                 \
