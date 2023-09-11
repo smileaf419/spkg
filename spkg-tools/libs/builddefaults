@@ -97,6 +97,7 @@ configure_default() {
 		fi
 #		LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:/usr/local/lib$ABILIB:$LD_LIBRARY_BASE"
 
+		echo "@ : $@"
 		declare -p
 
 #		LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\" \
