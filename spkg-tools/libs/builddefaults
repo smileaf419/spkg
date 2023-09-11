@@ -109,7 +109,7 @@ configure_default() {
 		$SET_ABI               \
 			$d/configure ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
-		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release}
+		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release --libdir=$(libdir)}
 		meson setup ${CONF_FLAGS[@]} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
@@ -208,8 +208,8 @@ install_default() {
 		install_tool $@
 	else
 		DESTDIR=$PWD/DESTDIR install_tool $@
-		mkdir -p $D/$(libdir)
-		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
+		mkdir -p $D/$ROOT/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$ROOT/$(libdir)
 		rm -rf DESTDIR
 	fi
 }
