@@ -36,13 +36,14 @@ src_configure() {
 		export CXX="g++ -m$ABILIB"
 	fi
 	## Set a CONF_FLAG as it'll set a libdir=lib64 and we need lib
-	_LIB_ROOT_INSTALL=1
-	configure_default --bindir=/bin        \
-				 --libexecdir=$(libdir)     \
+	CONF_FLAGS=--prefix=/usr
+	configure_default --bindir=/bin       \
+				 --libdir=$(libdir 1 1)    \
+				 --libexecdir=$(libdir 1 1) \
 				 --enable-kernel=6.4          \
 				 --with-headers=/usr/include   \
 				 --enable-multi-arch             \
-				 libc_cv_slibdir=$(libdir)        \
+				 libc_cv_slibdir=$(libdir 1 1)    \
                  --disable-werror                  \
                  --enable-stack-protector=strong    \
                  $(use-enable gd || echo --with-gd=no)
@@ -69,13 +70,13 @@ src_install() {
 	else
 		make DESTDIR=$PWD/DESTDIR install &&
 		mkdir -p $D/$ROOT/{lib,usr/include/gnu} &&
-		cp -a DESTDIR/$(libdir) $D/$ROOT &&
+		cp -a DESTDIR/$ABILIB $D/$ROOT &&
 		install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-$ABILIB.h \
-					   $D/$ROOT/usr/include/gnu/
+					   $D/$ROOT/usr/include/gnu/ || die " $ERROR_DIALOG Failed to install $ABILIB"
 		if [[ $ABILIB == 32 ]]; then
-			ln -svf ../lib32/ld-linux.so.2 $D/$ROOT/lib/ld-linux.so.2 || die "Error building glibc 32bit"
+			ln -svf ../lib32/ld-linux.so.2 $D/$ROOT/lib/ld-linux.so.2 || die " $ERROR_DIALOG Error building glibc 32bit"
 		else
-			ln -svf ../libx32/ld-linux-x32.so.2 $D/$ROOT/lib/ld-linux-x32.so.2 || die "Error building glibc x32bit"
+			ln -svf ../libx32/ld-linux-x32.so.2 $D/$ROOT/lib/ld-linux-x32.so.2 || die " $ERROR_DIALOG Error building glibc x32bit"
 		fi
 	fi
 }
@@ -135,20 +136,19 @@ bootstrap() {
 			export CXX="$HOST_TGT-g++ -m$ABILIB"
 		fi
 
-		_LIB_ROOT_INSTALL=1
 		../configure --prefix=/usr            \
 					 --bindir=/bin             \
-					 --libdir=$(libdir)          \
-					 --libexecdir=/$(libdir)      \
+					 --libdir=$(libdir 1 1)      \
+					 --libexecdir=/$(libdir 1 1)  \
 					 --enable-kernel=6.4            \
 					 --enable-multi-arch             \
 					 --with-headers=$ROOT/usr/include  \
 					 --build=$(../scripts/config.guess) \
 					 --host=$TGT                          \
-					 libc_cv_slibdir=$(libdir) &&
-		compile_default -s &&
+					 libc_cv_slibdir=$(libdir 1 1) &&
+		compile_default &&
 		src_install
-		make -s clean
+		make clean
 		find .. -name "*.a" -delete -print
 	done
 }
