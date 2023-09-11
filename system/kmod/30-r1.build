@@ -26,7 +26,7 @@ src_configure() {
 					  --with-xz         \
 					  --with-zstd       \
 					  --with-zlib       \
-					  $([[ $ABILIB != 64 ]] && echo --with-rootlibdir=/$(libdir))
+					  $([[ $ABILIB != 64 ]] && echo --with-rootlibdir=$(libdir))
 }
 
 src_test() { :; }
