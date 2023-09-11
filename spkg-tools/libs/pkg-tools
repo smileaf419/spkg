@@ -581,6 +581,15 @@ getBldFile() {
 }
 export -f getBldFile
 
+myABI() {
+	case $(uname -m) in
+		x86_64) echo 64 ;;
+		i*86)   echo 32 ;;
+		*) die "Unsupported: $(uname -m)"
+	esac
+}
+export -f myABI
+
 ####
 ## Helper function for builds to specify where to install their libs
 ## By setting _LIB_ROOT_INSTALL=1 or passing a 1 to this function
@@ -589,7 +598,10 @@ libdir() {
 	_LIB_ROOT_INSTALL=${_LIB_ROOT_INSTALL:-${@:-0}}
 	[[ $_LIB_ROOT_INSTALL == 0 ]] && echo -n "/usr"
 	local abi=$ABILIB
-	[[ ! -z $ABILIBS && $abi == $ABILIBS ]] && abi=
+	if [[ -z $ABILIBS || $abi == $ABILIBS ]] ||
+	   [[ $2 == 1 && $ABILIB == $(myABI) ]]; then
+		abi=
+	fi
 	echo "/lib$abi"
 }
 export -f libdir
