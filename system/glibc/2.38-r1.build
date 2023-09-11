@@ -70,7 +70,7 @@ src_install() {
 	else
 		make DESTDIR=$PWD/DESTDIR install &&
 		mkdir -p $D/$ROOT/{lib,usr/include/gnu} &&
-		cp -a DESTDIR/$ABILIB $D/$ROOT &&
+		cp -a DESTDIR/$(libdir 1) $D/$ROOT &&
 		install -vm644 DESTDIR/usr/include/gnu/{lib-names,stubs}-$ABILIB.h \
 					   $D/$ROOT/usr/include/gnu/ || die " $ERROR_DIALOG Failed to install $ABILIB"
 		if [[ $ABILIB == 32 ]]; then
