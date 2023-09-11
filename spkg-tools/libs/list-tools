@@ -82,9 +82,11 @@ populate_list() {
 }
 
 ## Checks if a given file is depended upon
-## Returns: list of files depending on a file or 0 if none found.
+## Returns: list of packages depending on a file.
 checkFileDep() {
-	grep -r --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || return 0
+#	if [[ ! $(grep -r --include CONTENTS "$1\$" "$PKG_CACHE") ]]; then
+	grep -rl --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || return 0
+#	fi
 }
 
 ## Checks if a given PKG_CAT/PKG_NAME and PKG_VER is depended upon
