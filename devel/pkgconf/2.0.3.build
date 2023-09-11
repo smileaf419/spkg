@@ -17,10 +17,8 @@ SLOT=0
 src_configure() {
 	autoreconf -fiv
 
-	## Pkgconf-2.0.0 explicitly errors when attempting to run --modversion with multiple arguments,
-	## even if these arguments are constraints for the same package
-	## Source: https://linuxfromscratch.org/~thomas/multilib/chapter08/pkgconf.html
-	sed -i '1330,1336s|^|//|' cli/main.c
+	## Fix regression (Source: LFS)
+	sed -i 's/str\(cmp.*package\)/strn\1, strlen(pkg->why)/' cli/main.c
 
 	configure_default
 }
