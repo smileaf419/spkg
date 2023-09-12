@@ -8,10 +8,11 @@ SRC_URI=("https://github.com/lfs-book/make-ca/releases/download/v${PKG_VER}/make
 "http://www.cacert.org/certs/root.crt"
 "http://www.cacert.org/certs/class3.crt")
 DEPS=""
-BDEPS=""
-RDEPS="apps/p11-kit devel/openssl"
+BDEPS="apps/p11-kit"
+RDEPS="devel/openssl"
 ARCHS="x86 x86_64"
 SLOT=0
+CFG_PROTECT=false
 
 src_configure() {
 	# Fix hardcoded paths
@@ -47,7 +48,7 @@ EOF
 	mkdir -p "${D}"/etc/cron.weekly
 	cat > "${D}"/etc/cron.weekly/update-pki.sh << "EOF"
 #!/bin/bash
-/usr/sbin/make-ca -g
+/usr/sbin/make-ca -r
 EOF
 	chmod 754 "${D}"/etc/cron.weekly/update-pki.sh
 
@@ -55,6 +56,7 @@ EOF
 }
 
 post_install() {
-	echo " * Refreshing certs"
-	make-ca -r
+	echo -n " * Generating certdata.txt: "
+	make-ca -g > /dev/null 2>&1
+	[[ $? == 0 ]] && echo "${GREEN}Ok!$NORMAL" || echo "${RED}Failed!$NORMAL"
 }
