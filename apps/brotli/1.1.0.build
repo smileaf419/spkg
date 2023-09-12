@@ -13,6 +13,15 @@ BUILD_SEPERATE_DIR=yes
 ARCHS="~x86 ~x86_64"
 SLOT=0
 TEST=test
+ABILIBS="64 x32 32"
+
+src_configure() {
+	case $ABILIB in
+		64) unset CC CXX ;;
+		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
+	esac
+	configure_default
+}
 
 src_compile() {
 	compile_default
