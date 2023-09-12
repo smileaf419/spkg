@@ -16,10 +16,10 @@ TEST=test
 ABILIBS="64 x32 32"
 
 src_configure() {
-	case $ABILIB in
-		64) unset CC CXX ;;
-		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
-	esac
+	if [[ $ABILIB != 64 ]]; then
+		append-cflags -m$ABILIB
+		append-cxxflags -m$ABILIB
+	fi
 	configure_default
 }
 
