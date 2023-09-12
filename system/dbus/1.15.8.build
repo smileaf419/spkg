@@ -60,6 +60,8 @@ cat > ${D}/etc/dbus-1/session-local.conf << "EOF"
 EOF
 
 	install-init.d dbus
+	touch $D/var/lib/dbus/.keep
+	touch $D/run/dbus/.keep
 }
 
 post_install() {
