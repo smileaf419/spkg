@@ -112,7 +112,7 @@ configure_default() {
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release --libdir=$(libdir)}
 		meson setup ${CONF_FLAGS[@]} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
-		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR}}
+		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR} -DCMAKE_INSTALL_LIBDIR=$(libdir)}
 		cmake ${CONF_FLAGS[@]} "$@" -B $d/build -S $d || die " $DIALOG_ERROR Configure Failed!"
 	fi
 }
