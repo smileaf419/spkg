@@ -56,3 +56,30 @@ s1:1:respawn:/sbin/sulogin
 6:2345:respawn:/sbin/agetty tty6 9600
 EOF
 }
+
+post_install() {
+	echo " * Configuring Network devices"
+	for iface in $(ls /sys/class/net); do
+		[[ $iface == lo || $iface == sit* ]] && continue
+		if [[ ! -e /etc/sysconfig/ifconfig.$iface ]]; then
+			echo "   * Setting up $iface: DHCP"
+			cat > /etc/sysconfig/ifconfig.$iface << "EOF"
+ONBOOT=yes
+
+## Dynamic
+SERVICE="dhcpcd"
+DHCP_START="-b -q"
+DHCP_STOP="-k"
+
+## Static
+#SERVICE=ipv4-static
+#IP=192.168.1.2
+#GATEWAY=192.168.1.1
+#PREFIX=24
+#BROADCAST=192.168.1.255
+EOF
+		else
+			echo "   * Setting up $iface: skipped"
+		fi
+	done
+}
