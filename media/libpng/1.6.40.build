@@ -11,9 +11,14 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
-	configure_default --bindir=/bin --libdir=/lib
+	case $ABILIB in
+		64) unset CC CXX ;;
+		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
+	esac
+	configure_default --bindir=/bin
 }
 
 src_install() {
