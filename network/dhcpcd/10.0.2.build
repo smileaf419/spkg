@@ -26,6 +26,7 @@ src_configure() {
 src_install() {
 	install_default
 	install-init.d service-dhcpcd
+	touch $D/var/lib/dhcpcd/.keep
 }
 
 post_install() {
