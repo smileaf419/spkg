@@ -7,8 +7,8 @@ LICENSE=""
 SRC_URI=("https://www.x.org/pub/individual/lib/libXau-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS=""
-BDEPS=""
-RDEPS="x11/xorg-proto"
+BDEPS="x11/xorg-proto"
+RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 
