@@ -15,14 +15,21 @@ IUSE="harfbuzz"
 use-enable harfbuzz && UDEPS="media/harfbuzz"
 ARCHS="~x86 ~x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
-src_configure() {
+src_prepare() {
 	sed -ri "s:.*(AUX_MODULES.*valid):\1:" modules.cfg
 	sed -r "s:.*(#.*SUBPIXEL_RENDERING) .*:\1:" \
-    	-i include/freetype/config/ftoption.h
+		-i include/freetype/config/ftoption.h
+}
+
+src_configure() {
+	case $ABILIB in
+		64) unset CC CXX ;;
+		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
+	esac
 
 	configure_default --enable-freetype-config \
-					  --libdir=/lib            \
 					  --bindir=/bin            \
 		$( [[ $(Installed-getPkg "media/harfbuzz" | getVersion) != 0 ]] && ! use-enable harfbuzz && echo --without-harfbuzz)
 }
