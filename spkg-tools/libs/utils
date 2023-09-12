@@ -107,6 +107,11 @@ buildKernel() {
 	mv /boot/vmlinuz{,-${KERNEL_VER}}
 
 	echo " * Generating grub config"
+	if [[ ! -e /boot/grub ]]; then
+		echo " $IMPORTANT It doesn't appear grub has been installed into /boot/grub"
+		echo " $IMPORTANT we'll place a config here, but you will need to finish the install."
+		mkdir -p /boot/grub
+	fi
 	grub-mkconfig -o /boot/grub/grub.cfg
 	if [[ ! -z $BOOT_MOUNTED ]]; then
 		echo " * Unmounting /boot"
