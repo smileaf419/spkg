@@ -14,7 +14,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 B=cdparanoia-III-${PKG_VER}
 
-src_configure() {
+src_prepare() {
 	unpack "$DISTFILES/cdparanoia-3.10.2-patches.tar.xz"
 	spatches patches/*.patch
 
@@ -23,17 +23,24 @@ src_configure() {
 
 	sed -i -e '/configure.\(guess\|sub\)/d' configure.in || die
 
+	## Remove Archives from being installed as they won't be created anyway
+	sed '/\.a \$/d' -i Makefile.in
+
 	mv configure.{in,ac} || die
 
 	autoreconf -fiv
 
+	append-cflags -I$PWD/interface
+}
+
+src_configure() {
 	./configure --prefix=/usr \
 				--mandir=/usr/share/man
 }
 
 src_compile() {
 	# Parallel building not supported.
-	make -j1 -I$PWD/interface
+	make -j1
 }
 
 src_test() { :; }
