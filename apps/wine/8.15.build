@@ -15,5 +15,12 @@ SLOT=0
 #B=
 
 src_configure() {
-	configure_default --enable-archs=$(uname -m)
+	local archs
+	for a in $BUILD_ABI; do
+		case a in
+			64) archs+="x86_64 " ;;
+			32) archs+="i686 " ;;
+		esac
+	done
+	configure_default --enable-archs=$archs
 }
