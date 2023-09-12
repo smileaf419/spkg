@@ -153,12 +153,16 @@ buildPackage() {
 			echo " * src_install (${ABILIB:-64})"
 			src_install	$p || die " $DIALOG_ERROR Error in src_install (${ABILIB:-64})"
 
+			## Reset our working dir if we changed it during src_install
+			cd $BUILD_PATH/$B/$d
+
 			## No need to clean if we're only building for 1 ABI.
 			if [[ ! -z $ABILIBS && $ABILIBS != $ABILIB ]]; then
-				if [[ $_SPKG_CLEAN != rm ]]; then
+				if [[ $_SPKG_CLEAN != rm && $buildTool == 'make' ]]; then
 					echo " * Run make ${_SPKG_CLEAN:-clean}"
 					make ${_SPKG_CLEAN:-clean}
 				else
+					echo " * Removing files within $PWD"
 					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
 				fi
 			fi
