@@ -10,6 +10,7 @@ BDEPS="x11/xtrans x11/xorg-proto"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
 	configure_default --sysconfdir=/etc \

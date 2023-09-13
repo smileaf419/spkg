@@ -13,6 +13,7 @@ RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
 setBuildENV meson ninja
+ABILIBS="64 x32 32"
 
 src_configure() {
 	configure_default \
@@ -21,6 +22,7 @@ src_configure() {
 				-Dsystemd_system_unitdir=no \
 				-Dsystemd_user_unitdir=no \
 				-Dsystem_socket=/run/dbus/system_bus_socket \
+				-Dmodular_tests=disabled \
 				$(use-enable X || echo -Dx11_autolaunch=disabled)
 ## autotools seems to be broken in this version.
 #				--sysconfdir=/etc \

@@ -12,7 +12,8 @@ BDEPS="devel/libxslt"
 RDEPS="apps/docbook-xml:4.5 apps/docbook-xsl-nons"
 ARCHS="~x86 ~x86_64"
 SLOT=0
-
+ABILIBS="64 x32 32"
+_SPKG_CLEAN=distclean
 setBuildENV meson ninja
 
 src_configure() {
@@ -24,7 +25,8 @@ src_configure() {
 					  -Dinstalled_tests=false \
 					  -Dnls=enabled \
 					  -Doss_fuzz=disabled \
-					  -Dmultiarch=false
+					  -Dmultiarch=true \
+					  -Dtests=false
 }
 
 src_compile() {

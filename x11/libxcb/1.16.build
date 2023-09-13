@@ -11,13 +11,12 @@ BDEPS="x11/xcb-proto"
 RDEPS="x11/xorg-proto"
 ARCHS="~x86 ~x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
-	PYTHON=python3 \
-	./configure --prefix=/usr \
-				--sysconfdir=/etc \
+	export PYTHON=python3
+	configure_default --sysconfdir=/etc \
 				--localstatedir=/var \
-				--disable-static \
 				--without-doxygen \
 				--docdir='${datadir}'/doc/libxcb-${PKG_VER}
 }
