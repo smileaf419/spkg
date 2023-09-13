@@ -19,7 +19,7 @@ src_configure() {
 	for a in $BUILD_ABI; do
 		case a in
 			64) archs+="x86_64 " ;;
-			32) archs+="i686 " ;;
+			32) archs+="i386 " ;;
 		esac
 	done
 	configure_default --enable-archs=$archs
