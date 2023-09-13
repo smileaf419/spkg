@@ -82,6 +82,20 @@ configure_default() {
 	if [[ $BUILD_SEPERATE_DIR != no ]]; then
 		[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
 	fi
+
+	case $ABILIB in
+		64)
+			filter-flags -m32 -mx32 ;;
+		x32)
+			append-cflags -mx32
+			append-cxxflags -mx32 ;;
+		32)
+			append-cflags -m32
+			append-cxxflags -m32 ;;
+	esac
+
+	LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:/usr/local/lib$ABILIB:$LD_LIBRARY_BASE"
+	declare -p
 	if [[ $configTool == "auto" ]]; then
 		## Set some default flags that most every package will want to set.
 		## if libs are being installed into /lib* set _LIB_ROOT_INSTALL=1
@@ -95,10 +109,6 @@ configure_default() {
 		elif [[ $ABILIB == x32 ]]; then
 			CONF_FLAGS+=" --host=$HOST_TGTx32"
 		fi
-#		LD_LIBRARY_PATH="/lib$ABILIB:/usr/lib$ABILIB:/usr/local/lib$ABILIB:$LD_LIBRARY_BASE"
-
-		echo "@ : $@"
-		declare -p
 
 #		LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH\" \
 		eval \

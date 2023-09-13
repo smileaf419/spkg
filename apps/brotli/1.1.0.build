@@ -15,14 +15,6 @@ SLOT=0
 TEST=test
 ABILIBS="64 x32 32"
 
-src_configure() {
-	if [[ $ABILIB != 64 ]]; then
-		append-cflags -m$ABILIB
-		append-cxxflags -m$ABILIB
-	fi
-	configure_default
-}
-
 src_compile() {
 	compile_default
 
