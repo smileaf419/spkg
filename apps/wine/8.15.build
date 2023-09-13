@@ -18,7 +18,8 @@ src_configure() {
 	local archs
 	for a in $BUILD_ABI; do
 		case a in
-			64) archs+="x86_64 " ;;
+			64) archs+="x86_64 "
+				CONF_ADD_FLAGS="--enable-win64" ;;
 			32) archs+="i386 " ;;
 		esac
 	done
