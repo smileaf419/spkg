@@ -13,11 +13,11 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 B=pcre2-$PKG_VER
+ABILIBS="64 x32 32"
 
 src_configure() {
 #	sed -i '/^pkgconfigdir/ s,$(libdir),/usr/lib,' Makefile.in
-	configure_default --libdir=/lib             \
-					  --bindir=/bin             \
+	configure_default --bindir=/bin             \
 					  --enable-unicode          \
 					  --enable-jit              \
 					  --enable-pcre2-16         \
