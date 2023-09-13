@@ -238,6 +238,9 @@ if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroo
 		git pull
 	fi
 
+	## Install our profile
+	cp $PKG_DB_DIR/spkg-tools/profile $ROOT/etc/profile
+
 	## Install our configuration file and symlinks.
 	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
 	## If we're using an unstable ARCH, set it in our config
@@ -247,6 +250,7 @@ if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroo
 
 	## Install a link to our script
 	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
+	ln -sf "$INSTALL_PATH"/readlatestlog $ROOT/usr/bin
 	## FIXME: Add links to other helper scripts?
 
 	## Pass certain options to our chroot environment
