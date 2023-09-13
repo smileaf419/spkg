@@ -18,5 +18,5 @@ src_configure() {
 	configure_default --sysconfdir=/etc \
 				--localstatedir=/var \
 				--without-doxygen \
-				--docdir='\\${datadir}'/doc/libxcb-${PKG_VER}
+				--docdir='\${datadir}'/doc/libxcb-${PKG_VER}
 }
