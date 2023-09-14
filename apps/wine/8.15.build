@@ -5,7 +5,7 @@ HOMEPAGE="https://www.winehq.org"
 DESCRIPTION="Windows Compatibility Layer (Wine Is Not an Emulator)"
 LICENSE=""
 SRC_URI=("https://dl.winehq.org/wine/source/${PKG_VER%.*}.x/wine-${PKG_VER}.tar.xz")
-DEPS="devel/glib devel/libusb media/alsa-lib media/gst-plugins-base media/gstreamer media/pulseaudio system/eudev x11/libX11 x11/libXext"
+DEPS="devel/glib devel/libusb devel/wayland media/alsa-lib media/gst-plugins-base media/gstreamer media/pulseaudio system/eudev x11/libX11 x11/libXext"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make

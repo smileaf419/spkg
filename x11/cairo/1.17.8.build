@@ -14,6 +14,7 @@ ARCHS="x86 x86_64"
 SLOT=0
 CDEPS="media/harfbuzz"
 setBuildENV meson ninja
+ABILIBS="64 x32 32"
 
 src_configure() {
 	configure_default -Dtee=enabled

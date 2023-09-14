@@ -11,11 +11,9 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
-	./configure --prefix=/usr \
-				--sysconfdir=/etc \
-				--localstatedir=/var \
-				--disable-static \
-				--docdir=/usr/share/doc/${PKG_NAME}-${PKG_VER}
+	configure_default --sysconfdir=/etc \
+				--localstatedir=/var
 }

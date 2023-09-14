@@ -13,6 +13,7 @@ use-enable X && UDEPS="x11/libXv x11/libXvMC"
 IUSE="X"
 ARCHS="~x86 ~x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 setBuildENV meson ninja
 
