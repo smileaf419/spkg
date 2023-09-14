@@ -14,10 +14,6 @@ SLOT=0
 ABILIBS="64 x32 32"
 
 src_configure() {
-	case $ABILIB in
-		64) unset CC CXX ;;
-		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
-	esac
 	configure_default --bindir=/bin
 }
 

@@ -11,13 +11,11 @@ BDEPS=""
 RDEPS="x11/xorg-proto"
 ARCHS="x86 x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
-	./configure --prefix=/usr \
-				--sysconfdir=/etc \
-				--localstatedir=/var \
-				--disable-static \
-				--docdir=/usr/share/doc/libXdmcp-$PKG_VER
+	configure_default --sysconfdir=/etc \
+				--localstatedir=/var
 }
 
 src_test() { :; }
