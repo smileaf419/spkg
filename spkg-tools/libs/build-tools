@@ -144,7 +144,7 @@ buildPackage() {
 
 			## If we're installing using pip we need root
 			if [[ $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
-				chown -R $BUILD_USER $BUILD_PATH/$B
+				[[ -e $BUILD_PATH/$B ]] && chown -R $BUILD_USER $BUILD_PATH/$B
 				su -p -c 'userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
 			else
 				userBuildPackage
@@ -154,7 +154,7 @@ buildPackage() {
 			src_install	$p || die " $DIALOG_ERROR Error in src_install (${ABILIB:-64})"
 
 			## Reset our working dir if we changed it during src_install
-			cd $BUILD_PATH/$B/$d
+			[[ -e $BUILD_PATH/$B/$d ]] && cd $BUILD_PATH/$B/$d
 
 			## No need to clean if we're only building for 1 ABI.
 			if [[ ! -z $ABILIBS && $ABILIBS != $ABILIB ]]; then
