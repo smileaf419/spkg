@@ -13,6 +13,7 @@ setBuildENV cmake cmake
 ARCHS="~x86 ~x86_64"
 SLOT=0
 B=SDL2-$PKG_VER
+ABILIBS="64 x32 32"
 
 src_configure() {
 	append-cflags -ffat-lto-objects

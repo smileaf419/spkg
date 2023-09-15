@@ -10,6 +10,7 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
 	configure_default --disable-thorough-tests

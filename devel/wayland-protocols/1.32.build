@@ -10,5 +10,5 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
-
+RESTRICT="nobin nostrip"
 setBuildENV meson ninja

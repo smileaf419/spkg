@@ -12,3 +12,4 @@ RDEPS=""
 CDEPS="media/mpg123"
 ARCHS="~x86 ~x86_64"
 SLOT=0
+ABILIBS="64 x32 32"

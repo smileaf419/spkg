@@ -10,8 +10,10 @@ BDEPS=""
 RDEPS="apps/docbook-xml:4.5 apps/docbook-xsl-nons"
 ARCHS="x86 x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
+	## FIXME: When did this get added and is it still needed?
 	sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml}
 
 	configure_default --without-python

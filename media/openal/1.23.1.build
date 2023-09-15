@@ -15,6 +15,7 @@ BUILD_SEPERATE_DIR=yes
 ARCHS="x86 x86_64"
 SLOT=0
 B=openal-soft-$PKG_VER
+ABILIBS="64 x32 32"
 
 src_configure() {
 	# EXAMPLES=OFF prevents ffmpeg dependency (src:gentoo ebuild)

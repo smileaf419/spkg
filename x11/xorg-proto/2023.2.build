@@ -11,6 +11,7 @@ RDEPS="x11/util-macros"
 ARCHS="x86 x86_64"
 SLOT=0
 B=xorgproto-${PKG_VER}
+RESTRICT="nobin nostrip"
 
 setBuildENV meson ninja
 

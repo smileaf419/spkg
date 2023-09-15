@@ -16,6 +16,7 @@ RDEPS="devel/nasm"
 ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
+ABILIBS="64 x32 32"
 
 src_configure() {
 	mv configure.{in,ac}

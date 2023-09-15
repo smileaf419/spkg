@@ -11,6 +11,7 @@ BDEPS=""
 RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_pre() {
 	checkKernelConfig CONFIG_SOUND 1 "Sound card Support"
@@ -18,5 +19,6 @@ src_pre() {
 }
 
 src_configure() {
-	./configure
+	CONF_FLAGS=" "
+	configure_default
 }

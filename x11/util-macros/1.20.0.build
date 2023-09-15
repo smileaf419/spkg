@@ -11,6 +11,7 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+RESTRICT="nobin nostrip"
 
 src_configure() {
 	./configure --prefix=/usr \

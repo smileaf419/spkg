@@ -10,9 +10,11 @@ BDEPS=""
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
-	# Fix building with libpng 1.6
+	## FIXME: Is this still needed?
+	## Fix building with libpng 1.6
 	sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c
 
 	configure_default

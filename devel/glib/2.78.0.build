@@ -30,7 +30,7 @@ src_configure() {
 }
 
 src_compile() {
-	sed -i 's,--nonet,--nonet --catalogs,' build.ninja
+	sed -i 's,--nonet,& --catalogs,' build.ninja
 	SGML_CATALOG_FILES=file:///etc/xml/catalog ninja
 }
 

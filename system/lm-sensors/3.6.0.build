@@ -24,7 +24,6 @@ src_configure() {
 		[[ $(echo $CONFIG|grep "CONFIG_I2C_CHARDEV=[ym]") ]] && echo yes || die no .. CONFIG_I2C_CHARDEV required.
 		echo -n "Checking Hardware Monitoring Support.. "
 		[[ $(echo $CONFIG|grep "CONFIG_HWMON=[ym]") ]] && echo yes || die no .. CONFIG_HWMON required.
-		
 	fi
 }
 

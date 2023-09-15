@@ -5,16 +5,14 @@ HOMEPAGE=""
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-${PKG_VER}.tar.xz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
-PATCHES=()
 DEPS="devel/glib devel/libgudev devel/wayland media/alsa-lib media/gstreamer media/libjpeg-turbo media/libogg media/libpng media/libtheora media/libvorbis media/mesa media/opus media/cdparanoia system/zlib x11/cairo x11/libdrm x11/libX11 x11/libxcb x11/libXext x11/libXi x11/libXv x11/pango"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
 BUILD_SEPERATE_DIR=yes
 ARCHS="x86 x86_64"
+ABILIBS="64 x32 32"
 SLOT=0
-#B=
 
 src_configure() {
 	configure_default --wrap-mode=nodownload \

@@ -12,6 +12,7 @@ BDEPS=""
 RDEPS="devel/python"
 ARCHS="~x86 ~x86_64"
 SLOT=0
+RESTRICT="nobin nostrip"
 
 src_configure() {
 	PYTHON=python3 ./configure --prefix=/usr \

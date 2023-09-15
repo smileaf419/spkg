@@ -13,11 +13,16 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 B=cdparanoia-III-${PKG_VER}
+ABILIBS="64 x32 32"
 
-src_prepare() {
+src_patch() {
 	unpack "$DISTFILES/cdparanoia-3.10.2-patches.tar.xz"
 	spatches patches/*.patch
 
+	patch_default
+}
+
+src_prepare() {
 	mv configure.guess config.guess
 	mv configure.sub config.sub
 
@@ -34,8 +39,7 @@ src_prepare() {
 }
 
 src_configure() {
-	./configure --prefix=/usr \
-				--mandir=/usr/share/man
+	configure_default --mandir=/usr/share/man
 }
 
 src_compile() {
