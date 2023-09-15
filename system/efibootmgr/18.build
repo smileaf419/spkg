@@ -5,14 +5,17 @@ HOMEPAGE=""
 DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://github.com/rhboot/efibootmgr/archive/$PKG_VER/efibootmgr-$PKG_VER.tar.gz")
-DEPS=""
+DEPS="devel/popt system/efivar"
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="x86 x86_64"
 SLOT=0
-#B=
+
+src_prepare() {
+	append-cflags -I/usr/include/efivar
+}
 
 src_configure() { :; }
 

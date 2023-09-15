@@ -6,7 +6,7 @@ DESCRIPTION=""
 LICENSE=""
 SRC_URI=("https://github.com/rhboot/efivar/releases/download/$PKG_VER/efivar-$PKG_VER.tar.bz2")
 DEPS=""
-BDEPS=""
+BDEPS="apps/mandoc"
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
