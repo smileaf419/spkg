@@ -120,6 +120,9 @@ post_install() {
 		inform " * Updating Kernel symlink to Linux ${PKG_VER}"
 		ln -sfv linux-$PKG_SLOT /usr/src/linux
 	fi
+	if [[ $INSTALL_DOCS == 0 ]]; then
+		sed -i '/Documentation/d' /usr/src/linux-$PKG_VER/Kconfig
+	fi
 }
 
 src_post_uninstall() {
