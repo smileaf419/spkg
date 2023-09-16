@@ -11,6 +11,7 @@ PATCHES=(
 "https://sourceware.org/git/?p=glibc.git;a=patch;h=542b1105852568c3ebc712225ae78b8c8ba31a78 => glibc-2.38-posix-memalign-1.patch"
 "https://sourceware.org/git/?p=glibc.git;a=patch;h=0dc7fc1cf094406a138e4d1bcf9553e59edcf89d => glibc-2.38-posix-memalign-2.patch"
 "https://sourceware.org/git/?p=glibc.git;a=patch;h=bd77dd7e73e3530203be1c52c8a29d08270cb25d => glibc-2.38-CVE-2023-4527.patch"
+"https://sourceware.org/git/?p=glibc.git;a=patch;h=973fe93a5675c42798b2161c6f29c01b0e243994 => glibc-2.38-CVE-2023-4806.patch"
 )
 DEPS=""
 BDEPS="system/linux-headers"
