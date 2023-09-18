@@ -11,6 +11,7 @@ BDEPS=""
 RDEPS="devel/python"
 ARCHS="~x86 ~x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_prepare() {
 	PY_VER=$(Installed-getPkg devel/python | getLatest | getVersion)
@@ -23,9 +24,14 @@ src_prepare() {
 src_configure() {
 	autoreconf -fiv
 
+	if [[ $ABILIB == 64 ]]; then
+		CONF_ADD_FLAGS="PYTHON=/usr/bin/python3"
+	else
+		CONF_ADD_FLAGS="--without-python"
+	fi
+
 	configure_default \
 				--with-history \
-				PYTHON=/usr/bin/python3 \
 				--with-icu \
 				--enable-ipv6
 }
