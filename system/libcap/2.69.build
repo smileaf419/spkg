@@ -13,6 +13,7 @@ SLOT=0
 TEST=test
 ABILIBS="64 x32 32"
 _LIB_ROOT_INSTALL=1
+_SPKG_CLEAN=distclean
 
 src_prepare() {
 	## Prevent static libraries from being installed
@@ -20,14 +21,12 @@ src_prepare() {
 }
 
 src_configure() {
-	case $ABILIB in
-		64) unset CC ;;
-		*)
-			local arch=x86_64
+	filter-flags -march -m*32
+	if [[ $ABILIB != 64 ]]; then
+			local arch=x86-64
 			[[ $ABILIB == 32 ]] && arch=i686
-			export CC="gcc -m$ABILIB -march=$arch"
-		;;
-	esac
+		append-cflags -m$ABILIB -march=$arch
+	fi
 }
 
 src_install() {
