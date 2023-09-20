@@ -6,11 +6,11 @@ DESCRIPTION="Library for laying out and rendering of text, with an emphasis on i
 LICENSE="LGPLv2.1"
 SRC_URI=("https://download.gnome.org/sources/pango/${PKG_VER%.*}/pango-${PKG_VER}.tar.xz")
 DEPS="devel/fribidi devel/glib media/fontconfig media/freetype media/harfbuzz x11/cairo x11/libX11 x11/libXft x11/libXrender"
-BDEPS=""
+BDEPS="devel/gobject-introspection"
 RDEPS=""
 ARCHS="~x86 ~x86_64"
 SLOT=0
-ABILIBS="64 x32 32"
+#ABILIBS="64 x32 32"
 setBuildENV meson ninja
 
 src_configure() {

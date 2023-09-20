@@ -6,7 +6,7 @@ DESCRIPTION="An OpenType text shaping engine"
 LICENSE="Old-MIT ISC icu"
 SRC_URI="https://github.com/harfbuzz/harfbuzz/releases/download/${PKG_VER}/harfbuzz-${PKG_VER}.tar.xz"
 DEPS="devel/glib devel/icu x11/cairo"
-BDEPS=""
+BDEPS="devel/gobject-introspection"
 RDEPS=""
 # Circular Dependency These need to be installed before harfbuzz
 # BUT support in each need harfbuzz installed first.
@@ -17,5 +17,7 @@ RDEPS=""
 CDEPS="media/freetype"
 ARCHS="~x86 ~x86_64"
 SLOT=0
-ABILIBS="64 x32 32"
+## If gobject-introspection is installed, harfbuzz requires it to also have multilib
+## But gobject-introspection cannot be built without python support and Python.h is unusuable in a x32 build if built for 64.
+#ABILIBS="64 x32 32"
 setBuildENV meson ninja
