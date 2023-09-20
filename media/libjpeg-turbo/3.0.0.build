@@ -15,6 +15,7 @@ setBuildENV cmake
 BUILD_SEPERATE_DIR=yes
 TEST=test
 ABILIBS="64 x32 32"
+_SPKG_CLEAN=rm
 
 src_configure() {
 	configure_default \
