@@ -13,12 +13,11 @@ ARCHS="~x86 ~x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 
-src_pre() {
+src_prepare() {
 	checkKernelConfig CONFIG_SOUND 1 "Sound card Support"
 	checkKernelConfig CONFIG_SND 1 "Advanced Linux Sound Architecture"
 }
 
 src_configure() {
-	CONF_FLAGS=" "
 	configure_default
 }
