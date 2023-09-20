@@ -23,13 +23,13 @@ src_patch() {
 }
 
 src_prepare() {
-	mv configure.guess config.guess
-	mv configure.sub config.sub
-
 	sed -i -e '/configure.\(guess\|sub\)/d' configure.in || die
 
 	## Remove Archives from being installed as they won't be created anyway
 	sed '/\.a \$/d' -i Makefile.in
+
+	## Remove .lo files as well. If not removed, they won't be regenerated and will be the wrong bit-code.
+	sed 's/-rm -f \*/&\.lo \*/' -i */Makefile.in
 
 	mv configure.{in,ac} || die
 
@@ -39,7 +39,11 @@ src_prepare() {
 }
 
 src_configure() {
-	configure_default --mandir=/usr/share/man
+	cp configure.guess config.guess
+	cp configure.sub config.sub
+
+	CONF_FLAGS=--prefix=/usr
+	configure_default --mandir=/usr/share/man --libdir=$(libdir)
 }
 
 src_compile() {
