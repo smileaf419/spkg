@@ -29,8 +29,7 @@ src_configure() {
 	rm -rf freetype lcms2mt jpeg libpng openjpeg zlib
 
 	configure_default --disable-compile-inits \
-					  $(use-enable tiff && echo --with-system-libtiff || echo --without-libtiff) \
-					  --without-pdf
+					  $(use-enable tiff && echo --with-system-libtiff || echo --without-libtiff)
 }
 
 src_compile() {
