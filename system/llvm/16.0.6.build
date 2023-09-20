@@ -94,7 +94,7 @@ src_patch() {
 	cd - > /dev/null
 }
 
-src_configure() {
+src_prepare() {
 	grep -rl '\.\./runtimes' $BUILD_PATH | xargs sed 's,\.\./runtimes,/runtimes,' -i
 	ln -s $BUILD_PATH/$B/projects/libcxx* $BUILD_PATH
 
@@ -103,21 +103,24 @@ src_configure() {
 
 	## Fix a broken testcase caused by enabling SSP by default (LFS patch)
 	sed 's/clang_dfsan/& -fno-stack-protector/' \
-		-i ../projects/compiler-rt/test/dfsan/origin_unaligned_memtrans.c
+		-i projects/compiler-rt/test/dfsan/origin_unaligned_memtrans.c
 
 	mkdir -p include
 	## Copy this LLVM libunwind header or it won't be found:
-	cp -a ../projects/libunwind/include/mach-o include
+	cp -a projects/libunwind/include/mach-o include
+}
 
+src_configure() {
 	## Check if we're already installed, if so use llvm to compile rather than gcc
 	if is-installed system/llvm && ! use-enable gcc; then
 		echo " * Build System: clang"
 		CC='clang'
 		CXX='clang++'
-		CONF_ADD_FLAGS=(-DLLVM_USE_LINKER=lld
-		-DLIBCXX_INCLUDE_BENCHMARKS=OFF
-		-DCOMPILER_RT_BUILD_LIBFUZZER=OFF
-		-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON
+		CONF_ADD_FLAGS=(
+			-DLLVM_USE_LINKER=lld
+			-DCOMPILER_RT_BUILD_LIBFUZZER=OFF
+			-DLIBCXX_INCLUDE_BENCHMARKS=OFF
+			-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON
 		)
 	else
 		echo " * Build System: GCC"
@@ -128,6 +131,10 @@ src_configure() {
 		rm -fr ../projects/{libunwind,libcxx{,abi},compiler-rt}
 	fi
 
+	## If we have a 32bit arch enabled within our BUILD_ABI set this flag.
+	if [[ $BUILD_ABI == *32* ]]; then
+		CONF_ADD_FLAGS+=(-DLLVM_BUILD_32_BITS=ON)
+	fi
 	configure_default                             \
 		-DCMAKE_C_FLAGS:STRING="$CFLAGS"          \
 		-DCMAKE_CXX_FLAGS:STRING="$CFLAGS"        \
