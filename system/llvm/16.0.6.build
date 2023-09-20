@@ -45,15 +45,6 @@ IUSE="doc gcc"
 # use-enable doc && UDEPS="sphinx recommonmark doxygen"
 [[ $ENABLE_TESTS == 1 ]] && UDEPS+=" network/rsync python/psutil"
 
-src_prepare() {
-	PYTHON_VER=$(Installed-getPkg devel/python | getLatest | getVersion)
-	PYTHON_VER=${PYTHON_VER%.*}
-
-	[[ $ARCH == *x86_64 ]] && append-cflags -fPIC
-
-	append-ldflags -lcursesw -lncursesw -ltinfow
-}
-
 src_unpack() {
 	SRC_URI=(${SRC_URI[*]})
 	local length=${#SRC_URI[@]}
@@ -95,6 +86,13 @@ src_patch() {
 }
 
 src_prepare() {
+	PYTHON_VER=$(Installed-getPkg devel/python | getLatest | getVersion)
+	PYTHON_VER=${PYTHON_VER%.*}
+
+	[[ $ARCH == *x86_64 ]] && append-cflags -fPIC
+
+	append-ldflags -lcursesw -lncursesw -ltinfow
+
 	grep -rl '\.\./runtimes' $BUILD_PATH | xargs sed 's,\.\./runtimes,/runtimes,' -i
 	ln -s $BUILD_PATH/$B/projects/libcxx* $BUILD_PATH
 
@@ -132,9 +130,11 @@ src_configure() {
 	fi
 
 	## If we have a 32bit arch enabled within our BUILD_ABI set this flag.
-	if [[ $BUILD_ABI == *32* ]]; then
-		CONF_ADD_FLAGS+=(-DLLVM_BUILD_32_BITS=ON)
-	fi
+#	if [[ $BUILD_ABI == *32* ]]; then
+#		CONF_ADD_FLAGS+=(
+#			-DLLVM_BUILD_32_BITS=ON
+#		)
+#	fi
 	configure_default                             \
 		-DCMAKE_C_FLAGS:STRING="$CFLAGS"          \
 		-DCMAKE_CXX_FLAGS:STRING="$CFLAGS"        \
