@@ -14,20 +14,5 @@ _SPKG_CLEAN=distclean
 ABILIBS="64 x32 32"
 
 src_configure() {
-	case $ABILIB in
-		64) unset CC CXX ;;
-		*) export CC="gcc -m$ABILIB"; CXX="g++ -m$ABILIB" ;;
-	esac
 	configure_default --with-gcc-arch=native
-}
-
-src_install() {
-	if [[ $ABILIB == 64 ]]; then
-		install_default
-	else
-		make DESTDIR=$PWD/DESTDIR install
-		mkdir -p $D/$(libdir)
-		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
-		rm -rf DESTDIR
-	fi
 }
