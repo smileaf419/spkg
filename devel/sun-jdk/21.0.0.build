@@ -1,0 +1,33 @@
+####
+## sun-jdk build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.oracle.com/java/technologies/downloads/"
+DESCRIPTION="Java SE Development Kit"
+LICENSE="https://download.oracle.com/otndocs/jcp/java_se-${MV}-final-eval-spec/license.html"
+
+# This breaks once any #.0.x version comes out. But only for the 1st version.
+MV=$(getMajorVer)
+MI_MI=$(getMinorVer).$(getMicroVer)
+My_Ver=$MV
+[[ $MI_MI != 0.0 ]] && My_Ver+=".$MI_MI"
+
+SRC_URI=("https://download.oracle.com/java/${MV}/archive/jdk-${My_Ver}_linux-x64_bin.tar.gz")
+DEPS="media/alsa-lib media/freetype system/zlib x11/libX11 x11/libXext x11/libXi x11/libXrender x11/libXtst"
+BDEPS=""
+RDEPS="virtual/alsa"
+ARCHS="x86 x86_64"
+SLOT=20
+B=jdk-${PKG_VER}
+RESTRICT=nobin
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	mkdir -p ${D}/opt/sun-jdk-${PKG_VER}
+	mv -v * ${D}/opt/sun-jdk-${PKG_VER}
+	ln -sv /opt/sun-jdk-$PKG_VER ${D}/opt/jdk
+}
