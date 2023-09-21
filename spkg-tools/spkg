@@ -665,11 +665,14 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			PKG_NAME=''
 			list=$(expandSets $p)
 		else
-			EntryParser $p > /dev/null
-			list=$(find $PKG_DB_DIR -maxdepth 2 -mindepth 2 -iwholename \*$PKG_CAT/$PKG_NAME\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
+			PKG_CAT=*
+			PKG_NAME=${p#*/}
+			[[ $p == */* ]] && PKG_CAT=${p%/*} || PKG_NAME="*$PKG_NAME"
+			list=$(find $PKG_DB_DIR -maxdepth 2 -mindepth 2 -iwholename \*${PKG_CAT:-*}/${PKG_NAME:-*}\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
 		fi
 
 		[[ $PKG_NAME == *\* ]] && PKG_NAME=${PKG_NAME%\*}
+		[[ $PKG_NAME == \*\** ]] && PKG_NAME=${PKG_NAME/\*\*/\*}
 		echo "${MODE^}ing: $p (${PKG_CAT:-*}/$PKG_NAME*)"
 		[[ $MODE == 'list' ]] && printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
 		if [[ $list == '' ]]; then
