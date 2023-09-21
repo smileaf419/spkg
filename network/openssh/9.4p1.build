@@ -41,7 +41,6 @@ src_install() {
 	else
 		install-init.d sshd
 	fi
-	touch /var/lib/sshd/.keep
 
 	install -v -m755    contrib/ssh-copy-id "${D}"/usr/bin
 	install -v -m644    contrib/ssh-copy-id.1 "${D}"/usr/share/man/man1
@@ -49,7 +48,8 @@ src_install() {
 	install -v -m644    INSTALL LICENCE OVERVIEW README* \
 						"${D}"/usr/share/doc/openssh-${PKG_VER}
 
-	install -v -m700 -d -g sys "${D}"/var/lib/sshd
+	install -v -m700 -d -g sys $D/var/lib/sshd
+	touch $D/var/lib/sshd/.keep
 
 	inform " * Defaulting to disallowing root logins."
 	echo "PermitRootLogin no" >> "${D}"/etc/ssh/sshd_config
