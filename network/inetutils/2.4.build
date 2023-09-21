@@ -7,7 +7,7 @@ LICENSE="GPLv3"
 SRC_URI=("https://ftp.gnu.org/gnu/inetutils/inetutils-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/inetutils/inetutils-${PKG_VER}.tar.xz.sig")
 DEPS="system/libxcrypt system/ncurses system/readline"
-BDEPS=""
+BDEPS="system/coreutils"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
