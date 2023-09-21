@@ -668,7 +668,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			PKG_CAT=*
 			PKG_NAME=${p#*/}
 			[[ $p == */* ]] && PKG_CAT=${p%/*} || PKG_NAME="*$PKG_NAME"
-			list=$(find $PKG_DB_DIR -maxdepth 2 -mindepth 2 -iwholename \*${PKG_CAT:-*}/${PKG_NAME:-*}\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
+			list=$(find $PKG_DB_DIR -maxdepth 2 -mindepth 2 -iwholename $PKG_DB_DIR/${PKG_CAT:-*}/${PKG_NAME:-*}\* | sed "s,$PKG_DB_DIR\(/*\)\?,,")
 		fi
 
 		[[ $PKG_NAME == *\* ]] && PKG_NAME=${PKG_NAME%\*}
