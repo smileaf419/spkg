@@ -1,13 +1,13 @@
 ####
 ## font-util build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://xorg.freedesktop.org/"
+DESCRIPTION="X.Org Font Utilities"
+LICENSE="custom"
 SRC_URI=("https://www.x.org/pub/individual/font/${PKG_NAME}-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS=""
-BDEPS=""
+BDEPS="x11/util-macros"
 RDEPS="x11/mkfontscale"
 ARCHS="x86 x86_64"
 SLOT=0

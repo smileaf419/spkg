@@ -1,9 +1,9 @@
 ####
-## * build
+## efibootmgr build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://github.com/rhboot/efibootmgr"
+DESCRIPTION="Linux User-space application to modify the Intel Extensible Firmware Interface (EFI) Boot Manager."
+LICENSE="GPLv2"
 SRC_URI=("https://github.com/rhboot/efibootmgr/archive/$PKG_VER/efibootmgr-$PKG_VER.tar.gz")
 DEPS="devel/popt system/efivar"
 BDEPS=""
