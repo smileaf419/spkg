@@ -8,7 +8,7 @@ SRC_URI="https://zlib.net/zlib-${PKG_VER}.tar.xz"
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
@@ -24,13 +24,6 @@ src_configure() {
 }
 
 src_install() {
-#	if [[ $ABILIB == 64 ]]; then
-		install_default
-#	else
-#		make DESTDIR=$PWD/DESTDIR install
-#		mkdir -p $D/lib$ABILIB
-#		cp -Rv DESTDIR/lib$ABILIB/* $D/lib$ABILIB
-#		rm -rf DESTDIR
-#	fi
+	install_default
 	rm -f "${D}"/$(libdir)/libz.a
 }

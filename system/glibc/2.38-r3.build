@@ -54,9 +54,10 @@ src_configure() {
 				 --with-headers=/usr/include   \
 				 --enable-multi-arch             \
 				 libc_cv_slibdir=$(libdir 1 1)    \
-                 --disable-werror                  \
-                 --enable-stack-protector=strong    \
-                 $(use-enable gd || echo --with-gd=no)
+				 --disable-werror                  \
+				 --enable-stack-protector=strong    \
+				 --disable-nscd                      \
+				 $(use-enable gd || echo --with-gd=no)
 }
 
 src_compile() {
