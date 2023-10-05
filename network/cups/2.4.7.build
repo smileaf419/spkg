@@ -10,7 +10,7 @@ BDEPS="accounts/cups"
 RDEPS="network/cups-filters"
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
