@@ -21,7 +21,7 @@ src_configure() {
 	append-cflags -fPIC
 	## Used in @temptools
 	if [[ $PKG_FLAGS == *nodep* ]]; then
-		./configure --prefix=/usr --enable-shared --without-ensurepip
+		./configure --prefix=/usr --enable-shared --with-ensurepip=install
 	else
 		CXX="/usr/bin/g++" \
 		./configure --prefix=/usr    \
@@ -55,7 +55,7 @@ EOF
 
 		tar --strip-components=1  \
 		    --no-same-owner       \
-	    	--no-same-permissions \
+			--no-same-permissions \
 		    -C "${D}"/usr/share/doc/python-${PKG_VER}/html \
 		    -xvf "${DISTFILES}"/python-${PKG_VER}-docs-html.tar.bz2
 		ln -svfn python-${PKG_VER} $D/usr/share/doc/python-3
