@@ -1,0 +1,16 @@
+####
+## iso8601 build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://pypi.org/project/iso8601/"
+DESCRIPTION="Simple module to parse ISO 8601 dates"
+LICENSE="MIT"
+SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//_/-}/$PKG_NAME-${PKG_VER}.tar.gz")
+DEPS=""
+## poetry-core
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+MODULE=python
+setBuildENV none pip
+export _PIP_COMPILE_OPTS="-w dist --no-deps"

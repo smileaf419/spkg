@@ -1,0 +1,51 @@
+####
+## OpenSSL build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.openssl.org/"
+DESCRIPTION="Open Source Toolkit for the Transport Layer Security (TLS)"
+LICENSE="Apache-2.0"
+SRC_URI="https://www.openssl.org/source/openssl-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS="apps/ca-certificates"
+ARCHS="x86 x86_64"
+SLOT=0
+TEST=test
+ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
+
+src_configure() {
+	append-cppflags -fno-strict-aliasing
+
+	## Fix hardcoded path
+	[ -e /bin/env ] && sed -i 's,/usr/bin/env,/bin/env,' Configure
+
+	./config --prefix=/usr         \
+	         --openssldir=/etc/ssl \
+			 --libdir=$(libdir)     \
+	         shared                \
+	         zlib-dynamic          \
+	         $([[ $ABILIB == 32 ]] && echo "linux-x86") \
+	         $([[ $ABILIB == x32 ]] && echo "linux-x32")
+}
+
+src_install() {
+	if [[ $ABILIB == 64 ]]; then
+		sed -i '/INSTALL_ABILIBS/s/libcrypto.a libssl.a//' Makefile
+		install_default MANSUFFIX=ssl
+		touch "$D"/etc/ssl/{certs,private}/.keep
+		mv -v "${D}"/usr/share/doc/openssl{,-${PKG_VER}}
+		cp -vfr doc/* "${D}"/usr/share/doc/openssl-${PKG_VER}
+
+		mv "$D"{/usr,}/bin
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
+	fi
+}
+
+post_install() {
+	echo " * Rehashing openssl certs"
+	openssl rehash $ROOT/etc/ssl/certs
+}

@@ -1,0 +1,26 @@
+####
+## libvpx build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.webmproject.org"
+DESCRIPTION="WebM VP8 and VP9 Codec SDK"
+LICENSE="BSD"
+SRC_URI="https://github.com/webmproject/libvpx/archive/v${PKG_VER}/libvpx-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS="devel/nasm"
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+BUILD_SEPERATE_DIR=yes
+
+src_configure() {
+	sed -i 's/cp -p/cp/' ../build/make/Makefile
+
+	# configure_default
+	../configure --prefix=/usr \
+				--enable-shared \
+				--disable-static
+}
+
+src_test() {
+	LD_LIBRARY_PATH=. make $MAKEOPTS test
+}

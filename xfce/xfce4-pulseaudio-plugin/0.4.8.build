@@ -1,0 +1,15 @@
+####
+## xfce4-pulseaudio-plugin build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.xfce.org"
+DESCRIPTION="PulseAudio Multimedia plugin for XFCE's panel"
+LICENSE=""
+SRC_URI=("https://archive.xfce.org/src/panel-plugins/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_test() { :; }
