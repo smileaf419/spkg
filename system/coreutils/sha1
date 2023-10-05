@@ -1,7 +1,3 @@
-960a11484ed728a8b874ebe107b01269c1d56742  9.3-r1.build
-cd1fd7e27d46fd2497b8f2a670b54785530ef7d2  coreutils-9.3.tar.xz
-5f9285edc68449bccd2805f9a9c82d7ebc2060be  coreutils-9.3-i18n-1.patch
-3cd9ede62ca17e5ae285889d82ea280dc93ea791  coreutils-9.3-chmod-gcc13.patch
-ce927eb7a7609190fbf50c82c19053fa646c5271  9.4.build
+ec9f006e12d046744fa8f04ea5eb7bfce76a88f7  9.4.build
 7effa305c3f4bc0d40d79f1854515ebf5f688a18  coreutils-9.4.tar.xz
 f57d5991a35ea03a2758a4daa3c4390302772255  coreutils-9.4-i18n-1.patch
