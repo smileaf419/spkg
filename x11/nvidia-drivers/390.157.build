@@ -10,13 +10,14 @@ PATCHES=(
 "https://aur.archlinux.org/cgit/aur.git/plain/kernel-6.2.patch?h=nvidia-390xx-utils => nvidia-390.157-kernel-6.2.patch"
 "https://aur.archlinux.org/cgit/aur.git/plain/kernel-6.3.patch?h=nvidia-390xx-utils => nvidia-390.157-kernel-6.3.patch"
 "https://aur.archlinux.org/cgit/aur.git/plain/kernel-6.4.patch?h=nvidia-390xx-utils => nvidia-390.157-kernel-6.4.patch"
+"https://aur.archlinux.org/cgit/aur.git/plain/kernel-6.5.patch?h=nvidia-390xx-utils => nvidia-390.157-kernel-6.5.patch"
 )
 DEPS=""
 BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 MODULE=kernel
 B=NVIDIA-Linux-x86_64-$PKG_VER
