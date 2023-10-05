@@ -75,9 +75,9 @@ src_install() {
 		## Fix a hardcoded path
 		sed '/RTLDLIST=/s@/usr@@g' -i "${D}/$ROOT"/bin/ldd
 
-		cp -v ../nscd/nscd.conf "${D}/$ROOT"/etc/nscd.conf
-		mkdir -pv "${D}/$ROOT"/var/cache/nscd
-		touch $D/$ROOT/var/cache/nscd/.keep
+#		cp -v ../nscd/nscd.conf "${D}/$ROOT"/etc/nscd.conf
+#		mkdir -pv "${D}/$ROOT"/var/cache/nscd
+#		touch $D/$ROOT/var/cache/nscd/.keep
 	else
 		make DESTDIR=$PWD/DESTDIR install &&
 		mkdir -p $D/$ROOT/{lib,usr/include/gnu} &&
@@ -155,7 +155,8 @@ bootstrap() {
 					 --enable-multi-arch             \
 					 --with-headers=$ROOT/usr/include  \
 					 --build=$(../scripts/config.guess) \
-					 --host=$TGT                          \
+					 --host=$TGT                        \
+					 --disable-nscd                     \
 					 libc_cv_slibdir=$(libdir 1 1) &&
 		compile_default &&
 		src_install
