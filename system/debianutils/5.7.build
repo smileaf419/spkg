@@ -1,13 +1,11 @@
 ####
 ## debianutils build
 ## Copyright 2023 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
-SRC_URI=("https://salsa.debian.org/debian/debianutils/-/archive/debian/${PKG_VER}-0.3/debianutils-debian-${PKG_VER}-0.3.tar.bz2")
-PATCHES=()
+HOMEPAGE="https://packages.qa.debian.org/d/debianutils.html"
+DESCRIPTION="A selection of tools from Debian"
+LICENSE="BSD GPLv2 SMAIL"
+SRC_URI=("http://deb.debian.org/debian/pool/main/d/debianutils/debianutils_${PKG_VER}.orig.tar.gz")
+PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/sys-apps/debianutils/files/debianutils-3.4.2-no-bs-namespace.patch")
 DEPS=""
 BDEPS=""
 RDEPS=""
@@ -15,7 +13,6 @@ setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="x86 x86_64"
 SLOT=0
-B=debianutils-debian-${PKG_VER}-0.3
 
 src_configure() {
 	sed -i -e '/SUBDIRS/s|po4a||' Makefile.am
