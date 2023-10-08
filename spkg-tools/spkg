@@ -594,13 +594,13 @@ if [[ $MODE == "update" ]]; then
 	else
 		>&2 echo " done"
 	fi
-	PKG_LIST=$(cat $CHART)
+	[[ -e $CHART ]] && PKG_LIST=$(cat $CHART)
 	echo
 #	[ $VERBOSE -ge 1 ] && echo list: $list
 
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
-	[[ $SPKG_TMP_DIR == /tmp/spkg-$$ ]] && die " $DIALOG_ERROR Nothing to resume"
+#	[[ $SPKG_TMP_DIR == /tmp/spkg-$$ ]] && die " $DIALOG_ERROR Nothing to resume"
 	## Reset paths.
 	export INFORMLOG=$SPKG_TMP_DIR/inform.log
 	export CHART=$SPKG_TMP_DIR/chart
