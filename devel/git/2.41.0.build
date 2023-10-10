@@ -8,7 +8,7 @@ SRC_URI="https://www.kernel.org/pub/software/scm/git/git-${PKG_VER}.tar.xz"
 DEPS="devel/libpcre2 system/zlib"
 BDEPS="network/curl"
 RDEPS="devel/perl devel/python"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 
