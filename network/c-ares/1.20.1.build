@@ -1,0 +1,21 @@
+####
+## c-ares build
+## Copyright 2023 spkg developers, licensed under GPLv2
+## Start versioning at -r1 if patches are used.
+## non-patched packages may omit a revision, until a modification is made.
+HOMEPAGE=""
+DESCRIPTION="C Library for asynchronous DNS Requests"
+LICENSE=""
+SRC_URI=("https://c-ares.haxx.se/download/c-ares-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV cmake make
+BUILD_SEPERATE_DIR=yes
+ARCHS="~x86 ~x86_64"
+SLOT=0
+#B=
+
+src_test() { :; }
