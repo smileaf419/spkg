@@ -11,16 +11,12 @@ DEPS="devel/glib devel/nspr devel/nss media/fontconfig media/freetype media/lcms
 BDEPS=""
 RDEPS=""
 setBuildENV cmake cmake
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 [[ $ENABLE_TESTS == 1 ]] && BDEPS+="devel/git"
 
 src_configure() {
-	## Add a missing include statement which will break compilation on 32-bit systems (Source: LFS)
-	sed -e '/#include "GPGMECryptoSignBackend.h"/i#include <config.h>' \
-		-i poppler/GPGMECryptoSignBackend.cc
-
 	configure_default -DTESTDATADIR=$PWD/testfiles \
 					  -DENABLE_UNSTABLE_API_ABI_HEADERS=ON
 }

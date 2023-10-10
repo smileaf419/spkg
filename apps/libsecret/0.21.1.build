@@ -7,13 +7,11 @@ HOMEPAGE=""
 DESCRIPTION="A GObject based library for accessing the Secret Service API."
 LICENSE=""
 SRC_URI=("https://download.gnome.org/sources/libsecret/${PKG_VER%.*}/libsecret-${PKG_VER}.tar.xz")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.gnome.org/sources/libsecret/0.20/libsecret-${PKG_VER}.tar.xz.sig")
-PATCHES=()
 DEPS="devel/glib devel/libgcrypt"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

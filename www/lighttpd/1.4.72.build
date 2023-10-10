@@ -11,7 +11,7 @@ PATCHES=()
 DEPS="apps/bzip2 devel/sqlite devel/libpcre2 devel/libxml2 devel/openssl system/libxcrypt system/zlib"
 BDEPS="accounts/www"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -1,4 +1,4 @@
 74b1404588ce3b81b897c07281c6ab4790a0a2e1  6.0.build
 e934c379c99fb02c3cb7bb89c041ea2c028fb66b  ffmpeg-6.0.tar.xz
 bc5493cc0d7b2ea84ef2deecef453724c7b0dc31  ffmpeg-6.0-chromium_method-1.patch
-1c6ae6c0166c9039140a1900ff248cb95659c127  ffmpeg-6.0-binutils-2.41.patch
+0547a9afa26665a8cc13779eb1ca98399d5e90ed  ffmpeg-6.0-binutils-2.41.patch

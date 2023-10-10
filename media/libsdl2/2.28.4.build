@@ -10,7 +10,7 @@ BDEPS=""
 RDEPS=""
 ## [[ $INSTALL_DOCS == 1 ]] && BDEPS+=" app-doc/doxygen"
 setBuildENV cmake cmake
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=SDL2-$PKG_VER
 ABILIBS="64 x32 32"
