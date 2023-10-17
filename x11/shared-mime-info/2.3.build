@@ -1,0 +1,25 @@
+####
+## shared-mime-info build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.x.org/wiki/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://gitlab.freedesktop.org/xdg/shared-mime-info/-/archive/${PKG_VER}/shared-mime-info-${PKG_VER}.tar.gz")
+PATCHES=()
+DEPS="devel/glib devel/libxml2"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+setBuildENV meson ninja
+
+src_test() { :; }
+
+src_compile() {
+	compile_default
+}
+
+post_install() {
+	update-mime-database /usr/share/mime
+}

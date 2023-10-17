@@ -9,7 +9,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/gettext/gettext-${PKG_VER}.tar.xz")
 DEPS="devel/libunistring devel/libxml2 system/acl system/attr"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_test() {

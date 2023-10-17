@@ -141,6 +141,8 @@ python_compile() {
 #		python $DISTFILES/get-pip.py --no-warn-script-location
 #		PATH+=":$HOME/.local/bin"
 
+		## If pip is already installed and up to date, this will most probably 'fail' in that it won't do anything.
+		## If pip actually works and a module is missing, then it'd be better to run: pip install [module]
 		echo " $IMPORTANT Assuming pip is broken, trying ensurepip"
 		python -m ensurepip --default-pip
 

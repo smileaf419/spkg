@@ -3,3 +3,5 @@ de1860b7874d5e2f0635a08b8ab2d31e7ca50be4  debianutils_5.7.orig.tar.gz
 103a3875c09e1f1143c5b1e908b234b69c7ac6db  debianutils-3.4.2-no-bs-namespace.patch
 406de5d1926b9aa1fd73eeb2db11c6d1bb625c28  5.13.build
 0509787b1565138aa6acdaf062fe0bee456a7f11  debianutils_5.13.tar.xz
+2a585eba6274f0d3b7ff760663143c2f056cc185  5.14.build
+09d92d9d74362544d60442499b9ac010a9b5b782  debianutils_5.14.tar.xz
