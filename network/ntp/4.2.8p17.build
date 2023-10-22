@@ -19,8 +19,6 @@ append-cxxflags -D_GNU_SOURCE
 src_configure() {
 	## Fix an issue with update-leap
 	sed -e 's/"(\\S+)"/"?([^\\s"]+)"?/' -i scripts/update-leap/update-leap.in
-	## Fix an issue caused by glibc 2.34
-	sed -e 's/#ifndef __sun/#if !defined(__sun) \&\& !defined(__GLIBC__)/' -i libntp/work_thread.c
 	autoreconf -vi
 
 	configure_default \
