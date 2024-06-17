@@ -2,3 +2,5 @@
 a4b4a20bf3976e71c280b6dfb8443dbdcdd3f2f0  elfutils-0.189.tar.bz2
 d071327dd47f156576c8775624e6cabdb237db4a  elfutils-0.187-patches.tar.xz
 d23e009227ca77255d7c60736063f05061e03183  elfutils-0.189-test-fix.patch
+d20b27880b3bbfe2203247cf1ba1e189af20a45e  0.191.build
+651aa2b7390aeba178be2ceefd4c2eb42e783e97  elfutils-0.191.tar.bz2

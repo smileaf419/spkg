@@ -1,0 +1,20 @@
+####
+## mtdev build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://bitmath.org/code/mtdev/mtdev-${PKG_VER}.tar.bz2")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	autoreconf -fiv
+	configure_default
+}
+
+src_test() { :; }

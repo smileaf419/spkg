@@ -1,4 +1,3 @@
-7cf04df70e4141b68c06f5d233407b33f05f905b  1.47.0.build
-987645f563f279ab32aac19d824c64e9690e3152  e2fsprogs-1.47.0.tar.gz
+8601d0bd2a709a3efcaab15c02dabc509cd20432  1.47.1.build
+48e9c6d9da353948aead80a67ffe82aa88293534  e2fsprogs-1.47.1.tar.gz
 dc418e10d03c270dd0be631b5cbd00715546f0de  e2fsprogs-1.42.13-fix-build-cflags.patch
-c27c3d9877814e51a4780fdde23cb48f2f94e2dd  e2fsprogs-1.46.5-parallel-make.patch

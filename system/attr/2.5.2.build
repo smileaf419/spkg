@@ -1,0 +1,36 @@
+####
+## attr build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://savannah.nongnu.org/projects/attr"
+DESCRIPTION="Filesystem Extended Attribute Manipulation utilities"
+LICENSE="GPLv2"
+SRC_URI=("https://download.savannah.gnu.org/releases/attr/attr-${PKG_VER}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://download.savannah.gnu.org/releases/attr/attr-${PKG_VER}.tar.gz.sig")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+ABILIBS="64 x32 32"
+_SPKG_CLEAN=distclean
+_LIB_ROOT_INSTALL=1
+
+src_configure() {
+	case $ABILIB in
+		64) unset CC ;;
+		*) export CC="gcc -m$ABILIB" ;;
+	esac
+	configure_default --sysconfdir=/etc
+}
+
+src_install() {
+	if [[ $ABILIB == 64 ]]; then
+		install_default
+	else
+		make DESTDIR=$PWD/DESTDIR install
+		mkdir -p $D/$(libdir)
+		cp -Rv DESTDIR/$(libdir)/* $D/$(libdir)
+		rm -rf DESTDIR
+	fi
+}

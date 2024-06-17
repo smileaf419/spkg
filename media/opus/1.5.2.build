@@ -1,0 +1,13 @@
+####
+## opus build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://opus-codec.org/downloads/"
+DESCRIPTION="Open codec for interactive speech and music transmission over the Internet"
+LICENSE="BSD"
+SRC_URI="https://github.com/xiph/opus/releases/download/v${PKG_VER}/opus-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+ABILIBS="64 x32 32"

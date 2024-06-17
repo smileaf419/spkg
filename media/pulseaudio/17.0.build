@@ -1,0 +1,26 @@
+####
+## pulseaudio build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/PulseAudio/"
+DESCRIPTION="Sound Server System for POSIX OSes"
+LICENSE="LGPLv2.1"
+SRC_URI=("https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-${PKG_VER}.tar.xz")
+DEPS="devel/glib devel/openssl media/alsa-lib media/libsndfile system/dbus system/libtool system/eudev system/gdbm system/libcap x11/libICE x11/libSM x11/libX11 x11/libxcb x11/libXtst"
+BDEPS="devel/check"
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+ABILIBS="64 x32 32"
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default -Ddatabase=gdbm \
+					  -Ddoxygen=false
+}
+
+src_install() {
+	install_default
+
+	# https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/SystemWide/
+	rm -fv "${D}"/etc/dbus-1/system.d/pulseaudio-system.conf
+}

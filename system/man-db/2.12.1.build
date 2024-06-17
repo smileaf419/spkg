@@ -1,0 +1,24 @@
+####
+## man-db build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.nongnu.org/man-db/"
+DESCRIPTION="A man replacement that utilizes dbm instead of flat files"
+LICENSE="GPLv3"
+SRC_URI="https://download.savannah.gnu.org/releases/man-db/man-db-${PKG_VER}.tar.xz"
+DEPS="devel/libpipeline system/gdbm system/zlib"
+BDEPS="system/groff"
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	 configure_default \
+	            --sysconfdir=/etc                     \
+	            --disable-setuid                      \
+	            --enable-cache-owner=bin              \
+	            --with-browser=/usr/bin/links         \
+	            --with-vgrind=/usr/bin/vgrind         \
+	            --with-grap=/usr/bin/grap             \
+	            --with-systemdtmpfilesdir=            \
+		        --with-systemdsystemunitdir=
+}

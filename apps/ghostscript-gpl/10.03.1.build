@@ -1,0 +1,64 @@
+####
+## ghostscript-gpl build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${PKG_VER//./}/ghostscript-${PKG_VER}.tar.xz"
+"https://downloads.sourceforge.net/gs-fonts/ghostscript-fonts-std-8.11.tar.gz"
+"https://downloads.sourceforge.net/gs-fonts/gnu-gs-fonts-other-6.0.tar.gz")
+DEPS="media/fontconfig media/freetype media/lcms media/libjpeg-turbo media/libpng media/openjpeg network/cups system/zlib x11/libICE x11/libSM x11/libX11 x11/libXext x11/libXt"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="~x86 ~x86_64"
+SLOT=0
+B=ghostscript-${PKG_VER}
+IUSE="tiff"
+use-enable tiff && UDEPS="media/tiff"
+
+# This package has an odd double 0 in its version.
+MV=$(getMinorVer $PKG_VER)
+[[ $MV -lt 10 && $MV != 0* ]] && MV="0$MV"
+VER=$(getMajorVer $PKG_VER).$MV.$(getMicroVer $PKG_VER)
+
+
+src_configure() {
+	# Remove unneeded libraries
+	rm -rf freetype lcms2mt jpeg libpng openjpeg zlib
+
+	configure_default --disable-compile-inits \
+					  $(use-enable tiff && echo --with-system-libtiff || echo --without-libtiff)
+}
+
+src_compile() {
+	compile_default
+	compile_default so
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	# Install the shared Library
+	make soinstall
+	install -v -m755 -d ${D}/usr/include/{ghostscript,ps}
+	install -v -m644 base/*.h ${D}/usr/include/ghostscript
+	ln -sfvn ghostscript ${D}/usr/include/ps
+
+	# Install Documentation
+	mv -v ${D}/usr/share/doc/ghostscript-gpl-${PKG_VER}/${VER} ${D}/usr/share/doc/ghostscript-${VER}
+	rm -rfv ${D}/usr/share/doc/ghostscript-gpl-${PKG_VER}
+	cp -r examples/ ${D}/usr/share/ghostscript/${VER}/
+
+	# Install the fonts.
+	for (( l=1; l<${#SRC_URI[@]}; l++ )); do
+		unpack ${SRC_URI[$l]} $D/usr/share/ghostscript
+	done
+}
+
+post_install() {
+	fc-cache -v /usr/share/ghostscript/fonts/
+}

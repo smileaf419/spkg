@@ -4,3 +4,5 @@
 593463adc769c30c42fddb37cef9e1f524c572ad  cpio-2.13-fix-no-absolute-filenames-revert-CVE-2015-1197-handling.patch
 879d474ce5216d22c3975b44564051dbb5ac1d3a  2.14.build
 cbac50a61079b6f3bdcf9ffe42171d9257cfe877  cpio-2.14.tar.bz2
+801d0cb29064c626c310af6febbe907cc4d71ab6  2.15.build
+db5e3845eb5475ddcb7e8915c3a1458a0c13d787  cpio-2.15.tar.bz2

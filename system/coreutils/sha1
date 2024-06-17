@@ -1,3 +1,3 @@
-ec9f006e12d046744fa8f04ea5eb7bfce76a88f7  9.4.build
-7effa305c3f4bc0d40d79f1854515ebf5f688a18  coreutils-9.4.tar.xz
-f57d5991a35ea03a2758a4daa3c4390302772255  coreutils-9.4-i18n-1.patch
+783d2c01efff60f285e722fcb6adc7bc8301c088  9.5.build
+867fed7ce2ee15c5150a355a5f3a3b50578cf78d  coreutils-9.5.tar.xz
+cd469c5c7dfb5b55ea4dec064e557a3712810546  coreutils-9.5-i18n-2.patch

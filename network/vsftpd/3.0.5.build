@@ -11,8 +11,7 @@ SRC_URI=("https://security.appspot.com/downloads/vsftpd-${PKG_VER}.tar.gz")
 PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-2.3.2-kerberos.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-3.0.2-alpha.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-3.0.3-sparc.patch"
-"https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-3.0.5-seccomp.patch"
-"http://git.mis.ks.ua/US1GHQ/packages/raw/commit/3737c84bbdeb45c451c103664bab696e3f35692c/net/vsftpd/patches/010-openssl-deprecated.patch")
+"https://cgit.gentoo.org/repo/gentoo.git/plain/net-ftp/vsftpd/files/vsftpd-3.0.5-seccomp.patch")
 DEPS="network/libnsl"
 BDEPS=""
 RDEPS="accounts/ftp"

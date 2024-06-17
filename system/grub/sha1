@@ -1,4 +1,3 @@
-ba30223ffca5a64106540e94342fd2849c177d7d  2.06-r1.build
-c9f93f1e195ec7a5a21d36a13b469788c0b29f0f  grub-2.06.tar.xz
+1bef976b1c760cae1d6d77b873436ebceb4cadb5  2.12.build
+9a5cd9860a02d479ff65461b710a4d85ea46b9f4  grub-2.12.tar.xz
 c701b981977ef56d604648cedba1ecfbca74a8eb  unifont-15.0.06.pcf.gz
-08702c73fd81f8e9159678432ab9c4afcf8e7dfc  grub-2.06-upstream_fixes-1.patch

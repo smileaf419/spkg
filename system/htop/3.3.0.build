@@ -1,0 +1,14 @@
+####
+## htop build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://htop.dev"
+DESCRIPTION="An interactive process viewer"
+LICENSE=""
+SRC_URI="https://github.com/htop-dev/htop/releases/download/${PKG_VER}/htop-${PKG_VER}.tar.xz"
+DEPS="system/libcap system/ncurses"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_test() { :; }

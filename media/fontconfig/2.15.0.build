@@ -1,0 +1,22 @@
+####
+## fontconfig build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://fontconfig.org/"
+DESCRIPTION="A library for configuring and customizing font access"
+LICENSE="MIT"
+SRC_URI="https://www.freedesktop.org/software/fontconfig/release/fontconfig-${PKG_VER}.tar.xz"
+DEPS="apps/brotli apps/bzip2 devel/expat media/freetype media/harfbuzz media/libpng system/zlib"
+use-enable harfbuzz && UDEPS+="media/harfbuzz"
+IUSE=harfbuzz
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+ABILIBS="64 x32 32"
+
+src_configure() {
+	configure_default \
+				--sysconfdir=/etc \
+				--localstatedir=/var \
+				--disable-docs
+}

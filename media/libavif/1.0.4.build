@@ -1,0 +1,29 @@
+####
+## libavif build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/AOMediaCodec/libavif/archive/v${PKG_VER}/libavif-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/glib media/libaom media/libwebp x11/gdk-pixbuf"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default -DAVIF_CODEC_AOM=ON         \
+					  -DAVIF_BUILD_GDK_PIXBUF=ON  \
+					  -G Ninja
+}
+
+## Requires gtest
+src_test() { :; }
+
+post_install() {
+	gdk-pixbuf-query-loaders --update-cache
+}

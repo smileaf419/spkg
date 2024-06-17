@@ -1,0 +1,15 @@
+####
+## libpsl build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/rockdaboot/libpsl/releases/download/${PKG_VER}/libpsl-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/libunistring network/libidn2"
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+ARCHS="~x86 ~x86_64"
+SLOT=0

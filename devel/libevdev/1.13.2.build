@@ -1,0 +1,31 @@
+####
+## libevdev build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://www.freedesktop.org/software/libevdev/libevdev-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	checkKernelConfig CONFIG_INPUT        1 "General Input Layer"
+	checkKernelConfig CONFIG_INPUT_EVDEV  1 "  Event Interface"
+	checkKernelConfig CONFIG_INPUT_MISC   1 "  Miscellaneous devices"
+	checkKernelConfig CONFIG_INPUT_UINPUT 1 "    User level driver support"
+
+	configure_default -Ddocumentation=disabled
+}
+
+src_test() {
+	# Should be ran as root in a graphical environment.
+	# If enabled as a module uinput needs loaded.
+#	ninja test
+	inform " * libevdev tests require root access and a graphical environment."
+}

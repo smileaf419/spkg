@@ -1,0 +1,23 @@
+####
+## gptfdisk build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://downloads.sourceforge.net/gptfdisk/gptfdisk-${PKG_VER}.tar.gz")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/gptfdisk-1.0.10-convenience-1.patch")
+DEPS="devel/popt system/ncurses"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	sed -i 's|ncursesw/||' gptcurses.cc
+	sed -i 's|sbin|usr/sbin|' Makefile
+	sed -i '/CGDISK_LDLIBS=-lncursesw/ s,$, -ltinfow,' Makefile
+}
+
+src_test() {
+	make $MAKEOPTS test
+}

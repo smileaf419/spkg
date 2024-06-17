@@ -1,0 +1,14 @@
+####
+## fdk-aac build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://sourceforge.net/projects/opencore-amr/"
+DESCRIPTION="Fraunhofer AAC codec library"
+LICENSE="FraunhoferFDK"
+SRC_URI="https://downloads.sourceforge.net/opencore-amr/fdk-aac-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_test() { :; }

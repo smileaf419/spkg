@@ -1,0 +1,22 @@
+####
+## libxcb build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://wiki.x.org/wiki/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://xorg.freedesktop.org/archive/individual/lib/libxcb-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="x11/libXau x11/libXdmcp"
+BDEPS="x11/xcb-proto"
+RDEPS="x11/xorg-proto"
+ARCHS="~x86 ~x86_64"
+SLOT=0
+ABILIBS="64 x32 32"
+
+src_configure() {
+	export PYTHON=python3
+	configure_default --sysconfdir=/etc \
+				--localstatedir=/var \
+				--without-doxygen \
+				--docdir='\${datadir}'/doc/libxcb-${PKG_VER}
+}
