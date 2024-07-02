@@ -16,7 +16,7 @@ RDEPS="system/ncurses system/readline"
 ARCHS="x86 x86_64"
 SLOT=0
 
-URL_BASE="https://ftp.gnu.org/gnu/bash/bash-${MV}.${MiV}-patches/"
+URL_BASE="https://ftp.gnu.org/gnu/bash/bash-${MV}.${MiV}-patches"
 
 if [[ $MODE != "search" ]]; then
 	for x in $(seq 1 $(( ${MicV} ))); do
@@ -33,10 +33,11 @@ src_configure() {
 	sed -i 's,/usr/bin/printf,/bin/printf,' tests/intl2.sub
 
 	configure_default \
-				--bindir=/bin                           \
-	            --without-bash-malloc                   \
-	            --with-installed-readline               \
-	            --enable-history
+				--bindir=/bin           \
+				--without-bash-malloc    \
+				--with-installed-readline \
+				--enable-history          \
+				bash_cv_strtold_broken=no
 }
 
 src_install() {
