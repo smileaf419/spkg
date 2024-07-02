@@ -4,7 +4,10 @@
 HOMEPAGE="https://www.gnu.org/software/bash/"
 DESCRIPTION="the Bourne Again SHell"
 LICENSE="GPLv3"
-SRC_URI=("https://ftp.gnu.org/gnu/bash/bash-${PKG_VER}.tar.gz")
+MV=$(getMajorVer $PKG_VER)
+MiV=$(getMinorVer $PKG_VER)
+MicV=$(getMicroVer $PKG_VER)
+SRC_URI=("https://ftp.gnu.org/gnu/bash/bash-${MV}.${MiV}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/bash/bash-${PKG_VER}.tar.gz.sig")
 PATCHES=()
 DEPS=""
@@ -12,6 +15,18 @@ BDEPS=""
 RDEPS="system/ncurses system/readline"
 ARCHS="x86 x86_64"
 SLOT=0
+
+URL_BASE="https://ftp.gnu.org/gnu/bash/bash-${MV}.${MiV}-patches/"
+
+if [[ $MODE != "search" ]]; then
+	for x in $(seq 1 $(( ${MicV} ))); do
+		[[ $x -gt 100 ]] && N="$x"
+		[[ $x -lt 100 ]] && N="0$x"
+		[[ $x -lt 10 ]]  && N="00$x"
+		[[ $VERBOSE -gt 0 ]] && echo "Adding Incr Patch: ${MV}.${MiV}.${N}"
+		PATCHES+=("$URL_BASE/bash${MV}${MiV}-${N}")
+	done
+fi
 
 src_configure() {
 	# Fix a hard-coded path in a test.
