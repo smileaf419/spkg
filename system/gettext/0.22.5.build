@@ -23,3 +23,10 @@ src_install() {
 
 	chmod -v 0755 "${D}"/usr/lib*/preloadable_libintl.so
 }
+
+bootstrap() {
+	configure_default --disable-shared
+	compile_default
+	mkdir -p $D/usr/bin
+	cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} $D/usr/bin
+}

@@ -84,7 +84,8 @@ bootstrap() {
 		    --disable-werror           \
 		    --enable-64-bit-bfd        \
 		    --without-zstd             \
-		    --enable-multilib &&
+		    --enable-multilib          \
+		    --enable-default-hash-style=gnu &&
 		compile_default V=1 && install_default
 		rm -v $D/$ROOT/usr/lib*/lib{bfd,ctf,ctf-nobfd,opcodes,sframe}.{a,la} || true
 		;;

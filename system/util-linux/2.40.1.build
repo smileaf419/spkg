@@ -38,6 +38,7 @@ src_configure() {
 	            --disable-wall       \
 	            --without-python     \
 	            --without-systemd    \
+	            --disable-liblastlog2 \
 	            --without-systemdsystemunitdir
 }
 
