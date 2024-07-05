@@ -9,7 +9,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/wget/wget-${PKG_VER}.tar.gz")
 DEPS="devel/libpcre2 devel/libunistring devel/openssl system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

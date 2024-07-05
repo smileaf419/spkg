@@ -8,7 +8,7 @@ SRC_URI="http://mj.ucw.cz/download/linux/pci/pciutils-${PKG_VER}.tar.gz"
 DEPS="system/kmod system/eudev system/zlib"
 BDEPS=""
 RDEPS="network/wget"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() { :; }

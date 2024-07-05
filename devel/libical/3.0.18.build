@@ -9,7 +9,7 @@ PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/dev-libs/libical/files
 DEPS="devel/glib devel/icu"
 BDEPS="devel/vala devel/gobject-introspection"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 setBuildENV cmake
 TEST=test

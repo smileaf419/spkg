@@ -9,7 +9,7 @@ PATCHES=()
 DEPS="media/fontconfig media/freetype system/ncurses x11/libICE x11/libX11 x11/libXaw x11/libXext x11/libXft x11/libXinerama x11/libXmu x11/libXpm x11/libXt"
 BDEPS=""
 RDEPS="media/font-adobe-utopia-type1 media/font-alias media/font-bh-ttf media/font-bh-type1 media/font-ibm-type1 media/font-misc-ethiopic media/font-util media/font-xfree86-type1 x11/luit"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -8,7 +8,7 @@ SRC_URI="https://sourceware.org/ftp/lvm2/LVM2.${PKG_VER}.tgz"
 DEPS="devel/libaio system/eudev system/readline"
 BDEPS="system/linux-kernel"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B="LVM2.${PKG_VER}"
 

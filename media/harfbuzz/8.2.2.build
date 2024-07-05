@@ -15,7 +15,7 @@ RDEPS=""
 # This is the culprit of the circular dependencies and those dependencies should still have harfbuzz as a dependency.
 # Without those packages requiring harfbuzz, harfbuzz won't be pulled into the dependency tree resulting in a lost dependency and harfbuzz getting cleaned.
 CDEPS="media/freetype"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 ## If gobject-introspection is installed, harfbuzz requires it to also have multilib
 ## But gobject-introspection cannot be built without python support and Python.h is unusuable in a x32 build if built for 64.

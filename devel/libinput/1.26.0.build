@@ -9,7 +9,7 @@ PATCHES=()
 DEPS="devel/libevdev system/eudev system/mtdev"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

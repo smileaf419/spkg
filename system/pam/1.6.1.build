@@ -7,7 +7,7 @@ LICENSE=""
 SRC_URI="https://github.com/linux-pam/linux-pam/releases/download/v${PKG_VER}/Linux-PAM-${PKG_VER}.tar.xz"
 BDEPS="network/libtirpc"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=Linux-PAM-${PKG_VER}
 

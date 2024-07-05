@@ -8,7 +8,7 @@ SRC_URI="https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-${PKG_VER}.
 DEPS="system/ncurses"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 append-ldflags -ltinfow -lncursesw
 

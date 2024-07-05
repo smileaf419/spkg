@@ -9,7 +9,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/inetutils/inetutils-${PKG_VER}.tar.xz")
 DEPS="system/libxcrypt system/ncurses system/readline"
 BDEPS="system/coreutils"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 append-ldflags -ltinfow
 

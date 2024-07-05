@@ -9,7 +9,7 @@ SRC_URI=("https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-${PKG_VER}.tar.bz2"
 DEPS="apps/at-spi2-core apps/libsecret devel/glib devel/libassuan devel/libgpg-error media/fontconfig media/freetype media/harfbuzz system/ncurses x11/cairo x11/gdk-pixbuf x11/gtk+:2 x11/pango"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

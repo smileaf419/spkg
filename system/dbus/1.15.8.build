@@ -10,7 +10,7 @@ IUSE="X"
 use-enable X && UDEPS+="x11/libX11 x11/libXau x11/libXdmcp x11/libxcb"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 setBuildENV meson ninja
 ABILIBS="64 x32 32"

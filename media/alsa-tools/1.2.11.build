@@ -9,7 +9,7 @@ SRC_URI=("http://www.alsa-project.org/files/pub/tools/alsa-tools-${PKG_VER}.tar.
 DEPS="devel/glib media/alsa-lib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

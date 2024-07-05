@@ -9,7 +9,7 @@ PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/gptfdisk-1.0.10-conv
 DEPS="devel/popt system/ncurses"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

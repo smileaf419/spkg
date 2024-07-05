@@ -9,7 +9,7 @@ DEPS="apps/xz-utils apps/zstd media/lcms media/libjpeg-turbo media/libpng media/
 BDEPS=""
 RDEPS=""
 setBuildENV cmake make
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

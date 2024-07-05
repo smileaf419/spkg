@@ -9,7 +9,7 @@ DEPS="apps/at-spi2-core devel/glib devel/libgudev devel/libpcre2 media/harfbuzz 
 BDEPS=""
 RDEPS="x11/hicolor-icon-theme"
 setBuildENV auto make
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

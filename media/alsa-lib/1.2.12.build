@@ -9,7 +9,7 @@ SRC_URI=("https://www.alsa-project.org/files/pub/lib/alsa-lib-${PKG_VER}.tar.bz2
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 

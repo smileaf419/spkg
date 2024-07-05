@@ -9,7 +9,7 @@ PATCHES=()
 DEPS="devel/glib system/dbus system/eudev system/readline"
 BDEPS="devel/libical"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

@@ -9,7 +9,7 @@ PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/kbd-2.6.4-bac
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

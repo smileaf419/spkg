@@ -8,7 +8,7 @@ SRC_URI=("https://www.cpan.org/src/5.0/perl-${PKG_VER}.tar.xz")
 DEPS="network/libnsl system/gdbm system/libxcrypt"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 

@@ -10,7 +10,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/binutils/binutils-${PKG_VER}.tar.xz")
 DEPS="apps/zstd system/flex system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 BUILD_SEPERATE_DIR=yes
 [[ ${ARCH#\~} == "x86" ]] && SET_ABI="ABI=32"

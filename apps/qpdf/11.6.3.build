@@ -10,7 +10,7 @@ BDEPS=""
 RDEPS=""
 setBuildENV cmake make
 BUILD_SEPERATE_DIR=yes
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

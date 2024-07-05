@@ -9,7 +9,7 @@ PATCHES=()
 DEPS="system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 setBuildENV cmake
 SEPERATE_BUILD_DIR=yes

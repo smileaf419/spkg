@@ -9,7 +9,7 @@ DEPS=""
 ## wheel, typing-extensions, setuptools, semantic-version, pycparser, setuptools-rust, cffi
 BDEPS="python/cffi"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 MODULE=python
 setBuildENV none pip

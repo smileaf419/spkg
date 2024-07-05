@@ -13,7 +13,7 @@ IUSE="harfbuzz"
 # Creates a dependency resolving loop due to a circular dependency.
 # Unless pulled in by something else OR already installed support won't be enabled.
 use-enable harfbuzz && UDEPS="media/harfbuzz"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 

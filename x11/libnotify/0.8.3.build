@@ -13,7 +13,7 @@ DEPS="devel/glib x11/gdk-pixbuf"
 BDEPS=""
 RDEPS=""
 setBuildENV meson ninja
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

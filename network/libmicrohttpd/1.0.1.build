@@ -9,5 +9,5 @@ SRC_URI=("https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-${PKG_VER}.tar.gz"
 DEPS="network/gnutls"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0

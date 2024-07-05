@@ -8,7 +8,7 @@ SRC_URI="https://boostorg.jfrog.io/artifactory/main/release/${PKG_VER}/source/bo
 DEPS="apps/bzip2 apps/xz-utils apps/zstd devel/icu system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B=boost_${PKG_VER//./_}
 

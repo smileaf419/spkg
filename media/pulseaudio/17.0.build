@@ -8,7 +8,7 @@ SRC_URI=("https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-${
 DEPS="devel/glib devel/openssl media/alsa-lib media/libsndfile system/dbus system/libtool system/eudev system/gdbm system/libcap x11/libICE x11/libSM x11/libX11 x11/libxcb x11/libXtst"
 BDEPS="devel/check"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 setBuildENV meson ninja

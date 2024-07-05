@@ -8,7 +8,7 @@ SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//_/-}/$PKG
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 MODULE=python
 setBuildENV none pip

@@ -8,7 +8,7 @@ SRC_URI="https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-$
 DEPS="system/ncurses"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
