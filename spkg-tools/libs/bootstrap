@@ -41,6 +41,7 @@ if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT
 fi
 
 if [[ $BOOTSTRAP_STAGE == *1* ]]; then
+	title "Bootstrapping (Stage 1) : Building temp system"
 	####
 	## Create Essential Dirs.
 	echo " * Creating directories ..."
@@ -88,6 +89,7 @@ if [[ $BOOTSTRAP_STAGE == *1* ]]; then
 fi
 
 if [[ $BOOTSTRAP_STAGE == *2* ]]; then
+	title "Bootstrapping (Stage 2) : Building System"
 	## Fix CONTENTS file, filter out our $ROOT
 	echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
 	## This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
@@ -216,6 +218,7 @@ EOF
 fi
 
 if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroot.sh ]]; then
+	title "Bootstrapping (Stage 3) : Setting up"
 	####
 	## Install our repository
 	if [[ ! -e $ROOT/$PKG_DB_DIR ]]; then
@@ -257,6 +260,7 @@ if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroo
 	SPKG_BUILD_OPTS=
 	[[ $SILENT_BUILD == "yes" ]] && SPKG_BUILD_OPTS=-Q
 
+	title "Bootstrapping (Stage 4) : chroot"
 	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGE "$SPKG_BUILD_OPTS"
 	if [[ $? == 0 ]]; then
 		echo " * Cleaning $ROOT/tools"

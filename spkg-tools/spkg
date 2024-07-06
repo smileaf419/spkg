@@ -15,7 +15,7 @@
 ## local vars will be lower case
 
 ## Versions will be concurrent, but this will get updated whenever a large amount of functionality gets added or fixed.
-VERSION="20230801"
+VERSION="20240706"
 
 ## Set some bash options
 ## +h - Disable hashing of commands, allows newer versions of programs to be located immediately used primarily for bootstrap
@@ -145,6 +145,9 @@ export DIM=$(tput dim)
 ## Convience vars for colorizing output.
 export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
 export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
+
+## Save for later use.
+export PROMPT_COMMAND_SAVE=$PROMPT_COMMAND
 
 ####
 ## Ensure our config file exists
