@@ -26,3 +26,17 @@ efd262a6cad00ac709d49477f5c4f573e6b69294  clang-tools-extra-18.1.7.src.tar.xz
 8b76b5bf68b800f4a1f8611a8d468b7b1d4209e7  libcxxabi-18.1.7.src.tar.xz
 af1e043d0b3aac7aac91f630e4f17230e9da527c  polly-18.1.7.src.tar.xz
 925d0452a35f5d461d4cdc2d0fab4bcf1afb27ec  libunwind-18.1.7.src.tar.xz
+fc6423ad62d72122e39cc5b5a72ca178a698218d  18.1.8.build
+f9befa4cbef3f688ab48fca42449e13c5bcb872d  llvm-18.1.8.src.tar.xz
+1ea03e355b705b4cada3051bd7301a57daa19283  cmake-18.1.8.src.tar.xz
+ada9cf5deaec0a730c751ffd84145acedc6eafeb  third-party-18.1.8.src.tar.xz
+581e929ba0d9fafc555081ab18d8c3fdf4478ac2  clang-18.1.8.src.tar.xz
+eac6716105261a6ba57a3b0ad6926b1800bade17  lldb-18.1.8.src.tar.xz
+1cf1fa9848b05a07d3d52e69949d44003f2ab2af  lld-18.1.8.src.tar.xz
+32923b812700526b76451384e4662ca45360d564  clang-tools-extra-18.1.8.src.tar.xz
+6ecbfa5516b60adb4e4e60f991b0d8ddf5aab12a  compiler-rt-18.1.8.src.tar.xz
+43ed949cb5e5360e3523d8ad93490402a3280fdc  openmp-18.1.8.src.tar.xz
+4c3df4925c831acfc605ba9c6625547ffce34b40  libcxx-18.1.8.src.tar.xz
+c38d0a4ad78eacf84320023ee13cddaf6a8bde9d  libcxxabi-18.1.8.src.tar.xz
+9826ae16cbf8f4a6f6b0a3876b0400dd263bf2ca  polly-18.1.8.src.tar.xz
+5bee6cd2847f6d468861c78a21236e1c6fdc8374  libunwind-18.1.8.src.tar.xz

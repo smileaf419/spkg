@@ -1,0 +1,39 @@
+####
+## libgcrypt build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gnupg.org/index.html"
+DESCRIPTION="Libgcrypt is a general purpose cryptographic library originally based on code from GnuPG."
+LICENSE="LGPLv2.1 GPLv2+"
+SRC_URI=("https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${PKG_VER}.tar.bz2")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${PKG_VER}.tar.bz2.sig")
+DEPS="devel/libgpg-error"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+ABILIBS="64 x32 32"
+
+src_compile() {
+	compile_default
+
+	make -C doc html
+	makeinfo --html --no-split -o doc/gcrypt_nochunks.html doc/gcrypt.texi
+	makeinfo --plaintext       -o doc/gcrypt.txt           doc/gcrypt.texi
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	install -v -dm755 "${D}"/usr/share/doc/libgcrypt-${PKG_VER}
+	install -v -m644 README doc/{README.apichanges,fips*,libgcrypt*} \
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}
+    install -v -dm755 "${D}"/usr/share/doc/libgcrypt-${PKG_VER}/html
+    install -v -m644 doc/gcrypt.html/* \
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}/html
+	install -v -m644 doc/gcrypt_nochunks.html \
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}
+    install -v -m644 doc/gcrypt.{txt,texi} \
+		"${D}"/usr/share/doc/libgcrypt-${PKG_VER}
+}
