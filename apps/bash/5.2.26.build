@@ -10,11 +10,13 @@ MicV=$(getMicroVer $PKG_VER)
 SRC_URI=("https://ftp.gnu.org/gnu/bash/bash-${MV}.${MiV}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/bash/bash-${PKG_VER}.tar.gz.sig")
 PATCHES=()
+PATCH_OPTS=-Np0
 DEPS=""
 BDEPS=""
 RDEPS="system/ncurses system/readline"
 ARCHS="x86 x86_64"
 SLOT=0
+B=bash-${MV}.${MiV}
 
 URL_BASE="https://ftp.gnu.org/gnu/bash/bash-${MV}.${MiV}-patches"
 

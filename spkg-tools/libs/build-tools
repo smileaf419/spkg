@@ -235,6 +235,7 @@ installPackage() {
 			export PATCHES=$P
 			unset P
 			unset IFS
+			export PATCH_OPTS
 
 			## Ensure TEST is exported
 			export TEST
@@ -664,7 +665,7 @@ installList() {
 			export RESTRICT=
 
 			echo " * ${PKG_CAT}/${PKG_NVR} ($C of $length)"
-			title "installing ${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
+			title "${PKG_CAT}/$PKG_NAME : $O_VER ($C of $length)"
 
 			## Save what time we started installing so we can output how long it took at the end.
 			local timestart=$(date "+%s.%N")

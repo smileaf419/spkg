@@ -101,7 +101,7 @@ spatches() {
 			echo " * Applying All patches within: $p"
 			spatches "$(find "$p" -type f -iname '*.patch' | sort)"
 		else
-			spatch "$p"
+			spatch "$p" ${PATCH_OPTS:--Np1}
 		fi
 	done
 }
