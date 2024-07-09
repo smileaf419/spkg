@@ -2,8 +2,8 @@
 ## patch build
 ## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://savannah.gnu.org/projects/patch/"
-DESCRIPTION=""
-LICENSE=""
+DESCRIPTION="Utility to apply diffs"
+LICENSE="GPLv3"
 SRC_URI=("https://ftp.gnu.org/gnu/patch/patch-${PKG_VER}.tar.xz")
 PATCHES=(
 "https://cgit.gentoo.org/repo/gentoo.git/plain/sys-devel/patch/files/patch-2.7.6-fix-test-suite.patch"
