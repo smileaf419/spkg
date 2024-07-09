@@ -123,8 +123,7 @@ bootstrap() {
 		            --with-cxx-shared         \
 		            --without-debug           \
 		            --without-ada             \
-		            --disable-stripping       \
-		            --enable-widec
+		            --disable-stripping
 		compile_default
 		if [[ $ABILIB == 64 ]]; then
 			mkdir -p $D/$ROOT/usr/{lib,share}

@@ -15,7 +15,7 @@ SLOT=0
 src_configure() {
 	sed -i 's/extras//' Makefile.in
 
-	configure_default
+	configure_default $@
 }
 
 src_install() {
@@ -26,8 +26,6 @@ src_install() {
 }
 
 bootstrap() {
-	sed -i 's/extras//' Makefile.in
-
-	configure_default --build=$(build-aux/config.guess)
+	src_configure --build=$(build-aux/config.guess)
 	compile_default && install_default
 }

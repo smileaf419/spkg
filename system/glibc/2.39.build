@@ -20,14 +20,6 @@ BUILD_SEPERATE_DIR=yes
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=rm
 
-## CVE-2023-4527 patch fails to patch NEWS.. we don't care about this, we care that code gets patched
-## Special handle the patching so we can ignore it.
-src_patch() {
-	for patch in ${PATCHES[@]}; do
-		patch -Np1 -i $DISTFILES/${patch##*/} || true
-	done
-}
-
 src_configure() {
 	## Ensure ldconfig and sln are installed into /sbin
 	echo "rootsbindir=/sbin" > ../configparms

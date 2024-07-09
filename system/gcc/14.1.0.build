@@ -156,6 +156,7 @@ bootstrap() {
 			rm -v $D/$ROOT/usr/lib*/lib{stdc++,stdc++fs,supc++}.la || die
 		;;
 		pass2)
+			## Override the building rule of libgcc and libstdc++ headers, to allow building these libraries with POSIX threads suppor
 			sed '/thread_header =/s/@.*@/gthr-posix.h/' -i ../libgcc/Makefile.in ../libstdc++-v3/include/Makefile.in
 			../configure                                       \
 				--build=$(../config.guess)                     \
