@@ -4,3 +4,5 @@ b92e9088644282d05e2dd423fbc3d980a7254454  ares-132-gcc-13.patch
 604a919d0eccb20933ce5753d8f2f4312aa13467  ares-132-declare-fseeko-ftello.patch
 d14715cb7e2fd5cedf151566e7fb437422d9b644  133.build
 46a4eed24d80c0deadaf4fc36861b6aba5d9d5d4  ares-133.tar.gz
+d14715cb7e2fd5cedf151566e7fb437422d9b644  139.build
+da7f68c00f1637cee29bf14b2aac05be82d21666  ares-139.tar.gz

@@ -1,0 +1,27 @@
+####
+## sysklogd build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://troglobit.com/sysklogd.html"
+DESCRIPTION="Standard Log Daemon"
+LICENSE="BSD"
+SRC_URI="https://github.com/troglobit/sysklogd/releases/download/v${PKG_VER}/sysklogd-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr     \
+				--sbindir=/sbin   \
+				--bindir=/bin     \
+				--libdir=/lib     \
+				--sysconfdir=/etc \
+				--runstatedir=/run
+}
+
+src_test() { :; }
+
+src_install() {
+	make DESTDIR="$D" install-strip
+}
