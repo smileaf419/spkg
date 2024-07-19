@@ -95,6 +95,7 @@ cleanup() {
 		echo " $YELLOW*$NORMAL System configuration files were protected!"
 		find $ROOT/etc/ -iname "*.cfg[0-9]*"
 	fi
+	title
 }
 
 ## Function to figure out where this script is at so we can reference our libs directory.
@@ -147,7 +148,7 @@ export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
 export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
 
 ## Save for later use.
-export PROMPT_COMMAND_SAVE=$PROMPT_COMMAND
+export PS1_SAVE=$PS1
 
 ####
 ## Ensure our config file exists
@@ -541,6 +542,7 @@ fi
 ## In the future we may want to seperate our database from the package manager
 ## Also can support such syncing methods as rsync.
 if [[ $MODE == "sync" ]]; then
+	title "Syncing ..."
 	# If git is not installed, inform the user to install it.
 	if [[ ! -e /usr/bin/git ]]; then
 		echo " $IMPORTANT Git is not installed!"
@@ -661,6 +663,7 @@ fi
 
 ## Search
 if [[ $MODE == "search" || $MODE == "list" ]]; then
+	title "${MODE}ing ..."
 	for p in $REQUESTED_LIST; do
 		## Parse the Entry first and grab just the PKG_CAT/PKG_NAME
 		if [[ ${p:0:1} == '@' ]]; then
@@ -787,6 +790,7 @@ elif [[ $MODE == "preserved" ]]; then
 else
 	buildList
 fi
+title
 
 # Can use this to find applications/init scripts to restart following an update.
 # lsof / | awk '/deleted/ && !/tmp/{print $9}' | sort -u

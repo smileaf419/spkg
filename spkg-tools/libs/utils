@@ -17,10 +17,10 @@ KERNEL_CONFIG_FILE=/usr/src/linux/.config
 ## Set the window title
 ##
 function title {
-	if [[ -z $1 ]]; then
-		PROMPT_COMMAND=$PROMPT_COMMAND_SAVE
-	else
-		PROMPT_COMMAND="echo -ne \"\033]0;$1\007\""
+	PS1=$PS1_SAVE
+	if [[ ! -z $1 ]]; then
+#		PS1="\e]2;spkg - $@\a"
+		echo -ne "\033]0;spkg - $@\007"
 	fi
 }
 export -f title
