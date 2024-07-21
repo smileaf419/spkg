@@ -103,6 +103,8 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 
 	# Get the correct versions
 	case "$p" in
+		expect) FILES=$(echo $FILES | grep -v 'Expect' | sed 's,expect,,g') ;;
+		lynx) FILES=$(echo $FILES | sed 's,lynx,,g') ;;
 		gcc) FILES=$(echo $FILES| tr ' ' '\n' | grep -E -v "202[0-9]{5}" | tail -n2 | head -n1) ;;
 		libopenmpt) FILES=$(grep -P -i "^$p-" $DFILES); FILES=${FILES//+release.autotools/} ;;
 		ntp|openssh) FILES=$(grep -P "^$p-[0-9p]+" $DFILES | grep -v 'manpages') ;;
@@ -138,9 +140,13 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 	fi
 
 	## Invalid Versions
-	[[ $PKG_NAME == "gdb"  ]] && version_gt ${FILE##*-} 1000 && continue
-	[[ $PKG_NAME == "Mako"  ]] && version_ge ${FILE##*-} 1.8.0 && continue
-	[[ $PKG_NAME == "highway" && ${FILE##*-} == '1.1.0' ]] && continue
+	case "$PKG_NAME" in
+		gdb) version_gt ${FILE##*-} 1000 && continue ;;
+		Mako) version_ge ${FILE##*-} 1.8.0 && continue ;;
+		highway) [[ ${FILE##*-} == '1.1.0' ]] && continue ;;
+		## Unstable release
+		libtool) [[ ${FILE##*-} == '2.5.0' ]] && continue ;;
+	esac
 
 	if version_gt ${FILE##*-} $PKG_VER; then
 		echo " * Updating $PKG_CAT/$PKG_NAME : $PKG_VER -> ${FILE##*-}" | tee -a $UPDATE_LIST
