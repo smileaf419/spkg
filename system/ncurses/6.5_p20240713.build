@@ -141,8 +141,8 @@ bootstrap() {
 			rm -rf DESTDIR
 		fi
 		## Only use wide-character definitions
-#		sed -e 's/^#if.*XOPEN.*$/#if 1/' \
-#			-i $D/$ROOT/usr/include/curses.h
+		sed -e 's/^#if.*XOPEN.*$/#if 1/' \
+			-i $D/$ROOT/usr/include/curses.h
 		make distclean
 	done
 }

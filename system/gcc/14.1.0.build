@@ -153,7 +153,7 @@ bootstrap() {
 			    --disable-libstdcxx-pch         \
 				--with-gxx-include-dir=/tools/$HOST_TGT/include/c++/${PKG_VER} &&
 			compile_default && install_default &&
-			rm -v $D/$ROOT/usr/lib*/lib{stdc++,stdc++fs,supc++}.la || die
+			rm -v $D/$ROOT/usr/lib*/lib{stdc++{,exp,fs},supc++}.la || die
 		;;
 		pass2)
 			## Override the building rule of libgcc and libstdc++ headers, to allow building these libraries with POSIX threads suppor

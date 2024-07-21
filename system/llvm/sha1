@@ -1,17 +1,3 @@
-3cd2c87ee3a7fa41922a65af317939b81f2b016c  17.0.3.build
-d0aa1bb64e538a52bdcc1d46b150aae32cf0c704  llvm-17.0.3.src.tar.xz
-5595dc9f1e40d7396e5e7bf4293b51d76ab4ee34  cmake-17.0.3.src.tar.xz
-5bfe4ee9f231a3da4a45af2da039f4cfee924bda  third-party-17.0.3.src.tar.xz
-de4be3aa043275872fe793f163b02cf8d0d3172b  clang-17.0.3.src.tar.xz
-744938a8f3e11f5b2bae7342be8780175020a316  lldb-17.0.3.src.tar.xz
-15fe852bca1193584b77820700ca24f9c7124740  lld-17.0.3.src.tar.xz
-1165e6fb96c5fb3fd56e215f9400f77047ae4402  clang-tools-extra-17.0.3.src.tar.xz
-2ada82a705f014fefe70822a614280e8f1689a04  compiler-rt-17.0.3.src.tar.xz
-bd6a99d0596f8d8ef99b643f2aad4fef9e31ba6f  openmp-17.0.3.src.tar.xz
-2aa33b07339e9dc3544bbea642c53c4e465ffa04  libcxx-17.0.3.src.tar.xz
-8255c9f0c71e4eba353822520f55fd55923482b2  libcxxabi-17.0.3.src.tar.xz
-bf7c1dcdb78d62e476f557da10bbed1bd9504afd  polly-17.0.3.src.tar.xz
-76c8be0bffc0b984d42b195e1f1da931c4eaccfc  libunwind-17.0.3.src.tar.xz
 3cd2c87ee3a7fa41922a65af317939b81f2b016c  18.1.7.build
 824957de63cb2edf525a0e6f1fa290ea0e2791bd  llvm-18.1.7.src.tar.xz
 a0fe6778a79bf0ac51be069a7cd8e6d2599b68f9  cmake-18.1.7.src.tar.xz
