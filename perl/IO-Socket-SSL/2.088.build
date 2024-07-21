@@ -1,0 +1,18 @@
+####
+## IO-Socket-SSL build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://metacpan.org/pod/IO::Socket::SSL"
+DESCRIPTION="SSL sockets with IO::Socket interface"
+LICENSE="perl_5"
+SRC_URI="https://www.cpan.org/authors/id/S/SU/SULLR/IO-Socket-SSL-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS="apps/make-ca devel/perl perl/Net-SSLeay perl/URI"
+ARCHS="~x86 ~x86_64"
+SLOT=0
+MODULE=perl
+TEST=test
+
+src_configure() {
+	yes | perl Makefile.PL
+}

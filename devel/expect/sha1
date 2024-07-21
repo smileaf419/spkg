@@ -2,3 +2,5 @@
 a97b2f377c6a799928d6728c2ada55beb7f57d96  expect5.45.4.tar.gz
 bc8222fe0d3ffb0b38d8502cbed038d73aeacb16  5.45.4-r1.build
 01bc36965a337d36057a6b99cfc0b4f650c5e276  expect-5.45.4-gcc14-1.patch
+88581560716ec9c2ab72bd269d1f96dc8ee47a4f  expect5.45.4.build
+da39a3ee5e6b4b0d3255bfef95601890afd80709  expectexpect5.45.4.tar.gz

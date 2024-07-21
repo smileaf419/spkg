@@ -1,0 +1,29 @@
+####
+## nano build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.nano-editor.org"
+DESCRIPTION="Small and friendly text editor"
+LICENSE="GPLv3"
+SRC_URI="https://www.nano-editor.org/dist/v$(getMajorVer $PKG_VER)/nano-${PKG_VER}.tar.xz"
+DEPS="system/file system/ncurses system/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default --bindir=/bin     \
+					  --sysconfdir=/etc \
+					  --enable-utf8
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	install -v -m644 doc/{nano.html,sample.nanorc} "${D}"/usr/share/doc/nano-${PKG_VER}
+	install -v -m644 $PKG_DB_DIR/$PKG_CAT/$PKG_NAME/build.nanorc "$D/usr/share/nano"
+	install -d $D/etc
+	install -v -m644 $PKG_DB_DIR/$PKG_CAT/$PKG_NAME/nanorc $D/etc/nanorc
+}
