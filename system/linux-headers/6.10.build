@@ -26,7 +26,7 @@ if [[ $MODE != "search" ]]; then
 	if [ $(( $MicV % $VerIncr )) == 0 ]; then
 		if [[ $MicV == 0 ]]; then
 			SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.tar.xz")
-			B=linux-$MV-$MiV
+			B=linux-$MV.$MiV
 		else
 			SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.${MicV}.tar.xz")
 			B=linux-$MV.$MiV.$MicV
