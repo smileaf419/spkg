@@ -18,7 +18,8 @@ LOGDIR="$ROOT/$LOGDIR"
 
 ## Something to call our release
 ## We'll change it yearly to something fun.
-CODENAME="Spider" ## 2023 Release
+#CODENAME="Spider" ## 2023 Release
+CODENAME="Mouse" ## 2024 Release
 
 ## Set a stable arch
 #ARCH="$(uname -m)"
