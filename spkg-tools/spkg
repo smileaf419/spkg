@@ -14,13 +14,13 @@
 ## GLOBAL vars will be in CAPS
 ## local vars will be lower case
 
-## Versions will be concurrent, but this will get updated whenever a large amount of functionality gets added or fixed.
-VERSION="20240706"
-
 ## Set some bash options
-## +h - Disable hashing of commands, allows newer versions of programs to be located immediately used primarily for bootstrap
-## -E - Trap ERR codes
-## -e - Exit immediately on Error
+## +h 			- Disable hashing of commands, allows newer versions of programs to be located
+##				  immediately used primarily for bootstrap
+## -E 			- Trap ERR codes
+## -e 			- Exit immediately on Error
+## -o pipefail 	- Enable the use of PIPESTATUS to check on the return code of a command coming
+##				  from a pipe.
 set +h -Eeo pipefail
 
 ## Remove write bit from group/other
@@ -174,6 +174,9 @@ export BUILD_PACKAGE=${BUILD_PACKAGE:-no}
 export SILENT_BUILD=${SILENT_BUILD:-no}
 export BUILD_USER=${BUILD_USER:-$(whoami)}
 export LOCALES=${LOCALES:-$LANGUAGE}; LOCALES=${LOCALES:-$LANG}
+
+####
+## Setup default Locales, we default to en_US because.. 'merica
 if [[ -z $LOCALES ]]; then
 	>&2 echo " $DIALOG_ERROR You don't appear to have either LANGUAGE or LANG set!"
 	>&2 echo " $DIALOG_ERROR You should set one to a locale of your choice!"
@@ -262,6 +265,12 @@ IGNORE_SHA1=0
 
 ## Set our Debug String
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+
+## Versions will be concurrent and updated via git commits on the spkg-tools dir.
+## A default version should be updated whenever a good amount of change is made
+## Or a release is packaged.
+VERSION=$(cd $PKG_DB_DIR; git log --format=%ad --date=format:%Y%m%d "$PKG_DB_DIR" | head -n1 || true)
+VERSION=${VERSION:-"20240721"}
 
 ####
 ## Include our libraries
