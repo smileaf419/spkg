@@ -269,7 +269,6 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 	touch $ROOT/tmp/.spkg-bootstrap.lock
 
 	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGES "$SPKG_BUILD_OPTS"
-	## FIXME: This will never return a non-zero. we need some other way of returning a success or failure
 	if [[ ! -e $ROOT/tmp/.spkg-bootstrap.lock ]]; then
 		echo " * Cleaning $ROOT/tools"
 		rm -rf $ROOT/tools
