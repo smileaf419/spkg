@@ -35,6 +35,7 @@ trap 'ErrorHandler $?' EXIT
 ErrorHandler() {
 	local ERR=$1
 	rm -f $SPKG_TMP_DIR/.lock
+	title
 	case $ERR in
 		0) ;;
 		77)
