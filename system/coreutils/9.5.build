@@ -7,7 +7,9 @@ LICENSE="GPLv3+"
 SRC_URI=("https://ftp.gnu.org/gnu/coreutils/coreutils-${PKG_VER}.tar.xz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/coreutils/coreutils-${PKG_VER}.tar.xz.sig")
 # We cannot apply this patch while bootstrapping as it causes a build error.
-#PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/coreutils-9.5-i18n-2.patch")
+if [[ $MODE != 'bootstrap' || $BOOTSTRAP_STAGE != 1 ]]; then
+	PATCHES=("https://www.linuxfromscratch.org/patches/lfs/development/coreutils-9.5-i18n-2.patch")
+fi
 DEPS="devel/gmp devel/openssl system/acl system/attr system/libcap"
 # We require a non-root user so depend on su
 BDEPS="system/shadow"
@@ -17,6 +19,7 @@ SLOT=0
 
 src_configure() {
 	autoreconf -fiv
+	export FORCE_UNSAFE_CONFIGURE=1
 	configure_default \
 	            --bindir=/bin   \
 	            --sbindir=/sbin \
