@@ -7,7 +7,7 @@ set -e
 USE="-gd -X -openrc -java"
 
 echo " * Bootstrapping .. This will take a while.."
-BOOTSTRAP_STAGE=${BOOTSTRAP_STAGE:-"1234"}
+BOOTSTRAP_STAGES=${BOOTSTRAP_STAGES:-"1234"}
 
 ####
 ## Set Important Vars
@@ -41,7 +41,8 @@ if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT
 	fi
 fi
 
-if [[ $BOOTSTRAP_STAGE == *1* ]]; then
+if [[ $BOOTSTRAP_STAGES == *1* ]]; then
+	BOOTSTRAP_STAGE=1
 	title "Bootstrapping (Stage 1) : Building temp system"
 	####
 	## Create Essential Dirs.
@@ -89,7 +90,8 @@ if [[ $BOOTSTRAP_STAGE == *1* ]]; then
 	installList $REQUESTED_LIST || die " $DIALOG_ERROR Failed to boostrap!"
 fi
 
-if [[ $BOOTSTRAP_STAGE == *2* ]]; then
+if [[ $BOOTSTRAP_STAGES == *2* ]]; then
+	BOOTSTRAP_STAGE=2
 	title "Bootstrapping (Stage 2) : Building System"
 	## Fix CONTENTS file, filter out our $ROOT
 	echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
@@ -218,7 +220,7 @@ DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
 EOF
 fi
 
-if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroot.sh ]]; then
+if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chroot.sh ]]; then
 	title "Bootstrapping (Stage 3) : Setting up"
 	####
 	## Install our repository
@@ -255,15 +257,20 @@ if [[ $BOOTSTRAP_STAGE == *3* || $BOOTSTRAP_STAGE == *4* ]] && [[ -e $ROOT/chroo
 	## Install a link to our script
 	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
 	ln -sf "$INSTALL_PATH"/readlatestlog $ROOT/usr/bin
-	## FIXME: Add links to other helper scripts?
+	## TODO: Add links to other helper scripts?
 
 	## Pass certain options to our chroot environment
 	SPKG_BUILD_OPTS=
 	[[ $SILENT_BUILD == "yes" ]] && SPKG_BUILD_OPTS=-Q
 
 	title "Bootstrapping (Stage 4) : chroot"
-	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGE "$SPKG_BUILD_OPTS"
-	if [[ $? == 0 ]]; then
+
+	## Create a lock file
+	touch $ROOT/tmp/.spkg-bootstrap.lock
+
+	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGES "$SPKG_BUILD_OPTS"
+	## FIXME: This will never return a non-zero. we need some other way of returning a success or failure
+	if [[ ! -e $ROOT/tmp/.spkg-bootstrap.lock ]]; then
 		echo " * Cleaning $ROOT/tools"
 		rm -rf $ROOT/tools
 	else
