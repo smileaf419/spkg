@@ -53,8 +53,9 @@ src_test() {
 
 src_install() {
 	install_default tooldir=/usr
-	rm -fv ${D}/$(libdir)/lib{bfd,ctf,ctf-nobfd,libsframe,opcodes}.a
-	rm -fv ${D}/usr/share/man/man1/gprofng.1
+
+	## Remove useless static libaries
+	rm -fv ${D}/$(libdir)/lib{bfd,ctf,ctf-nobfd,sframe,opcodes}.a
 }
 
 bootstrap() {
