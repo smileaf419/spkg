@@ -645,14 +645,14 @@ installList() {
 			LOGFILE=${LOGFILE:-%D-%n%v%r.log}
 
 			local log=$(echo $LOGDIR/$LOGFILE |
-				sed -e "s,%c,$PKG_CAT," \
-					-e "s,%n,$PKG_NAME," \
-					-e "s,%v,$PKG_VR,"    \
-					-e "s,%s,$(date +%s)," \
-					-e "s,%d,$(date +%d)," \
-					-e "s,%m,$(date +%m)," \
-					-e "s,%Y,$(date +%Y)," \
-					-e "s,%D,$(date +%Y%m%d),")
+				sed -e "s,%c,$PKG_CAT,g" \
+					-e "s,%n,$PKG_NAME,g" \
+					-e "s,%v,$PKG_VR,g"    \
+					-e "s,%s,$(date +%s),g" \
+					-e "s,%d,$(date +%d),g" \
+					-e "s,%m,$(date +%m),g" \
+					-e "s,%Y,$(date +%Y),g" \
+					-e "s,%D,$(date +%Y%m%d),g")
 
 			## Our log may contain a directory or 2
 			mkdir -p "${log%/*}"
@@ -665,7 +665,7 @@ installList() {
 			export RESTRICT=
 
 			echo " * ${PKG_CAT}/${PKG_NVR} ($C of $length)"
-			title "${PKG_CAT}/$PKG_NAME ($C of $length)"
+			title "${PKG_CAT}/${PKG_NVR} ($C of $length)"
 
 			## Save what time we started installing so we can output how long it took at the end.
 			local timestart=$(date "+%s.%N")
