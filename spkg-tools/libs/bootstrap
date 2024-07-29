@@ -33,10 +33,13 @@ export PATH="$ROOT/tools/bin:$PATH"
 
 if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT/$PKG_DB_DIR ]]; then
 	echo " $IMPORTANT git appears to not be installed and is required to clone the spkg repository."
-	echo " $IMPORTANT you may wish to to create the $ROOT/$PKG_DB_DIR and copy the repository there before continuing."
+	echo " $IMPORTANT if you wish you may create the $ROOT/$PKG_DB_DIR and copy the repository, "
+	echo "            found at: https://github.com/smileaf419/spkg/releases there before continuing."
 	echo "Continue? (Yes/No): "
 	read cont
-	if [[ ${cont^^} != 'Y' && ${cont^^} != 'YES' ]]; then
+
+	## If they didn't agree, or the dir still doesn't exist, exit
+	if [[ ${cont^^} != 'Y' && ${cont^^} != 'YES' || ! -e $ROOT/$PKG_DB_DIR ]]; then
 		die
 	fi
 fi
