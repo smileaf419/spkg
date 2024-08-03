@@ -1,6 +1,0 @@
-7/30 10:14:56.147  vendor: GenuineIntel
-7/30 10:14:56.147  branding: Intel(R) Xeon(R) E-2324G CPU @ 3.10GHz
-7/30 10:14:56.147  features: lahf64 cmpxchg16b sse sse2 sse3 ssse3 sse41 sse42 avx avx2 avx512f aesni clmul sha rdrand 
-7/30 10:14:56.147  sockets: 1
-7/30 10:14:56.147  cores: 4
-7/30 10:14:56.147  threads: 4
