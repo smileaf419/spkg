@@ -1,0 +1,19 @@
+####
+## WebService-MusicBrainz build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://metacpan.org/pod/WebService::MusicBrainz"
+DESCRIPTION="API to search the musicbrainz.org database"
+LICENSE="Free-software"
+SRC_URI=("https://cpan.org/authors/id/B/BF/BFAIST/WebService-MusicBrainz-${PKG_VER}.tar.gz")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS="perl/Mojo-Base"
+setBuildENV auto make
+ARCHS="~x86 ~x86_64"
+SLOT=0
+MODULE=perl
+
+src_configure() {
+	perl Makefile.PL
+}

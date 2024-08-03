@@ -1,0 +1,24 @@
+####
+## gdk-pixbuf build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://download.gnome.org/sources/gdk-pixbuf/${PKG_VER%.*}/gdk-pixbuf-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="devel/glib media/libjpeg-turbo media/libpng media/tiff"
+BDEPS="x11/shared-mime-info"
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+setBuildENV meson ninja
+
+src_configure() {
+	# Disable manpages drops docutils dependency.
+	configure_default --wrap-mode=nofallback -Dman=false
+}
+
+post_install() {
+	gdk-pixbuf-query-loaders --update-cache
+}
