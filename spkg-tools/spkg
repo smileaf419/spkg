@@ -380,13 +380,13 @@ parse_cmdline() {
 					-ignoresha)
 						IGNORE_SHA1=1 ;;
 					-b1)
-						BOOTSTRAP_STAGE+=1 ;;
+						BOOTSTRAP_STAGES+=1 ;;
 					-b2)
-						BOOTSTRAP_STAGE+=2 ;;
+						BOOTSTRAP_STAGES+=2 ;;
 					-b3)
-						BOOTSTRAP_STAGE+=3 ;;
+						BOOTSTRAP_STAGES+=3 ;;
 					-b4)
-						BOOTSTRAP_STAGE+=4 ;;
+						BOOTSTRAP_STAGES+=4 ;;
 
 					## Output & Debug options
 					v|-verbose)
