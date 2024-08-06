@@ -270,7 +270,7 @@ export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 ## Versions will be concurrent and updated via git commits on the spkg-tools dir.
 ## A default version should be updated whenever a good amount of change is made
 ## Or a release is packaged.
-VERSION=$(cd $PKG_DB_DIR; git log --format=%ad --date=format:%Y%m%d "$PKG_DB_DIR" | head -n1 || true)
+VERSION=$(cd $PKG_DB_DIR; git log --format=%ad --date=format:%Y%m%d "$PKG_DB_DIR" 2>/dev/null | head -n1 || true)
 VERSION=${VERSION:-"20240721"}
 
 ####
