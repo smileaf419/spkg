@@ -81,6 +81,7 @@ src_install() {
 }
 
 post_install() {
+	[[ $BOOTSTRAP_STAGE = 1 || $BOOTSTRAP_STAGE == 3 ]] && exit 0
 	echo " * Installing Locales"
 	mkdir -p /usr/lib/locale
 
