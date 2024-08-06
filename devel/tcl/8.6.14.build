@@ -22,7 +22,7 @@ src_unpack() {
 
 src_configure() {
 	export SRCDIR=${PWD%/*}
-	./configure --prefix=/usr --mandir=/usr/share/man
+	./configure --prefix=/usr --mandir=/usr/share/man --disable-rpath
 }
 
 src_compile() {
