@@ -57,7 +57,7 @@ if [[ $BOOTSTRAP_STAGES == *1* ]]; then
 	mkdir -p $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib,media/cdrom,mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
 	mkdir -p $ROOT/lib/firmware
 	## Create /usr hierachy
-	mkdir -p $ROOT/usr/{bin,include,lib,libexec,local,sbin,share,src}
+	mkdir -p $ROOT/usr/{bin,include,lib{,/locale},libexec,local,sbin,share,src}
 	## Create /usr/local hierachy
 	mkdir -p $ROOT/usr/local/{bin,etc,games,include,lib,man,sbin,share,src}
 	mkdir -p $ROOT/usr/{,local/}share/{color,dict,doc,info,locale,man}
@@ -190,6 +190,9 @@ umount -v $SPKG/dev/{pts,}
 umount -v $SPKG/{proc,sys,run}
 EOF
 	chmod +x "$ROOT/chroot.sh"
+
+	## Install a locale
+	localedef -i C -f UTF-8 C.UTF-8
 
 	####
 	## Fetch all required packages as wget will not be available initially
