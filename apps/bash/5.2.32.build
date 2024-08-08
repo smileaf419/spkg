@@ -9,7 +9,9 @@ MiV=$(getMinorVer $PKG_VER)
 MicV=$(getMicroVer $PKG_VER)
 SRC_URI=("https://ftp.gnu.org/gnu/bash/bash-${MV}.${MiV}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/bash/bash-${PKG_VER}.tar.gz.sig")
-PATCHES=()
+PATCHES=(
+"https://gitweb.gentoo.org/repo/gentoo.git/plain/app-shells/bash/files/bash-5.2_p32-memory-leaks.patch"
+)
 PATCH_OPTS=-Np0
 DEPS=""
 BDEPS=""

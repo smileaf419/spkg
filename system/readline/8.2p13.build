@@ -13,23 +13,18 @@ ARCHS="x86 x86_64"
 SLOT=0
 PATCH_LEVEL=${PKG_VER#*p}
 PV=${PKG_VER%p*}
+PATCHES=
 for p in $(seq 1 $PATCH_LEVEL); do
-	[[ $p -lt 10 ]] && p="0$p"
-	[[ $p -lt 100 ]] && p="0$p"
-	PATCHES+=("https://ftp.gnu.org/pub/gnu/$PKG_NAME/$PKG_NAME-$PV-patches/$PKG_NAME${PV//./}-$p => $PKG_NAME-$PV-${p#0}.patch")
+	N=$p
+	[[ $p -lt 100 ]] && N="0$p"
+	[[ $p -lt 10 ]] && N="00$p"
+	PATCHES+=("https://ftp.gnu.org/pub/gnu/$PKG_NAME/$PKG_NAME-$PV-patches/$PKG_NAME${PV//./}-$N => $PKG_NAME-$PV-${N}.patch")
 done
 B=$PKG_NAME-$PV
 ABILIBS="64 x32 32"
 _SPKG_CLEAN=distclean
 _LIB_ROOT_INSTALL=1
-
-src_patch() {
-	[[ $P == '' ]] && return 0
-	PATCHES=($P)
-	spatch ${PATCHES[0]} -Np0
-	PATCHES=${PATCHES[@]:1}
-	patch_default $PATCHES
-}
+PATCH_OPTS=-Np0
 
 src_prepare() {
 	# Probably not required as we're always installing into a clean temp root.
