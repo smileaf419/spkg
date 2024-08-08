@@ -15,7 +15,7 @@
 
 ####
 ## Output a dialog and exit immediately.
-die() { echo "$*" 1>&2 ; exit 77; }
+die() { title; echo "$*" 1>&2 ; exit 77; }
 export -f die
 
 ####
@@ -68,6 +68,7 @@ spatch() {
 	local patch=$1
 	[[ $patch == http* ]] && patch=$DISTFILES/${patch##*/}
 	shift 1
+	[[ ! -e $patch ]] && return
 	local patch_options=${@:--Np1}
 	echo -n " * Applying Patch: $patch ($patch_options)"
 	if [[ $patch == *gz ]]; then
