@@ -251,6 +251,8 @@ export FORCE=0
 export PRETEND=0
 export ARCHIVE_INSTALL=0
 export VERBOSE=0
+export FILTER=""
+export MARK_STABLE=""
 ## Current loaded package
 export PKG=
 ## User supplied list from the command line (Parsed)
@@ -315,6 +317,15 @@ parse_cmdline() {
 						MODE="clean" ;;
 					-list)
 						MODE="list";;
+					## Only usable with MODE=list
+					## : Seperated list
+					-filter)
+						let a=++a
+						FILTER=$val ;;
+					## : Seperated list
+					-markStable)
+						let a=++a
+						MARK_STABLE=$val ;;
 					-preserved)
 						MODE="preserved" ;;
 					-rebuildKernelMods)
@@ -690,7 +701,10 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 		[[ $PKG_NAME == *\* ]] && PKG_NAME=${PKG_NAME%\*}
 		[[ $PKG_NAME == \*\** ]] && PKG_NAME=${PKG_NAME/\*\*/\*}
 		echo "${MODE^}ing: $p (${PKG_CAT:-*}/$PKG_NAME*)"
-		[[ $MODE == 'list' ]] && printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
+		if [[ $MODE == 'list' ]]; then
+			[[ $FILTER != '' ]] && echo "Filter: $FILTER"
+			printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
+		fi
 		if [[ $list == '' ]]; then
 			echo " $DIALOG_ERROR $p not found!"
 			continue
@@ -756,6 +770,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 				echo
 
 			## Output a listing of whats found in the results
+			## Filter by installed, aged, (un)stable
 			else
 				## Save the current timestamp
 				curDate=$(date +%s)
@@ -774,6 +789,22 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 							echo -n " $(getVerRev $i)"
 						done; echo
 					)
+					! pkgArch $a && stable=1 || stable=0
+					[[ " $FILTER" == *[^n]stable* && $stable == 0 ]] ||
+					[[ $FILTER == *unstable* && $stable == 1 ]] ||
+					[[ $FILTER == *aged* && $age -le $(( 14 * 86400 )) ]] ||
+					[[ $FILTER == *installed* && $installed == ' none' ]] && continue
+
+					## Mark as stable
+					if [[ $MARK_STABLE != '' ]]; then
+						echo " ${GREEN}*${NORMAL} Marking as stable"
+						MARK_STABLE=${MARK_STABLE//:/ }
+						for arch in $MARK_STABLE; do
+							set -x
+							sed -i "/ARCHS=/s/~$arch\([ \"]\)/$arch\1/g" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build"
+							set +x
+						done
+					fi
 
 					if pkgArch $a && [[ $age -gt $(( 14 * 86400 )) ]]; then
 						if [[ $age -gt $(( 30 * 86400 )) ]]; then
@@ -796,7 +827,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 	done
 	exit 0
 elif [[ $MODE == "preserved" ]]; then
-	preservedRebuild && buildList || exit 0
+	preservedRebuild && buildList || title && exit 0
 else
 	buildList
 fi
