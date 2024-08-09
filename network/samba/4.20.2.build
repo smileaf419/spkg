@@ -10,7 +10,7 @@ BDEPS="perl/JSON network/rpcsvc-proto perl/Parse-Yapp python/iso8601 python/cryp
 RDEPS="devel/lmdb"
 IUSE="ldap"
 use-enable ldap && UDEPS="network/openldap"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 

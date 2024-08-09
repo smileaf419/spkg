@@ -9,7 +9,7 @@ SRC_URI=("https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-${PKG_VER}.tar.bz
 DEPS="devel/libgpg-error"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

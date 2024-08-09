@@ -8,7 +8,7 @@ SRC_URI="https://download.gnome.org/sources/libxslt/${PKG_VER%.*}/libxslt-${PKG_
 DEPS="devel/libgcrypt devel/libgpg-error devel/libxml2"
 BDEPS=""
 RDEPS="apps/docbook-xml:4.5 apps/docbook-xsl-nons"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 
