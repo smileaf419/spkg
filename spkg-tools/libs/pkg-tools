@@ -532,7 +532,7 @@ pkgArch() {
 			[[ ${a:0:1} == '~' ]]; return $?
 		fi
 	done
-	return 0
+	return 2
 }
 
 getPkgUse() {
