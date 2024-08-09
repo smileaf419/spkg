@@ -802,7 +802,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 						for arch in $MARK_STABLE; do
 							set -x
 							sed -i "/ARCHS=/s/~$arch\([ \"]\)/$arch\1/g" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build"
-							set +x
+							{ set +x; } 2>/dev/null
 						done
 					fi
 
