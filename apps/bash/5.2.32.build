@@ -41,6 +41,7 @@ src_configure() {
 				--without-bash-malloc    \
 				--with-installed-readline \
 				--enable-history          \
+				--with-curses             \
 				bash_cv_strtold_broken=no
 }
 
