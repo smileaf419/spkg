@@ -14,8 +14,8 @@ IUSE="pcre2"
 use-enable pcre2 && UDEPS="devel/libpcre2"
 
 src_configure() {
-	autoupdate
-	autoreconf -fiv
+#	autoupdate
+#	autoreconf -fiv
 	./configure --prefix=/usr --sysconfdir=/etc $(use-enable pcre2 && echo "--with-regex=pcre2")
 }
 
