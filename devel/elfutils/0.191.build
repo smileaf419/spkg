@@ -4,10 +4,8 @@
 HOMEPAGE="https://sourceware.org/elfutils/"
 DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 LICENSE="GPLv2 GPLv3 LGPLv3"
-SRC_URI=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar.bz2"
-"https://dev.gentoo.org/~sam/distfiles/dev-libs/elfutils/elfutils-0.187-patches.tar.xz")
-## https://www.cygwin.com/bugzilla/show_bug.cgi?id=29176
-PATCHES=("https://patchwork.sourceware.org/project/elfutils/patch/20230304213534.1448550-1-mark@klomp.org/raw/ => elfutils-0.189-test-fix.patch")
+SRC_URI=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar.bz2")
+PATCHES=()
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://sourceware.org/ftp/elfutils/${PKG_VER}/elfutils-${PKG_VER}.tar.bz2.sig")
 B="elfutils-${PKG_VER}"
 DEPS="apps/bzip2 apps/xz-utils apps/zstd system/zlib"
@@ -21,11 +19,11 @@ _LIB_ROOT_INSTALL=1
 
 src_prepare() {
 	# Rather than PATCHES for auto patching, we need to unpack/patch an archive
-	SRC_URI=($SRC_URI)
-	PATCH=${SRC_URI[1]##*/}
-	unpack $DISTFILES/$PATCH
-	rm -r ${PATCH%.tar*}/musl
-	spatches ${PATCH%.tar*}
+#	SRC_URI=($SRC_URI)
+#	PATCH=${SRC_URI[1]##*/}
+#	unpack $DISTFILES/$PATCH
+#	rm -r ${PATCH%.tar*}/musl
+#	spatches ${PATCH%.tar*}
 
 	# Not using Static libs
 	sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
