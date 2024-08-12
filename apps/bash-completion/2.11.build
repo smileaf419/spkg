@@ -6,7 +6,7 @@ DESCRIPTION="Programmable completion functions for bash"
 LICENSE="GPLv2"
 SRC_URI="https://github.com/scop/bash-completion/releases/download/${PKG_VER}/bash-completion-${PKG_VER}.tar.xz"
 BDEPS=""
-RDEPS="apps/ash"
+RDEPS="apps/bash"
 ARCHS="x86 x86_64"
 SLOT=0
 
