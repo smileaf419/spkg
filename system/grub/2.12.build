@@ -28,6 +28,9 @@ src_configure() {
 		checkKernelConfig EFIVAR_FS 1 "EFI Variable filesystem"
 	fi
 
+	## create a missing file
+	echo depends bli part_gpt > grub-core/extra_deps.lst
+
 	./configure --prefix=/usr          \
 				--bindir=/bin          \
 				--sbindir=/sbin        \

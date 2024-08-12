@@ -1,0 +1,59 @@
+####
+## unzip build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://infozip.sourceforge.net/UnZip.html"
+DESCRIPTION="unzipper for pkzip-compressed files"
+LICENSE="Info-ZIP"
+SRC_URI=("https://downloads.sourceforge.net/infozip/unzip${PKG_VER/./}.tar.gz")
+PATCHES=(
+"https://www.linuxfromscratch.org/patches/blfs/svn/unzip-6.0-consolidated_fixes-1.patch"
+"https://www.linuxfromscratch.org/patches/blfs/svn/unzip-6.0-gcc14-1.patch"
+)
+DEPS="apps/bzip2"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+B=unzip${PKG_VER/./}
+
+src_patch() {
+	convmv -f cp936 -t utf-8 -r --nosmart --notest .
+	patch_default
+}
+
+src_configure() { :; }
+
+src_compile() {
+	# Needed for Clang 16
+	append-cppflags -std=gnu89
+	# Linux Hosts
+	append-cppflags -DNO_LCHMOD
+	# Bzip2 support
+	append-cppflags -DUSE_BZIP2
+	# Unicode
+	append-cppflags -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE -DUSE_ICONV_MAPPING
+	export CPPFLAGS=${CXXFLAGS}
+
+	sed -i -r \
+		-e '/^CFLAGS/d' \
+		-e '/CFLAGS/s:-O[0-9]?:$(CFLAGS) $(CPPFLAGS):' \
+		-e '/^STRIP/s:=.*:=true:' \
+		-e 's:LF2 = -s:LF2 = :' \
+		-e "/^#L_BZ2/s:^.::" \
+		-e 's:LF = :LF = $(LDFLAGS) :' \
+		-e 's:SL = :SL = $(LDFLAGS) :' \
+		-e 's:FL = :FL = $(LDFLAGS) :' \
+		-e 's:$(AS) :$(AS) $(ASFLAGS) :g' \
+	    unix/Makefile
+
+	rm -r bzip2
+
+	CPPFLAGS="$CPPFLAGS" compile_default -f unix/Makefile generic
+}
+
+src_test() { :; }
+
+src_install() {
+	make prefix=${D}/usr MANDIR=${D}/usr/share/man/man1 \
+		-f unix/Makefile install
+}
