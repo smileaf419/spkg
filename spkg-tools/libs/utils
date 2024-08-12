@@ -20,6 +20,8 @@ function title {
 	PS1=$PS1_SAVE
 	if [[ ! -z $1 ]]; then
 		echo -ne "\033]0;spkg - $@\007"
+	else
+		echo -ne "\033]0;\007"
 	fi
 }
 export -f title
