@@ -11,7 +11,7 @@ SRC_URI=("https://ftp.gnu.org/gnu/aspell/dict/en/aspell6-en-$M_V.tar.bz2")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/aspell/dict/en/aspell6-en-$M_V.tar.bz2.sig")
 PATCHES=()
 DEPS=""
-BDEPS="apps/aspell"
+BDEPS="apps/aspell system/which"
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
