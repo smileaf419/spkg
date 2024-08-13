@@ -1,0 +1,19 @@
+####
+## xdg-utils build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.x.org/wiki/ https://www.freedesktop.org/wiki/Software/xdg-utils/"
+DESCRIPTION="A set of tools that allows applications to easily integrate with the desktop environment of the user, regardless of the specific desktop environment that the user runs."
+LICENSE="MIT"
+SRC_URI=("https://gitlab.freedesktop.org/xdg/xdg-utils/-/archive/v${PKG_VER}/xdg-utils-v${PKG_VER}.tar.bz2")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=("https://mirrors.slackware.com/slackware/slackware-current/source/x/xdg-utils/xdg-open.no.relative.paths.diff.gz")
+DEPS=""
+BDEPS="apps/xmlto"
+RDEPS=""
+setBuildENV auto make
+ARCHS="x86 x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default --mandir=/usr/share/man
+}
