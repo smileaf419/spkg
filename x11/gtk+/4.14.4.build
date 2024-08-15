@@ -1,0 +1,40 @@
+####
+## gtk+ build
+## Copyright 2023 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gtk.org"
+DESCRIPTION="GTK is a multi-platform toolkit for creating graphical user interfaces."
+LICENSE="LGPLv2.1"
+SRC_URI=("https://download.gnome.org/sources/gtk/${PKG_VER%.*}/gtk-${PKG_VER}.tar.xz")
+DEPS="devel/fribidi devel/glib devel/wayland media/fontconfig media/gst-plugins-bad media/gst-plugins-base media/gstreamer media/harfbuzz media/libepoxy media/libjpeg-turbo media/libpng media/tiff network/cups x11/cairo x11/gdk-pixbuf x11/libX11 x11/libXcursor x11/libXdamage x11/libXext x11/libXfixes x11/libXi x11/libXinerama x11/libxkbcommon x11/libXrandr x11/pango"
+BDEPS="x11/libxkbcommon"
+RDEPS="media/graphene"
+ARCHS="x86 x86_64"
+SLOT=4
+B=gtk-$PKG_VER
+setBuildENV meson ninja
+
+src_configure() {
+	append-cppflags -DG_DISABLE_CAST_CHECKS
+
+	configure_default -Dbroadway-backend=true \
+					  -Dintrospection=enabled
+}
+
+src_test() {
+	## If we're using wayland, we need to change x11 to wayland.
+	meson test --setup x11
+}
+
+src_compile() {
+	compile_default
+	## Requires GiDocGen
+	#sed "s@'doc'@& / 'gtk-${PKG_VER}'@" -i docs/reference/meson.build
+	#meson configure -Ddocumentation=true
+	#ninja
+}
+
+post_install() {
+	gtk-query-immodules-4.0 --update-cache
+	glib-compile-schemas /usr/share/glib-2.0/schemas
+	gtk4-update-icon-cache
+}
