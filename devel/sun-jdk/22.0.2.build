@@ -16,7 +16,7 @@ DEPS="media/alsa-lib media/freetype system/zlib x11/libX11 x11/libXext x11/libXi
 BDEPS=""
 RDEPS="virtual/alsa"
 ARCHS="x86 x86_64"
-SLOT=20
+SLOT=22
 B=jdk-${PKG_VER}
 RESTRICT=nobin
 
