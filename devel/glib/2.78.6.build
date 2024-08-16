@@ -1,6 +1,6 @@
 ####
 ## glib build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gtk.org/"
 DESCRIPTION="The GLib library of C routines"
 LICENSE="LGPLv2.1+"

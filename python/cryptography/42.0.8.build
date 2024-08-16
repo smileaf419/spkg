@@ -1,6 +1,6 @@
 ####
 ## cryptography build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pypi.org/project/cryptography/"
 DESCRIPTION="cryptography is a package which provides cryptographic recipes and primitives to Python developers"
 LICENSE="Apache-2.0 BSD-3"

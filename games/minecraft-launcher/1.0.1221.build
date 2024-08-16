@@ -1,6 +1,6 @@
 ####
 ## minecraft-launcher build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.minecraft.net/"
 DESCRIPTION="An open-world game whose gameplay revolves around breaking and placing blocks"
 LICENSE="Mojang"

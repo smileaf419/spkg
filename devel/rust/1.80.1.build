@@ -1,6 +1,6 @@
 ####
 ## Rust Build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.rust-lang.org/"
 DESCRIPTION="Systems programming language from Mozilla"
 LICENSE="MIT Apache-2.0 BSD BSD-1 BSD-2 BSD-4 UoI-NCSA"

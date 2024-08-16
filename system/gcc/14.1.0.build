@@ -1,6 +1,6 @@
 ####
 ## gcc build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://gcc.gnu.org/"
 DESCRIPTION="GNU Compiler Collection"
 LICENSE="GPLv3+ LGPLv3+"

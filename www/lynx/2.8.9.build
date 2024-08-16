@@ -1,5 +1,6 @@
 ####
-## Lynx build file (c 2023- spkg developers, GPLv2)
+## Lynx build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://lynx.invisible-island.net"
 DESCRIPTION="Text based web browser"
 LICENSE="GPLv2"

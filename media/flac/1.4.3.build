@@ -1,6 +1,6 @@
 ####
 ## flac build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://xiph.org/flac/"
 DESCRIPTION="Free lossless audio encoder and decoder"
 LICENSE="BSD FDL-1.2 GPLv2 LGPLv2.1"

@@ -1,6 +1,6 @@
 ####
 ## libdiscid build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="http://musicbrainz.org/doc/libdiscid"
 DESCRIPTION="Client library to create MusicBrainz enabled tagging applications"
 LICENSE="LGPLv2.1"

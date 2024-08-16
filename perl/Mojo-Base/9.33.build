@@ -1,6 +1,6 @@
 ####
 ## Mojo-Base build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://metacpan.org/pod/Mojo::Base"
 DESCRIPTION="Minimal base class for Mojo projects"
 LICENSE="Artistic-2.0"

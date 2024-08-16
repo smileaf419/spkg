@@ -1,6 +1,6 @@
 ####
 ## sbc build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://git.kernel.org/?p=bluetooth/sbc.git"
 DESCRIPTION="Audio codec to connect bluetooth HQ audio devices as headphones or loudspeakers"
 LICENSE="GPLv2 LGPLv2.1"

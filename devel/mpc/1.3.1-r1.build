@@ -1,6 +1,6 @@
 ####
 ## mpc build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="http://www.multiprecision.org/"
 DESCRIPTION="A library for multiprecision complex arithmetic with exact rounding"
 LICENSE="LGPL-2.1"

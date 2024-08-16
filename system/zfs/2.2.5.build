@@ -1,6 +1,6 @@
 ####
 ## zfs build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/openzfs/zfs"
 DESCRIPTION="ZFS Userland tools & Kernel Module"
 LICENSE="BSD-2 CDDL MIT"

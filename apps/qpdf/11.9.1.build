@@ -1,6 +1,6 @@
 ####
 ## qpdf build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/qpdf/qpdf"
 DESCRIPTION="Command-line tool and library for PDF transformations"
 LICENSE="Apache-2.0"

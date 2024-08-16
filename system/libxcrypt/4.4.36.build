@@ -1,6 +1,6 @@
 ####
 ## libxcrypt build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/besser82/libxcrypt"
 DESCRIPTION="Extended crypt library for descrypt, md5crypt, bcrypt, and others"
 LICENSE="LGPL-2.1"

@@ -1,4 +1,4 @@
-3cd2c87ee3a7fa41922a65af317939b81f2b016c  18.1.7.build
+0331cc2d8a8acd1c4c077ebd8a1b3d1478250a02  18.1.7.build
 824957de63cb2edf525a0e6f1fa290ea0e2791bd  llvm-18.1.7.src.tar.xz
 a0fe6778a79bf0ac51be069a7cd8e6d2599b68f9  cmake-18.1.7.src.tar.xz
 2937e4ed6c7391b2a7f65581eaf3f0cc252d1569  third-party-18.1.7.src.tar.xz
@@ -12,7 +12,7 @@ efd262a6cad00ac709d49477f5c4f573e6b69294  clang-tools-extra-18.1.7.src.tar.xz
 8b76b5bf68b800f4a1f8611a8d468b7b1d4209e7  libcxxabi-18.1.7.src.tar.xz
 af1e043d0b3aac7aac91f630e4f17230e9da527c  polly-18.1.7.src.tar.xz
 925d0452a35f5d461d4cdc2d0fab4bcf1afb27ec  libunwind-18.1.7.src.tar.xz
-3cd2c87ee3a7fa41922a65af317939b81f2b016c  18.1.8.build
+0331cc2d8a8acd1c4c077ebd8a1b3d1478250a02  18.1.8.build
 f9befa4cbef3f688ab48fca42449e13c5bcb872d  llvm-18.1.8.src.tar.xz
 1ea03e355b705b4cada3051bd7301a57daa19283  cmake-18.1.8.src.tar.xz
 ada9cf5deaec0a730c751ffd84145acedc6eafeb  third-party-18.1.8.src.tar.xz

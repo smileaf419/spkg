@@ -1,6 +1,6 @@
 ####
 ## cups-filters build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/OpenPrinting/cups-filters"
 DESCRIPTION="filters, backends, driverless utility, ... - Everything which CUPS 2.x needs to be used on non-Mac systems"
 LICENSE="Apache-2.0"

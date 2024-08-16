@@ -1,6 +1,6 @@
 ####
 ## wayland build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://wayland.freedesktop.org/ https://gitlab.freedesktop.org/wayland/wayland"
 DESCRIPTION="Wayland protocol libraries"
 LICENSE="MIT"

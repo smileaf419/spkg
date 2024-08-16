@@ -1,6 +1,6 @@
 ####
 ## neon build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://notroj.github.io/neon/"
 DESCRIPTION="an HTTP/1.1 and WebDAV client library with a C API"
 LICENSE="GPL"

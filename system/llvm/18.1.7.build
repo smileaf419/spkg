@@ -1,6 +1,6 @@
 ####
 ## LLVM build script
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 ## Referenced linuxfromscratch and Slackware's directions.
 
 HOMEPAGE="https://llvm.org/docs/index.html"

@@ -1,6 +1,6 @@
 ####
 ## Net-SSLeay build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://metacpan.org/pod/Net::SSLeay"
 DESCRIPTION="Perl bindings for OpenSSL and LibreSSL"
 LICENSE="artistic_2"

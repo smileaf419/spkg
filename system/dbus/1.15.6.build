@@ -1,6 +1,6 @@
 ####
 ## dbus build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/dbus/"
 DESCRIPTION="A message bus system, a simple way for applications to talk to each other"
 SRC_URI=("https://dbus.freedesktop.org/releases/dbus/dbus-${PKG_VER}.tar.xz")

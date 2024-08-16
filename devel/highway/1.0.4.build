@@ -1,6 +1,6 @@
 ####
 ## highway build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/google/highway"
 DESCRIPTION="Performance-portable, length-agnostic SIMD with runtime dispatch"
 LICENSE="Apache-2.0"

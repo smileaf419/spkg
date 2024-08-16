@@ -1,6 +1,6 @@
 ####
 ## Node.js build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://nodejs.org/"
 DESCRIPTION="Asynchronous event-driven JavaScript runtime"
 LICENSE="Apache-1.1 Apache-2.0 BSD BSD-2 MIT"

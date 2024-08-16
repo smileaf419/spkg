@@ -1,6 +1,6 @@
 ####
 ## pciutils build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://mj.ucw.cz/sw/pciutils/"
 DESCRIPTION="PCI Bus Utilities"
 LICENSE="GPLv2"

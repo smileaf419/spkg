@@ -1,6 +1,6 @@
 ####
 ## libxfce4ui build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.xfce.org https://docs.xfce.org/xfce/libxfce4ui/start https://gitlab.xfce.org/xfce/libxfce4ui/"
 DESCRIPTION="Unified widget and session management libs for Xfce"
 LICENSE="LGPLv2+ GPLv2+"

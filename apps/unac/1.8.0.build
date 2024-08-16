@@ -1,6 +1,6 @@
 ####
 ## unac build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.nongnu.org/unac/"
 DESCRIPTION="Library and command-line tool for removing accents from characters"
 LICENSE="GPLv2+"

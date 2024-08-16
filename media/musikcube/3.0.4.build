@@ -1,6 +1,6 @@
 ####
 ## musikcube build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/clangen/musikcube"
 DESCRIPTION="A cross-platform, terminal-based music player, audio engine, metadata indexer, and server"
 LICENSE="BSD-3"

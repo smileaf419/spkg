@@ -1,6 +1,6 @@
 ####
 ## pipewire build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pipewire.org/"
 DESCRIPTION="Multimedia processing graphs"
 LICENSE="MIT LGPLv2.1+ GPLv2"

@@ -1,6 +1,6 @@
 ####
 ## curl build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://curl.haxx.se/"
 DESCRIPTION="command line tool and library for transferring data with URLs"
 LICENSE="curl"

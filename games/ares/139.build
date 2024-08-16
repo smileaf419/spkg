@@ -1,5 +1,6 @@
 ####
 ## Ares Emulator
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/ares-emulator/ares https://ares-emu.net/"
 DESCRIPTION="ares is a cross-platform, open source, multi-system emulator, focusing on accuracy and preservation."
 LICENSE="GPLv3+ ISC"

@@ -1,6 +1,6 @@
 ####
 ## glibc build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gnu.org/software/libc/"
 DESCRIPTION="GNU libc C Library"
 LICENSE="LGPL-2.1+ BSD HPND ISC inner-net rc PCRE"

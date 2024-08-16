@@ -1,6 +1,6 @@
 ####
 ## lighttpd build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.lighttpd.net"
 DESCRIPTION="lighttpd (pronounced /lighty/) is a secure, fast, compliant, and very flexible web server that has been optimized for high-performance environments."
 LICENSE="BSD-2 GPLv2"

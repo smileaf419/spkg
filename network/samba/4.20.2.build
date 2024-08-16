@@ -1,6 +1,6 @@
 ####
 ## samba build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.samba.org"
 DESCRIPTION="Windows interoperability suite of programs for Linux and Unix."
 LICENSE="GPLv3"

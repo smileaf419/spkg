@@ -1,6 +1,6 @@
 ####
 ## at-spi2-core build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://wiki.gnome.org/Accessibility"
 DESCRIPTION="Gtk module for bridging AT-SPI to Atk"
 LICENSE="LGPLv2.1+"

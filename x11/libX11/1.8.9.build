@@ -1,6 +1,6 @@
 ####
 ## libX11 build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://wiki.x.org/wiki/ https://gitlab.freedesktop.org/xorg/lib/libX11"
 DESCRIPTION="X.org X11 Library"
 LICENSE="MIT"

@@ -1,6 +1,6 @@
 ####
 ## font-alias build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.x.org/wiki/ https://gitlab.freedesktop.org/xorg/font/alias"
 DESCRIPTION="X.Org font aliases"
 LICENSE="MIT"

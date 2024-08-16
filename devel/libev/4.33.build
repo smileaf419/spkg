@@ -1,6 +1,6 @@
 ####
 ## libev build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="http://software.schmorp.de/pkg/libev.html"
 DESCRIPTION="A high-performance event loop/event model with lots of features."
 LICENSE="GPL"

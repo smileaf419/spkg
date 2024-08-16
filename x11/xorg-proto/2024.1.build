@@ -1,6 +1,6 @@
 ####
 ## xorg-proto build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://wiki.x.org/wiki/ https://gitlab.freedesktop.org/xorg/proto/xorgproto"
 DESCRIPTION="X.Org combined protocol headers"
 LICENSE="MIT"

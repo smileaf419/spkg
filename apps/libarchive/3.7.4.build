@@ -1,6 +1,6 @@
 ####
 ## libarchive build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="http://libarchive.org"
 DESCRIPTION="Multi-format archive and compression library"
 LICENSE="BSD, CC0 1.0 Universal, OpenSSL, Apache 2.0 and public domain"

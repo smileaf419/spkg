@@ -1,6 +1,6 @@
 ####
 ## libgme build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://github.com/JamesDunne/libgme"
 DESCRIPTION="JamesDunne's fork of Blargg's video game music file emulation/playback library"
 LICENSE="LGPLv2.1"

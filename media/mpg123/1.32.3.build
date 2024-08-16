@@ -1,6 +1,6 @@
 ####
 ## mpg123 build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://mpg123.de"
 DESCRIPTION="Fast console MPEG Audio Player and decoder library"
 LICENSE="LGPLv2.1"

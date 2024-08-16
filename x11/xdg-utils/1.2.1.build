@@ -1,6 +1,6 @@
 ####
 ## xdg-utils build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.x.org/wiki/ https://www.freedesktop.org/wiki/Software/xdg-utils/"
 DESCRIPTION="A set of tools that allows applications to easily integrate with the desktop environment of the user, regardless of the specific desktop environment that the user runs."
 LICENSE="MIT"

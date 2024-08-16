@@ -1,6 +1,6 @@
 ####
 ## p11-kit build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://p11-glue.github.io/p11-glue/p11-kit.html"
 DESCRIPTION="Provides a way to load and enumerate PKCS#11 modules"
 LICENSE="https://github.com/p11-glue/p11-kit/blob/master/COPYING"

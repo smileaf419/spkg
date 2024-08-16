@@ -1,6 +1,6 @@
 ####
 ## libxml2 build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="http://www.xmlsoft.org/ https://gitlab.gnome.org/GNOME/libxml2"
 DESCRIPTION="XML C parser and toolkit"
 LICENSE="MIT"

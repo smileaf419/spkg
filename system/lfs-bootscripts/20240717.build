@@ -1,6 +1,6 @@
 ####
 ## lfs-bootscripts build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://linuxfromscratch.org/lfs/view/development/chapter09/bootscripts.html"
 DESCRIPTION="Bootscripts for the base system."
 SRC_URI="https://www.linuxfromscratch.org/lfs/downloads/development/lfs-bootscripts-${PKG_VER}.tar.xz"

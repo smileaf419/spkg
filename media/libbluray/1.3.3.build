@@ -1,6 +1,6 @@
 ####
 ## libbluray build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.videolan.org/developers/libbluray.html"
 DESCRIPTION="Blu-ray playback libraries"
 LICENSE="LGPL-2.1"

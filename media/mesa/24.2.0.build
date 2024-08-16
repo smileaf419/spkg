@@ -1,6 +1,6 @@
 ####
 ## mesa build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.mesa3d.org/ https://mesa.freedesktop.org/"
 DESCRIPTION="OpenGL-like graphic library for Linux"
 LICENSE="MIT"

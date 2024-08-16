@@ -1,6 +1,6 @@
 ####
 ## xmlto build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pagure.io/xmlto"
 DESCRIPTION="Script for converting XML and DocBook documents to a variety of output formats"
 LICENSE="GPLv2"

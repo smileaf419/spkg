@@ -1,6 +1,6 @@
 ####
 ## libassuan build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.gnupg.org/software/libassuan/index.html"
 DESCRIPTION="IPC library used by GnuPG and GPGME"
 LICENSE="GPLv3 LGPLv2.1"

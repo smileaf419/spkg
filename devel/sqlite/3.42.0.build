@@ -1,6 +1,6 @@
 ####
 ## sqlite build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.sqlite.org/"
 DESCRIPTION="Small fast self-contained SQL database."
 LICENSE="public-domain"

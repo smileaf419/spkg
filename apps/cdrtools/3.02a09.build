@@ -1,6 +1,6 @@
 ####
 ## cdrtools build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://sourceforge.net/projects/cdrtools/"
 DESCRIPTION="A set of tools for CD/DVD reading and recording, including cdrecord"
 LICENSE="GPLv2 LGPLv2.1 CDDL-Schily"

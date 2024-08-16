@@ -1,6 +1,6 @@
 ####
 ## gd build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://libgd.github.io https://libgd.org/"
 DESCRIPTION="Graphics library for fast image creation"
 LICENSE="gd IJG HPND BSD"

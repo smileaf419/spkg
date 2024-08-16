@@ -1,6 +1,6 @@
 ####
 ## libinput build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://gitlab.freedesktop.org/libinput/libinput/-/releases"
 DESCRIPTION="Event and Detection library for input devices"
 LICENSE="MIT"

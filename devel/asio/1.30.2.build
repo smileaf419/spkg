@@ -1,6 +1,6 @@
 ####
 ## asio build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="http://think-async.com/Asio/ https://github.com/chriskohlhoff/asio"
 DESCRIPTION="A cross-platform C++ library for network and low-level I/O programming that provides developers with a consistent asynchronous model using a modern C++ approach."
 LICENSE="Boost"

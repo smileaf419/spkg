@@ -1,6 +1,6 @@
 ####
 ## plex-media-server build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://plex.tv/"
 DESCRIPTION="Personal Media Server"
 LICENSE="Plex"

@@ -1,6 +1,6 @@
 ####
 ## cairo build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://cairographics.org"
 DESCRIPTION="2D graphics library with support for multiple output devices"
 LICENSE="LGPLv2.1 MPL"

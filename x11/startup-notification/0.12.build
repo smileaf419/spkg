@@ -1,6 +1,6 @@
 ####
 ## startup-notification build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/startup-notification/"
 DESCRIPTION="Application startup notification and feedback library"
 LICENSE="LGPLv2 MIT"

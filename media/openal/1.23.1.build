@@ -1,6 +1,6 @@
 ####
 ## OpenAL build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.openal-soft.org/"
 DESCRIPTION="A software implementation of the OpenAL 3D audio API"
 LICENSE="LGPLv2+ BSD"

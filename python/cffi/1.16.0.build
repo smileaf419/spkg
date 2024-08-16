@@ -1,6 +1,6 @@
 ####
 ## cffi build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pypi.org/project/cffi/"
 DESCRIPTION="Foreign Function Interface for Python calling C code"
 LICENSE="MIT"

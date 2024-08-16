@@ -1,6 +1,6 @@
 ####
 ## font-util build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://xorg.freedesktop.org/"
 DESCRIPTION="X.Org Font Utilities"
 LICENSE="custom"

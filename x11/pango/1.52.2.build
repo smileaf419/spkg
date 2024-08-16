@@ -1,6 +1,6 @@
 ####
 ## pango build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pango.gnome.org"
 DESCRIPTION="Library for laying out and rendering of text, with an emphasis on internationalization"
 LICENSE="LGPLv2.1"

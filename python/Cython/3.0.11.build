@@ -1,6 +1,6 @@
 ####
 ## Cython build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pypi.org/project/$PKG_NAME/"
 DESCRIPTION="C extension compiler for Python"
 LICENSE="MIT"

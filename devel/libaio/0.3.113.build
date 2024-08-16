@@ -1,6 +1,6 @@
 ####
 ## libaio build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pagure.io/libaio"
 DESCRIPTION="Linux-native asynchronous I/O access Library"
 LICENSE="LGPLv2.1"

@@ -1,6 +1,6 @@
 ####
 ## MusicBrainz-DiscID build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://metacpan.org/pod/MusicBrainz::DiscID"
 DESCRIPTION="Perl interface for the MusicBrainz libdiscid library"
 LICENSE="MIT"

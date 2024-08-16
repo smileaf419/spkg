@@ -1,6 +1,6 @@
 ####
 ## Spigot Minecraft Server build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.minecraft.net/ https://www.spigotmc.org"
 DESCRIPTION="Modded Java edition of Minecraft"
 LICENSE="Mojang"

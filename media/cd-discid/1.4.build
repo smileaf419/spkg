@@ -1,6 +1,6 @@
 ####
 ## cd-discid build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="http://linukz.org/cd-discid.shtml"
 DESCRIPTION="Utility to get CDDB discid information from a CD-ROM disc."
 LICENSE="GPLv2"

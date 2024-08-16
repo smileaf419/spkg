@@ -1,6 +1,6 @@
 ####
 ## timezone-data build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.iana.org/time-zones"
 DESCRIPTION="Time Zone Data"
 LICENSE="BSD public-domain"

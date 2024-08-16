@@ -1,6 +1,6 @@
 ####
 ## MarkupSafe build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://pypi.org/project/MarkupSafe/"
 DESCRIPTION="Safely add untrusted strings to HTML/XML markup"
 LICENSE="BSD-3"

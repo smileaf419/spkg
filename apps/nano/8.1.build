@@ -1,6 +1,6 @@
 ####
 ## nano build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.nano-editor.org"
 DESCRIPTION="Small and friendly text editor"
 LICENSE="GPLv3"
