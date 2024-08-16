@@ -8,7 +8,7 @@ DEPS=""
 BDEPS="system/gcc"
 RDEPS=""
 ARCHS="x86 x86_64"
-SLOT=6.5
+SLOT=6.10
 RESTRICT="strip nobin"
 DOC_LIST+=("/usr/src/linux-${PKG_VER}/Documentation")
 
