@@ -7,19 +7,19 @@ N=$(find . -maxdepth 2 -mindepth 2 -type d | grep -Ev "git|spkg" | wc -l)
 echo $N
 
 echo -n " * HOMEPAGE: "
-C=$(grep --include \*.build -r 'HOMEPAGE=""')
+C=$(grep --include \*.build -r 'HOMEPAGE=""' | sed 's,/[^/]*$,,' | uniq)
 HN=$(echo $C | tr ' ' '\n' | wc -l)
 echo "$HN / $(( ( ( $N - $HN ) * 100 ) / $N )) %"
 echo $C | tr ' ' '\n' | sort -R | head -n3
 
 echo -n " * DESCRIPTION: "
-C=$(grep --include \*.build -r 'DESCRIPTION=""')
+C=$(grep --include \*.build -r 'DESCRIPTION=""' | sed 's,/[^/]*$,,' | uniq)
 DN=$(echo $C | tr ' ' '\n' | wc -l)
 echo "$DN / $(( ( ( $N - $DN ) * 100 ) / $N )) %"
 echo $C | tr ' ' '\n' | sort -R | head -n3
 
 echo -n " * LICENSE: "
-C=$(grep --include \*.build -r 'LICENSE=""')
+C=$(grep --include \*.build -r 'LICENSE=""' | sed 's,/[^/]*$,,' | uniq)
 LN=$(echo $C | tr ' ' '\n' | wc -l)
 echo "$LN / $(( ( ( $N - $LN ) * 100 ) / $N )) %"
 echo $C | tr ' ' '\n' | sort -R | head -n3
