@@ -11,7 +11,7 @@ RDEPS=""
 ## If we're installing @temptools meson/ninja will not be available.
 [[ $PKG_FLAGS != *nodep* ]] && setBuildENV meson ninja
 BUILD_SEPERATE_DIR=yes
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
