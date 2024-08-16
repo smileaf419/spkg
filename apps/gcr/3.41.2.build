@@ -1,6 +1,6 @@
 ####
 ## GCR build
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
 HOMEPAGE="https://gitlab.gnome.org/GNOME/gcr"
 DESCRIPTION="library for accessing PKCS#11 modules like smart cards, in a (G)object-oriented way"
 LICENSE="GPLv2"
