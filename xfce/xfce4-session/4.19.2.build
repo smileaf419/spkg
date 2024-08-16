@@ -1,9 +1,9 @@
 ####
 ## xfce4-session build
 ## Copyright 2023-2024 spkg developers, licensed under GPLv2
-HOMEPAGE="https://www.xfce.org"
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.xfce.org https://docs.xfce.org/xfce/xfce4-session/start https://gitlab.xfce.org/xfce/xfce4-session"
+DESCRIPTION="A session manager for the Xfce desktop environment"
+LICENSE="GPLv2+"
 SRC_URI=("https://archive.xfce.org/src/xfce/xfce4-session/${PKG_VER%.*}/xfce4-session-${PKG_VER}.tar.bz2")
 DEPS="apps/at-spi2-core devel/glib x11/cairo x11/gdk-pixbuf x11/gtk+:3 x11/libICE x11/libSM x11/libwnck x11/libX11 x11/pango xfce/libxfce4ui xfce/libxfce4util xfce/xfconf"
 BDEPS="x11/iceauth xfce/xfdesktop devel/desktop-file-utils"

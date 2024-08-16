@@ -1,13 +1,10 @@
 ####
 ## xfce4-notifyd build
 ## Copyright 2023-2024 spkg developers, licensed under GPLv2
-# Start versioning at -r1 if patches are used.
-# non-patched packages may omit a revision, until a modification is made.
-HOMEPAGE="https://www.xfce.org"
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.xfce.org https://docs.xfce.org/apps/notifyd/start https://gitlab.xfce.org/apps/xfce4-notifyd/"
+DESCRIPTION="Notification daemon for the Xfce desktop environment"
+LICENSE="GPLv2"
 SRC_URI=("https://archive.xfce.org/src/apps/${PKG_NAME}/${PKG_VER%.*}/${PKG_NAME}-${PKG_VER}.tar.bz2")
-#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
 DEPS="apps/at-spi2-core devel/sqlite devel/glib media/harfbuzz system/zlib x11/cairo x11/gdk-pixbuf x11/gtk+:3 x11/libICE x11/libnotify x11/libSM x11/libX11 x11/pango xfce/libxfce4ui xfce/libxfce4util xfce/xfce4-panel xfce/xfconf"
 BDEPS="xfce/xfce4-dev-tools"
