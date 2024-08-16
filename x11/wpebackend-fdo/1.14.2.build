@@ -1,9 +1,9 @@
 ####
 ## wpebackend-fdo build
 ## Copyright 2023-2024 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://wpewebkit.org/"
+DESCRIPTION="An Open Source WebKit port for Linux-based embedded devices designed with flexibility and hardware acceleration in mind, leveraging common 3D graphics APIs for best performance."
+LICENSE="BSD-2"
 SRC_URI=("https://wpewebkit.org/releases/wpebackend-fdo-${PKG_VER}.tar.xz")
 #[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
 PATCHES=()
