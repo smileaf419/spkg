@@ -6,7 +6,7 @@ DESCRIPTION="certificate authorities shipped with Mozilla's browser"
 LICENSE="GPLv2"
 SRC_URI=("http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_${PKG_VER}_all.deb")
 DEPS=""
-BDEPS=""
+BDEPS="apps/make-ca"
 RDEPS="system/debianutils"
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
