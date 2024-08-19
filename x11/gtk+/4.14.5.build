@@ -29,12 +29,8 @@ src_compile() {
 	compile_default
 	## Requires GiDocGen
 	#sed "s@'doc'@& / 'gtk-${PKG_VER}'@" -i docs/reference/meson.build
-	#meson configure -Dgtk_doc=true
+	#meson configure -Ddocumentation=true
 	#ninja
-}
-
-src_install() {
-	install_default
 }
 
 post_install() {
