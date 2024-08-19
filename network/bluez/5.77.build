@@ -11,6 +11,7 @@ BDEPS="devel/libical"
 RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
+IUSE="doc"
 
 src_configure() {
 	checkKernelConfig CONFIG_EXPERT               1 "Standard Kernel Features"
@@ -46,10 +47,18 @@ src_install() {
 	install-init.d bluetooth
 
 	mkdir -p ${D}/usr/sbin
-	ln -sv /usr/libexec/bluetooth/bluetoothd ${D}/usr/sbin/bluetoothd
+	ln -sv ../libexec/bluetooth/bluetoothd ${D}/usr/sbin
 
 	install -v -dm655 ${D}/etc/bluetooth
 	install -v -m644 src/main.conf ${D}/etc/bluetooth/main.conf
+
+	if use-enable doc; then
+		install -v -dm755 $D/usr/share/doc/bluez-$PKG_VER
+		install -v -m644 doc/*.txt $D/usr/share/doc/bluez-$PKG_VER
+	fi
+
+	mkdir -p $D/usr/share/dbus-1/services
+	install -m644 ./obexd/src/org.bluez.obex.service $D/usr/share/dbus-1/services
 
 	cat > ${D}/etc/bluetooth/rfcomm.conf << "EOF"
 # Start rfcomm.conf
