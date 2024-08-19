@@ -2,5 +2,5 @@
 99b8a81357314c6fa279003ce1b95b5d708ba7a8  glib-2.78.6.tar.xz
 b96bf17d0802efb5ea1788a412da171b03df013d  glib-skip_warnings-1.patch
 84738141459ed94447a0bec482b649be2b1296be  glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-c9b242fe10dfb8f1658a1a0b802ef580cf7fae89  2.80.4.build
+5b36a10e1ef98cc99569dad43f36226ff1aabb0f  2.80.4.build
 7e66837f98d8172fc6e461c7a1cbd6e52016eb1b  glib-2.80.4.tar.xz

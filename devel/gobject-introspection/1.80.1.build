@@ -8,6 +8,7 @@ SRC_URI="https://download.gnome.org/sources/gobject-introspection/${PKG_VER%.*}/
 DEPS="devel/glib devel/libffi"
 BDEPS=""
 RDEPS=""
+CDEPS="devel/glib[introspection]"
 ARCHS="~x86 ~x86_64"
 SLOT=0
 #ABILIBS="64 x32 32"
