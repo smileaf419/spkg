@@ -227,6 +227,7 @@ checkKernelConfig() {
 	local CONFIG=$1
 	local NEEDS_MODULE=$2
 	local DIALOG=$3
+	local DIE_IF_FALSE=${4:-0}
 	local HAS_PROC=0
 	local HAS_CONFIG=0
 
@@ -247,7 +248,15 @@ checkKernelConfig() {
 		grep -E "${CONFIG}=[ym]" /usr/src/linux/.config > /dev/null
 		[ $? != $NEEDS_MODULE ] && echo -n "Ok]" && HAS_CONFIG=1 || echo -n "No]"
 	fi
-	[[ $HAS_PROC == 1 || $HAS_CONFIG == 1 ]] && echo || die $ERR_DIALOG
+	if [[ $HAS_PROC == 1 || $HAS_CONFIG == 1 ]]; then
+		echo
+		return 0
+	elif [[ $DIE_IF_FALSE == 0 ]]; then
+		die $ERR_DIALOG
+	else
+		echo
+		return 1
+	fi
 }
 export -f checkKernelConfig
 
