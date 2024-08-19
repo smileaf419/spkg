@@ -1,0 +1,28 @@
+####
+## x265 build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="http://x265.org/ https://bitbucket.org/multicoreware/x265_git/"
+DESCRIPTION="Library for encoding video streams into the H.265/HEVC format"
+LICENSE="GPLv2"
+SRC_URI=("https://bitbucket.org/multicoreware/x265_git/downloads/x265_${PKG_VER}.tar.gz")
+#PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+setBuildENV cmake
+BUILD_SEPERATE_DIR=no
+B=x265-$PKG_VER/source
+
+src_configure() {
+	configure_default -W no-dev
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default
+
+	rm -v "${D}"/usr/lib/libx265.a
+}
