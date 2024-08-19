@@ -13,6 +13,10 @@ ARCHS="x86 x86_64"
 SLOT=0
 ABILIBS="64 x32 32"
 
+src_prepare() {
+	filter-flags -O
+}
+
 src_compile() {
 	compile_default
 
