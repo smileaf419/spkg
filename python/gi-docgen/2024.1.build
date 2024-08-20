@@ -1,0 +1,15 @@
+####
+## Gi-DocGen build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://pypi.org/project/gi-docgen/"
+DESCRIPTION="Documentation tool for GObject-based libraries"
+LICENSE="GPLv3+ Apache"
+SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//-/_}/${PKG_NAME//-/_}-${PKG_VER}.tar.gz")
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+MODULE=python
+setBuildENV none pip
+B=${PKG_NAME//-/_}-$PKG_VER

@@ -1,0 +1,14 @@
+####
+## packaging build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://pypi.org/project/packaging/"
+DESCRIPTION="Core utilities for Python packages"
+LICENSE="BSD-2 Apache"
+SRC_URI=("https://pypi.org/packages/source/${PKG_NAME:0:1}/${PKG_NAME//_/-}/$PKG_NAME-${PKG_VER}.tar.gz")
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+MODULE=python
+setBuildENV none pip
