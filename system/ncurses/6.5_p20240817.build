@@ -1,0 +1,152 @@
+####
+## ncurses build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gnu.org/software/ncurses/"
+DESCRIPTION="Console Display Library"
+LICENSE="MIT"
+SRC_URI=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER/_p*}.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://invisible-mirror.net/archives/ncurses/ncurses-${PKG_VER/_p*}.tar.gz.asc")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+use-enable pcre2 && UDEPS="devel/libpcre2"
+IUSE=pcre2
+ARCHS="x86 x86_64"
+SLOT=0
+B=$PKG_NAME-${PKG_VER/_p*}
+ABILIBS="64 x32 32"
+_LIB_ROOT_INSTALL=1
+
+PATCH_DATES=(
+20240504
+20240511
+20240518
+20240519
+20240525
+20240601
+20240608
+20240615
+20240622
+20240629
+20240706
+20240713
+20240720
+20240727
+20240810
+20240817
+)
+
+## Patches
+for p in ${PATCH_DATES[*]}; do
+	PATCHES+=("https://invisible-island.net/archives/${PKG_NAME}/${PKG_VER/_p*}/$PKG_NAME-${PKG_VER/_p*}-$p.patch.gz")
+done
+
+src_configure() {
+	case $ABILIB in
+		64) unset CC CXX ;;
+		*) export CC="gcc -m$ABILIB"; export CXX="g++ -m$ABILIB" ;;
+	esac
+	## Set a CONF_FLAGS as docdir isn't a valid option.
+	CONF_FLAGS=--prefix=/usr
+	configure_default \
+				--bindir=/bin           \
+				--libdir=$(libdir)      \
+				--with-shared           \
+				--mandir=/usr/share/man \
+				--without-debug         \
+				--without-normal        \
+				--with-cxx-shared		\
+				--enable-pc-files       \
+				--enable-widec          \
+				--with-termlib          \
+				$(use-enable pcre2 && echo ' --with-pcre2' || echo ' --without-pcre2') \
+				--without-hashed-db \
+				--with-pkg-config-libdir=/$(libdir)/pkgconfig
+}
+
+src_test() { :; }
+
+src_install() {
+	local t_D
+	if [[ $ABILIB == 64 ]]; then
+		## A symlink to terminfo is created here.
+		install_default
+		t_D=$D
+
+		# Documentation
+		mkdir -pv      "${D}"/usr/share/doc/ncurses-${PKG_VER/_p*}
+		cp -v -R doc/* "${D}"/usr/share/doc/ncurses-${PKG_VER/_p*}
+	else
+		t_D=$PWD/DESTDIR
+		make DESTDIR=$t_D install
+	fi
+
+	mkdir -p $t_D/$(libdir)/pkgconfig
+	for lib in ncurses form panel menu ; do
+	    rm -vf                    "${t_D}"/$(libdir)/lib${lib}.so
+	    echo "INPUT(-l${lib}w)" > "${t_D}"/$(libdir)/lib${lib}.so
+	    ln -sfv ${lib}w.pc        "${t_D}"/$(libdir)/pkgconfig/${lib}.pc
+	done
+
+	rm -vf                     "${t_D}"/$(libdir)/libcursesw.so
+	echo "INPUT(-lncursesw)" > "${t_D}"/$(libdir)/libcursesw.so
+	ln -sfv libncurses.so      "${t_D}"/$(libdir)/libcurses.so
+
+	if [[ $ABILIB != 64 ]]; then
+		mkdir -p $D/$(libdir)
+		cp -R $t_D/$(libdir)/* $D/$(libdir)
+		rm -rf $t_D
+	fi
+}
+
+bootstrap() {
+	sed -i s/mawk// configure
+
+	# Build tic
+	mkdir build
+	pushd build
+		../configure
+		make -C include
+		make -C progs tic
+	popd
+
+	for ABILIB in $ABILIBS; do
+		unset CONF_FLAGS
+		case $ABILIB in
+			64) unset CC CXX ;;
+			*) export CC="$HOST_TGT-gcc -m$ABILIB"; export CXX="$HOST_TGT-g++ -m$ABILIB" ;;
+		esac
+		## Set a CONF_FLAGS as docdir isn't a valid option.
+		CONF_FLAGS=--prefix=/usr
+		configure_default                 \
+					--bindir=/bin           \
+					--libdir=$(libdir)       \
+		            --build=$(./config.guess) \
+		            --without-manpages        \
+		            --with-shared             \
+		            --without-normal          \
+		            --with-cxx-shared         \
+		            --without-debug           \
+		            --without-ada             \
+		            --disable-stripping       \
+					--enable-widec
+		compile_default
+		if [[ $ABILIB == 64 ]]; then
+			mkdir -p $D/$ROOT/usr/{lib,share}
+			install_default TIC_PATH=$(pwd)/build/progs/tic
+			echo "INPUT(-lncursesw)" > $D/$ROOT/$(libdir)/libncurses.so
+		else
+			mkdir -p $PWD/DESTDIR/usr/lib
+			make DESTDIR=$PWD/DESTDIR TIC_PATH=$(pwd)/build/progs/tic install
+			ln -s libncursesw.so DESTDIR/$(libdir)/libcursesw.so
+			mkdir -p $D/$ROOT/$(libdir)
+			cp -Rv DESTDIR/$(libdir)/* $D/$ROOT/$(libdir)
+			rm -rf DESTDIR
+		fi
+		## Only use wide-character definitions
+		sed -e 's/^#if.*XOPEN.*$/#if 1/' \
+			-i $D/$ROOT/usr/include/curses.h
+		make distclean
+	done
+}
