@@ -3,3 +3,6 @@
 61bca89df20f6d976409e5479eca0ca1b037d0b3  xmlts20130923.tar.gz
 7cbaefe27c3bf2b9d08f3402afd5b3f15b69fa2a  2.13.1.build
 9051eb8db93a8e94c58ecb3cd6e7948527f21a96  libxml2-2.13.1.tar.xz
+ec5e8f19bb3559f6a29055bfae0efa70c5f38dfc  2.13.3.build
+170889cc11c53a96b18e6957f07ec6f823cad2c6  libxml2-2.13.3.tar.xz
+3c5e4e5c76c61fe3468930865b2c1d74844f42b5  libxml2-2.13.3-upstream_fix-1.patch

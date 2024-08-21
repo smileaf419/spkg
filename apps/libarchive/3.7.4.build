@@ -12,15 +12,12 @@ RDEPS=""
 ARCHS="x86 x86_64"
 SLOT=0
 
-#src_configure() {
-#	configure_default --without-lzma
-#}
-
-src_test() {
-	LC_ALL=C make check
+src_configure() {
+	## From LFS: disables using expat for xar format support. Due to a bug the xar reader will loop infinitely if expat is used.
+	##      The upstream prefers libxml2 for xar support anyway.
+	configure_default --without-expat
 }
 
-src_install() {
-	install_default
-	sed -i "s/iconv //" "${D}"/$(libdir)/pkgconfig/libarchive.pc
+src_test() {
+	LC_ALL=C.UTF-8 make check
 }
