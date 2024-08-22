@@ -109,10 +109,12 @@ buildKernel() {
 	make $MAKEOPTS
 
 	## Mount /boot if it exists
-	if [[ ! -z $(grep /boot /etc/fstab) && -z $(mount | grep /boot) ]]; then
+	if [[ -e /etc/fstab && ! -z $(grep /boot /etc/fstab) && -z $(mount | grep /boot) ]]; then
 		echo " * Mounting /boot"
 		mount /boot
 		BOOT_MOUNTED=1
+	elif [[ ! -e /etc/fstab ]]; then
+		echo " $IMPORTANT you don't appear to have a /etc/fstab created!"
 	fi
 	echo " * Installing."
 	make install modules_install
@@ -125,7 +127,16 @@ buildKernel() {
 		echo " $IMPORTANT we'll place a config here, but you will need to finish the install."
 		mkdir -p /boot/grub
 	fi
-	grub-mkconfig -o /boot/grub/grub.cfg
+
+	## Check if grub is installed before we generate the config.
+	if [[ $( Installed-getPkg "system/grub" | getVersion) != 0 ]]; then
+		grub-mkconfig -o /boot/grub/grub.cfg
+	else
+		echo " $IMPORTANT system/grub is not installed. Unable to generate a config."
+		echo " $IMPORTANT Once installed run: grub-mkconfig -o /boot/grub/grub.cfg"
+	fi
+
+	## Unmount /boot
 	if [[ ! -z $BOOT_MOUNTED ]]; then
 		echo " * Unmounting /boot"
 		umount /boot
