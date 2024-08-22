@@ -609,6 +609,12 @@ if [[ $MODE == "update" ]]; then
 				PKG_VER=0
 				PKG_REV=0
 				LPKG=$(DB-getPkg $(getPKG) | getLatest)
+				## Check if we got a version. if we didn't it maybe an older outdated slot that doesn't exist anymore.
+				## Remove the slot and get the latest pkg again.
+				if [[ -z $LPKG ]]; then
+					PKG_SLOT=0
+					LPKG=$(DB-getPkg $(getPKG) | getLatest)
+				fi
 				version_gt $(getVerRev $LPKG) $IPK_VER && echo $LPKG >> $CHART
 			done
 		fi
