@@ -1,25 +1,27 @@
 ####
 ## efivar build
 ## Copyright 2023-2024 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
-SRC_URI=("https://github.com/rhboot/efivar/releases/download/$PKG_VER/efivar-$PKG_VER.tar.bz2")
+HOMEPAGE="https://github.com/rhboot/efivar"
+DESCRIPTION="Tools and libraries to work with EFI variables"
+LICENSE="LGPLv2.1"
+SRC_URI=("https://github.com/rhboot/efivar/archive/$PKG_VER/efivar-$PKG_VER.tar.gz")
 DEPS=""
-BDEPS="apps/mandoc"
+BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
 ARCHS="-x86 ~x86_64"
 SLOT=0
 #B=
+IUSE="doc"
+use-enable doc && UDEPS="apps/mandoc"
 
 src_configure() { :; }
 
 src_compile() {
 	## Fix an issue causing the entire package to be rebuilt during installation
 	sed '/prep :/a\\ttouch prep' -i src/Makefile
-	compile_default ERRORS=
+	compile_default ERRORS= $(use-enable doc && echo ENABLE_DOCS=0)
 }
 
 ## Test suite is considered dangerous by LFS maintainers
@@ -27,5 +29,5 @@ src_compile() {
 src_test() { :; }
 
 src_install() {
-	install_default LIBDIR=/lib BINDIR=/bin
+	install_default LIBDIR=/lib BINDIR=/bin $(use-enable doc && echo ENABLE_DOCS=0)
 }
