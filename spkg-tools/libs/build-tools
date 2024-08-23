@@ -345,9 +345,13 @@ installPackage() {
 		## Otherwise we're going to add to our CONTENTS
 		cd $D
 		if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
-			find . | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+			find . -type d | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+			find . -type f | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+			find . -type l | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
 		else
-			find . | sed "s,^\.,," | sort > "${BUILD_PATH}/CONTENTS"
+			find .  -type d | sed "s,^\.,," | sort >  "${BUILD_PATH}/CONTENTS"
+			find .  -type f | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+			find .  -type l | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
 		fi
 
 		getBDeps "${BUILD_PATH}/CONTENTS"
