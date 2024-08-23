@@ -6,7 +6,6 @@ DESCRIPTION="Network Time Protocol suite/programs"
 LICENSE="HPND BSD ISC"
 SRC_URI="https://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-${PKG_VER%.*}/ntp-${PKG_VER}.tar.gz"
 PATCHES=("https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8-sntp-test-pthreads.patch"
-"https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8-ipc-caps.patch"
 "https://gitweb.gentoo.org/repo/gentoo.git/plain/net-misc/ntp/files/ntp-4.2.8_p14-add_cap_ipc_lock.patch")
 DEPS="devel/libevent devel/openssl system/libcap system/readline"
 BDEPS="perl/IO-Socket-SSL accounts/ntp"
