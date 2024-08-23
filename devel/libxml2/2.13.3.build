@@ -6,7 +6,7 @@ DESCRIPTION="XML C parser and toolkit"
 LICENSE="MIT"
 SRC_URI=("https://download.gnome.org/sources/libxml2/${PKG_VER%.*}/libxml2-${PKG_VER}.tar.xz")
 [[ $ENABLE_TESTS == 1 ]] && SRC_URI+=("https://www.w3.org/XML/Test/xmlts20130923.tar.gz")
-PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/libxml2-2.13.3-upstream_fix-1.patch")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/libxml2-2.13.3-upstream_fix-2.patch")
 DEPS="apps/xz-utils devel/icu system/readline system/zlib"
 BDEPS=""
 RDEPS="devel/python"
