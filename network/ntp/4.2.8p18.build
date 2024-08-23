@@ -16,9 +16,8 @@ append-cppflags -fPIC -g
 append-cxxflags -D_GNU_SOURCE
 
 src_configure() {
-	## Fix an issue with update-leap
-	sed -e 's/"(\\S+)"/"?([^\\s"]+)"?/' -i scripts/update-leap/update-leap.in
-	autoreconf -vi
+	## Fix an type issue (4.2.8p18)
+	sed -e "s;pthread_detach(NULL);pthread_detach(0);" -i configure sntp/configure
 
 	configure_default \
 				--bindir=/usr/sbin    \
