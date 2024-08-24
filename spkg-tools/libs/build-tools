@@ -258,9 +258,9 @@ installPackage() {
 			## When we pass commands to our BUILD_USER these does not get updated
 			## Set it here to avoid permission issues when packages call for
 			## $HOME/.cache for example
-			local saved_USER=$USER
-			local saved_LOGNAME=$LOGNAME
-			local saved_HOME=$HOME
+			local _USER=$USER
+			local _LOGNAME=$LOGNAME
+			local _HOME=$HOME
 			export USER=$BUILD_USER
 			export LOGNAME=$BUILD_USER
 			export HOME=$PKG_CACHE
@@ -275,9 +275,9 @@ installPackage() {
 			buildPackage || die
 
 			## Restore our environment
-			export USER=$saved_USER
-			export LOGNAME=$saved_LOGNAME
-			export HOME=$saved_HOME
+			export USER=$_USER
+			export LOGNAME=$_LOGNAME
+			export HOME=$_HOME
 
 			## Save our USE for use later.
 			## FIXME: Check for IUSE and filter the flags to only contain those.
@@ -357,67 +357,74 @@ installPackage() {
 		getBDeps "${BUILD_PATH}/CONTENTS"
 
 		echo " * Merging into ${ROOT}"
-		## Install New Files
-		local IFS=$'\n'   # Internal Field Sperator
-		local CONFIG_PROTECTED=false
-		for file in $(cat "${BUILD_PATH}/CONTENTS"); do
-			## Check for links before anything else
-			## to avoid installing a directory when a link
-			## was expected.
-			if [ -L "${D}/${file}" ]; then
-				## If the link is a directory, we need to remove it, otherwise the link will be
-				## created within the directory rather than overriding it.
-				[[ -d "/$file" ]] && rm "/$file"
-				ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null &&
-					echo " >> $file -> $(readlink ${file})" ||
-					echo "!>s $file -> $(readlink $file)"
-			## Skip installing already installed dirs.
-			## it overrides the user's permission customizations.
-			## 2 schools of thought:
-			##   1) Under most circumstances, dirs are not managed.
-			##   2) Under most circumstances, most dirs are not modified by users.
-			## Packages *can* modify dirs they manage and need
-			## a certain way in post_install
-			elif [[ -d "${D}/${file}" ]]; then
-				if [[ ! -e "${file}" ]]; then
-					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
-				fi
-			else
-				## Check if a file is to be installed in /etc
-				##  If it is, check if the file already exists and
-				##  instead copy it to a backup file.
-				if [[ $CFG_PROTECT == "true" && $file == */etc/* && -e "${file}" ]]; then
-					## Check if the file is different
-					## If the file hasn't change, we can safely ignore it.
-					## If the file has changed however, protect it and report it at the end.
-					if ! diff "$D/$file" "$file" > /dev/null 2>&1; then
-						pfile="${file}.cfg$(date +%s)"
-						## Do some housekeeping
-						find $file.cfg[0-9]* -delete > /dev/null 2>&1
-						cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
-						CONFIG_PROTECTED=true
-					else
-						echo "a>> $file"
+		## Glibc is a special case in which its dangerous to handle each file seperately.
+		## while not ideal using tar to install seems to work fine.
+		if [[ $PKG_NAME == 'glibc' ]]; then
+			tar -cpf glibc.tar .
+			tar -xvpf glibc.tar -C / | sed 's,^., >> ,'
+		else
+			## Install New Files
+			local IFS=$'\n'   # Internal Field Sperator
+			local CONFIG_PROTECTED=false
+			for file in $(cat "${BUILD_PATH}/CONTENTS"); do
+				## Check for links before anything else
+				## to avoid installing a directory when a link
+				## was expected.
+				if [ -L "${D}/${file}" ]; then
+					## If the link is a directory, we need to remove it, otherwise the link will be
+					## created within the directory rather than overriding it.
+					[[ -d "/$file" ]] && rm "/$file"
+					ln -sf "$(readlink $D/$file)" "/$file" 2> /dev/null &&
+						echo " >> $file -> $(readlink ${file})" ||
+						echo "!>s $file -> $(readlink $file)"
+				## Skip installing already installed dirs.
+				## it overrides the user's permission customizations.
+				## 2 schools of thought:
+				##   1) Under most circumstances, dirs are not managed.
+				##   2) Under most circumstances, most dirs are not modified by users.
+				## Packages *can* modify dirs they manage and need
+				## a certain way in post_install
+				elif [[ -d "${D}/${file}" ]]; then
+					if [[ ! -e "${file}" ]]; then
+						sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
 					fi
-				## If the file is a library we must use install and not cp as the library maybe in use.
-				elif [[ $file == */lib* ]]; then
-					sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!l> $file"
 				else
-					## if cp fails the file might be busy, but to cp is faster than sinstall due to
-					## having to read permissions and then install
-					## fallback on sinstall if it fails.
-					if cp -p "${D}/${file}" "${file}" 2> /dev/null; then
-						echo " >> $file"
-					else
-						if sinstall "${D}/${file}" "${file}"; then
-							echo "i>> $file"
+					## Check if a file is to be installed in /etc
+					##  If it is, check if the file already exists and
+					##  instead copy it to a backup file.
+					if [[ $CFG_PROTECT == "true" && $file == */etc/* && -e "${file}" ]]; then
+						## Check if the file is different
+						## If the file hasn't change, we can safely ignore it.
+						## If the file has changed however, protect it and report it at the end.
+						if ! diff "$D/$file" "$file" > /dev/null 2>&1; then
+							pfile="${file}.cfg$(date +%s)"
+							## Do some housekeeping
+							find $file.cfg[0-9]* -delete > /dev/null 2>&1
+							cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
+							CONFIG_PROTECTED=true
 						else
-							echo "!>c $file"
+							echo "a>> $file"
+						fi
+					## If the file is a library we must use install and not cp as the library maybe in use.
+					elif [[ $file == */lib* ]]; then
+						sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!l> $file"
+					else
+						## if cp fails the file might be busy, but to cp is faster than sinstall due to
+						## having to read permissions and then install
+						## fallback on sinstall if it fails.
+						if cp -p "${D}/${file}" "${file}" 2> /dev/null; then
+							echo " >> $file"
+						else
+							if sinstall "${D}/${file}" "${file}"; then
+								echo "i>> $file"
+							else
+								echo "!>c $file"
+							fi
 						fi
 					fi
 				fi
-			fi
-		done
+			done
+		fi
 
 		## Uninstall Old files
 		uninstall $PKG_CAT/$PKG_NAME $PKG_VR $O_VER
