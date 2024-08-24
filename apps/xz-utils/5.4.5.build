@@ -1,6 +1,6 @@
 ####
 ## xz-utils build
-## Copyright 2023-2024 spkg developers, licensed under GPLv2
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://tukaani.org/xz"
 DESCRIPTION="General-purpose data compression software with a high compression ratio."
 LICENSE="LGPLv2.1 GPLv2 GPLv3 Public Domain"
@@ -9,7 +9,7 @@ SRC_URI=("https://tukaani.org/xz/xz-${PKG_VER}.tar.xz")
 DEPS=""
 BDEPS=""
 RDEPS=""
-ARCHS="x86 x86_64"
+ARCHS="~x86 ~x86_64"
 SLOT=0
 B=xz-${PKG_VER}
 ABILIBS="64 x32 32"

@@ -1,6 +1,6 @@
 ####
 ## usbutils build
-## Copyright 2023-2024 spkg developers, licensed under GPLv2
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://www.kernel.org/pub/linux/utils/usb/usbutils/"
 DESCRIPTION="USB enumeration utilities"
 LICENSE="GPLv2"
@@ -12,7 +12,7 @@ BDEPS=""
 RDEPS=""
 setBuildENV auto make
 BUILD_SEPERATE_DIR=no
-ARCHS="x86 x86_64"
+ARCHS="~x86 ~x86_64"
 SLOT=0
 
 src_configure() {

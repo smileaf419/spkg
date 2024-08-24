@@ -1,6 +1,6 @@
 ####
 ## vala build
-## Copyright 2023-2024 spkg developers, licensed under GPLv2
+## Copyright 2023 spkg developers, licensed under GPLv2
 HOMEPAGE="https://wiki.gnome.org/Projects/Vala https://gitlab.gnome.org/GNOME/vala"
 DESCRIPTION="Compiler for the GObject type system"
 LICENSE="LGPLv2.1+"
@@ -8,7 +8,7 @@ SRC_URI="https://download.gnome.org/sources/vala/${PKG_VER%.*}/vala-${PKG_VER}.t
 DEPS="devel/glib"
 BDEPS=""
 RDEPS=""
-ARCHS="x86 x86_64"
+ARCHS="~x86 ~x86_64"
 SLOT=0
 
 src_configure() {
