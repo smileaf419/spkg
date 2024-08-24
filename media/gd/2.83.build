@@ -1,0 +1,20 @@
+####
+## gd build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://libgd.github.io https://libgd.org/"
+DESCRIPTION="Graphics library for fast image creation"
+LICENSE="gd IJG HPND BSD"
+SRC_URI=("https://github.com/libgd/libgd/releases/download/gd-${PKG_VER}/libgd-${PKG_VER}.tar.xz")
+PATCHES=()
+IUSE="X"
+DEPS="media/fontconfig media/freetype media/libjpeg-turbo media/libpng media/libwebp media/tiff system/zlib x11/libX11 x11/libXpm"
+use-enable X && UDEPS="x11/libX11 x11/libXau x11/libxcb x11/libXdmcp x11/libXpm"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+B=libgd-${PKG_VER}
+
+src_configure() {
+	configure_default $(use-enable X && echo --with-x || echo --without-x)
+}

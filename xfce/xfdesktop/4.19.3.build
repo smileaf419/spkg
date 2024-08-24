@@ -1,0 +1,15 @@
+####
+## xfdesktop build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.xfce.org https://docs.xfce.org/xfce/xfdesktop/start https://gitlab.xfce.org/xfce/xfdesktop/"
+DESCRIPTION="Desktop manager for the Xfce desktop environment"
+LICENSE="GPLv2+"
+SRC_URI=("https://archive.xfce.org/src/xfce/xfdesktop/${PKG_VER%.*}/xfdesktop-${PKG_VER}.tar.bz2")
+DEPS="apps/at-spi2-core devel/glib media/harfbuzz system/zlib x11/cairo x11/gdk-pixbuf x11/gtk+:3 x11/libnotify x11/libX11 x11/pango xfce/exo xfce/garcon xfce/libxfce4ui xfce/libxfce4util xfce/libxfce4windowing xfce/thunar xfce/xfconf"
+BDEPS=""
+RDEPS="x11/hicolor-icon-theme"
+setBuildENV auto make
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_test() { :; }

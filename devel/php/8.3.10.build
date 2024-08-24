@@ -1,0 +1,49 @@
+####
+## php build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.php.net/"
+DESCRIPTION="PHP Hypertext Preprocessor."
+LICENSE="PHP"
+SRC_URI=("https://www.php.net/distributions/php-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="apps/bzip2 devel/sqlite devel/gmp devel/libpcre2 devel/libxml2 devel/libxslt devel/openssl system/gdbm system/readline system/zlib"
+BDEPS="media/gd"
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	./configure --prefix=/usr                \
+				--sysconfdir=/etc            \
+				--localstatedir=/var         \
+				--datadir=/usr/share/php     \
+				--mandir=/usr/share/man      \
+				--without-pear               \
+				--enable-fpm                 \
+				--with-fpm-user=apache       \
+				--with-fpm-group=apache      \
+				--with-config-file-path=/etc \
+				--with-zlib                  \
+				--enable-bcmath              \
+				--with-bz2                   \
+				--enable-calendar            \
+				--enable-dba=shared          \
+				--with-gdbm                  \
+				--with-gmp                   \
+				--enable-ftp                 \
+				--with-gettext               \
+				--enable-mbstring            \
+				--disable-mbregex            \
+				--with-readline              \
+				--with-pic                   \
+				--with-external-pcre         \
+				--enable-zts                 \
+				--with-openssl               \
+				--with-xsl                   \
+				--with-external-gd
+				#--enable-gd
+}
+
+src_install() {
+	make INSTALL_ROOT="${D}" install
+}

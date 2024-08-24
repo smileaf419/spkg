@@ -1,0 +1,20 @@
+####
+## bc build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://git.yzena.com/gavin/bc"
+DESCRIPTION="An implementation of Unix dc and POSIX bc with GNU and BSD extensions."
+LICENSE="BSD-2"
+SRC_URI=("https://github.com/gavinhoward/bc/releases/download/${PKG_VER}/bc-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/gavinhoward/bc/releases/download/${PKG_VER}/bc-${PKG_VER}.tar.xz.sig")
+DEPS="system/readline"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	filter-flags "-O."
+	# Only add -G if bc isn't installed. this omits certain tests that won't work until after bc is installed.
+	[[ $(Installed-getPkg system/bc | getVersion) == 0 ]] && OMIT_TEST="-G"
+	CC=gcc ./configure --prefix=/usr $OMIT_TEST -O3 -r
+}
