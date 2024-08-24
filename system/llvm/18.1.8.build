@@ -12,8 +12,6 @@ SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_V
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/third-party-${PKG_VER}.src.tar.xz"
 ## Tools
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-${PKG_VER}.src.tar.xz"
-## compile failed, doesn't seem to be required and I have no clue what it is anyway!
-## TODO: post failure message here for reference.
 #"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/flang-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/lldb-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/lld-${PKG_VER}.src.tar.xz"
@@ -21,15 +19,14 @@ SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_V
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-tools-extra-${PKG_VER}.src.tar.xz"
 ## Projects
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/compiler-rt-${PKG_VER}.src.tar.xz"
-"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/openmp-${PKG_VER}.src.tar.xz"
-"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxx-${PKG_VER}.src.tar.xz"
-"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxxabi-${PKG_VER}.src.tar.xz"
-"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/polly-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/openmp-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxx-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxxabi-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/polly-${PKG_VER}.src.tar.xz"
 "https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libunwind-${PKG_VER}.src.tar.xz"
 )
 
 PATCHES=(
-#"https://www.linuxfromscratch.org/patches/blfs/svn/clang-16.0.5-enable_default_ssp-1.patch"
 )
 
 DEPS="apps/xz-utils apps/zstd devel/libffi devel/libxml2 system/ncurses system/zlib"
@@ -76,35 +73,11 @@ src_unpack() {
 	done
 }
 
-src_patch() {
-	[[ $P == '' ]] && return 0
-	PATCHES=($P)
-	spatch ${PATCHES[0]} -Np2 -d tools/clang
-	PATCHES=${PATCHES[@]:1}
-	patch_default $PATCHES
-	cd - > /dev/null
-}
-
 src_prepare() {
-	PYTHON_VER=$(Installed-getPkg devel/python | getLatest | getVersion)
-	PYTHON_VER=${PYTHON_VER%.*}
-
-	[[ $ARCH == *x86_64 ]] && append-cflags -fPIC
-
 	append-ldflags -lcursesw -lncursesw -ltinfow
 
-	grep -rl '\.\./runtimes' $BUILD_PATH | xargs sed 's,\.\./runtimes,/runtimes,' -i
-	ln -s $BUILD_PATH/$B/projects/libcxx* $BUILD_PATH
-
-	## Fix python scripts to use python3
-	grep -rl '#!.*python' .. | xargs sed -i '1s/python$/python3/'
-
-	## Fix a broken testcase caused by enabling SSP by default (LFS patch)
-	sed 's/clang_dfsan/& -fno-stack-protector/' \
-		-i projects/compiler-rt/test/dfsan/origin_unaligned_memtrans.c
-
-	mkdir -p include
 	## Copy this LLVM libunwind header or it won't be found:
+	mkdir -p include
 	cp -a projects/libunwind/include/mach-o include
 }
 
@@ -124,9 +97,6 @@ src_configure() {
 		echo " * Build System: GCC"
 		CC='gcc'
 		CXX='g++'
-		## These projects seem to have issues building under GCC
-		## libunwind uses -nostdlib which does not exist in GCC, but does in clang
-		rm -fr ../projects/{libunwind,libcxx{,abi},compiler-rt}
 	fi
 
 	## If we have a 32bit arch enabled within our BUILD_ABI set this flag.
@@ -135,25 +105,23 @@ src_configure() {
 #			-DLLVM_BUILD_32_BITS=ON
 #		)
 #	fi
-	configure_default                             \
-		-DCMAKE_C_FLAGS:STRING="$CFLAGS"          \
-		-DCMAKE_CXX_FLAGS:STRING="$CFLAGS"        \
-		-DLLVM_ENABLE_FFI=ON                      \
-		-DLLVM_BUILD_LLVM_DYLIB=ON                \
-		-DLLVM_LINK_LLVM_DYLIB=ON                 \
-		-DLLVM_ENABLE_RTTI=ON                     \
-		-DLLVM_TARGETS_TO_BUILD="host;AMDGPU;BPF" \
-		-DLLVM_BINUTILS_INCDIR=/usr/include       \
-		-DLLVM_INCLUDE_BENCHMARKS=OFF             \
-		-DCLANG_DEFAULT_PIE_ON_LINUX=ON           \
-		-DCMAKE_C_COMPILER="$CC"                  \
-		-DCMAKE_CXX_COMPILER="$CXX"               \
-		-DLLVM_CCACHE_BUILD=OFF                   \
-		-DLLVM_ENABLE_ZLIB=ON                     \
-		-DLLVM_ENABLE_ASSERTIONS=OFF              \
-		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=NO   \
-		-Wno-dev -G Ninja
+	configure_default                          \
+		-D CMAKE_INSTALL_PREFIX=/usr           \
+		-D CMAKE_SKIP_INSTALL_RPATH=ON         \
+		-D LLVM_ENABLE_FFI=ON                  \
+		-D CMAKE_BUILD_TYPE=Release            \
+		-D LLVM_BUILD_LLVM_DYLIB=ON            \
+		-D LLVM_LINK_LLVM_DYLIB=ON             \
+		-D LLVM_ENABLE_RTTI=ON                 \
+		-D LLVM_TARGETS_TO_BUILD="host;AMDGPU" \
+		-D LLVM_BINUTILS_INCDIR=/usr/include   \
+		-D LLVM_INCLUDE_BENCHMARKS=OFF         \
+		-D CLANG_DEFAULT_PIE_ON_LINUX=ON       \
+		-D CLANG_CONFIG_FILE_SYSTEM_DIR=/etc/clang \
+		-W no-dev -G Ninja ..
 
+	## Remove a testcase known to hang indefinite on some systems.
+	rm -f ../projects/compiler-rt/test/tsan/getline_nohang.cpp
 
 	if use-enable doc; then
 		echo " * Building Documentation"
@@ -176,41 +144,10 @@ src_test() {
 src_install() {
 	install_default
 
-	## Install clang-static-analyzer:
-	for i in ccc c++; do
-		ln -s /usr/libexec/$i-analyzer \
-		$D/usr/bin/$i-analyzer || exit 1
+	mkdir -pv $D/etc/clang &&
+	for i in clang clang++; do
+		echo -fstack-protector-strong > $D/etc/clang/$i.cfg
 	done
-
-	## Ensure lit-cpuid is installed:
-	if [ ! -r $D/usr/bin/lit-cpuid ]; then
-		cp -a build/bin/lit-cpuid $D/usr/bin/lit-cpuid
-		chmod 755 $D/usr/bin/lit-cpuid
-	fi
-
-	## Remove symlink to libgomp, which is already provided by gcc:
-	rm -f $D/usr/lib/libgomp.so
-
-	## Install Python bindings:
-	mkdir -p "$D/usr/lib/python${PYTHON_VER}/site-packages"
-	cp -a tools/clang/bindings/python/clang "$D/usr/lib/python${PYTHON_VER}/site-packages/"
-
-	## Remove bundled python-six:
-	rm -f "$D/usr/lib/python${PYTHON_VER}/site-packages/six.py"
-
-	## Compile Python scripts:
-	python -m compileall    "$D/usr/lib/python${PYTHON_VER}/site-packages/clang"
-	python -O -m compileall "$D/usr/lib/python${PYTHON_VER}/site-packages/clang"
-	python -m compileall    "$D/usr/lib/python${PYTHON_VER}/site-packages/lldb"
-	python -O -m compileall "$D/usr/lib/python${PYTHON_VER}/site-packages/lldb"
-	python -m compileall    "$D/usr/share/scan-view"
-	python -O -m compileall "$D/usr/share/scan-view"
-	python -m compileall    "$D/usr/share/clang"
-	python -O -m compileall "$D/usr/share/clang"
-	python -m compileall    "$D/usr/share/opt-viewer"
-	python -O -m compileall "$D/usr/share/opt-viewer"
-
-	cp bin/FileCheck "${D}"/usr/bin
 
 	if use-enable doc; then
 		install -v -d -m755 $D/usr/share/doc/llvm-${PKG_VER}
