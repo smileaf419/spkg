@@ -1,9 +1,9 @@
 ####
 ## ghostscript-gpl build
 ## Copyright 2023-2024 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.ghostscript.com/"
+DESCRIPTION="Ghostscript is an interpreter for the PostScript language and PDF files"
+LICENSE="AGPL-3 CPL-1.0"
 SRC_URI=("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${PKG_VER//./}/ghostscript-${PKG_VER}.tar.xz"
 "https://downloads.sourceforge.net/gs-fonts/ghostscript-fonts-std-8.11.tar.gz"
 "https://downloads.sourceforge.net/gs-fonts/gnu-gs-fonts-other-6.0.tar.gz")
@@ -27,6 +27,11 @@ VER=$(getMajorVer $PKG_VER).$MV.$(getMicroVer $PKG_VER)
 src_configure() {
 	# Remove unneeded libraries
 	rm -rf freetype lcms2mt jpeg libpng openjpeg zlib
+
+	## Fix building with gcc 14 (10.03.1)
+	sed -e '186 s/NewPassword =/*NewPassword =/' \
+	    -e '187 s/NewLen =/*NewLen =/'           \
+	    -i pdf/pdf_sec.c
 
 	configure_default --disable-compile-inits \
 					  $(use-enable tiff && echo --with-system-libtiff || echo --without-libtiff)
