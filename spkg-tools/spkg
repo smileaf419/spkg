@@ -467,6 +467,9 @@ parse_cmdline() {
 
 parse_cmdline $@
 
+## Remove and recreate the dir if we are not resuming.
+[[ $MODE != 'resume' ]] && rm -r $SPKG_TMP_DIR && mkdir -p $SPKG_TMP_DIR
+
 ####
 ## Ensure we can write to required directories
 if [[ $MODE != 'search' && $MODE != 'list' && $MODE != 'update' ]]; then
