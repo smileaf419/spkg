@@ -1,0 +1,30 @@
+####
+## discord build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://discord.com/"
+DESCRIPTION="Chat and voice program"
+LICENSE="all-rights-reserved"
+SRC_URI=("https://dl.discordapp.net/apps/linux/${PKG_VER}/discord-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="x86 x86_64"
+SLOT=0
+B=
+
+src_unpack() {
+    mkdir -p "$D/opt/discord"
+    unpack "${DISTFILES}/${SRC_FILE##*/}" "$D/opt/discord"
+}
+
+src_configure() { :; }
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() { :; }

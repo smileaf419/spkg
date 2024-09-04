@@ -1,0 +1,21 @@
+####
+## libclc build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://libclc.llvm.org/"
+DESCRIPTION="OpenCL C library"
+LICENSE="Apache-2.0-with-LLVM-exceptions MIT BSD"
+SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libclc-${PKG_VER}.src.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/spirv-llvm-translator"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="x86 x86_64"
+SLOT=0
+B=$B.src
+
+src_configure() {
+	configure_default -G Ninja
+}

@@ -1,0 +1,23 @@
+####
+## SPIRV-Headers build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://registry.khronos.org/SPIR-V/ https://github.com/KhronosGroup/SPIRV-Headers"
+DESCRIPTION="Machine-readable files for the SPIR-V Registry"
+LICENSE="MIT"
+SRC_URI=("https://github.com/KhronosGroup/SPIRV-Headers/archive/vulkan-sdk-${PKG_VER}/SPIRV-Headers-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="x86 x86_64"
+SLOT=0
+B=SPIRV-Headers-vulkan-sdk-$PKG_VER
+
+src_configure() {
+	configure_default -G Ninja
+}
+
+src_test() { :; }

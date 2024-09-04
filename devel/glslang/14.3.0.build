@@ -1,0 +1,24 @@
+####
+## Glslang build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://github.com/KhronosGroup/glslang/archive/${PKG_VER}/glslang-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/spirv-tools"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="x86 x86_64"
+SLOT=0
+#B=
+
+src_configure() {
+	configure_default -D ALLOW_EXTERNAL_SPIRV_TOOLS=ON \
+					  -D BUILD_SHARED_LIBS=ON          \
+					  -D GLSLANG_TESTS=ON              \
+					  -G Ninja
+}
