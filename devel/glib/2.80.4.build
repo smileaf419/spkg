@@ -8,8 +8,8 @@ SRC_URI=("https://download.gnome.org/sources/glib/${PKG_VER%.*}/glib-${PKG_VER}.
 PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/glib-skip_warnings-1.patch"
 "https://cgit.gentoo.org/repo/gentoo.git/plain/dev-libs/glib/files/glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch")
 DEPS="devel/elfutils devel/libffi devel/libpcre2 system/zlib"
-BDEPS="devel/libxslt python/packaging python/docutils"
-RDEPS="apps/docbook-xml:4.5 apps/docbook-xsl-nons devel/gobject-introspection"
+BDEPS="devel/libxslt python/packaging python/docutils devel/gobject-introspection"
+RDEPS="apps/docbook-xml:4.5 apps/docbook-xsl-nons"
 IUSE="doc"
 UDEPS="python/gi-docgen"
 ARCHS="~x86 ~x86_64"
@@ -19,7 +19,7 @@ _SPKG_CLEAN=distclean
 setBuildENV meson ninja
 
 src_configure() {
-	sed 's/glib-2.0/glib-2.80.4/' -i docs/reference/meson.build
+	sed 's/glib-2.0/glib-'$PKG_VER'/' -i ../docs/reference/meson.build
 	configure_default -D man-pages=enabled \
 					  $( use-enable doc && echo -D documentation=true ) \
 					  -D introspection=$( [[ $(Installed-getPkg "devel/gobject-introspection" | getVersion) != 0 ]] && echo enabled || echo disabled)
