@@ -12,3 +12,4 @@ ARCHS="x86 x86_64"
 SLOT=0
 MODULE=python
 setBuildENV none pip
+B=${B,,}
