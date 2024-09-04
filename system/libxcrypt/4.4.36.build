@@ -20,7 +20,7 @@ src_configure() {
 	esac
 	[[ $MODE == 'bootstrap' ]] && CC="$HOST_TGT-$CC"
 	configure_default --enable-hashes=strong,glibc \
-					  --enable-obsolete-api=glibc \
+					  --enable-obsolete-api=no \
 					  --disable-failure-tokens \
 					  --disable-static
 }
