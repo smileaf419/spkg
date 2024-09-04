@@ -15,6 +15,9 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
+	## Fix a gcc-14 build issue (1.2.2)
+	sed -i '/limits.h/a #include <time.h>' src/plugins/pulse/ao_pulse.c
+
 	autoreconf -fiv
 	configure_default
 }
