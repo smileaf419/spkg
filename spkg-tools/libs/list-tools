@@ -226,7 +226,7 @@ getdep() {
 		fi
 		local P
 		for P in $PKG; do
-			setPkgENV $PKG > /dev/null
+			setPkgENV $P > /dev/null
 
 			## Check if its on the stack, if not, add it. if so we'll get to it later.
 			if [[ $PKG_SLOT == 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART $STACK > /dev/null 2>&1 ||
@@ -266,14 +266,23 @@ getdep() {
 				local p
 				for p in $CDEPS; do
 				    local cpkg=$(EntryParser $p)
-					local cp="$(getCategory $cpkg)/$(getName $cpkg)(/[^/]*){3}/$(getSlot $cpkg)"
 					pkg-has-flag "nodep" && break
 
 					## If its already in the list, ignore it and continue.
-					grep -E "^${cp}" $CHART > /dev/null && continue
+					grep -E "^$(getCategory $cpkg)/$(getName $cpkg)(/[^/]*){3}/$(getSlot $cpkg)" $CHART > /dev/null && continue
 
-					## If its already installed, we don't need to install it twice.
-					[[ $(Installed-getPkgList $cp) != 0 ]] && continue
+					## If both packages are already installed, we don't need to worry about
+					## calculating the dependencies or installing it after the current package.
+					## But if it is installed, but the pkg calling for the CDEP isn't
+					## We will need to install it.
+					## Record it and when we determine what we will install, reference it
+					## and add it as a forced install even if it would be skipped.
+					if [[ $(Installed-getPkg $cpkg | getVerRev) != "0" ]]; then
+						if [[ $(Installed-getPkg $PKG | getVerRev) != "0" ]]; then
+							continue
+						fi
+						echo "$PKG : $cpkg" >> ${CHART}-cdep
+					fi
 
 					if [[ ! -z $PKG_VER_RESTRICT ]]; then
 						cpkg=$(DB-getPkg $cpkg)

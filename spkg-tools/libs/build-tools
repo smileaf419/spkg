@@ -709,6 +709,54 @@ installList() {
 	title
 }
 
+addToList() {
+	local PKG_CAT=$1
+	local PKG_NAME=$2
+	local PKG_VR=$3
+	local O_VER=$4
+	local PKG_SLOT=$5
+	local CDEP_FORCE=$6
+
+	if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
+		echo -n "~"
+	elif grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
+		echo -n "+"
+	else
+		echo -n " "
+	fi
+	echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
+	[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
+	echo -n " [ $O_VER ]"
+	## Only mention it's been forced if its within the *_LIST & FORCE
+	if ! version_gt $PKG_VR $O_VER && [[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" || $CDEP_FORCE == 1 ]]; then
+		echo -n " (forced)"
+	fi
+
+	####
+	## If an IUSE is present, display it
+	## If its enabled, color it GREEN
+	## If its disabled, color it RED
+	## If its not within our USE at all, gray it out.
+	IUSE=$(grep '[^#]*IUSE=' "$(getBldFile $PKG)" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
+	if [[ ! -z $IUSE ]]; then
+		echo -n " [ "
+		for u in $IUSE; do
+			ue=0
+			use-enable $u || ue=$?
+			case $ue in
+				0) echo -n "${GREEN}+$u " ;;
+				1) echo -n "$LTGRAY$u " ;;
+				2) echo -n "${RED}-$u " ;;
+			esac
+		done
+		echo -n "$NORMAL]"
+	fi
+	echo
+
+	## Add to our INSTALL_CHART
+	Install-addPkg $p
+}
+
 buildList() {
 	if [[ $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
 		## Get Dependencies and check if any require updates.
@@ -743,47 +791,20 @@ buildList() {
 			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
 				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"/[^/]*/[^/]*/[^/]*/$PKG_SLOT) ||
 				! -z $EMPTY_WORLD ]]; then
-				PKG_SLOT=$(getSlot $p)
-				if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
-					echo -n "~"
-				elif grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1; then
-					echo -n "+"
-				else
-					echo -n " "
-				fi
-				echo -n "$PKG_CAT/$PKG_NAME - $PKG_VR"
-				[[ $PKG_SLOT != 0 ]] && echo -n ":$PKG_SLOT"
-				echo -n " [ $O_VER ]"
-				## Only mention it's been forced if its within the *_LIST & FORCE
-				if ! version_gt $PKG_VR $O_VER && [[ $FORCE == 1 && $PKG_LIST =~ (^|[[:space:]])"$PKG_CAT/$PKG_NAME" ]]; then
-					echo -n " (forced)"
-				fi
-
-				####
-				## If an IUSE is present, display it
-				## If its enabled, color it GREEN
-				## If its disabled, color it RED
-				## If its not within our USE at all, gray it out.
-				IUSE=$(grep '[^#]*IUSE=' "$(getBldFile $p)" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
-				if [[ ! -z $IUSE ]]; then
-					echo -n " [ "
-					for u in $IUSE; do
-						ue=0
-						use-enable $u || ue=$?
-						case $ue in
-							0) echo -n "${GREEN}+$u " ;;
-							1) echo -n "$LTGRAY$u " ;;
-							2) echo -n "${RED}-$u " ;;
-						esac
-					done
-					echo -n "$NORMAL]"
-				fi
-				echo
-
-				## Add to our INSTALL_CHART
-				Install-addPkg $p
+				addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT
 			elif [[ $VERBOSE -gt 1 ]]; then
 				>&2 echo "$PKG_CAT/$PKG_NAME not requested or not forced ($REQUESTED_LIST)"
+			fi
+			## Check for our CDEPS first we may need to alter which package we are on
+			if [[ -e ${CHART}-cdep ]] && grep "^$PKG_CAT/$PKG_NAME" ${CHART}-cdep > /dev/null 2>&1; then
+				## If the current package is already installed
+				cpkg=$(grep "^$PKG_CAT/$PKG_NAME" ${CHART}-cdep | sed 's,^.* : ,,')
+				(
+					PKG=$(DB-getPkg $cpkg)
+					setPkgENV $PKG > /dev/null
+					O_VER=$(Installed-getPkg $PKG | getVerRev)
+					addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT 1
+				)
 			fi
 
 		## Uninstall
