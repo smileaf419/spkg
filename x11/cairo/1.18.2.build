@@ -1,0 +1,23 @@
+####
+## cairo build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://cairographics.org"
+DESCRIPTION="2D graphics library with support for multiple output devices"
+LICENSE="LGPLv2.1 MPL"
+SRC_URI=("https://cairographics.org/releases/cairo-${PKG_VER}.tar.xz")
+#https://download.gnome.org/sources/cairo/${PKG_VER%.*}/cairo-${PKG_VER}.tar.xz")
+PATCHES=()
+DEPS="devel/glib devel/lzo media/fontconfig media/freetype media/libpng system/zlib x11/libX11 x11/libxcb x11/libXext x11/libXrender x11/pixman"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+CDEPS="media/harfbuzz"
+setBuildENV meson ninja
+ABILIBS="64 x32 32"
+
+src_configure() {
+	configure_default -Dtee=enabled
+}
+
+src_test() { :; }

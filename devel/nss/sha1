@@ -1,5 +1,3 @@
-917f0590dc016ea3e361e8768ebabc5aec93deab  3.102.build
-cc3be05fc537149382d3e152c99fcfac2adef75d  nss-3.102.tar.gz
-a233e6b15a4bc36ffa92c16c00cfccede73f8ce3  3.103.build
-45eda4a1dfe7b28d082865bdd028ef5d58bc8d7b  nss-3.103.tar.gz
-5fb76ea9118d5ea5c537eb901b4424ccced54973  nss-3.103-standalone-1.patch
+a233e6b15a4bc36ffa92c16c00cfccede73f8ce3  3.104.build
+e1d60c0097b89fc94d6e490127ad36452880968e  nss-3.104.tar.gz
+5fb76ea9118d5ea5c537eb901b4424ccced54973  nss-3.104-standalone-1.patch

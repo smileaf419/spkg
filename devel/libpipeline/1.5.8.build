@@ -1,0 +1,12 @@
+####
+## libpipeline build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="http://libpipeline.nongnu.org/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://download.savannah.gnu.org/releases/libpipeline/libpipeline-${PKG_VER}.tar.gz"
+DEPS=""
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0

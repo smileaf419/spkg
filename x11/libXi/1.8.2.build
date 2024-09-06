@@ -4,18 +4,16 @@
 HOMEPAGE="https://wiki.x.org/wiki/ https://gitlab.freedesktop.org/xorg/lib/libXi"
 DESCRIPTION="X.Org Xi library"
 LICENSE="MIT"
-SRC_URI=("https://www.x.org/pub/individual/lib/${PKG_NAME}-${PKG_VER}.tar.bz2")
+SRC_URI=("https://www.x.org/pub/individual/lib/${PKG_NAME}-${PKG_VER}.tar.xz")
 PATCHES=()
 DEPS="x11/libX11 x11/libXext"
-BDEPS=""
+BDEPS="x11/libXfixes"
 RDEPS=""
-ARCHS="x86 x86_64"
+ARCHS="~x86 ~x86_64"
 SLOT=0
+ABILIBS="64 x32 32"
 
 src_configure() {
-	./configure --prefix=/usr \
-				--sysconfdir=/etc \
-				--localstatedir=/var \
-				--disable-static \
-				--docdir=/usr/share/doc/${PKG_NAME}-${PKG_VER}
+	configure_default --sysconfdir=/etc \
+				--localstatedir=/var
 }
