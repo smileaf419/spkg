@@ -1,14 +1,14 @@
 ####
 ## OpenSSL build
-## Copyright 2023 spkg developers, licensed under GPLv2
-HOMEPAGE="https://www.openssl.org/"
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.openssl-library.org/"
 DESCRIPTION="Open Source Toolkit for the Transport Layer Security (TLS)"
 LICENSE="Apache-2.0"
-SRC_URI="https://www.openssl.org/source/openssl-${PKG_VER}.tar.gz"
+SRC_URI="https://github.com/openssl/openssl/releases/download/openssl-$PKG_VER/openssl-${PKG_VER}.tar.gz"
 DEPS=""
 BDEPS=""
 RDEPS="apps/ca-certificates"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 ABILIBS="64 x32 32"
