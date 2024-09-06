@@ -27,8 +27,8 @@ setBuildENV meson ninja
 src_configure() {
 	configure_default \
 		  -Dplatforms=x11,wayland \
-		  -Dgallium-drivers=$(use-enable gallium && echo auto || echo \"\") \
-		  -Dvulkan-drivers=$(use-enable vulkan && echo auto || echo \"\")   \
+		  -Dgallium-drivers=$(use-enable gallium && echo auto) \
+		  -Dvulkan-drivers=$(use-enable vulkan && echo auto)   \
 		  -Dglx=dri               \
 		  -Dvalgrind=disabled     \
 		  -Dlibunwind=disabled    \
