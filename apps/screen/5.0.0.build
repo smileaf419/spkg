@@ -6,7 +6,7 @@ DESCRIPTION="Full-screen window manager that multiplexes a physical terminal bet
 LICENSE="GPLv3+"
 SRC_URI=("https://ftp.gnu.org/gnu/screen/screen-${PKG_VER}.tar.gz")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/screen/screen-${PKG_VER}.tar.gz.sig")
-PATCHES=("https://cgit.gentoo.org/repo/gentoo.git/plain/app-misc/screen/files/screen-4.9.0-configure-implicit-function-decls.patch")
+PATCHES=()
 DEPS="system/libxcrypt system/ncurses"
 BDEPS=""
 RDEPS=""
@@ -14,7 +14,6 @@ ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {
-	sh autogen.sh
 	./configure --prefix=/usr \
 				--infodir=/usr/share/info \
 				--mandir=/usr/share/man \

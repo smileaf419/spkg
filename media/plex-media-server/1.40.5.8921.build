@@ -5,7 +5,7 @@ HOMEPAGE="https://plex.tv/"
 DESCRIPTION="Personal Media Server"
 LICENSE="Plex"
 #https://plex.tv/downloads/latest/5?channel=0&build=linux-x86_64&distro=debian&X-Plex-Token=xxxxxxxxxxxxxxxxxxxx
-H=8f4248874
+H=836b34c27
 SRC_URI="https://downloads.plex.tv/plex-media-server-new/${PKG_VER}-${H}/debian/plexmediaserver_${PKG_VER}-${H}_amd64.deb"
 DEPS="devel/sqlite devel/boost media/libva media/ffmpeg network/curl x11/libdrm x11/libpciaccess"
 BDEPS="accounts/plex"
