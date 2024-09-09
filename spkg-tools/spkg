@@ -719,7 +719,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			PKG_BLD=$(getBldFile $PKG)
 			PKG_CAT=$(getCategory $PKG)
 			PKG_NAME=$(getName $PKG)
-			checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
+			checkSha1 ${PKG_BLD%/*} $PKG_BLD ||  echo " $DIALOG_ERROR sha1sum failed for $PKG_BLD"
 			if [[ $MODE == 'search' ]]; then
 				echo " * ${PKG_CAT}/${PKG_NAME}"
 				printf " %12s:" "Available"
@@ -798,12 +798,12 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 					## Mark as stable
 					if [[ $MARK_STABLE != '' ]]; then
 						updateList+=" $PKG_CAT/$PKG_NAME"
-						echo " ${GREEN}*${NORMAL} Marking as stable"
+						echo " ${GREEN}*${NORMAL} Marking $PKG_CAT/$PKG_NAME as stable"
 						MARK_STABLE=${MARK_STABLE//:/ }
 						for arch in $MARK_STABLE; do
-							set -x
+#							set -x
 							sed -i "/ARCHS=/s/~$arch\([ \"]\)/$arch\1/g" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build"
-							{ set +x; } 2>/dev/null
+#							{ set +x; } 2>/dev/null
 						done
 					fi
 
