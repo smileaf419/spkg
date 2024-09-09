@@ -13,7 +13,7 @@ RDEPS="x11/xf86-video-fbdev"
 # FIXME: This is a specific Video card driver
 # We should allow a user to more easily modify this
 RDEPS+=" x11/xf86-video-nouveau"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 setBuildENV meson ninja

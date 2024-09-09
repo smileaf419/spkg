@@ -9,7 +9,7 @@ PATCHES=()
 DEPS="apps/bzip2 media/freetype media/libpng system/zlib x11/libfontenc"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

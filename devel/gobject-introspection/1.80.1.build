@@ -9,7 +9,7 @@ DEPS="devel/glib devel/libffi"
 BDEPS=""
 RDEPS=""
 CDEPS="devel/glib[introspection]"
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 #ABILIBS="64 x32 32"
 [[ $ENABLE_TESTS == 1 ]] && BDEPS+=" python/mako x11/cairo"

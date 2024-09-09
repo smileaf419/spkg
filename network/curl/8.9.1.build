@@ -8,7 +8,7 @@ SRC_URI=("https://curl.se/download/curl-${PKG_VER}.tar.xz")
 DEPS="apps/brotli apps/zstd devel/openssl network/libidn2 network/libpsl network/nghttp2 system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 

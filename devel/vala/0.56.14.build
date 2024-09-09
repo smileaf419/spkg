@@ -8,7 +8,7 @@ SRC_URI="https://download.gnome.org/sources/vala/${PKG_VER%.*}/vala-${PKG_VER}.t
 DEPS="devel/glib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_configure() {

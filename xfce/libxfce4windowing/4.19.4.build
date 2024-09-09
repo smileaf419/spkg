@@ -14,7 +14,7 @@ DEPS="apps/at-spi2-core devel/glib devel/wayland media/harfbuzz system/zlib x11/
 BDEPS="devel/glib devel/vala devel/gobject-introspection"
 RDEPS=""
 setBuildENV auto make
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 
 src_test() { :; }

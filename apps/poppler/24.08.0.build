@@ -11,7 +11,7 @@ DEPS="devel/glib devel/nspr devel/nss media/fontconfig media/freetype media/lcms
 BDEPS=""
 RDEPS=""
 setBuildENV cmake cmake
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 TEST=test
 [[ $ENABLE_TESTS == 1 ]] && BDEPS+="devel/git"

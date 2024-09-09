@@ -8,7 +8,7 @@ SRC_URI=("https://github.com/openzfs/zfs/releases/download/zfs-${PKG_VER}/zfs-${
 DEPS="devel/libaio devel/openssl network/libtirpc system/eudev system/zlib"
 BDEPS="system/linux-kernel"
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 MODULE=kernel
 unset ARCH

@@ -8,7 +8,7 @@ SRC_URI=("https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-${PKG_VER}+rel
 DEPS="media/flac media/libogg media/libsndfile media/libvorbis media/mpg123 media/pulseaudio system/zlib"
 BDEPS=""
 RDEPS=""
-ARCHS="~x86 ~x86_64"
+ARCHS="x86 x86_64"
 SLOT=0
 B="libopenmpt-${PKG_VER}+release.autotools"
 
