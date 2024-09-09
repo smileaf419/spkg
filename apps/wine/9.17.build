@@ -1,0 +1,27 @@
+####
+## Wine build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.winehq.org"
+DESCRIPTION="Windows Compatibility Layer (Wine Is Not an Emulator)"
+LICENSE="LGPL-2.1+ BSD-2 IJG MIT OPENLDAP ZLIB gsm libpng2 libtiff"
+SRC_URI=("https://dl.winehq.org/wine/source/${PKG_VER%.*}.x/wine-${PKG_VER}.tar.xz")
+DEPS="devel/glib devel/libusb devel/wayland media/alsa-lib media/gst-plugins-base media/gstreamer media/pulseaudio system/eudev x11/libX11 x11/libXext"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="~x86 ~x86_64"
+SLOT=0
+#B=
+
+src_configure() {
+	local archs
+	for a in $BUILD_ABI; do
+		case $a in
+			64) archs+="x86_64 "
+				CONF_ADD_FLAGS="--enable-win64" ;;
+			32) archs+="i386 " ;;
+		esac
+	done
+	configure_default --enable-archs=$(echo $archs | tr ' ' ',')
+}

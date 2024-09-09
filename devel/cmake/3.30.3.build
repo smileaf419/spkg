@@ -1,0 +1,32 @@
+####
+## cmake build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://cmake.org/"
+DESCRIPTION="Cross platform Make"
+LICENSE="CMake"
+SRC_URI="https://cmake.org/files/v${PKG_VER%.*}/cmake-${PKG_VER}.tar.gz"
+DEPS="apps/libarchive devel/expat devel/libuv system/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+IUSE="curl nghttp2"
+use-enable curl && UDEP="network/curl"
+use-enable nghttp2 && UDEP="network/nghttp2"
+
+src_configure() {
+	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
+	./bootstrap --prefix=/usr \
+				--system-libs \
+				--mandir=/share/man  \
+				--no-system-jsoncpp  \
+				--no-system-cppdap   \
+				--no-system-librhash \
+				$(use-enable nghttp2 || echo "--no-system-nghttp2") \
+				$(use-enable curl || echo "--no-system-curl") \
+				--docdir=/share/doc/cmake-${PKG_VER}
+}
+
+src_test() {
+	LC_ALL=en_US.UTF-8 bin/ctest -j$(( $(grep "cpu cores" /proc/cpuinfo|tail -n1|sed 's,.*:,,') + 1 ))  -O $LOGDIR/cmake-${PKG_VER}-test.log
+}
