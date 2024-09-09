@@ -83,3 +83,25 @@ updatesha1() {
 	done
 	return $updated
 }
+
+checkAllSha() {
+	local PKG_LIST=$@
+	for p in $PKG_LIST; do
+		PKG=$(DB-getPkg $p)
+		if [[ $PKG == "" ]]; then
+			echo -n "!"
+			echo "$p" >> /tmp/hashfail
+			continue
+		else
+			[[ $VERBOSE -gt 0 ]] && echo -n "$PKG_CAT/$PKG_NAME ["
+			if updatesha1 $(getCategory $PKG)/$(getName $PKG); then
+				[[ $VERBOSE -gt 0 ]] && echo " ]" || echo -n '.'
+			fi
+		fi
+	done
+	echo
+	if [ -e /tmp/hashfail ]; then
+		cat /tmp/hashfail
+		rm /tmp/hashfail
+	fi
+}

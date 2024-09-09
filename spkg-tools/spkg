@@ -215,34 +215,6 @@ export LOGFILE=${LOGFILE:-%n/%D-%v.log}
 ## Database file used to store all packages explicitely installed not found within @system
 export PKG_WORLD=${PKG_WORLD:-$CACHE_DIR/world}
 
-## Temp files
-## Dir used to hold all Temp files so multiple instances maybe ran without conflict.
-export SPKG_TMP_DIR=/tmp/spkg-$$
-## Check for an unlocked SPKG_TMP_DIR. If we don't find one, create the dir and continue.
-## If we do find one, rename it to the current pid.
-for check in $(ls -d /tmp/spkg-* 2> /dev/null || true); do
-	## If a lock doesn't exist, we're good to reuse the environment or at the very least, keep the house clean.
-	if [[ ! -e $check/.lock ]]; then
-		mv $check $SPKG_TMP_DIR
-		break
-	fi
-done
-unset check
-## Create the Dir if it doesn't already exist.
-mkdir -p $SPKG_TMP_DIR
-
-## Create our lock file.
-touch $SPKG_TMP_DIR/.lock
-## Informational File to output at the end.
-export INFORMLOG=${INFORMLOG:-$SPKG_TMP_DIR/inform.log}
-## Storage file of cached packages being operated on.
-export CHART=${CHART:-$SPKG_TMP_DIR/chart}
-## Chart of packages in order to be installed/uninstalled.
-export INSTALL_CHART=${INSTALL_CHART:-$SPKG_TMP_DIR/install_chart}
-## List of files preserved until packages that depend on them can be reinstalled.
-export PRESERVED_LOG=${PRESERVED_LOG:-$SPKG_TMP_DIR/preserved}
-
-
 ####
 ## Set initial program defaults
 ## 0 = false; 1 = true
@@ -414,6 +386,8 @@ parse_cmdline() {
 						echo "  see the $PKG_DB_DIR/spkg-sets dir, for a complete listing."
 						echo " Modes (Default: Install)"
 						echo    "  --search, -s         Search and list package information."
+						echo    "  --list               Like search but shows different details in a list form."
+						echo    "  --filter [list:..]   ':' seperated list. Valid options are: aged, installed, stable and unstable"
 						echo    "  --uninstall, -u      uninstall package."
 						echo    "  --rebuildKernelMods  Rebuilds all Kernel Modules."
 						echo    "  --rebuildPythonMods  Rebuilds all Python Modules."
@@ -427,6 +401,8 @@ parse_cmdline() {
 						echo    "  --buildbdeps         Updates .build files setting DEPS/BDEPS/RDEPS."
 						echo    "  --updatesha1 [pkg]   Creates or updates sha1sum for the given package."
 						echo    "  --bootstrap [path]   Generates a new install at [path]"
+						echo    "  --markStable [arch]  ':' seperated list. Used in combination with list and filter:"
+						echo    "                       Marks the package as stable"
 						echo    "  --debug              Shows all commands as they are being ran"
 						echo    " Optional Arguments"
 						echo    "  --silentBuild, -Q    Hides all build output."
@@ -439,7 +415,7 @@ parse_cmdline() {
 						echo    "  --pretend, -p        Shows what will be done, without doing it."
 						echo    "  --ask, -a            Like --pretend, but asks before continuing"
 						echo    "  --fetchOnly          Fetches all files without installing."
-						echo    "  --verify             Verify PGP Signatures if available."
+#						echo    "  --verify             Verify PGP Signatures if available."
 						echo    "  --installArchive, -A Installs package(s) from a preprepared archive."
 						echo    "  --archiveDir [dir]   Sets the archive Directory (default: $PKG_ARCHIVE_DIR)"
 						echo -n "  --enable-tests       Enable package specific tests."
@@ -467,8 +443,34 @@ parse_cmdline() {
 
 parse_cmdline $@
 
-## Remove and recreate the dir if we are not resuming.
-[[ $MODE != 'resume' ]] && rm -r $SPKG_TMP_DIR && mkdir -p $SPKG_TMP_DIR
+## Temp files
+## Dir used to hold all Temp files so multiple instances maybe ran without conflict.
+export SPKG_TMP_DIR=/tmp/spkg-$$
+## Check for an unlocked SPKG_TMP_DIR. If we don't find one, create the dir and continue.
+## If we do find one, rename it to the current pid.
+if [[ $MODE == 'resume' ]]; then
+	for check in $(find /tmp/spkg-* -type d 2> /dev/null || true); do
+		## If a lock doesn't exist, we're good to reuse the environment or at the very least, keep the house clean.
+		if [[ ! -e $check/.lock ]]; then
+			mv $check $SPKG_TMP_DIR
+			break
+		fi
+	done
+	unset check
+fi
+## Create the Dir if it doesn't already exist.
+mkdir -p $SPKG_TMP_DIR
+
+## Create our lock file.
+touch $SPKG_TMP_DIR/.lock
+## Informational File to output at the end.
+export INFORMLOG=${INFORMLOG:-$SPKG_TMP_DIR/inform.log}
+## Storage file of cached packages being operated on.
+export CHART=${CHART:-$SPKG_TMP_DIR/chart}
+## Chart of packages in order to be installed/uninstalled.
+export INSTALL_CHART=${INSTALL_CHART:-$SPKG_TMP_DIR/install_chart}
+## List of files preserved until packages that depend on them can be reinstalled.
+export PRESERVED_LOG=${PRESERVED_LOG:-$SPKG_TMP_DIR/preserved}
 
 ####
 ## Ensure we can write to required directories
@@ -537,27 +539,10 @@ fi
 ## Update the sha1sum of all files for the given package.
 ## Using the set @all while useful is not recommended given the size of the repository.
 if [[ $MODE != 'search' && $HASH_UPDATE ]]; then
-	C=($PKG_LIST)
-	echo " * Updating sha1 of ${#C[*]} packages"
 	source "${INSTALL_PATH}/libs/updatesha1"
-	for p in $PKG_LIST; do
-		PKG=$(DB-getPkg $p)
-		if [[ $PKG == "" ]]; then
-			echo -n "!"
-			echo "$p" >> /tmp/hashfail
-			continue
-		else
-			[[ $VERBOSE -gt 0 ]] && echo -n "$PKG_CAT/$PKG_NAME ["
-			if updatesha1 $(getCategory $PKG)/$(getName $PKG); then
-				[[ $VERBOSE -gt 0 ]] && echo " ]" || echo -n '.'
-			fi
-		fi
-	done
-	echo
-	if [ -e /tmp/hashfail ]; then
-		cat /tmp/hashfail
-		rm /tmp/hashfail
-	fi
+
+	checkAllSha $PKG_LIST
+
 	exit 0
 fi
 
@@ -718,12 +703,18 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			echo " $DIALOG_ERROR $p not found!"
 			continue
 		fi
+
+		## Create an empty list for packages to update the sha1sum if using markStable
+		updateList=
 		for r in $list; do
-			## Parse the entry again to get more information that was not supplied in the search.
-			PKG=$(DB-getPkg $r | getLatest)
-			[[ -z $PKG ]] && >&2 echo " $DIALOG_ERROR No available builds available for $r" && continue
 			## Its possible for spkg-sets and spkg-tools to get returned.. filter them out.
 			[[ $r == spkg-*/* ]] && continue
+			## Parse the entry again to get more information that was not supplied in the search.
+			PKG=$(DB-getPkg $r | getLatest)
+			if [[ -z $PKG ]]; then
+				>&2 echo " $DIALOG_ERROR No available builds available for $r"
+				continue
+			fi
 
 			PKG_BLD=$(getBldFile $PKG)
 			PKG_CAT=$(getCategory $PKG)
@@ -806,6 +797,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 
 					## Mark as stable
 					if [[ $MARK_STABLE != '' ]]; then
+						updateList+=" $PKG_CAT/$PKG_NAME"
 						echo " ${GREEN}*${NORMAL} Marking as stable"
 						MARK_STABLE=${MARK_STABLE//:/ }
 						for arch in $MARK_STABLE; do
@@ -834,6 +826,13 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			fi
 		done
 	done
+
+	## Check if we have an update list and update the sha1sums
+	if [[ ! -z $updateList ]]; then
+		source "${INSTALL_PATH}/libs/updatesha1"
+
+		checkAllSha $updateList
+	fi
 	exit 0
 elif [[ $MODE == "preserved" ]]; then
 	preservedRebuild && buildList || title && exit 0
