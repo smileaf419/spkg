@@ -1,0 +1,25 @@
+####
+## libpng build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="http://www.libpng.org/"
+DESCRIPTION="Portable Network Graphics library"
+LICENSE="libpng2"
+SRC_URI=("https://downloads.sourceforge.net/libpng/libpng-${PKG_VER}.tar.xz")
+PATCHES=("https://downloads.sourceforge.net/sourceforge/libpng-apng/libpng-1.6.43-apng.patch.gz")
+DEPS="system/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="x86 x86_64"
+SLOT=0
+ABILIBS="64 x32 32"
+
+src_configure() {
+	configure_default
+}
+
+src_install() {
+	install_default
+
+	mkdir -pv "${D}"/usr/share/doc/libpng-${PKG_VER}
+	cp -v README libpng-manual.txt "${D}"/usr/share/doc/libpng-${PKG_VER}
+}
