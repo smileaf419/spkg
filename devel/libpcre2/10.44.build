@@ -1,9 +1,9 @@
 ####
 ## libpcre2 build
 ## Copyright 2023-2024 spkg developers, licensed under GPLv2
-HOMEPAGE=""
-DESCRIPTION=""
-LICENSE=""
+HOMEPAGE="https://www.pcre.org/"
+DESCRIPTION="Perl-compatible regular expression library"
+LICENSE="BSD"
 SRC_URI=("https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PKG_VER}/pcre2-${PKG_VER}.tar.bz2")
 [[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PKG_VER}/pcre2-${PKG_VER}.tar.bz2.sig")
 PATCHES=()
@@ -16,8 +16,8 @@ B=pcre2-$PKG_VER
 ABILIBS="64 x32 32"
 
 src_configure() {
-#	sed -i '/^pkgconfigdir/ s,$(libdir),/usr/lib,' Makefile.in
 	configure_default --bindir=/bin             \
+					  --libdir=$(libdir 1 1)    \
 					  --enable-unicode          \
 					  --enable-jit              \
 					  --enable-pcre2-16         \
