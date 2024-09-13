@@ -781,7 +781,7 @@ buildList() {
 	## If we have an impossible sitatuation  we'll know if no packages are valid and should report it.
 	if [[ $MODE != "uninstall" && -e $RESTRICTIONS ]]; then
 		[[ $VERBOSE -ge 1 ]] && echo " * Looks like we have restrictions"
-		RESTRICT=$(cat $RESTRICTIONS | sort | uniq)
+		RESTRICT=$(sort -u $RESTRICTIONS)
 	fi
 
 	for p in $(cat $CHART); do
@@ -822,7 +822,7 @@ buildList() {
 							done
 						done | sort | uniq | getLatest | getVerRev || true
 					)
-					[[ $VERBOSE -ge 1 ]] && echo "PKG_VER is now: $PKG_VER"
+					[[ $VERBOSE -ge 1 ]] && echo "$PKG_CAT/$PKG_NAME - PKG_VER is now: $PKG_VER"
 					PKG_VER_RESTRICT=$PVR
 					setPkgENV $(getPKG) > /dev/null
 					version_gt $PKG_VR $O_VER &&

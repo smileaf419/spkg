@@ -387,7 +387,7 @@ doDeps() {
 
 			dpkg=$(echo -e $opkg | getLatest)
 			if [[ $dpkg == "" ]]; then
-				>&2 echo "$DIALOG_ERROR No version to match restrictions of $p"
+				>&2 echo "$DIALOG_ERROR No version to match restrictions of $dpkg_cat/$dpkg_name: $PKG_VER_RESTRICT"
 #				die "$DIALOG_ERROR Error Resolving Dependencies"
 				return 1
 			fi
