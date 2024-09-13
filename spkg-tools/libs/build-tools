@@ -776,6 +776,14 @@ buildList() {
 
 	timestart=$(date "+%s.%N")
 	[[ -e $INSTALL_CHART ]] && rm "$INSTALL_CHART"
+
+	## Check for any restrictions, take the most restrictive stance and save it for future use.
+	## If we have an impossible sitatuation  we'll know if no packages are valid and should report it.
+	if [[ $MODE != "uninstall" && -e $RESTRICTIONS ]]; then
+		[[ $VERBOSE -ge 1 ]] && echo " * Looks like we have restrictions"
+		RESTRICT=$(cat $RESTRICTIONS | sort | uniq)
+	fi
+
 	for p in $(cat $CHART); do
 		PKG_CAT=$(getCategory $p)
 		PKG_NAME=$(getName $p)
@@ -791,7 +799,38 @@ buildList() {
 			if version_gt $PKG_VR $O_VER || [[ $MODE == "resume" ||
 				($FORCE == 1 && $PKG_LIST =~ (^|[[:space:]]|=)"$PKG_CAT/$PKG_NAME"/[^/]*/[^/]*/[^/]*/$PKG_SLOT) ||
 				! -z $EMPTY_WORLD ]]; then
-				addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT
+				## Check restrictions
+				if [[ $RESTRICT =~ $PKG_CAT/$PKG_NAME ]]; then
+					local PVR=$(echo $RESTRICT|grep $PKG_CAT/$PKG_NAME|getVerRestrict)
+					PKG_VER=$(
+						for a in $(DB-getPkg $PKG_CAT/$PKG_NAME); do
+							local pver=$(getVerRev $a)
+							for r in $PVR; do
+								if [[ ${r:0:1} == ">" ]]; then
+									if [[ ${r:1:2} == "=" ]]; then
+										version_ge $pver ${r#>=} && echo $a
+									else
+										version_gt $pver ${r#>} && echo $a
+									fi
+								elif [[ ${r:0:1} == "<" ]]; then
+									if [[ ${r:1:2} == "=" ]]; then
+										version_le $pver ${r#<=} && echo $a
+									else
+										version_lt $pver ${r#<} && echo $a
+									fi
+								fi
+							done
+						done | sort | uniq | getLatest | getVerRev || true
+					)
+					[[ $VERBOSE -ge 1 ]] && echo "PKG_VER is now: $PKG_VER"
+					PKG_VER_RESTRICT=$PVR
+					setPkgENV $(getPKG) > /dev/null
+					version_gt $PKG_VR $O_VER &&
+						addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT
+				else
+					addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT
+				fi
+
 			elif [[ $VERBOSE -gt 1 ]]; then
 				>&2 echo "$PKG_CAT/$PKG_NAME not requested or not forced ($REQUESTED_LIST)"
 			fi

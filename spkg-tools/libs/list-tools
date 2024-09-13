@@ -347,9 +347,11 @@ doDeps() {
 		## FIXME: If we have a restriction we need to save it and retoactively apply the restriction
 		if [ ! -z $PKG_VER_RESTRICT ]; then
 			local dpkg=$(DB-getPkg $PKG)
-			>&2 echo -e "\n * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
-			>&2 echo "PKG: $PKG"
-			>&2 echo "List: $dpkg"
+			if [[ $VERBOSE -ge 2 ]]; then
+				>&2 echo -e "\n * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
+				>&2 echo "PKG: $PKG"
+				>&2 echo "List: $dpkg"
+			fi
 			## We need to itterate over the dpkg and ensure we restrict versions to only those that match.
 			local p
 			local r
@@ -361,23 +363,25 @@ doDeps() {
 				local IFS="|"
 				pver=$(getVersion $p)
 				## FIXME: Itterate over the current PKG_VER_RESTRICT and RESTRICTIONS file.
-				for r in $PKG_VER_RESTRICT; do
-					if [[ ${r:0:1} == ">" ]]; then
-						if [[ ${r:1:2} == "=" ]]; then
-							version_ge $pver ${r#>=} && opkg+="$p\n"
-						else
-							version_gt $pver ${r#>} && opkg+="$p\n"
+				if [[ ! -z $PKG_VER_RESTRICT ]]; then
+					for r in $PKG_VER_RESTRICT; do
+						if [[ ${r:0:1} == ">" ]]; then
+							if [[ ${r:1:2} == "=" ]]; then
+								version_ge $pver ${r#>=} && opkg+="$p\n"
+							else
+								version_gt $pver ${r#>} && opkg+="$p\n"
+							fi
+						elif [[ ${r:0:1} == "<" ]]; then
+							if [[ ${r:1:2} == "=" ]]; then
+								version_le $pver ${r#<=} && opkg+="$p\n"
+							else
+								version_lt $pver ${r#<} && opkg+="$p\n"
+							fi
 						fi
-					elif [[ ${r:0:1} == "<" ]]; then
-						if [[ ${r:1:2} == "=" ]]; then
-							version_le $pver ${r#<=} && opkg+="$p\n"
-						else
-							version_lt $pver ${r#<} && opkg+="$p\n"
-						fi
-					fi
-					## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
-					echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot" >> $RESTRICTIONS
-				done
+						## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
+						echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot" >> $RESTRICTIONS
+					done
+				fi
 			done
 			unset IFS
 
