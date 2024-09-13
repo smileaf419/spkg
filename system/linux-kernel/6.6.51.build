@@ -8,8 +8,9 @@ DEPS=""
 BDEPS="system/gcc"
 RDEPS=""
 ARCHS="x86 x86_64"
-SLOT=6.10
+SLOT=6.6
 RESTRICT="strip nobin"
+## if INSTALL_DOCS == 0 this will be removed.
 DOC_LIST+=("/usr/src/linux-${PKG_VER}/Documentation")
 
 URL_BASE="https://cdn.kernel.org/pub/linux/kernel/v$(getMajorVer $PKG_VER).x"
@@ -27,7 +28,7 @@ if [[ $MODE != "search" ]]; then
 		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.tar.xz")
 		B=troot/usr/src/linux-$MV.$MiV
 	## If our MicV becomes too high, it becomes too time consuming to download all the patches
-	## Grab every 20 version's archive, and patch up.
+	## Grab every [VerIncr] version's archive, and patch up.
 	elif [ $(( $MicV % $VerIncr )) == 0 ]; then
 		SRC_URI=("$URL_BASE/linux-${MV}.${MiV}.${MicV}.tar.xz")
 		B=troot/usr/src/linux-$MV.$MiV.$MicV
