@@ -5,12 +5,12 @@ This is intended to be a playground for learning about package management and no
 Join me at: https://discord.gg/DQR42sWk
 
 # To Use
-mkdir -p /var/lib/spkg
+<code>mkdir -p /var/lib/spkg
 cd /var/lib/spkg
 git clone https://github.com/smileaf419/spkg bin
 mkdir -p /var/db
 cd /var/db
-git clone https://github.com/smileaf419/spkg-repository spkg
+git clone https://github.com/smileaf419/spkg-repository spkg</code>
 
 spkg-tools contains the scripts, I recommend symlinking the spkg script to a dir within your path
 
