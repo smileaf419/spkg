@@ -280,8 +280,12 @@ installPackage() {
 			export HOME=$_HOME
 
 			## Save our USE for use later.
-			## FIXME: Check for IUSE and filter the flags to only contain those.
-			echo $USE > ${D}/USE_FLAGS
+			touch $D/USE_FLAGS
+			if [[ ! -z $IUSE ]]; then
+				for u in $IUSE; do
+					use-enable $u && echo $u >> $D/USE_FLAGS
+				done
+			fi
 			case $MODULE in
 				kernel)
 					echo > ${D}/KERNEL_MODULE ;;

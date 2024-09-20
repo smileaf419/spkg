@@ -344,7 +344,6 @@ doDeps() {
 		## FIXME: We need to check for any PKG_USE restrictions, if so check the respected package for those within the USE_FLAGS file
 		##        If they don't match, that package must be added to the list and set ASK=1
 		##        This will require package specfic USE to be implemented.
-		## FIXME: If we have a restriction we need to save it and retoactively apply the restriction
 		if [ ! -z $PKG_VER_RESTRICT ]; then
 			local dpkg=$(DB-getPkg $PKG)
 			if [[ $VERBOSE -ge 2 ]]; then
@@ -362,7 +361,6 @@ doDeps() {
 			for p in $dpkg; do
 				local IFS="|"
 				pver=$(getVersion $p)
-				## FIXME: Itterate over the current PKG_VER_RESTRICT and RESTRICTIONS file.
 				if [[ ! -z $PKG_VER_RESTRICT ]]; then
 					for r in $PKG_VER_RESTRICT; do
 						if [[ ${r:0:1} == ">" ]]; then
