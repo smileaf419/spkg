@@ -1,0 +1,31 @@
+####
+## iproute2 build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.kernel.org/pub/linux/utils/net/iproute2/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI="https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-${PKG_VER}.tar.xz"
+DEPS="network/libtirpc system/libcap"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	sed -i /ARPD/d Makefile
+	rm -fv man/man8/arpd.8
+}
+
+src_compile() {
+	compile_default NETNS_RUN_DIR=/run/netns
+}
+
+src_test() { :; }
+
+src_install() {
+	install_default SBINDIR=/sbin
+
+	mkdir -pv             "${D}"/usr/share/doc/iproute2-${PKG_VER}
+	cp -v COPYING README* "${D}"/usr/share/doc/iproute2-${PKG_VER}
+
+}

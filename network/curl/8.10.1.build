@@ -1,0 +1,37 @@
+####
+## curl build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://curl.haxx.se/"
+DESCRIPTION="command line tool and library for transferring data with URLs"
+LICENSE="curl"
+SRC_URI=("https://curl.se/download/curl-${PKG_VER}.tar.xz")
+DEPS="apps/brotli apps/zstd devel/openssl network/libidn2 network/libpsl network/nghttp2 system/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+TEST=test
+
+src_configure() {
+	# Respect CFLAGS
+	sed -i '/CURL_SET_COMPILER_WARNING_OPTS/d' configure.ac
+	sed -i '/CURL_SET_COMPILER_DEBUG_OPTS/d' configure.ac
+	sed -i '/CURL_SET_COMPILER_OPTIMIZE_OPTS/d' configure.ac
+
+	autoreconf -fiv
+
+	configure_default --with-openssl \
+					  --enable-threaded-resolver \
+					  --with-ca-path=/etc/ssl/certs
+}
+
+src_install() {
+	install_default
+
+	if [[ $INSTALL_DOCS == 1 ]]; then
+		rm -rf docs/examples/.deps
+		find docs \( -name Makefile\* -o -name \*.1 -o -name \*.3 \) -exec rm {} \;
+		install -v -d -m755 "${D}"/usr/share/doc/curl-${PKG_VER}
+		cp -v -R docs/*		"${D}"/usr/share/doc/curl-${PKG_VER}
+	fi
+}

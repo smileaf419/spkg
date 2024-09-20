@@ -1,0 +1,51 @@
+####
+## GNU Debugger build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://sourceware.org/gdb/"
+DESCRIPTION="GNU Debugger"
+LICENSE="GPL-3+ LGPL-2.1+"
+SRC_URI=("https://ftp.gnu.org/gnu/gdb/gdb-${PKG_VER}.tar.xz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="apps/xz-utils apps/zstd devel/python devel/expat devel/gmp devel/mpfr system/binutils system/ncurses system/readline system/zlib"
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=yes
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	## Fix an issue where gdb keeps linking to libopcodes-2.39.50.so which does not exist.
+	BINUTILS_VER=$(Installed-getPkg system/binutils | getVersion)
+	sed -i "s,2\.39\.50,$BINUTILS_VER,"  ../bfd/version.m4  \
+										 ../bfd/configure    \
+										 ../opcodes/configure \
+										 ../bfd/doc/bfdver.texi
+
+	configure_default --with-system-readline \
+					  --with-system-zlib     \
+					  --enable-64-bit-bfd    \
+					  --with-python=/usr/bin/python3
+}
+
+## Building tests require Doxygen
+## make -C gdb/doc doxy
+
+src_test() {
+	pushd gdb/testsuite
+	make  site.exp
+	echo  "set gdb_test_timeout 120" >> site.exp
+	runtest
+	popd
+}
+
+src_install() {
+	install_default -C gdb
+
+	if [ -e gdb/doc/doxy ]; then
+		install -d $D/usr/share/doc/gdb-${PKG_VER}
+		rm -rf gdb/doc/doxy/xml
+		cp -Rv gdb/doc/doxy $D/usr/share/doc/gdb-${PKG_VER}
+	fi
+}

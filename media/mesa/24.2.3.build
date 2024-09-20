@@ -1,0 +1,42 @@
+####
+## mesa build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.mesa3d.org/ https://mesa.freedesktop.org/"
+DESCRIPTION="OpenGL-like graphic library for Linux"
+LICENSE="MIT"
+## Site appears to be down or has been marked as malicious by my ISP
+SRC_URI=("https://mesa.freedesktop.org/archive/mesa-${PKG_VER}.tar.xz")
+## Using a slackware mirror for the time being
+#SRC_URI=("https://mirrors.slackware.com/slackware/slackware-current/source/x/mesa/mesa-${PKG_VER}.tar.xz")
+PATCHES=("https://www.linuxfromscratch.org/patches/blfs/svn/mesa-add_xdemos-2.patch")
+DEPS="apps/zstd devel/elfutils devel/expat devel/wayland system/lm-sensors system/llvm system/zlib x11/libdrm x11/libX11 x11/libxcb x11/libXext x11/libXfixes x11/libxshmfence x11/libXxf86vm devel/libclc"
+BDEPS="x11/xrandr python/mako devel/wayland-protocols python/PyYAML"
+RDEPS=""
+use-enable X && UDEPS="x11/libXv x11/libXvMC"
+use-enable vulkan && UDEPS+=" media/vulkan-loader"
+
+use-enable gallium && CDEPS="media/libva"
+IUSE="X gallium vulkan"
+ARCHS="~x86 ~x86_64"
+SLOT=0
+## Requires LLVM to be built with 32bit libraries as well.
+#ABILIBS="64 x32 32"
+
+setBuildENV meson ninja
+
+src_configure() {
+	configure_default \
+		  -Dplatforms=x11,wayland \
+		  -Dgallium-drivers=$(use-enable gallium && echo auto) \
+		  -Dvulkan-drivers=$(use-enable vulkan && echo auto)   \
+		  -Dglx=dri               \
+		  -Dvalgrind=disabled     \
+		  -Dlibunwind=disabled    \
+		  $([[ $ENABLE_TESTS == 1 ]] && echo -Dbuild-tests=true)
+}
+
+src_install() {
+	install_default
+	install -v -dm755 "${D}"/usr/share/doc/mesa-${PKG_VER}
+	cp -rfv ../docs/* "${D}"/usr/share/doc/mesa-${PKG_VER}
+}

@@ -1,0 +1,23 @@
+####
+## libarchive build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="http://libarchive.org"
+DESCRIPTION="Multi-format archive and compression library"
+LICENSE="BSD, CC0 1.0 Universal, OpenSSL, Apache 2.0 and public domain"
+SRC_URI="https://github.com/libarchive/libarchive/releases/download/v${PKG_VER}/libarchive-${PKG_VER}.tar.xz"
+PATCHES=()
+DEPS="apps/bzip2 apps/xz-utils apps/zstd devel/libxml2 devel/openssl system/acl system/attr system/zlib"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	## From LFS: disables using expat for xar format support. Due to a bug the xar reader will loop infinitely if expat is used.
+	##      The upstream prefers libxml2 for xar support anyway.
+	configure_default --without-expat
+}
+
+src_test() {
+	LC_ALL=C.UTF-8 make check
+}

@@ -1,0 +1,26 @@
+####
+## SPIRV-LLVM-Translator build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://github.com/KhronosGroup/SPIRV-LLVM-Translator"
+DESCRIPTION="Bi-directional translator between SPIR-V and LLVM IR"
+LICENSE="UoI-NCSA"
+SRC_URI=("https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/v${PKG_VER}/SPIRV-LLVM-Translator-${PKG_VER}.tar.gz")
+#[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("")
+PATCHES=()
+DEPS="devel/spirv-tools"
+BDEPS=""
+RDEPS=""
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="~x86 ~x86_64"
+SLOT=0
+B=SPIRV-LLVM-Translator-$PKG_VER
+
+src_configure() {
+	configure_default -D BUILD_SHARED_LIBS=ON                        \
+					  -D CMAKE_SKIP_INSTALL_RPATH=ON                 \
+					  -D LLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/usr \
+					  -G Ninja
+}
+
+src_test() { :; }

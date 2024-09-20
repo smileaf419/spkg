@@ -1,0 +1,167 @@
+####
+## LLVM build script
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+## Referenced linuxfromscratch and Slackware's directions.
+
+HOMEPAGE="https://llvm.org/docs/index.html"
+DESCRIPTION="A collection of modular and reusable compiler and toolchain technologies"
+LICENSE="Apache-2 LLVM"
+SRC_URI=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/llvm-${PKG_VER}.src.tar.xz"
+## Support Files
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/cmake-${PKG_VER}.src.tar.xz"
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/third-party-${PKG_VER}.src.tar.xz"
+## Tools
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/flang-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/lldb-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/lld-${PKG_VER}.src.tar.xz"
+## clang tools
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/clang-tools-extra-${PKG_VER}.src.tar.xz"
+## Projects
+"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/compiler-rt-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/openmp-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxx-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libcxxabi-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/polly-${PKG_VER}.src.tar.xz"
+#"https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VER}/libunwind-${PKG_VER}.src.tar.xz"
+)
+
+PATCHES=(
+)
+
+DEPS="apps/xz-utils apps/zstd devel/libffi devel/libxml2 system/ncurses system/zlib"
+BDEPS="devel/python"
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+setBuildENV cmake ninja
+BUILD_SEPERATE_DIR=yes
+B=llvm-${PKG_VER}.src
+IUSE="doc gcc"
+## FIXME: These dependencies are not available
+# use-enable doc && UDEPS="sphinx recommonmark doxygen"
+[[ $ENABLE_TESTS == 1 ]] && UDEPS+=" network/rsync python/psutil"
+
+src_unpack() {
+	SRC_URI=(${SRC_URI[*]})
+	local length=${#SRC_URI[@]}
+	for (( l=0; l<${length}; l++ )); do
+		f=${SRC_URI[$l]}
+		file=${f##*/}
+		P=${file%-*}
+		[[ $file == third* ]] && P='third-party'
+		[[ $file == clang-tools* ]] && P='clang-tools-extra'
+		case $P in
+			cmake)             dir=$BUILD_PATH ;;
+			third-party)       dir=$BUILD_PATH ;;
+			clang)             dir=$B/tools ;;
+#			flang)             dir=$B/tools ;;
+			lldb)              dir=$B/tools ;;
+			lld)               dir=$B/tools ;;
+			clang-tools-extra) dir=$B/tools/clang/tools ;;
+			compiler-rt)       dir=$B/projects ;;
+			openmp)            dir=$B/projects ;;
+			libcxx)            dir=$B/projects ;;
+			libcxxabi)         dir=$B/projects ;;
+			polly)             dir=$B/projects ;;
+			libunwind)         dir=$B/projects ;;
+		esac
+		unpack ${DISTFILES}/${file} $dir
+		if [[ $file != llvm* && -e $dir/${file%.tar*} ]]; then
+			mv "$dir/${file%.tar*}" "$dir/$P"
+		fi
+	done
+}
+
+src_prepare() {
+	append-ldflags -lcursesw -lncursesw -ltinfow
+
+	## Ensure any script uses Python 3
+	grep -rl '#!.*python' | xargs sed -i '1s/python$/python3/'
+
+	## Ensure FileCheck gets installed which is required for some test suites
+	sed 's/utility/tool/' -i utils/FileCheck/CMakeLists.txt
+
+	## Copy this LLVM libunwind header or it won't be found:
+#	mkdir -p include
+#	cp -a projects/libunwind/include/mach-o include
+}
+
+src_configure() {
+	## Check if we're already installed, if so use llvm to compile rather than gcc
+	if is-installed system/llvm && ! use-enable gcc; then
+		echo " * Build System: clang"
+		CC='clang'
+		CXX='clang++'
+		CONF_ADD_FLAGS=(
+			-DLLVM_USE_LINKER=lld
+			-DCOMPILER_RT_BUILD_LIBFUZZER=OFF
+			-DLIBCXX_INCLUDE_BENCHMARKS=OFF
+			-DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=ON
+		)
+	else
+		echo " * Build System: GCC"
+		CC='gcc'
+		CXX='g++'
+	fi
+
+	## If we have a 32bit arch enabled within our BUILD_ABI set this flag.
+#	if [[ $BUILD_ABI == *32* ]]; then
+#		CONF_ADD_FLAGS+=(
+#			-DLLVM_BUILD_32_BITS=ON
+#		)
+#	fi
+	configure_default                          \
+		-D CMAKE_INSTALL_PREFIX=/usr           \
+		-D CMAKE_SKIP_INSTALL_RPATH=ON         \
+		-D LLVM_ENABLE_FFI=ON                  \
+		-D CMAKE_BUILD_TYPE=Release            \
+		-D LLVM_BUILD_LLVM_DYLIB=ON            \
+		-D LLVM_LINK_LLVM_DYLIB=ON             \
+		-D LLVM_ENABLE_RTTI=ON                 \
+		-D LLVM_TARGETS_TO_BUILD="host;AMDGPU" \
+		-D LLVM_BINUTILS_INCDIR=/usr/include   \
+		-D LLVM_INCLUDE_BENCHMARKS=OFF         \
+		-D CLANG_DEFAULT_PIE_ON_LINUX=ON       \
+		-D CLANG_CONFIG_FILE_SYSTEM_DIR=/etc/clang \
+		-W no-dev -G Ninja ..
+
+	## Remove a testcase known to hang indefinite on some systems.
+	rm -f ../projects/compiler-rt/test/tsan/getline_nohang.cpp
+
+	if use-enable doc; then
+		echo " * Building Documentation"
+		cmake -DLLVM_BUILD_DOCS=ON            \
+			  -DLLVM_ENABLE_SPHINX=ON         \
+			  -DSPHINX_WARNINGS_AS_ERRORS=OFF \
+			  -Wno-dev -G Ninja ..
+		ninja docs-llvm-html  docs-llvm-man
+		echo " * Building clang Documentation"
+		ninja docs-clang-html docs-clang-man
+		echo " * Building Doxygen Documentation"
+		ninja doxygen-html
+	fi
+}
+
+src_test() {
+	sh -c 'ulimit -c 0 && ninja check-all'
+}
+
+src_install() {
+	install_default
+
+	mkdir -pv $D/etc/clang &&
+	for i in clang clang++; do
+		echo -fstack-protector-strong > $D/etc/clang/$i.cfg
+	done
+
+	if use-enable doc; then
+		install -v -d -m755 $D/usr/share/doc/llvm-${PKG_VER}
+		mv -v $D/usr/share/doc/LLVM/llvm $D/usr/share/doc/llvm-${PKG_VER}
+		rmdir -v --ignore-fail-on-non-empty $D/usr/share/doc/LLVM
+
+		install -v -d -m755 $D/usr/share/doc/llvm-${PKG_VER}
+		mv -v $D/usr/share/doc/LLVM/clang $D/usr/share/doc/llvm-${PKG_VER}
+		rmdir -v --ignore-fail-on-non-empty $D/usr/share/doc/LLVM
+	fi
+}

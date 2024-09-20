@@ -1,0 +1,22 @@
+####
+## openrc build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE=""
+DESCRIPTION=""
+LICENSE="BSD-2"
+SRC_URI=("https://github.com/OpenRC/openrc/archive/refs/tags/${PKG_VER}.tar.gz => openrc-${PKG_VER}.tar.gz")
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV meson ninja
+BUILD_SEPERATE_DIR=yes
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	configure_default -Dos=Linux \
+					  -Dpam=false \
+					  -Drootprefix=/ \
+					  -Dtermcap=ncurses \
+					  "-Dbranding=\"Leaf_Linux\""
+}

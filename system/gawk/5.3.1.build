@@ -1,0 +1,31 @@
+####
+## gawk build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://www.gnu.org/software/gawk/"
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=("https://ftp.gnu.org/gnu/gawk/gawk-${PKG_VER}.tar.xz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://ftp.gnu.org/gnu/gawk/gawk-${PKG_VER}.tar.xz.sig")
+DEPS="devel/gmp devel/mpfr system/readline"
+BDEPS=""
+RDEPS=""
+ARCHS="~x86 ~x86_64"
+SLOT=0
+
+src_configure() {
+	sed -i 's/extras//' Makefile.in
+
+	configure_default $@
+}
+
+src_install() {
+	install_default
+
+	mkdir -pv                                   "${D}"/usr/share/doc/gawk-${PKG_VER}
+	cp    -v doc/{awkforai.txt,*.{eps,pdf,jpg}} "${D}"/usr/share/doc/gawk-${PKG_VER}
+}
+
+bootstrap() {
+	src_configure --build=$(build-aux/config.guess)
+	compile_default && install_default
+}

@@ -1,0 +1,63 @@
+####
+## linux-firmware build
+## Copyright 2023-2024 spkg developers, licensed under GPLv2
+HOMEPAGE="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/"
+DESCRIPTION="Firmware files for Linux"
+LICENSE="GPL GPLv2 GPLv3 BSD BSD-2 BSD-4 ISC MIT MPL-1.1"
+SRC_URI=("https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-$PKG_VER.tar.gz")
+[[ $VERIFY_SIG == 1 ]] && SRC_URI+=("https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-$PKG_VER.tar.asc")
+PATCHES=()
+DEPS=""
+BDEPS=""
+RDEPS=""
+setBuildENV auto make
+BUILD_SEPERATE_DIR=no
+ARCHS="~x86 ~x86_64"
+SLOT=0
+#B=
+COMPRESS=0
+
+src_configure() {
+	## -> Device Drivers
+	##   -> Generic Driver Options
+	##     -> Firmware loader
+	##       -> Firmware loading facility (FW_LOADER [=y])
+	if checkKernelConfig CONFIG_FW_LOADER_COMPRESS	1 "Enable compressed firmware support" 1; then
+		COMPRESS=1
+		if checkKernelConfig CONFIG_FW_LOADER_COMPRESS_XZ  1 "Enable XZ-compressed firmware support" 1; then
+			COMPRESS="xz"
+		elif checkKernelConfig CONFIG_FW_LOADER_COMPRESS_ZSTD  1 "Enable ZSTD-compressed firmware support" 1; then
+			COMPRESS="zstd"
+		fi
+
+		[[ $COMPRESS == 1 ]] && echo " $ERROR Compression support found, but no support for either XZ or ZSTD. Not compressing!"
+	fi
+
+	chmod +x copy-firmware.sh
+}
+
+src_compile() { :; }
+
+src_test() { :; }
+
+src_install() {
+	FW_OPTS=("-v")
+
+	# Requires rdfind to be installed
+	FW_OPTS+=("--ignore-duplicates")
+
+	if [[ $COMPRESS != 0 ]]; then
+		[[ $COMPRESS == "xz" ]] && FW_OPTS+=("--xz")
+		[[ $COMPRESS == "zstd" ]] && FW_OPTS+=("--zstd")
+	fi
+
+	./copy-firmware.sh "${FW_OPTS[@]}" $D/lib/firmware
+
+	pushd $D/lib/firmware
+		# Remove broken Symlinks
+		find * -xtype l -print -delete
+
+		# Remove empty dirs
+		find -type d -empty -delete
+	popd
+}
