@@ -5,6 +5,13 @@ This is intended to be a playground for learning about package management and no
 Join me at: https://discord.gg/DQR42sWk
 
 # To Use
+mkdir -p /var/lib/spkg
+cd /var/lib/spkg
+git clone https://github.com/smileaf419/spkg bin
+mkdir -p /var/db
+cd /var/db
+git clone https://github.com/smileaf419/spkg-repository spkg
+
 spkg-tools contains the scripts, I recommend symlinking the spkg script to a dir within your path
 
 <b>INSTALL_PATH</b> must be set within the /etc/spkg.conf to wherever you've placed the scripts.
@@ -34,6 +41,8 @@ on first run a default /etc/spkg.conf should be created if ran as root.
 <b>LOGDIR</b> path to where logs should be kept (default: /var/log/spkg)
 
 <b>LOGFILE</b> File name to use for log files.
+
+<b>INSTALL_PATH</b> path to where spkg scripts are installed. (default: /var/lib/spkg/bin)
 
 <b>PKG_DB_DIR</b> path to build files. (default: /var/db/spkg)
 

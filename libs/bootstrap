@@ -1,0 +1,295 @@
+#!/bin/bash
+## We need to exit immediately if we encounter an error.
+set -e
+
+## Set a limited use found within
+## $PKG_DB_DIR/spkg-tools/spkg.conf
+USE="-gd -X -openrc -java"
+
+echo " * Bootstrapping .. This will take a while.."
+BOOTSTRAP_STAGES=${BOOTSTRAP_STAGES:-"1234"}
+
+####
+## Set Important Vars
+PKG_CACHE="$ROOT/$PKG_CACHE"
+DISTFILES="$ROOT/$DISTFILES"
+PKG_WORLD="$ROOT/$PKG_WORLD"
+LOGDIR="$ROOT/$LOGDIR"
+
+## Something to call our release
+## We'll change it yearly to something fun.
+#CODENAME="Spider" ## 2023 Release
+CODENAME="Mouse" ## 2024 Release
+
+## Set a stable arch
+#ARCH="$(uname -m)"
+SUPPORTED_ARCHS="x86 x86_64 ~x86 ~x86_64"
+checkinlist $ARCH $SUPPORTED_ARCHS || die "$ARCH is not currently supported! Supported Archs: $SUPPORTED_ARCHS"
+
+## We need our main target set globally
+export HOST_TGT=$(uname -m)-leaf-linux-gnu
+## Add our temp /tools to our path
+export PATH="$ROOT/tools/bin:$PATH"
+
+if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT/$PKG_DB_DIR ]]; then
+	echo " $IMPORTANT git appears to not be installed and is required to clone the spkg repository."
+	echo " $IMPORTANT if you wish you may create the $ROOT/$PKG_DB_DIR and copy the repository, "
+	echo "            found at: https://github.com/smileaf419/spkg/releases there before continuing."
+	echo "Continue? (Yes/No): "
+	read cont
+
+	## If they didn't agree, or the dir still doesn't exist, exit
+	if [[ ${cont^^} != 'Y' && ${cont^^} != 'YES' || ! -e $ROOT/$PKG_DB_DIR ]]; then
+		die
+	fi
+fi
+
+if [[ $BOOTSTRAP_STAGES == *1* ]]; then
+	BOOTSTRAP_STAGE=1
+	title "Bootstrapping (Stage 1) : Building temp system"
+	####
+	## Create Essential Dirs.
+	echo " * Creating directories ..."
+	## Make a LSB compliant /
+	for l in $BUILD_ABI; do
+		mkdir -p $ROOT/{,usr/{,local/}}lib$l
+	done
+	mkdir -p $ROOT/{bin,boot,dev,etc/{opt,sysconfig},lib,media/cdrom,mnt,opt,proc,run,sbin,srv,sys,usr,var,home,root}
+	mkdir -p $ROOT/lib/firmware
+	## Create /usr hierachy
+	mkdir -p $ROOT/usr/{bin,include,lib{,/locale},libexec,local,sbin,share,src}
+	## Create /usr/local hierachy
+	mkdir -p $ROOT/usr/local/{bin,etc,games,include,lib,man,sbin,share,src}
+	mkdir -p $ROOT/usr/{,local/}share/{color,dict,doc,info,locale,man}
+	mkdir -p $ROOT/usr/{,local/}share/{misc,terminfo,zoneinfo}
+	mkdir -p $ROOT/usr/{,local/}share/man/man{1..8}
+	mkdir -p $ROOT/var/{cache,local,log,mail,opt,spool}
+	## Create the /var Heirachy
+	mkdir -p $ROOT/var/{cache,db,lib,lock,log,opt,spool}
+	## Create dirs for spkg
+	mkdir -p $PKG_CACHE $DISTFILES
+	mkdir -p $ROOT/{$PKG_ARCHIVE_DIR,$LOGDIR,$WORKDIR_BASE,$INSTALL_PATH}
+	## Our default path is /var/db/spkg but we need the path leading up to that.
+	[[ ! -e $ROOT/$(dirname $PKG_DB_DIR) ]] && mkdir -p $ROOT/$(dirname $PKG_DB_DIR)
+
+	####
+	## Create Files
+	echo " * Creating files ..."
+	touch $PKG_WORLD
+	## These files will be needed later.
+	cp /etc/resolv.conf $ROOT/etc
+	for d in '' /usr /usr/local; do for l in '' $BUILD_ABI; do echo $d/lib$l; done; done > $ROOT/etc/ld.so.conf
+	ldconfig -r$ROOT
+
+	####
+	## Fix Permissions
+	echo " * Fixing Permissions ..."
+	## Fix permissions for our building user, we'll need to fully fix the permissions later.
+	chown -R $BUILD_USER $ROOT
+	chown -R $BUILD_USER $PKG_CACHE $PKG_WORLD
+
+	####
+	## Install all packages
+	installList $REQUESTED_LIST || die " $DIALOG_ERROR Failed to boostrap!"
+fi
+
+if [[ $BOOTSTRAP_STAGES == *2* ]]; then
+	BOOTSTRAP_STAGE=2
+	title "Bootstrapping (Stage 2) : Building System"
+	## Fix CONTENTS file, filter out our $ROOT
+	echo "Fixing CONTENT files in $PKG_CACHE ($ROOT)"
+	## This will leave leading paths, but we're not worried about a few dirs, we want to clean out the extra path in front of our files.
+	find $PKG_CACHE -name CONTENTS -exec sed -i "s,^$ROOT,," {} \;
+
+	####
+	## Fix Permissions (round 2)
+	echo " * Finalizing ..."
+	## Before we set everything so our BUILD_USER could work on it.
+	## Now we need to fix everything for the final system.
+	chown -R root:root $ROOT
+	ln -sf /run $ROOT/var/run
+	ln -sf /run/lock $ROOT/var/lock
+	[[ ! -e /root ]] && install -d -m 0750 $ROOT/root || chmod 0750 $ROOT/root
+	[[ ! -e $ROOT/tmp ]] && install -d -m 1777 $ROOT/tmp || chmod 1777 $ROOT/tmp
+	ln -sf /proc/self/mounts $ROOT/etc/mtab
+	touch $ROOT/var/log/{btmp,lastlog,faillog,wtmp}
+	chgrp 13 $ROOT/var/log/lastlog
+	chmod 664  $ROOT/var/log/lastlog
+	chmod 600  $ROOT/var/log/btmp
+	install -m755 -d -o 250 -g 250 $ROOT/var/tmp/spkg
+
+	####
+	## Create Essential Files
+	cat > $ROOT/etc/hosts << EOF
+127.0.0.1  localhost $(hostname)
+::1        localhost
+EOF
+
+	cat > $ROOT/etc/passwd << "EOF"
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/dev/null:/usr/false
+daemon:x:6:6:Daemon User:/dev/null:/bin/false
+messagebus:x:18:18:D-Bus Message Daemon User:/run/dbus:/bin/false
+uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/bin/false
+nobody:x:65534:65534:Unprivileged User:/dev/null:/bin/false
+spkg:x:250:250::/var/tmp/spkg/:/bin/bash
+EOF
+
+	cat > $ROOT/etc/group << "EOF"
+root:x:0:
+bin:x:1:daemon
+sys:x:2:
+kmem:x:3:
+tape:x:4:
+tty:x:5:
+daemon:x:6:
+floppy:x:7:
+disk:x:8:
+lp:x:9:
+dialout:x:10:
+audio:x:11:
+video:x:12:
+utmp:x:13:
+usb:x:14:
+cdrom:x:15:
+adm:x:16:
+messagebus:x:18:
+input:x:24:
+mail:x:34:
+kvm:x:61:
+uuidd:x:80:
+wheel:x:97:
+spkg:x:250:
+users:x:999:
+nogroup:x:65534:
+EOF
+
+	cat > $ROOT/chroot.sh << "EOF"
+#!/bin/bash
+[[ -z $1 ]] && SPKG=${0%/*} || SPKG=$1
+RUN='/bin/bash --login'
+[[ ! -z $2 ]] && shift && RUN=$@
+mount -v --bind /dev $SPKG/dev
+mount -v --bind /dev/pts $SPKG/dev/pts
+mount -vt proc proc $SPKG/proc
+mount -vt sysfs sysfs $SPKG/sys
+mount -vt tmpfs tmpfs $SPKG/run
+if [ -h $SPKG/dev/shm ]; then
+        mkdir -pv $SPKG/$(readlink $SPKG/dev/shm)
+fi
+[ -e /bin/env ] && ENV=/bin/env || ENV=/usr/bin/env
+chroot "$SPKG" $ENV -i                        \
+        HOME=/root                                    \
+        TERM="$TERM"                                   \
+        PS1='(chroot) \u:\w\$ '                         \
+        LD_LIBRARY_PATH=/usr/lib:/usr/lib64:/lib:/lib64  \
+        PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin \
+        SPKG_INSTALL_DIR=$PKG_DB_DIR \
+        $RUN
+umount -v $SPKG/dev/{pts,}
+umount -v $SPKG/{proc,sys,run}
+EOF
+	chmod +x "$ROOT/chroot.sh"
+
+	## Install a locale
+	localedef -i C -f UTF-8 C.UTF-8
+
+	####
+	## Fetch all required packages as wget will not be available initially
+	echo " * Fetching all required files to finalize the install ..."
+	REQUESTED_LIST="@basicsystem"
+	populate_list
+	FETCH_ONLY=1
+	EMPTY_WORLD=1
+	getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"
+	## Attempt to catch the error so we can finish.
+	if ! installList $(cat $CHART); then
+		echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"
+		echo "    Finally move the downloaded files to: $DISTFILES"
+	fi
+
+	## Used by some Graphical Apps
+	cat > $ROOT/etc/os-release << "EOF"
+NAME="Leaf Linux"
+VERSION="$VERSION"
+ID=ll
+PRETTY_NAME="Leaf Linux $VERSION (built by spkg)"
+VERSION_CODENAME="$CODENAME"
+EOF
+
+	## Shows we respect the LSB
+	cat > $ROOT/etc/lsb-release << "EOF"
+DISTRIB_ID="Leaf Linux"
+DISTRIB_RELEASE="$VERSION"
+DISTRIB_CODENAME="$CODENAME"
+DISTRIB_DESCRIPTION="Leaf Linux $VERSION (built by spkg)"
+EOF
+fi
+
+if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chroot.sh ]]; then
+	title "Bootstrapping (Stage 3) : Setting up"
+	####
+	## Install our repository
+	if [[ ! -e $ROOT/$PKG_DB_DIR/.git ]]; then
+		echo " * Cloning repository (if git is installed) ..."
+		## if git is installed do this automatically.
+		## Otherwise inform the user how to do it.
+		## FIXME: This shouldn't clone the spkg repository but rather install an spkg package.
+		##        This allows the ability to keep development easy without having to comprimise an active system.
+		if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
+			git clone git clone https://github.com/smileaf419/spkg-repository $PKG_DB_DIR
+			git clone https://github.com/smileaf419/spkg-repository $INSTALL_PATH
+		else
+			echo "You will need to copy or clone spkg into $PKG_DB_DIR"
+			echo " git clone https://github.com/smileaf419/spkg-repository $PKG_DB_DIR"
+			echo " git clone https://github.com/smileaf419/spkg-repository $INSTALL_PATH"
+			echo
+			echo "Once this is done you will need to copy over the spkg.conf and run:"
+			echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
+		fi
+	else
+		echo " * Updating Repository ..."
+		cd $ROOT/$PKG_DB_DIR
+		git pull
+	fi
+
+	## Install our profile
+	cp $PKG_DB_DIR/spkg-tools/profile $ROOT/etc/profile
+
+	## Install our configuration file and symlinks.
+	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
+	## If we're using an unstable ARCH, set it in our config
+	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf
+	## Set our BUILD_ABI to the same as the one it got built for.
+	sed "s,^BUILD_ABI.*$,BUILD_ABI=\"$BUILD_ABI\"," -i $ROOT/etc/spkg.conf
+
+	## Install a link to our script
+	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
+	ln -sf "$INSTALL_PATH"/readlatestlog $ROOT/usr/bin
+	## TODO: Add links to other helper scripts?
+
+	## Pass certain options to our chroot environment
+	SPKG_BUILD_OPTS=
+	[[ $SILENT_BUILD == "yes" ]] && SPKG_BUILD_OPTS=-Q
+
+	title "Bootstrapping (Stage 4) : chroot"
+
+	## Create a lock file
+	touch $ROOT/tmp/.spkg-bootstrap.lock
+
+	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGES "$SPKG_BUILD_OPTS"
+	if [[ ! -e $ROOT/tmp/.spkg-bootstrap.lock ]]; then
+		echo " * Cleaning $ROOT/tools"
+		rm -rf $ROOT/tools
+	else
+		die " $ERROR_DIALOG Error bootstrapping!"
+	fi
+fi
+
+echo " * Bootstrapping complete!"
+echo " A default system has been created, feel free to alter the USE flag, and reinstall affected packages."
+echo "To Enter your new system run $ROOT/chroot.sh"
+echo "For a guide on how to finalize your new system, please visit:"
+echo "https://github.com/smileaf419/spkg/wiki/Installation#finalizing-the-system"
+echo "Thank you for installing and have fun with Leaf Linux: $CODENAME - $VERSION =]"
+exit 0

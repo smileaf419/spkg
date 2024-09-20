@@ -1,7 +1,0 @@
-969fd37d833b63b45e224a56c6bf9aedc7b8ace4  390.157.build
-2a70141c00927d8b79ada78e42a4c739dffc96d6  NVIDIA-Linux-x86_64-390.157.run
-3dcaec4700a234049ef523861f942bd8763b88a7  nvidia-390.157-memory-encryption.patch
-019296440ab58dbcb80e25344cb16171e8cf92e8  nvidia-390.157-kernel-6.2.patch
-3b02e1620889c6026448670c069176ec7035e139  nvidia-390.157-kernel-6.3.patch
-a9affd7c417ad0bee3bf727be1a2df853af991b8  nvidia-390.157-kernel-6.4.patch
-33adbb8b37c4f390605c5f7d998bc9158ff94bfd  nvidia-390.157-kernel-6.5.patch
