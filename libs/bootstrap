@@ -240,12 +240,12 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 			## FIXME: This shouldn't clone the spkg repository but rather install an spkg package.
 			##        This allows the ability to keep development easy without having to comprimise an active system.
 			#cd $(dirname $INSTALL_PATH)
-			git clone https://github.com/smileaf419/spkg-repository $ROOT/$INSTALL_PATH
+			git clone https://github.com/smileaf419/spkg $ROOT/$INSTALL_PATH
 		else
 			echo "You will need to copy or clone spkg repository into $PKG_DB_DIR"
 			echo " and spkg scripts into $INSTALL_PATH"
 			echo " git clone https://github.com/smileaf419/spkg-repository $ROOT/$PKG_DB_DIR"
-			echo " git clone https://github.com/smileaf419/spkg-repository $ROOT/$INSTALL_PATH"
+			echo " git clone https://github.com/smileaf419/spkg $ROOT/$INSTALL_PATH"
 			echo
 			echo "Once this is done you will need to copy over the spkg.conf and run:"
 			echo "$ROOT/chroot.sh $ROOT $INSTALL_PATH/chroot-finalize.sh $PKG_DB_DIR"
