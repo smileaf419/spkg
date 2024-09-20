@@ -234,18 +234,21 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 		echo " * Cloning repository (if git is installed) ..."
 		## if git is installed do this automatically.
 		## Otherwise inform the user how to do it.
-		## FIXME: This shouldn't clone the spkg repository but rather install an spkg package.
-		##        This allows the ability to keep development easy without having to comprimise an active system.
 		if [[ $(whereis git | sed 's,.*:\s*,,') != "" ]]; then
-			git clone git clone https://github.com/smileaf419/spkg-repository $PKG_DB_DIR
-			git clone https://github.com/smileaf419/spkg-repository $INSTALL_PATH
+			#cd $(dirname $PKG_DB_DIR)
+			git clone https://github.com/smileaf419/spkg-repository $ROOT/$PKG_DB_DIR
+			## FIXME: This shouldn't clone the spkg repository but rather install an spkg package.
+			##        This allows the ability to keep development easy without having to comprimise an active system.
+			#cd $(dirname $INSTALL_PATH)
+			git clone https://github.com/smileaf419/spkg-repository $ROOT/$INSTALL_PATH
 		else
-			echo "You will need to copy or clone spkg into $PKG_DB_DIR"
-			echo " git clone https://github.com/smileaf419/spkg-repository $PKG_DB_DIR"
-			echo " git clone https://github.com/smileaf419/spkg-repository $INSTALL_PATH"
+			echo "You will need to copy or clone spkg repository into $PKG_DB_DIR"
+			echo " and spkg scripts into $INSTALL_PATH"
+			echo " git clone https://github.com/smileaf419/spkg-repository $ROOT/$PKG_DB_DIR"
+			echo " git clone https://github.com/smileaf419/spkg-repository $ROOT/$INSTALL_PATH"
 			echo
 			echo "Once this is done you will need to copy over the spkg.conf and run:"
-			echo "$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR"
+			echo "$ROOT/chroot.sh $ROOT $INSTALL_PATH/chroot-finalize.sh $PKG_DB_DIR"
 		fi
 	else
 		echo " * Updating Repository ..."
@@ -254,10 +257,10 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 	fi
 
 	## Install our profile
-	cp $PKG_DB_DIR/spkg-tools/profile $ROOT/etc/profile
+	cp $INSTALL_PATH/profile $ROOT/etc/profile
 
 	## Install our configuration file and symlinks.
-	cp $PKG_DB_DIR/spkg-tools/spkg.conf $ROOT/etc/spkg.conf
+	cp $INSTALL_PATH/spkg.conf $ROOT/etc/spkg.conf
 	## If we're using an unstable ARCH, set it in our config
 	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf
 	## Set our BUILD_ABI to the same as the one it got built for.
@@ -277,7 +280,7 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 	## Create a lock file
 	touch $ROOT/tmp/.spkg-bootstrap.lock
 
-	$ROOT/chroot.sh $ROOT $PKG_DB_DIR/spkg-tools/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGES "$SPKG_BUILD_OPTS"
+	$ROOT/chroot.sh $ROOT $INSTALL_PATH/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGES "$SPKG_BUILD_OPTS"
 	if [[ ! -e $ROOT/tmp/.spkg-bootstrap.lock ]]; then
 		echo " * Cleaning $ROOT/tools"
 		rm -rf $ROOT/tools
