@@ -457,6 +457,9 @@ if [[ $MODE == 'resume' ]]; then
 		fi
 	done
 	unset check
+else
+	## Clean-up old files
+	rm -rf /tmp/spkg-*
 fi
 ## Create the Dir if it doesn't already exist.
 mkdir -p $SPKG_TMP_DIR
