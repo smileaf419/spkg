@@ -446,6 +446,8 @@ parse_cmdline $@
 ## Temp files
 ## Dir used to hold all Temp files so multiple instances maybe ran without conflict.
 export SPKG_TMP_DIR=/tmp/spkg-$$
+## Create the Dir if it doesn't already exist.
+mkdir -p $SPKG_TMP_DIR
 ## Check for an unlocked SPKG_TMP_DIR. If we don't find one, create the dir and continue.
 ## If we do find one, rename it to the current pid.
 if [[ $MODE == 'resume' ]]; then
@@ -453,19 +455,24 @@ if [[ $MODE == 'resume' ]]; then
 		## If a lock doesn't exist, we're good to reuse the environment or at the very least, keep the house clean.
 		if [[ ! -e $check/.lock ]]; then
 			mv $check $SPKG_TMP_DIR
+			## Create our lock file.
+			touch $SPKG_TMP_DIR/.lock
 			break
 		fi
 	done
 	unset check
 else
-	## Clean-up old files
-	rm -rf /tmp/spkg-*
-fi
-## Create the Dir if it doesn't already exist.
-mkdir -p $SPKG_TMP_DIR
+	## Create our lock file.
+	touch $SPKG_TMP_DIR/.lock
 
-## Create our lock file.
-touch $SPKG_TMP_DIR/.lock
+	## If we are not resuming, do some housecleaning and remove all tmp dirs not containing a .lock
+	for dir in $(for a in $(echo $(find /tmp/spkg-*/* -type d) $(find /tmp/spkg-*/* -type f -name .lock)); do
+					echo $a | sed 's,/.lock,,'
+				done | sort | uniq -u); do
+		rm -rf $dir
+	done	
+fi
+
 ## Informational File to output at the end.
 export INFORMLOG=${INFORMLOG:-$SPKG_TMP_DIR/inform.log}
 ## Storage file of cached packages being operated on.
@@ -473,7 +480,7 @@ export CHART=${CHART:-$SPKG_TMP_DIR/chart}
 ## Chart of packages in order to be installed/uninstalled.
 export INSTALL_CHART=${INSTALL_CHART:-$SPKG_TMP_DIR/install_chart}
 ## List of files preserved until packages that depend on them can be reinstalled.
-export PRESERVED_LOG=${PRESERVED_LOG:-$SPKG_TMP_DIR/preserved}
+export PRESERVED_LOG=${PRESERVED_LOG:-$PKG_CACHE/preserved}
 
 ####
 ## Ensure we can write to required directories
