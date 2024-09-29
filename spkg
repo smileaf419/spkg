@@ -470,7 +470,7 @@ else
 					echo $a | sed 's,/.lock,,'
 				done | sort | uniq -u); do
 		rm -rf $dir
-	done	
+	done
 fi
 
 ## Informational File to output at the end.

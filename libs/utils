@@ -484,7 +484,7 @@ sinstall() {
 ####
 ## Gathers a list of packages based on files found within PERSERVED_LOG to install them.
 ## PERSERVED_LOG is generated during the uninstall phase of a pkg upgrade or uninstall
-## and contains files which are depended on packages still installed.
+## and contains files which are depended upon by packages still installed.
 ## Once the rebuild is complete the now obsolete files are removed.
 preservedRebuild() {
 	MODE='rebuild'
@@ -497,7 +497,7 @@ preservedRebuild() {
 		REQUESTED_LIST=""
 		for f in $(cat $PRESERVED_LOG); do
 			echo -n "$f:"
-			local pkgs=$(checkFileDep $f | sort|uniq)
+			local pkgs=$(checkFileDep $f)
 			if [[ ! -z $pkgs ]]; then
 				echo " $pkgs"
 				for d in $pkgs; do

@@ -85,7 +85,7 @@ populate_list() {
 ## Returns: list of packages depending on a file.
 checkFileDep() {
 #	if [[ ! $(grep -r --include CONTENTS "$1\$" "$PKG_CACHE") ]]; then
-	grep -rl --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," || return 0
+	grep -rl --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," |sort|uniq || return 0
 #	fi
 }
 
@@ -128,6 +128,8 @@ expandSets() {
 				elif [[ ${p#@} == "installed" ]]; then
 					PKG_LIST=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,,")
 					break
+				elif [[ ${p#@} == "preserved" ]]; then
+					preservedRebuild || true
 				elif [[ ${p#@} == "perlModules" ]]; then
 					PKG_LIST+=" $(rebuildModules perl)"
 				elif [[ ${p#@} == "pythonModules" ]]; then

@@ -341,6 +341,9 @@ installPackage() {
 			mv ${D}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
 		fi
 		mv ${D}/USE_FLAGS $CACHE_DIR/USE_FLAGS
+		if [[ -e $RESTRICTIONS ]]; then
+			cp $RESTRICTIONS $CACHE_DIR/RESTRICTIONS
+		fi
 
 		## Gather Contents
 		## This is sort of an awkward hack...
@@ -475,7 +478,7 @@ installPackage() {
 		fi
 
 		echo " * $PKG_CAT/$PKG_NVR installed successfully!"
-	) || die " ! Error installing $PKG_CAT/$PKG_NVR"
+	) || die " $DIALOG_ERROR Error installing $PKG_CAT/$PKG_NVR"
 }
 
 ####
@@ -521,7 +524,7 @@ uninstall() {
 			## Links can be made around this and the real file might be
 			## removed leaving dead links.
 			local fd=
-			[[ $file == *\.so* ]] && fd=$(checkFileDep $file)
+			[[ $file == *\.so* ]] && fd=$(checkFileDep $file | grep -v $PKG)
 
 			if [[ -z $fd ]]; then
 				if [[ $MODE != "bootstrap" ]]; then
@@ -555,7 +558,7 @@ uninstall() {
 	fi
 	if [ -z "$O_VER" ]; then
 		if grep "^$PKG_CAT/$PKG_NAME" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
-			echo "WARNING: You've removed a package within the system set!"
+			echo "${RED}WARNING:$NORMAL You've removed a package within the system set!"
 			echo "         This may cause undesired consequences!"
 		else
 			grep -Ev "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > $PKG_WORLD.old
@@ -638,8 +641,9 @@ installList() {
 				## Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
 				##           removed under any circumstances.
 				if [[ $d != *$p && $d != "" && $FORCE == 0 ]]; then
-					echo "Uninstalling will break packages!"
+					echo " $DIALOG_ERROR Uninstalling will break packages!"
 					echo $d
+					echo " $DIALOG_ERROR Uninstall aborted"
 				else
 					## pre-uninstall code if needed/set
 					uninstall_default
@@ -702,7 +706,7 @@ installList() {
 			fi
 
 			## Compress our log.
-			[[ ! -e "${log}.xz" ]] && xz "$log" || echo " ! Log ${log}.xz exists"
+			[[ ! -e "${log}.xz" ]] && xz "$log" || echo " $IMPORTANT Log ${log}.xz exists"
 		fi
 		if [[ $FETCH_ONLY != 1 ]]; then
 			echo -n " * Running ldconfig .."
@@ -784,7 +788,7 @@ buildList() {
 	## Check for any restrictions, take the most restrictive stance and save it for future use.
 	## If we have an impossible sitatuation  we'll know if no packages are valid and should report it.
 	if [[ $MODE != "uninstall" && -e $RESTRICTIONS ]]; then
-		[[ $VERBOSE -ge 1 ]] && echo " * Looks like we have restrictions"
+		[[ $VERBOSE -ge 1 ]] && echo " $IMPORTANT Looks like we have restrictions"
 		RESTRICT=$(sort -u $RESTRICTIONS)
 	fi
 
