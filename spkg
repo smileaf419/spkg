@@ -466,11 +466,8 @@ else
 	touch $SPKG_TMP_DIR/.lock
 
 	## If we are not resuming, do some housecleaning and remove all tmp dirs not containing a .lock
-	for dir in $(for a in $(echo $(find /tmp/spkg-*/* -type d) $(find /tmp/spkg-*/* -type f -name .lock)); do
-					echo $a | sed 's,/.lock,,'
-				done | sort | uniq -u); do
-		rm -rf $dir
-	done
+	TMP=/tmp/spkg-
+	echo $(find $TMP* -type d) $(find $TMP* -type f -name .lock) | tr ' ' '\n' | sed 's,/.lock,,' | sort | uniq -u | xargs rm -rf
 fi
 
 ## Informational File to output at the end.
