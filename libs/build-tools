@@ -78,7 +78,7 @@ export -f userBuildPackage
 ##  src_test
 buildPackage() {
 	if [[ ! -z $SRC_URI ]]; then
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+		if [[ $BUILD_USER != 'root' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 			su -p -c 'src_unpack' $BUILD_USER || die " $DIALOG_ERROR Error while unpacking!"
 		else
 			src_unpack || die " $DIALOG_ERROR Error while unpacking!"
@@ -95,7 +95,7 @@ buildPackage() {
 
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
-		if [[ -e /bin/su || -e /usr/bin/su ]]; then
+		if [[ $BUILD_USER != 'root' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 			su -p -c 'src_patch' $BUILD_USER || die " $DIALOG_ERROR Error while patching!"
 		else
 			src_patch || die " $DIALOG_ERROR Error while patching!"
@@ -143,7 +143,7 @@ buildPackage() {
 			[[ ! -z $ABILIBS ]] && echo " * ${ABILIB:-64} bit pass"
 
 			## If we're installing using pip we need root
-			if [[ $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
+			if [[ $BUILD_USER != 'root' && $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 				[[ -e $BUILD_PATH/$B ]] && chown -R $BUILD_USER $BUILD_PATH/$B
 				su -p -c 'userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
 			else
@@ -523,6 +523,9 @@ uninstall() {
 			## Check to see if its a versioned .so file
 			## Links can be made around this and the real file might be
 			## removed leaving dead links.
+			## FIXME: Check if its a link, if so we need to follow it and check the dependencies of those
+			##        To ensure those haven't been linked against. Only if the file, and all assocated links
+			##        are not depended upon, may we remove the file.
 			local fd=
 			[[ $file == *\.so* ]] && fd=$(checkFileDep $file | grep -v $PKG)
 
@@ -532,6 +535,7 @@ uninstall() {
 				fi
 			else
 				## If our file already exists within the PRESERVED_LOG don't add it
+				[[ ! -e $PRESERVED_LOG ]] && touch $PRESERVED_LOG
 				if ! grep $file $PRESERVED_LOG; then
 					echo " @! $file"
 					echo $file >> $PRESERVED_LOG
