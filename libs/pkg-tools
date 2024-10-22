@@ -325,7 +325,7 @@ setPkgENV() {
 
 	## Set our Convience Vars
 	export PKG_VR=$PKG_VER
-	if [[ $PKG_REV != 0 ]]; then
+	if [[ $PKG_REV != 0 && $PKG_REV != '' && ! -z $PKG_REV ]]; then
 		PKG_VR+=-r$PKG_REV
 	fi
 	export PKG_NVR=${PKG_NAME}-${PKG_VR}

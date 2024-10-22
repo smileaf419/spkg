@@ -748,7 +748,7 @@ addToList() {
 
 	ver=$(splitVersion $PKG_VR)
 	PKG_VER=${ver%/*}
-	[[ $ver == */* ]] && PKG_REV=${ver#*/}
+	[[ $ver == */* ]] && PKG_REV=${ver#*/} || PKG_REV=0
 	IUSE=$(grep '[^#]*IUSE=' "$(getBldFile $(getPKG))" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
 	if [[ ! -z $IUSE ]]; then
 		echo -n " [ "
