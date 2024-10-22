@@ -745,7 +745,11 @@ addToList() {
 	## If its enabled, color it GREEN
 	## If its disabled, color it RED
 	## If its not within our USE at all, gray it out.
-	IUSE=$(grep '[^#]*IUSE=' "$(getBldFile $PKG)" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
+
+	ver=$(splitVersion $PKG_VR)
+	PKG_VER=${ver%/*}
+	[[ $ver == */* ]] && PKG_REV=${ver#*/}
+	IUSE=$(grep '[^#]*IUSE=' "$(getBldFile $(getPKG))" | sed -E 's,.*IUSE="?([^"]*)"?,\1,' || true)
 	if [[ ! -z $IUSE ]]; then
 		echo -n " [ "
 		for u in $IUSE; do
