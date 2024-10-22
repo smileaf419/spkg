@@ -362,6 +362,8 @@ parse_cmdline() {
 						EMPTY_WORLD=1 ;;
 					-ignoresha)
 						IGNORE_SHA1=1 ;;
+					-skipFirst)
+						SKIP_FIRST=1 ;;
 					-b1)
 						BOOTSTRAP_STAGES+=1 ;;
 					-b2)
@@ -453,7 +455,8 @@ mkdir -p $SPKG_TMP_DIR
 if [[ $MODE == 'resume' ]]; then
 	for check in $(find /tmp/spkg-* -type d 2> /dev/null || true); do
 		## If a lock doesn't exist, we're good to reuse the environment or at the very least, keep the house clean.
-		if [[ ! -e $check/.lock ]]; then
+		if [[ ! -e $check/.lock && $check != $SPKG_TMP_DIR ]]; then
+			rmdir "$SPKG_TMP_DIR"
 			mv $check $SPKG_TMP_DIR
 			## Create our lock file.
 			touch $SPKG_TMP_DIR/.lock
@@ -633,14 +636,18 @@ elif [[ $MODE == "resume" ]]; then
 	export CHART=$SPKG_TMP_DIR/chart
 	export INSTALL_CHART=$SPKG_TMP_DIR/install_chart
 	export PRESERVED_LOG=$SPKG_TMP_DIR/preserved
+	[[ ! -e $SPKG_TMP_DIR/requested.list ]] && touch $SPKG_TMP_DIR/requested.list
 	REQUESTED_LIST=$(cat $SPKG_TMP_DIR/requested.list)
 
 	if [ ! -e $INSTALL_CHART ]; then
 		die " $DIALOG_ERROR Error Cannot resume no list was found."
 	fi
 	echo " * Resuming..."
-
-	cp "$INSTALL_CHART" "$CHART"
+	if [[ $SKIP_FIRST == 1 ]]; then
+		tail -n+2 "$INSTALL_CHART" > "$CHART"
+	else
+		cp "$INSTALL_CHART" "$CHART"
+	fi
 
 ## Build the installed kernel, will automatically rebuild all kernel modules afterwards.
 elif [[ $MODE == "buildKernel" ]]; then
