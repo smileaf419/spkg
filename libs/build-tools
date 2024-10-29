@@ -523,9 +523,6 @@ uninstall() {
 			## Check to see if its a versioned .so file
 			## Links can be made around this and the real file might be
 			## removed leaving dead links.
-			## FIXME: Check if its a link, if so we need to follow it and check the dependencies of those
-			##        To ensure those haven't been linked against. Only if the file, and all assocated links
-			##        are not depended upon, may we remove the file.
 			local fd=
 			[[ $file == *\.so* ]] && fd=$(checkFileDep $file | grep -v $PKG)
 
@@ -543,7 +540,12 @@ uninstall() {
 				## Check if its a link, if so, read the link and add it to our PRESERVED_LOG if its not already added.
 				if [ -L $file ]; then
 					file=$(readlink -f $file)
-					if ! grep $file $PRESERVED_LOG; then
+					## We need to ensure we find the exact file and not a file with a similar name.
+					## If we have A.so and A.so.1
+					## A.so.1 is the link to A.so
+					## Simply searching for A.so will yield A.so.1 and the hardfile A.so won't be saved as to our PRESERVED_LOG
+					## And could be removed by accident.
+					if ! egrep "$file$" $PRESERVED_LOG; then
 						echo " @! $file"
 						echo $file >> $PRESERVED_LOG
 					fi
