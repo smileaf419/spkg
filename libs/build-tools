@@ -545,7 +545,7 @@ uninstall() {
 					## A.so.1 is the link to A.so
 					## Simply searching for A.so will yield A.so.1 and the hardfile A.so won't be saved as to our PRESERVED_LOG
 					## And could be removed by accident.
-					if ! egrep "$file$" $PRESERVED_LOG; then
+					if ! grep "$file$" $PRESERVED_LOG; then
 						echo " @! $file"
 						echo $file >> $PRESERVED_LOG
 					fi
