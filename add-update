@@ -16,7 +16,7 @@ VERBOSE=${VERBOSE:-0}
 PKG=$(DB-getPkg $(EntryParser $1) | getLatest)
 ver=$2
 setPkgENV $PKG
-if [[ $PKG_VR == $ver ]]; then
+if [[ $PKG_VR == $ver ]] || version_gt $PKG_VR $ver; then
 	echo "Nothing to update"
 	exit
 fi
