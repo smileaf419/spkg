@@ -72,15 +72,19 @@ spatch() {
 	local patch_options=${@:--Np1}
 	echo -n " * Applying Patch: $patch ($patch_options)"
 	if [[ $patch == *gz ]]; then
-		gzip -cd "$patch" | patch $patch_options > /dev/null || die " .. Failed!"
+		gzip -cd "$patch" | patch $patch_options > /dev/null
 	elif [[ $patch == *xz ]]; then
-		xz -cd "$patch" | patch $patch_options > /dev/null || die " .. Failed!"
+		xz -cd "$patch" | patch $patch_options > /dev/null
 	elif [[ $patch == *bz2 ]]; then
-		bzip2 -cd "$patch" | patch $patch_options > /dev/null || die " .. Failed!"
+		bzip2 -cd "$patch" | patch $patch_options > /dev/null
 	else
-		patch $patch_options -i "$patch" > /dev/null || die " .. Failed!"
+		patch $patch_options -i "$patch" > /dev/null
 	fi
-	echo " .. Ok!"
+	if [[ $? == 0 || $_SPKG_IGNORE_PATCH_ERR == 1 ]]; then
+		echo " .. Ok!"
+	elif [[ $? == 1 ]]; then
+		die " .. Failed!"
+	fi
 }
 export -f spatch
 

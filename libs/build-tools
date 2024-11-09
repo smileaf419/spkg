@@ -254,6 +254,8 @@ installPackage() {
 			export _SPKG_CLEAN
 			## If we need to install libs into /lib* instead of /usr/lib*
 			export _LIB_ROOT_INSTALL
+			## If we're expecting a patch to error out, but still need it applied
+			export _SPKG_IGNORE_PATCH_ERR
 
 			## When we pass commands to our BUILD_USER these does not get updated
 			## Set it here to avoid permission issues when packages call for
