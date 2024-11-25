@@ -2,25 +2,28 @@
 ####
 ## Build file default methods
 ## The purpose of this file is to describe how packages are built.
+## All functions unless specified are ran as root.
 ## a function-less build file by default will call:
 ## src_fetch
 ## src_verify
-## src_unpack
-## src_patch
+## src_unpack		(BUILD_USER)
+## src_patch		(BUILD_USER)
 ## src_prepare
-## src_configure
-## src_compile
-## src_test
+## src_configure	(BUILD_USER)
+## src_compile		(BUILD_USER)
+## src_test			(BUILD_USER)
 ## src_install
 ## post_install
 ##
-## Overriding these functions allows you to customize what is ran at each step.
-## src_configure and src_compile are ran as BUILD_USER
-## src_test is ran as BUILD_USER
-## src_install and post_install are ran as root.
+## During Uninstall these will be called:
+## src_uninstall
+## src_post_uninstall
 ##
-## All overridden functions must be self-contained as environments will be reset between each function.
-## if a global variable is to be set for all functions, it should be done so at the top level, or within src_prepare.
+## It is important to set any build related globals within src_prepare. Do not set these at the top level!
+## The top level should be reserved for only variables required by the spkg system.
+## Please also ensure no files required by the build system are created or moved within src_prepare
+## This is because the permissions maybe changed to root and not owned by the BUILD_USER resulting in a failed build.
+## If files need to be created or moved, this should be done within src_configure
 
 ####
 ## Multilib
