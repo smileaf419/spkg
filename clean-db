@@ -36,12 +36,13 @@ source "${INSTALL_PATH}/libs/build-tools"
 
 cleanPkg() {
 	local d=$1
+	local slot=${SPKG_CLEAN_SLOT:-0}
 	NUM=$(DB-getPkg $d | wc -l)
 	if [[ $NUM -gt $MAX_BUILDS ]]; then
 		## This does not honor PKG_SLOT differences!
 		FILES=( $(DB-getPkg $d | head -n $(( $NUM - $MAX_BUILDS )) ) )
 		SLOT=$(grep -h "SLOT=$slot" $(getBldFile ${FILES[0]}) | sed 's,^.*SLOT=,,')
-		if [[ $SLOT == "0" ]]; then
+		if [[ $SLOT == $slot ]]; then
 			echo -n $d:
 			for p in ${FILES[*]}; do
 				echo -n "$(getVerRev $p) "
@@ -50,7 +51,7 @@ cleanPkg() {
 			rm $d/sha1
 			updatesha1 $d
 		else
-			echo "$d has multiple SLOTs not cleaning"
+			echo "$d has multiple or incorrect SLOTs not cleaning"
 		fi
 	elif [[ $NUM == 0 ]]; then
 		echo "$d Has No builds marked as $ARCH"
