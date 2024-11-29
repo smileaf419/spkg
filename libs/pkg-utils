@@ -50,7 +50,7 @@ unpack() {
 		unzip -o "$FILE" -d "$DIR" || die "Failed to extract!"
 	## TODO: Auto extract the data.tar.xz ?
 	elif [[ ${FILE##*.} == "deb" ]]; then
-		ar x --output "$DIR" "$FILE"
+		ar x --output "$DIR" "$FILE" || die "Failed to extract!"
 	elif [[ ${FILE##*.} == "rar" ]]; then
 		[ ! -e /usr/bin/unrar ] && die " ! 'app-arch/unrar' not installed! cannot extract archive"
 		unrar x "$FILE" "$DIR"
