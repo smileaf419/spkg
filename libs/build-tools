@@ -199,9 +199,17 @@ installPackage() {
 		[[ $FETCH_ONLY != 1 ]] && install -o $BUILD_USER -d "${D}"
 
 		## If the archive doesn't exist we can't do an ARCHIVE_INSTALL, build the package instead.
-		if [[ $ARCHIVE_INSTALL == 1 && -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" ]]; then
-			cd "${D}"
-			tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz"
+		if [[ $ARCHIVE_INSTALL == 1 ]]; then
+			if [[ ! -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" && $ARCHIVE_REPO == http* ]]; then
+				fetch_file "$ARCHIVE_REPO/$PKG_CAT/$PKG_NAME-$PKG_VR.tar.xz" "$PKG_NAME-$PKG_VR.tar.xz" "$PKG_ARCHIVE_DIR" || BUILD_FORCE=1
+			else
+				BUILD_FORCE=1
+			fi
+
+			if [[ $BUILD_FORCE != 1 ]]; then
+				cd "${D}"
+				tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz"
+			fi
 
 			## FIXME: Check the USE_FLAGS to see if they have the same relevant flags
 			## If a package's USE is different, we're going to need to compile it as the archive isn't compatible
@@ -209,7 +217,7 @@ installPackage() {
 		fi
 
 		## Build our source, setup the environment so we can pass things off to our BUILD_USER
-		if [[ $ARCHIVE_INSTALL == 0 || ! -e "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz" || $BUILD_FORCE == 1 ]]; then
+		if [[ $ARCHIVE_INSTALL == 0 || $BUILD_FORCE == 1 ]]; then
 			## Even if we are trying to install via an archive, if we got here the archive doesn't exist.
 			## Disable the ARCHIVE_INSTALL to allow a package to be built if BUILD_PACKAGE=yes
 			ARCHIVE_INSTALL=0
