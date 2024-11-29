@@ -344,14 +344,14 @@ fetch_file() {
 	[[ $1 == "" ]] && return 0
 	local FILE=${1##*/}
 	local OUTFILE=${2:-$FILE}
+	local DISTFILES=${3:-$DISTFILES}
 
 	## If we already exist, ignore it
 	[ -e "${DISTFILES}/${OUTFILE}" ] && return 0
-#	curl --xattr -o "${DISTFILES}/${OUTFILE}" "$1"
-	wget --xattr -c -O "${DISTFILES}/${OUTFILE}" "$1"
 
+	#	curl --xattr -o "${DISTFILES}/${OUTFILE}" "$1"
 	## If we encounter an Error, delete the file and error out.
-	if [ $? != 0 ]; then
+	if ! wget --xattr -c -O "${DISTFILES}/${OUTFILE}" "$1"; then
 		[[ -e "$DISTFILES/$OUTFILE" ]] && rm "${DISTFILES}/${OUTFILE}"
 		>&2 echo "   FILE: $FILE"
 		>&2 echo "OUTFILE: $OUTFILE"
