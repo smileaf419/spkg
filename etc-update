@@ -1,0 +1,14 @@
+#!/bin/bash
+####
+## Scans /etc for updated configuration files that need updated
+
+for file in $(find /etc/ -name *.cfg[0-9]*); do
+	clear
+	diff -u ${file/.cfg[0-9]*/} $file
+
+	echo "Apply update?"; read a
+
+	if [[ $a == 'y' ]]; then 
+		mv $file ${file/.cfg[0-9]*/}
+	fi
+done
