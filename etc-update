@@ -2,13 +2,23 @@
 ####
 ## Scans /etc for updated configuration files that need updated
 
+export NORMAL=$(tput sgr0)
+export RED=$(tput setaf 1)
+export GREEN=$(tput setaf 2)
+
 for file in $(find /etc/ -name *.cfg[0-9]*); do
-	clear
-	diff -u ${file/.cfg[0-9]*/} $file
+	ofile=${file/.cfg[0-9]*/}
+	echo "File: $ofile"
+	diff -u $ofile $file |
+		sed -e "s/^+/$GREEN+/g" \
+			-e "s/^-/$RED-/g" |
+		less -R
 
-	echo "Apply update?"; read a
+	echo -n "Apply update? (Y/n) "; read a
 
-	if [[ $a == 'y' ]]; then 
-		mv $file ${file/.cfg[0-9]*/}
+	if [[ $a == 'y' || $a == 'Y' || -z $a ]]; then
+		mv -v $file $ofile
+	else
+		rm -v $file
 	fi
 done
