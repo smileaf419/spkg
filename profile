@@ -62,18 +62,16 @@ export PKG_CONFIG_PATH=/lib/pkgconfig:/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/l
 
 # Setup a red prompt for root and a green one for users.
 NORMAL="\[$(tput sgr0)\]"
-RED="\[$(tput setaf 1)\]"
-PINK="\[$(tput setaf 986)\]"
-BLUE="\[$(tput setaf 4)\]"
-GREEN="\[$(tput setaf 2)\]"
+RED="\[$(tput setaf 196)\]"
+PINK="\[$(tput setaf 201)\]"
+BLUE="\[$(tput setaf 27)\]"
+GREEN="\[$(tput setaf 82)\]"
 DIM="\[$(tput dim)\]"
 if [[ $EUID == 0 ]] ; then
-	PS1="$DIM[\t] $RED\u@\h:$BLUE\w$RED# $NORMAL"
-#	PS1="[\t] \u@\h: \w# "
+	PS1="[$DIM\t$NORMAL] $RED\u@\h:$BLUE\w$RED# $NORMAL"
 else
-	PS1="$DIM[\t] $GREEN\u@\h:$BLUE\w$GREEN\$ $NORMAL"
-#	PS1="$GREEN\u [ $NORMAL\w$GREEN ]\$ $NORMAL"
-#	PS1="[\t] \u@\h: \w\$ "
+	PS1="[$DIM\t$NORMAL] $GREEN\u@\h:$BLUE\w$GREEN\$ $NORMAL"
+#	PS1="[$DIM\t$NORMAL] $PINK\u@\h:$BLUE\w$PINK\$ $NORMAL"
 fi
 
 for script in /etc/profile.d/*.sh ; do
