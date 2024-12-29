@@ -225,7 +225,8 @@ install_default() {
 	if [[ $ABILIB == $abi ]]; then
 		install_tool $@
 	else
-		DESTDIR=$PWD/DESTDIR install_tool $@
+		DESTDIR=${DESTDIR:-$PWD/DESTDIR}
+		install_tool $@
 		mkdir -p $D/$ROOT/$(libdir)
 		cp -Rv DESTDIR/$(libdir)/* $D/$ROOT/$(libdir)
 		rm -rf DESTDIR
