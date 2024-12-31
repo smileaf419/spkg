@@ -52,6 +52,13 @@ export -f bootstrap
 bootstrap_default() {
 	umask 022
 	set +h
+	local abi=$(myABI)
+	case $abi in
+		64)
+			export HOST_TGT=x86_64-leaf-linux-gnu ;;
+		32)
+			export HOST_TGT=i686-leaf-linux-gnu ;;
+	esac
 	export HOST_TGT=x86_64-leaf-linux-gnu
 	export HOST_TGT32=i686-leaf-linux-gnu
 	export HOST_TGTx32=${HOST_TGT}x32
