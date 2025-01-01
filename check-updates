@@ -24,7 +24,7 @@ VERBOSE=${VERBOSE:-0}
 
 if [[ $(find "$DFILES_INDEX" -mtime +1 -print) || ! -e $DFILES_INDEX ]]; then
 	cd ${DFILES_INDEX%/*}
-	wget -np -r -l 1 "$SRC_URI" || (rm $DFILES_INDEX; die "Error getting list")
+	wget -nv --show-progress -np -r -l 1 "$SRC_URI" || (rm $DFILES_INDEX; die "Error getting list")
 	cat gentoo.osuosl.org/distfiles/*/index.html > $DFILES_INDEX
 fi
 echo Original: $(cat $DFILES_INDEX | wc -l) entries

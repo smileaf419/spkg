@@ -351,7 +351,7 @@ fetch_file() {
 
 	#	curl --xattr -o "${DISTFILES}/${OUTFILE}" "$1"
 	## If we encounter an Error, delete the file and error out.
-	if ! wget --xattr -c -O "${DISTFILES}/${OUTFILE}" "$1"; then
+	if ! wget -nv --show-progress --xattr -c -O "${DISTFILES}/${OUTFILE}" "$1"; then
 		[[ -e "$DISTFILES/$OUTFILE" ]] && rm "${DISTFILES}/${OUTFILE}"
 		>&2 echo "   FILE: $FILE"
 		>&2 echo "OUTFILE: $OUTFILE"
