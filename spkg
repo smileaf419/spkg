@@ -360,6 +360,7 @@ parse_cmdline() {
 						SILENT_BUILD=yes ;;
 					e|-empty)
 						EMPTY_WORLD=1 ;;
+					## Purposefully undocumented option =]
 					-ignoresha)
 						IGNORE_SHA1=1 ;;
 					-skipFirst)
@@ -389,7 +390,8 @@ parse_cmdline() {
 						echo " Modes (Default: Install)"
 						echo    "  --search, -s         Search and list package information."
 						echo    "  --list               Like search but shows different details in a list form."
-						echo    "  --filter [list:..]   ':' seperated list. Valid options are: aged, installed, stable and unstable"
+						echo    "  --filter [list:..]   ':' seperated list. (Only usable with --list)"
+						echo    "                       Valid options are: aged, installed, stable and unstable"
 						echo    "  --uninstall, -u      uninstall package."
 						echo    "  --rebuildKernelMods  Rebuilds all Kernel Modules."
 						echo    "  --rebuildPythonMods  Rebuilds all Python Modules."
