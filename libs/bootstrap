@@ -1,9 +1,17 @@
 #!/bin/bash
+####
+## bootstrap
+## This file describes a 4 step process to build a full system
+## Stage 1: cross-compile to seperate our new system from the host
+## Stage 2: Prepare the system for a chroot environment
+## Stage 3: Download files we will need once we chroot
+## Stage 4: Build a basic system described in the basicsystem set.
+
+
 ## We need to exit immediately if we encounter an error.
 set -e
 
-## Set a limited use found within
-## $PKG_DB_DIR/spkg-tools/spkg.conf
+## Set a limited use found within spkg.conf
 USE="-gd -X -openrc -java"
 
 echo " * Bootstrapping .. This will take a while.."
@@ -18,8 +26,9 @@ LOGDIR="$ROOT/$LOGDIR"
 
 ## Something to call our release
 ## We'll change it yearly to something fun.
-#CODENAME="Spider" ## 2023 Release
-CODENAME="Mouse" ## 2024 Release
+#CODENAME="Spider"		## 2023 Release (E)
+#CODENAME="Mouse"		## 2024 Release (A)
+CODENAME="Tabby Cat"	## 2025 Release (H)
 
 ## Set a stable arch
 #ARCH="$(uname -m)"
@@ -34,8 +43,8 @@ export PATH="$ROOT/tools/bin:$PATH"
 if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT/$PKG_DB_DIR ]]; then
 	echo " $IMPORTANT git appears to not be installed and is required to clone the spkg repository."
 	echo " $IMPORTANT if you wish you may create the $ROOT/$PKG_DB_DIR and copy the repository, "
-	echo "            found at: https://github.com/smileaf419/spkg/releases there before continuing."
-	echo "Continue? (Yes/No): "
+	echo "            found at: https://github.com/smileaf419/spkg-repository there before continuing."
+	echo "Continue? (Yes/NO): "
 	read cont
 
 	## If they didn't agree, or the dir still doesn't exist, exit
@@ -162,6 +171,33 @@ wheel:x:97:
 spkg:x:250:
 users:x:999:
 nogroup:x:65534:
+EOF
+
+	cat > $ROOT/etc/fstab << "EOF"
+# Static information about the filesystems.
+# See fstab(5) for details.
+
+# <file system> <dir> <type> <options> <dump> <pass>
+proc        /proc           proc        nosuid,noexec,nodev     0 0
+sysfs       /sys            sysfs       nosuid,noexec,nodev     0 0
+tmpfs       /run            tmpfs       defaults                0 0
+devtmpfs    /dev            devtmpfs    mode=0755,nosuid        0 0
+devpts      /dev/pts        devpts      gid=5,mode=620          0 0
+tmpfs       /dev/shm        tmpfs       nosuid,nodev            0 0
+#cgroup2    /sys/fs/cgroup  cgroup2     nosuid,noexec,nodev     0 0
+
+# Hard Drives (SSD)
+#UUID=""     /boot/efi       vfat        codepage=437,iocharset=iso8859-1    1 2
+#UUID=""     none            swap        default                             0 0
+#UUID=""     /               ext4        rw,relatime                         0 1
+
+# Hard Drives (SATA)
+#UUID=""     /               ext4        rw,relatime                         0 1
+
+# Optical drives
+/dev/cdrom  /media/cdrom    auto        defaults,ro,noauto                  0 0
+
+# External USB drives
 EOF
 
 	cat > $ROOT/chroot.sh << "EOF"
