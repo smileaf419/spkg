@@ -1,6 +1,6 @@
 ####
 ## * build
-## Copyright 2023-2024 spkg developers, licensed under GPLv2
+## Copyright 2023-2025 spkg developers, licensed under GPLv2
 ## Start versioning at -r1 if patches are used.
 ## non-patched packages may omit a revision, until a modification is made.
 HOMEPAGE=""
