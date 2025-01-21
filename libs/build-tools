@@ -699,7 +699,9 @@ installList() {
 
 			export RESTRICT=
 
-			echo " * ${PKG_CAT}/${PKG_NVR} ($C of $length)"
+			echo
+			echo " ${GREEN}*${NORMAL} ${PKG_CAT}/${PKG_NVR} ($GREEN$C$NORMAL of $GREEN$length$NORMAL)"
+			echo
 			title "${PKG_CAT}/${PKG_NVR} ($C of $length)"
 
 			## Save what time we started installing so we can output how long it took at the end.
