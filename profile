@@ -68,10 +68,10 @@ BLUE="\[$(tput setaf 27)\]"
 GREEN="\[$(tput setaf 82)\]"
 DIM="\[$(tput dim)\]"
 if [[ $EUID == 0 ]] ; then
-	PS1="[$DIM\t$NORMAL] $RED\u@\h:$BLUE\w$RED# $NORMAL"
+	PS1="[$DIM\t$NORMAL] $RED\u@\h:$BLUE\w$RED# $NORMAL\033]0;\u@\h - \w\007""
 else
-	PS1="[$DIM\t$NORMAL] $GREEN\u@\h:$BLUE\w$GREEN\$ $NORMAL"
-#	PS1="[$DIM\t$NORMAL] $PINK\u@\h:$BLUE\w$PINK\$ $NORMAL"
+	PS1="[$DIM\t$NORMAL] $GREEN\u@\h:$BLUE\w$GREEN\$ $NORMAL\033]0;\u@\h - \w\007""
+#	PS1="[$DIM\t$NORMAL] $PINK\u@\h:$BLUE\w$PINK\$ $NORMAL\033]0;\u@\h - \w\007""
 fi
 
 for script in /etc/profile.d/*.sh ; do
