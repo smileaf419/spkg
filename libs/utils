@@ -21,7 +21,14 @@ function title {
 	if [[ ! -z $1 ]]; then
 		echo -ne "\033]0;spkg - $@\007"
 	else
-		echo -ne "\033]0;\007"
+		## Restore the saved and set a title default
+		## We should check if there is a title set before and if so use that instead.
+		## we can't assume one is or isn't set as this is up to the user/distro not us.
+		## For the moment however its better to set a default, than to unset one and have it
+		## display an ugly "Untitled". setting a default even if not what the user had wanted
+		## is also still better than not unsetting a title and having an artifact of whatever
+		## title we set last.
+		PS1="$PS1_SAVE\033]0;\u@\h - \w\007"
 	fi
 }
 export -f title
@@ -69,7 +76,8 @@ buildKernel() {
 
 	## Get our kernel version from the symlink.
 	KERNEL_VER=$(readlink -f /usr/src/linux | sed -e 's,.*linux-,,' -e 's,/$,,')
-	echo " * Building Kernel - $KERNEL_VER"
+	echo " $GREEN*$NORMAL Building Kernel - $GREEN$KERNEL_VER$NORMAL"
+	title "Building Kernel - $KERNEL_VER"
 
 	cd /usr/src/linux
 
