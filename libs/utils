@@ -17,18 +17,18 @@ KERNEL_CONFIG_FILE=/usr/src/linux/.config
 ## Set the window title
 ##
 function title {
-	PS1=$PS1_SAVE
 	if [[ ! -z $1 ]]; then
-		echo -ne "\033]0;spkg - $@\007"
+		echo -ne "\e]0;spkg - $@\a"
 	else
-		## Restore the saved and set a title default
-		## We should check if there is a title set before and if so use that instead.
-		## we can't assume one is or isn't set as this is up to the user/distro not us.
-		## For the moment however its better to set a default, than to unset one and have it
-		## display an ugly "Untitled". setting a default even if not what the user had wanted
-		## is also still better than not unsetting a title and having an artifact of whatever
-		## title we set last.
-		PS1="$PS1_SAVE\033]0;\u@\h - \w\007"
+		## Restore the environment
+		## we cannot modify the PS1 value within a subshell.
+		## But we also cannot set a decent default title for a few reasons.
+		## First of course is that we do not know what the distro/user wanted
+		## second even if we decided to enforce a default we liked, we cannot
+		##   set it in a way that we could in the PS1.
+		## So instead fall back on using /etc/profile. if they do not set a default title
+		## There isn't much we can do about it, but at least they have control of this.
+		source /etc/profile
 	fi
 }
 export -f title

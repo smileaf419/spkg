@@ -148,9 +148,6 @@ export DIM=$(tput dim)
 export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
 export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
 
-## Save for later use.
-export PS1_SAVE=$PS1
-
 ####
 ## Ensure our config file exists
 cmd_USE=$USE
