@@ -4,7 +4,7 @@
 ## Copyright 2023 spkg developers, licensed under GPLv2
 ##
 ## Helps to keep our DB clean by removing excess builds
-
+#set -x
 source /etc/spkg.conf
 
 MAX_BUILDS=2
@@ -34,13 +34,39 @@ source "${INSTALL_PATH}/libs/utils"
 source "${INSTALL_PATH}/libs/updatesha1"
 source "${INSTALL_PATH}/libs/build-tools"
 
+DB-getPkgByArch() {
+	## Save our flags
+	local flags=$(getFlags $1)
+
+	## Set the environment with known values.
+	local PKG_SLOT=$(getSlot $1)
+
+	for l in $(DB-getPkgList $1 | filterStable $2 $3 | filterSlot $PKG_SLOT | sort -V); do
+		fileToList $l $flags
+	done
+}
+
+## Filter packages by ARCH and return a list of either stable or unstable
+filterStable() {
+	local arch=${1:-$ARCH}
+	local f=${2:-}
+
+	## If we're using an unstable ARCH, we need to enable the ability for it to match packages marked as stable too.
+#	[[ ${arch:0:1} != '~' ]] && f='~'
+#	arch=${arch#\~}
+	echo $(cat -) | xargs grep -l 'ARCHS=.*'[^-$f]$arch'[ "]' 2> /dev/null || true
+}
+
 cleanPkg() {
 	local d=$1
 	local slot=${SPKG_CLEAN_SLOT:-0}
-	NUM=$(DB-getPkg $d | wc -l)
+	## We need to ensure we do 2 checks, 1 for stable, 1 for unstable
+	## This also needs to ensure we also do 1 check for each ARCH.
+	## This is to ensure each ARCH has a stable version if available.
+	NUM=$(DB-getPkgByArch $d $ARCH '' | wc -l)
 	if [[ $NUM -gt $MAX_BUILDS ]]; then
 		## This does not honor PKG_SLOT differences!
-		FILES=( $(DB-getPkg $d | head -n $(( $NUM - $MAX_BUILDS )) ) )
+		FILES=( $(DB-getPkgByArch $d $ARCH '' | head -n $(( $NUM - $MAX_BUILDS )) ) )
 		SLOT=$(grep -h "SLOT=$slot" $(getBldFile ${FILES[0]}) | sed 's,^.*SLOT=,,')
 		if [[ $SLOT == $slot ]]; then
 			echo -n $d:
@@ -53,8 +79,8 @@ cleanPkg() {
 		else
 			echo "$d has multiple or incorrect SLOTs not cleaning"
 		fi
-	elif [[ $NUM == 0 ]]; then
-		echo "$d Has No builds marked as $ARCH"
+#	elif [[ $NUM == 0 ]]; then
+#		echo "$d Has No builds marked as $ARCH"
 	fi
 }
 
