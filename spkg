@@ -463,7 +463,9 @@ if [[ $MODE == 'resume' ]]; then
 		fi
 	done
 	unset check
-else
+## No need to clean unless we need to. searching, listing, syncing and updating sha1sums should be allowed
+## between an attempt and a resume.
+elif [[ $MODE != 'search' && $MODE != 'list' && $HASH_UPDATE != true && $MODE != 'sync' ]]; then
 	## Create our lock file.
 	touch $SPKG_TMP_DIR/.lock
 
@@ -483,7 +485,7 @@ export PRESERVED_LOG=${PRESERVED_LOG:-$PKG_CACHE/preserved}
 
 ####
 ## Ensure we can write to required directories
-if [[ $MODE != 'search' && $MODE != 'list' && $MODE != 'update' ]]; then
+if [[ $MODE != 'search' && $MODE != 'list' && $PRETEND != 1 ]]; then
 	if [ ! -d $PKG_ARCHIVE_DIR ];
 		then mkdir -p "$PKG_ARCHIVE_DIR" || die "Failed to create: PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"; fi
 	test -w $PKG_ARCHIVE_DIR || die "Cannot write to PKG_ARCHIVE_DIR: $PKG_ARCHIVE_DIR"
@@ -564,7 +566,7 @@ if [[ $MODE == "sync" ]]; then
 	# If git is not installed, inform the user to install it.
 	if [[ ! -e /usr/bin/git ]]; then
 		echo " $IMPORTANT Git is not installed!"
-		echo "    Please install it via: spkg git; Or download a copy from: https://github.com/smileaf419/spkg"
+		echo "    Please install it via: spkg git; Or download a copy from: https://github.com/smileaf419/spkg-repository"
 		exit 1
 	fi
 	echo " * Syncing database... "
