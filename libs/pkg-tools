@@ -88,10 +88,24 @@ filterSlot() {
 	if [[ $slot == 0 ]]; then
 		echo $p | tr ' ' '\n'
 	else
-		echo $p | xargs grep -l "SLOT=$slot" 2> /dev/null || true
+		for pkg in $p; do
+			if [[ $(getPkgSlot $pkg) == $slot ]]; then
+				echo $pkg
+			fi
+		done
+#		echo $p | xargs grep -l "SLOT=$slot" 2> /dev/null || true
 	fi
 }
 export -f filterSlot
+
+## Read a build file and output the slot
+getPkgSlot() {
+	(
+		source $1
+		echo $SLOT
+	)
+}
+export -f getPkgSlot
 
 ## Turns a file path into a / seperated list of data.
 ## If a 2nd argument is given, assumes its PKG_FLAGS.
