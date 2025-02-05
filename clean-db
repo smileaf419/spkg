@@ -39,9 +39,9 @@ DB-getPkgByArch() {
 	local flags=$(getFlags $1)
 
 	## Set the environment with known values.
-	local PKG_SLOT=$(getSlot $1)
+	local PKG_SLOT=$3
 
-	for l in $(DB-getPkgList $1 | filterStable $2 $3 | filterSlot $PKG_SLOT | sort -V); do
+	for l in $(DB-getPkgList $1 | filterStable $2 | filterSlot $3 | sort -V); do
 		fileToList $l $flags
 	done
 }
@@ -49,11 +49,10 @@ DB-getPkgByArch() {
 ## Filter packages by ARCH and return a list of either stable or unstable
 filterStable() {
 	local arch=${1:-$ARCH}
-	local f=${2:-}
-
+	local f=
 	## If we're using an unstable ARCH, we need to enable the ability for it to match packages marked as stable too.
-#	[[ ${arch:0:1} != '~' ]] && f='~'
-#	arch=${arch#\~}
+	#[[ ${arch:0:1} != '~' ]] && f='~'
+	#arch=${arch#\~}
 	echo $(cat -) | xargs grep -l 'ARCHS=.*'[^-$f]$arch'[ "]' 2> /dev/null || true
 }
 
@@ -63,21 +62,27 @@ cleanPkg() {
 	## We need to ensure we do 2 checks, 1 for stable, 1 for unstable
 	## This also needs to ensure we also do 1 check for each ARCH.
 	## This is to ensure each ARCH has a stable version if available.
-	NUM=$(DB-getPkgByArch $d $ARCH '' | wc -l)
+	NUM=$(DB-getPkgByArch $d $ARCH $slot | wc -l)
 	if [[ $NUM -gt $MAX_BUILDS ]]; then
 		## This does not honor PKG_SLOT differences!
-		FILES=( $(DB-getPkgByArch $d $ARCH '' | head -n $(( $NUM - $MAX_BUILDS )) ) )
-		SLOT=$(grep -h "SLOT=$slot" $(getBldFile ${FILES[0]}) | sed 's,^.*SLOT=,,')
-		if [[ $SLOT == $slot ]]; then
-			echo -n $d:
-			for p in ${FILES[*]}; do
+		FILES=( $(DB-getPkgByArch $d $ARCH $slot | head -n $(( $NUM - $MAX_BUILDS )) ) )
+		echo -n $d:
+		local updated=0
+		for p in ${FILES[*]}; do
+			SLOT=$(getPkgSlot $(getBldFile $p))
+			if [[ $SLOT == $slot ]]; then
 				echo -n "$(getVerRev $p) "
 				rm $(getBldFile $p)
-			done
+				updated=1
+			else
+				echo " multiple or incorrect slot not cleaning"
+				[[ -z $SPKG_CLEAN_SLOT ]] && break
+			fi
+		done
+		if [[ $updated == 1 ]]; then
 			rm $d/sha1
+			echo
 			updatesha1 $d
-		else
-			echo "$d has multiple or incorrect SLOTs not cleaning"
 		fi
 #	elif [[ $NUM == 0 ]]; then
 #		echo "$d Has No builds marked as $ARCH"
@@ -85,7 +90,12 @@ cleanPkg() {
 }
 
 cd $PKG_DB_DIR
-list=($(find * -mindepth 1 -maxdepth 1 -type d))
+#SPKG_PKG_LIST=${SPKG_PKG_LIST:-}
+if [[ ! -z $SPKG_PKG_LIST ]]; then
+	SPKG_PKG_LIST="-wholename $SPKG_PKG_LIST"
+fi
+
+list=($(find * -mindepth 1 -maxdepth 1 $SPKG_PKG_LIST -type d))
 length=${#list[@]}
 
 for (( l=0; l<${length}; l++ )); do
