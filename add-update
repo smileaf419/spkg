@@ -12,15 +12,24 @@ source "${INSTALL_PATH}/libs/utils"
 source "${INSTALL_PATH}/libs/build-tools"
 source "${INSTALL_PATH}/libs/builddefaults"
 
+export NORMAL=$(tput sgr0)
+export GREEN=$(tput setaf 82)
+export BRIGHT_RED=$(tput setaf 9)
+export BRIGHT_YELLOW=$(tput setaf 11)
+export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
+export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
+
 VERBOSE=${VERBOSE:-0}
 PKG=$(DB-getPkg $(EntryParser $1) | getLatest)
-ver=$2
-setPkgENV $PKG
-if [[ $PKG_VR == $ver ]] || version_gt $PKG_VR $ver; then
-	echo "Nothing to update"
-	exit
+if [[ $PKG == '' || -z $PKG ]]; then
+	die " $DIALOG_ERROR Cannot add update: $1 not found!"
 fi
-echo "Update $PKG_CAT/$PKG_NVR to $ver"
+ver=$2
+setPkgENV $PKG 2&>1 /dev/null
+if [[ $PKG_VR == $ver ]] || version_gt $PKG_VR $ver; then
+	die " $IMPORTANT Nothing to update, $PKG_NVR is available"
+fi
+echo " $GREEN*$NORMAL Update $PKG_CAT/$PKG_NVR to $ver"
 
 ## Take the most recent version and make the supplied version.
 	sed -e '/ARCHS/ s,\( \|="\)\([^~]\),\1~\2,g' \
