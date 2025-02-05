@@ -100,6 +100,7 @@ export -f filterSlot
 
 ## Read a build file and output the slot
 getPkgSlot() {
+	[[ $1 != *.build ]] && echo 0 && return
 	(
 		source $1
 		echo $SLOT
