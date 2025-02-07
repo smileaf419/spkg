@@ -110,6 +110,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		ntp|openssh) FILES=$(grep -P "^$p-[0-9p]+" $DFILES | grep -v 'manpages') ;;
 		timezone-data) FILES=$(grep -P "tzdata[0-9a-z]{5}" $DFILES) ;;
 		unzip) FILES=$(grep -P unzip[0-9]+ $DFILES | sed -e 's,unzip,unzip-,' -e 's,\([0-9]\),\1.,g' -e 's,\.\.,.,') ;;
+		vulkan-headers|vulkan-loader) FILES=$(echo $FILES | sed 's,.0.tar.*,,g' ) ;;
 	esac
 	FILE=$(echo $FILES | tr ' ' '\n' | sort -V | tail -n1)
 	FILE_O=$FILE
