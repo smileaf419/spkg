@@ -351,8 +351,9 @@ installPackage() {
 			mv ${D}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
 		fi
 		mv ${D}/USE_FLAGS $CACHE_DIR/USE_FLAGS
+
 		if [[ -e $RESTRICTIONS ]]; then
-			cp $RESTRICTIONS $CACHE_DIR/RESTRICTIONS
+			sort $RESTRICTIONS | uniq > $CACHE_DIR/RESTRICTIONS
 		fi
 
 		## Gather Contents
@@ -362,13 +363,9 @@ installPackage() {
 		## Otherwise we're going to add to our CONTENTS
 		cd $D
 		if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
-			find . -type d | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
-			find . -type f | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
-			find . -type l | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+			find . -type d -or -type f -or -type l | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
 		else
-			find .  -type d | sed "s,^\.,," | sort >  "${BUILD_PATH}/CONTENTS"
-			find .  -type f | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
-			find .  -type l | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
+			find . -type d -or -type f -or -type l | sed "s,^\.,," | sort > "${BUILD_PATH}/CONTENTS"
 		fi
 
 		getBDeps "${BUILD_PATH}/CONTENTS"
