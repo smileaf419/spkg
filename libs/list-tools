@@ -356,33 +356,30 @@ doDeps() {
 			## We need to itterate over the dpkg and ensure we restrict versions to only those that match.
 			local p
 			local r
-			local opkg=
 			local dpkg_name=$(getName $dpkg)
 			local dpkg_cat=$(getCategory $dpkg)
 			local dpkg_slot=$(getSlot $dpkg)
-			for p in $dpkg; do
+			local opkg=$(for p in $dpkg; do
 				local IFS="|"
 				pver=$(getVersion $p)
-				if [[ ! -z $PKG_VER_RESTRICT ]]; then
-					for r in $PKG_VER_RESTRICT; do
-						if [[ ${r:0:1} == ">" ]]; then
-							if [[ ${r:1:2} == "=" ]]; then
-								version_ge $pver ${r#>=} && opkg+="$p\n"
-							else
-								version_gt $pver ${r#>} && opkg+="$p\n"
-							fi
-						elif [[ ${r:0:1} == "<" ]]; then
-							if [[ ${r:1:2} == "=" ]]; then
-								version_le $pver ${r#<=} && opkg+="$p\n"
-							else
-								version_lt $pver ${r#<} && opkg+="$p\n"
-							fi
+				for r in $PKG_VER_RESTRICT; do
+					if [[ ${r:0:1} == ">" ]]; then
+						if [[ ${r:1:2} == "=" ]]; then
+							version_ge $pver ${r#>=} && echo $p
+						else
+							version_gt $pver ${r#>} && echo $p
 						fi
-						## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
-						echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot" >> $RESTRICTIONS
-					done
-				fi
-			done
+					elif [[ ${r:0:1} == "<" ]]; then
+						if [[ ${r:1:2} == "=" ]]; then
+							version_le $pver ${r#<=} && echo $p
+						else
+							version_lt $pver ${r#<} && echo $p
+						fi
+					fi
+					## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
+					>&2 echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot"
+				done
+			done 2> >(sort | uniq >> $RESTRICTIONS))
 			unset IFS
 
 			dpkg=$(echo -e $opkg | getLatest)
