@@ -8,7 +8,7 @@ source /etc/spkg.conf
 echo " * Cleaning Old archives in $PKG_ARCHIVE_DIR"
 
 for d in $(find $PKG_ARCHIVE_DIR -mindepth 1 -type d); do
-	[[ $d == *spkg-tools* || $d == *spkg-sets* ]] && continue
+	[[ $d == *spkg-sets* || $d == *.git* ]] && continue
 	## Strip off the extension and the revision before we strip off the version information leaving just the PKG_NAME
 	for e in $(ls $d -1 | sed -e s,.tar.xz,, -e s,-r[0-9]$,, -e 's,\(.*\)-.*,\1,' | sort | uniq) ; do
 		NUM=$(ls -1 $d/$e-* | wc -l);

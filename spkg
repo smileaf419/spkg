@@ -732,8 +732,8 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 		## Create an empty list for packages to update the sha1sum if using markStable
 		updateList=
 		for r in $list; do
-			## Its possible for spkg-sets and spkg-tools to get returned.. filter them out.
-			[[ $r == spkg-*/* ]] && continue
+			## Its possible for spkg-sets and .git to get returned.. filter them out.
+			[[ $r == *spkg-sets* || $r == *.git* ]] && continue
 			## Parse the entry again to get more information that was not supplied in the search.
 			PKG=$(DB-getPkg $r | getLatest)
 			if [[ -z $PKG ]]; then
