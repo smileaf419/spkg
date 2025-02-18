@@ -234,7 +234,7 @@ EOF
 	## Fetch all required packages as wget will not be available initially
 	echo " * Fetching all required files to finalize the install ..."
 	REQUESTED_LIST="@basicsystem"
-	populate_list
+	populate_list "@basicsystem"
 	FETCH_ONLY=1
 	EMPTY_WORLD=1
 	getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"

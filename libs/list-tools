@@ -14,6 +14,7 @@ export RESTRICTIONS=$WORKDIR_BASE/restrictions
 ## Takes a user supplied list and parse it and finding matches for packages.
 ## Store the information within our CHART for easy reference.
 populate_list() {
+	local REQUESTED_LIST=${@:-$REQUESTED_LIST}
 	local timestart=$(date "+%s.%N")
 	[ -e $CHART ] && rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
