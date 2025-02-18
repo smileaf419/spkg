@@ -534,7 +534,7 @@ if [[ $MODE != 'search' && $MODE != 'list' && $PRETEND != 1 ]]; then
 
 	## Populate our list with fully qualified entries so long as we're not searching.
 	## We wouldn't want to destroy our search terms.
-	populate_list
+	populate_list $REQUESTED_LIST
 fi
 
 ## Calculate Binary Dependencies and update the DEPS var within the build file.
@@ -655,7 +655,7 @@ elif [[ $MODE == "buildKernel" ]]; then
 	buildKernel
 	REQUESTED_LIST="@kernelModules"
 	FORCE=1
-	populate_list
+	populate_list "@kernelModules"
 
 ## Attempts to clean a system of all unessential packages.
 ## This is done by building 2 lists:
@@ -672,13 +672,13 @@ elif [[ $MODE == "clean" ]]; then
 	echo " * Deep Cleaning (Experimental!)"
 	echo " * Gathering a list of @system and @world"
 	REQUESTED_LIST="@system @world"
-	populate_list
+	populate_list "@system @world"
 	getFullPkgList $(cat $CHART) > /dev/null || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	mv $CHART $WORKDIR_BASE/sysworldset
 
 	echo " * Getting a list of installed packages."
 	REQUESTED_LIST="@installed"
-	populate_list
+	populate_list "@installed"
 	getFullPkgList $(cat $CHART) > /dev/null|| die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 
 	## This is primarily based on the assumption that @installed contains *everything*
