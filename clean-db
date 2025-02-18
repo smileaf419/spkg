@@ -29,6 +29,7 @@ whereAmI() {
 ## Include our libraries
 INSTALL_PATH=$(whereAmI)
 source "${INSTALL_PATH}/libs/pkg-tools"
+source "${INSTALL_PATH}/libs/list-tools"
 source "${INSTALL_PATH}/libs/pkg-utils"
 source "${INSTALL_PATH}/libs/utils"
 source "${INSTALL_PATH}/libs/updatesha1"
@@ -49,16 +50,16 @@ DB-getPkgByArch() {
 ## Filter packages by ARCH and return a list of either stable or unstable
 filterStable() {
 	local arch=${1:-$ARCH}
-	local f=
+	local f=~
 	## If we're using an unstable ARCH, we need to enable the ability for it to match packages marked as stable too.
-	#[[ ${arch:0:1} != '~' ]] && f='~'
-	#arch=${arch#\~}
-	echo $(cat -) | xargs grep -l 'ARCHS=.*'[^-$f]$arch'[ "]' 2> /dev/null || true
+#	[[ ${arch:0:1} != '~' ]] && f='~'
+	arch=${arch#\~}
+	echo $(cat -) | xargs grep -l 'ARCHS=.*'[^-~]$arch'[ "]' 2> /dev/null || true
 }
 
 cleanPkg() {
 	local d=$1
-	local slot=${SPKG_CLEAN_SLOT:-0}
+	local slot=${PKG_SLOT:-0}
 	## We need to ensure we do 2 checks, 1 for stable, 1 for unstable
 	## This also needs to ensure we also do 1 check for each ARCH.
 	## This is to ensure each ARCH has a stable version if available.
@@ -75,8 +76,8 @@ cleanPkg() {
 				rm $(getBldFile $p)
 				updated=1
 			else
-				echo " multiple or incorrect slot not cleaning"
-				[[ -z $SPKG_CLEAN_SLOT ]] && break
+				echo " multiple or incorrect slot not cleaning: $PKG_SLOT"
+				[[ $PKG_SLOT == 0 || -z $PKG_SLOT ]] && break
 			fi
 		done
 		if [[ $updated == 1 ]]; then
@@ -86,16 +87,24 @@ cleanPkg() {
 		fi
 #	elif [[ $NUM == 0 ]]; then
 #		echo "$d Has No builds marked as $ARCH"
+#	else
+#		echo "$d has $NUM builds (< $MAX_BUILDS)"
 	fi
 }
 
 cd $PKG_DB_DIR
 #SPKG_PKG_LIST=${SPKG_PKG_LIST:-}
-if [[ ! -z $SPKG_PKG_LIST ]]; then
-	SPKG_PKG_LIST="-wholename $SPKG_PKG_LIST"
+CHART=/tmp/chart
+if [[ ! -z $@ ]]; then
+#	SPKG_PKG_LIST="-wholename $SPKG_PKG_LIST"
+	populate_list $@
+else
+	list=($(find * -mindepth 1 -maxdepth 1 -type d))
+	populate_list $list
 fi
 
-list=($(find * -mindepth 1 -maxdepth 1 $SPKG_PKG_LIST -type d))
+list=$(cat $CHART)
+
 length=${#list[@]}
 
 for (( l=0; l<${length}; l++ )); do
@@ -103,11 +112,14 @@ for (( l=0; l<${length}; l++ )); do
 	C=$(( ${l} + 1 ))
 	## PKG entry
 	d=${list[$l]}
-	[[ $d == *spkg-tools* || $d == *spkg-sets* || $d == *.git* ]] && continue
+#	set +x
+	setPkgENV $d > /dev/null 2>&1
+#		set -x
+#	[[ $d == *spkg-sets* || $d == *.git* ]] && continue
 
 #	echo -ne "\r $C / $length: $d                             "
-	PKG_CAT=${d%/*}
-	PKG_NAME=${d#*/}
+#	PKG_CAT=${d%/*}
+#	PKG_NAME=${d#*/}
 	printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME
 	cleanPkg $d
 done
