@@ -380,6 +380,8 @@ doDeps() {
 					## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
 					>&2 echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot"
 				done
+			## Redirect stderr to our RESTRICTIONS file
+			## save our stdout in the opkg variable
 			done 2> >(sort | uniq >> $RESTRICTIONS))
 			unset IFS
 
