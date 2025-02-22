@@ -190,6 +190,15 @@ installPackage() {
 	(
 		set +h -Eeo pipefail
 		BUILD_SEPERATE_DIR=no
+
+		## Set an ABI for the currently running system
+		## Builds can reference this to do changes based on if we're cross compiling, or building for native.
+		export MY_ABI=64
+		case $(uname -m) in
+			x86_64) MY_ABI=64 ;;
+			i*86)   MY_ABI=32 ;;
+		esac
+
 		local BUILD_FORCE=0
 		export DOC_LIST=("/usr/share/doc")
 
