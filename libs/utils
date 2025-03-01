@@ -503,6 +503,18 @@ preservedRebuild() {
 		[ -e $INSTALL_CHART ] && rm $INSTALL_CHART
 		PKG_LIST=""
 		REQUESTED_LIST=""
+
+		if [ -e $SPKG_TMP_DIR/preserved ]; then
+			diff $SPKG_TMP_DIR/preserved $PRESERVED_LOG > /dev/null 2>&1
+			if [[ $? == 0 ]]; then
+				>&2 echo " $DIALOG_ERROR Error: it appears we've already rebuilt this list but nothing has changed."
+				>&2 echo " $IMPORTANT We are going to assume nothing is wrong, but please report this."
+				>&2 echo "Contents of $PRESERVED_LOG:"
+				cat $PRESERVED_LOG
+				rm $PRESERVED_LOG
+			fi
+		fi
+
 		for f in $(cat $PRESERVED_LOG); do
 			echo -n "$f:"
 			local pkgs=$(checkFileDep $f)
@@ -524,9 +536,14 @@ preservedRebuild() {
 			fi
 		done
 
+		## Remove the log now that we're done with it.
 		if [[ ! -z $PKG_LIST ]]; then
+			## Save a copy of our preserved log file for later reference.
+			cp $PRESERVED_LOG $SPKG_TMP_DIR/preserved
+
 			return 0
 		fi
+
 		rm $PRESERVED_LOG
 	fi
 	return 1
