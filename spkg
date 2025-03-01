@@ -93,7 +93,10 @@ cleanup() {
 
 	# TODO: automerge if files were not changed.
 	if [[ $CONFIG_PROTECTED == 'true' ]]; then
+		echo
 		echo " $YELLOW*$NORMAL System configuration files were protected!"
+		echo " $YELLOW*$NORMAL Please run $INSTALL_PATH/etc-update"
+		echo
 		find $ROOT/etc/ -iname "*.cfg[0-9]*"
 	fi
 	title
@@ -147,6 +150,7 @@ export DIM=$(tput dim)
 ## Convience vars for colorizing output.
 export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
 export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
+export INFO_MSG="${GREEN}*${NORMAL}"
 
 ####
 ## Ensure our config file exists
@@ -569,9 +573,9 @@ if [[ $MODE == "sync" ]]; then
 		echo "    Please install it via: spkg git; Or download a copy from: https://github.com/smileaf419/spkg-repository"
 		exit 1
 	fi
-	echo " * Syncing database... "
+	echo " $INFO_MSG Syncing database... "
 	cd $PKG_DB_DIR
-	git pull && echo " * Sync Complete!" || die " $DIALOG_ERROR Sync Failed!"
+	git pull && echo " $INFO_MSG Sync Complete!" || die " $DIALOG_ERROR Sync Failed!"
 fi
 
 ####
@@ -579,7 +583,7 @@ fi
 ## Take everything installed and find upgrades for it, respecting explicitly installed slots within world.
 if [[ $MODE == "update" ]]; then
 	timestart=$(date "+%s.%N")
-	echo -n " * Checking for updates"
+	echo -n " $INFO_MSG Checking for updates"
 
 	## a REQUESTED_LIST is not set as none of this has been explicitely requested.
 	## instead set a PKG_LIST
@@ -643,7 +647,7 @@ elif [[ $MODE == "resume" ]]; then
 	if [ ! -e $INSTALL_CHART ]; then
 		die " $DIALOG_ERROR Error Cannot resume no list was found."
 	fi
-	echo " * Resuming..."
+	echo " $INFO_MSG Resuming..."
 	if [[ $SKIP_FIRST == 1 ]]; then
 		tail -n+2 "$INSTALL_CHART" > "$CHART"
 	else
@@ -669,14 +673,14 @@ elif [[ $MODE == "buildKernel" ]]; then
 ##        if not, error out and tell the user to run: spkg @system @world
 elif [[ $MODE == "clean" ]]; then
 #	ENABLE_TESTS=1
-	echo " * Deep Cleaning (Experimental!)"
-	echo " * Gathering a list of @system and @world"
+	echo " $INFO_MSG Deep Cleaning (Experimental!)"
+	echo " $INFO_MSG Gathering a list of @system and @world"
 	REQUESTED_LIST="@system @world"
 	populate_list "@system @world"
 	getFullPkgList $(cat $CHART) > /dev/null || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	mv $CHART $WORKDIR_BASE/sysworldset
 
-	echo " * Getting a list of installed packages."
+	echo " $INFO_MSG Getting a list of installed packages."
 	REQUESTED_LIST="@installed"
 	populate_list "@installed"
 	getFullPkgList $(cat $CHART) > /dev/null|| die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
@@ -686,7 +690,7 @@ elif [[ $MODE == "clean" ]]; then
 	## With this assumption finding the unique packages should in theory contain what is installed, but isn't required.
 	## This assumption can fail if somehow @installed doesn't require a package, yet somehow @world or @system does.
 	## If this happens then it most definitely is the cause of a dependency resolution failure.
-	echo " * Gathering a list of targets to remove"
+	echo " $INFO_MSG Gathering a list of targets to remove"
 	REQUESTED_LIST=$(sort $CHART $WORKDIR_BASE/sysworldset | uniq -u)
 	## Clean-up
 	rm $WORKDIR_BASE/sysworldset
@@ -746,7 +750,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			PKG_NAME=$(getName $PKG)
 			checkSha1 ${PKG_BLD%/*} $PKG_BLD ||  echo " $DIALOG_ERROR sha1sum failed for $PKG_BLD"
 			if [[ $MODE == 'search' ]]; then
-				echo " * ${PKG_CAT}/${PKG_NAME}"
+				echo " $INFO_MSG ${PKG_CAT}/${PKG_NAME}"
 				printf " %12s:" "Available"
 				ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME | getLatest)
 				[[ -z $ipkg ]] && ipkg=0
@@ -825,7 +829,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 						updateList+=" $PKG_CAT/$PKG_NAME"
 						MARK_STABLE=${MARK_STABLE//:/ }
 						for arch in $MARK_STABLE; do
-							echo " ${GREEN}*${NORMAL} Marking $PKG_CAT/$PKG_NAME as stable for $arch"
+							echo " $INFO_MSG Marking $PKG_CAT/$PKG_NAME as stable for $arch"
 							sed -i "/ARCHS=/s/~$arch\([ \"]\)/$arch\1/g" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build"
 						done
 					fi
