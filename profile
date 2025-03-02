@@ -74,7 +74,7 @@ else
 #	PS1="[$DIM\t$NORMAL] $PINK\u@\h:$BLUE\w$PINK\$ $NORMAL"
 fi
 ## Add a title default
-PS1="\[\e]0;\u@\h - \w\a$PS1"
+PS1="\[\e]0;\u@\h - \w\a\]$PS1"
 
 for script in /etc/profile.d/*.sh ; do
         if [ -r $script ] ; then
