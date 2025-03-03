@@ -25,8 +25,6 @@ on first run a default /etc/spkg.conf should be created if ran as root.
 
 <b>USE</b> Gentoo like enables and disables certain options within packages.
 
-<b>PAGE</b> Groff option set to either 'letter' (US) or 'A4' (everyone else)
-
 <b>BUILD_PACKAGE</b> (yes|no) If set to 'yes' will create an archive within PKG_ARCHIVE_DIR
 
 <b>PKG_ARCHIVE_DIR</b> path to where archives will be stored. (default: /var/lib/spkg/archive)
