@@ -202,6 +202,15 @@ installPackage() {
 		local BUILD_FORCE=0
 		export DOC_LIST=("/usr/share/doc")
 
+		####
+		## Load any package specific USE flags
+		## This files should placed with /etc/spkg/pkg.use
+		## Using the format PKG_CAT/PKG_NAME:USE1 USE2
+		if [ -e /etc/spkg/pkg.use ]; then
+			U=$(grep -r $PKG_CAT/$PKG_NAME /etc/spkg/pkg.use | sed s,.*$PKG_CAT/$PKG_NAME://)
+			[[ $? == 0 ]] && USE=$(echo $USE $U | tr ' ' '\n' | uniq | tr '\n' ' ')
+		fi
+
 		unset CONF_FLAGS
 		source "${PKG_BLD}"
 
