@@ -782,13 +782,23 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 
 				## Run this in a subshell to avoid tainting the environment.
 				(
+					####
+					## Load any package specific USE flags
+					## This files should placed with /etc/spkg/pkg.use
+					## Using the format PKG_CAT/PKG_NAME:USE1 USE2
+					loadUSE
 					source "${PKG_BLD}"
 					printf " %12s: %s\n" "Homepage" "$HOMEPAGE"
 					printf " %12s: %s\n" "Description" "$DESCRIPTION"
 					[[ -z $LICENSE ]] && LICENSE="Unknown"
 					printf " %12s: %s\n" "License" "$LICENSE"
 					[[ ! -z $IUSE ]] &&
-					printf " %12s: %s\n" "USE" "$IUSE"
+					printf " %12s:" "USE"
+					# "$IUSE"
+					for u in $IUSE; do
+						use-enable $u && echo -n $GREEN || echo -n $RED
+						echo -n " $u"
+					done; echo $NORMAL
 					printf " %12s: %s" "Dependencies" "$DEPS"
 					[[ ! -z "$UDEPS" ]] && echo -n " [U:${UDEPS}]"
 					[[ ! -z "$RDEPS" ]] && echo -n " [R:${RDEPS}]"

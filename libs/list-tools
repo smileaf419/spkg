@@ -254,6 +254,7 @@ getdep() {
 			if [ -e "$PKG_BLD" ]; then
 				checkSha1 ${PKG_BLD%/*} $PKG_BLD || die "Sha1sum failed for $PKG_BLD within $PKG_CAT/$PKG_NAME"
 				unset BDEPS RDEPS UDEPS CDEPS DEPS
+				loadUSE
 				source "$PKG_BLD"
 			else
 				return 2

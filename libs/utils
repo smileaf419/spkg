@@ -489,6 +489,17 @@ sinstall() {
 	eval install $d $(stat -c '-m%a -g%g -o%u' "$1") \"$1\" \"$2\"
 }
 
+loadUSE() {
+	####
+	## Load any package specific USE flags
+	## This files should placed with /etc/spkg/pkg.use
+	## Using the format PKG_CAT/PKG_NAME:USE1 USE2
+	if [ -e /etc/spkg/pkg.use ]; then
+		U=$(grep -r $PKG_CAT/$PKG_NAME /etc/spkg/pkg.use | sed s,.*$PKG_CAT/$PKG_NAME:,, || true)
+		[[ $? == 0 ]] && USE=$(echo $USE $U | tr ' ' '\n' | uniq | tr '\n' ' ')
+	fi
+}
+
 ####
 ## Gathers a list of packages based on files found within PERSERVED_LOG to install them.
 ## PERSERVED_LOG is generated during the uninstall phase of a pkg upgrade or uninstall
