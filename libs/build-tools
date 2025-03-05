@@ -115,12 +115,8 @@ buildPackage() {
 		cd $d
 	fi
 
-#	exec 3<> /tmp/output
-	local a=($ABILIBS)
-	ABILIBS=${a[0]}
-	for (( l=1; l<${#a[@]}; l++ )); do
-		[[ " $BUILD_ABI" == *[[:space:]]${a[$l]}* ]] && ABILIBS+=" ${a[$l]}"
-	done
+	## Filter the ABILIBS with only those archs we want to build from our BUILD_ABI
+	ABILIBS=$(echo $ABILIBS $BUILD_ABI | tr ' ' '\n' | sort | uniq -d | tr '\n' ' ')
 
 	## Don't set an ABILIB if we are not building for multiple ARCHS
 	if [[ -z $ABILIBS ]]; then
