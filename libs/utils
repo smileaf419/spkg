@@ -523,6 +523,7 @@ preservedRebuild() {
 				>&2 echo "Contents of $PRESERVED_LOG:"
 				cat $PRESERVED_LOG
 				rm $PRESERVED_LOG
+				return 1
 			fi
 		fi
 
