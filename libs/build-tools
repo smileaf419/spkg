@@ -739,13 +739,17 @@ installList() {
 	title
 }
 
+####
+## Displays a list of packages being added to our CHART
 addToList() {
-	local PKG_CAT=$1
-	local PKG_NAME=$2
-	local PKG_VR=$3
-	local O_VER=$4
-	local PKG_SLOT=$5
-	local CDEP_FORCE=$6
+	local PKG=$1
+	local O_VER=$2
+	local CDEP_FORCE=$3
+
+	PKG_CAT=$(getCategory $PKG)
+	PKG_NAME=$(getName $PKG)
+	PKG_VR=$(getVerRev $PKG)
+	PKG_SLOT=$(getSlot $PKG)
 
 	if grep "^$PKG_CAT/$PKG_NAME$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 		echo -n "~"
@@ -791,7 +795,7 @@ addToList() {
 	echo
 
 	## Add to our INSTALL_CHART
-	Install-addPkg $p
+	Install-addPkg $PKG
 }
 
 buildList() {
@@ -819,6 +823,22 @@ buildList() {
 	if [[ $MODE != "uninstall" && -e $RESTRICTIONS ]]; then
 		[[ $VERBOSE -ge 1 ]] && echo " $IMPORTANT Looks like we have restrictions"
 		RESTRICT=$(sort -u $RESTRICTIONS)
+
+		## As we have restrictions we need to verify that we don't need to force an install to comply
+		## So we should take this time here to itterate over the RESTRICTIONS and find the matches within
+		## our CHART. If the versions change between what would be installed and what is installed
+		## Add them to our PKG_LIST and set a FORCE=1
+		for r in $RESTRICT; do
+			PKG_CAT=$(getCategory $r)
+			PKG_NAME=$(getName $r)
+			rPKG=$(grep ^$PKG_CAT/$PKG_NAME $CHART)
+
+			O_VER=$(Installed-getPkg $r | getVerRev)
+			if [[ $(getVerRev $rPKG) != $O_VER ]]; then
+				addToList $rPKG $O_VER 1
+				FORCE=1
+			fi
+		done
 	fi
 
 	for p in $(cat $CHART); do
@@ -863,9 +883,9 @@ buildList() {
 					PKG_VER_RESTRICT=$PVR
 					setPkgENV $(getPKG) > /dev/null
 					version_gt $PKG_VR $O_VER &&
-						addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT
+						addToList $p $O_VER
 				else
-					addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT
+					addToList $p $O_VER
 				fi
 
 			elif [[ $VERBOSE -gt 1 ]]; then
@@ -877,9 +897,8 @@ buildList() {
 				cpkg=$(grep "^$PKG_CAT/$PKG_NAME" ${CHART}-cdep | sed 's,^.* : ,,')
 				(
 					PKG=$(DB-getPkg $cpkg)
-					setPkgENV $PKG > /dev/null
 					O_VER=$(Installed-getPkg $PKG | getVerRev)
-					addToList $PKG_CAT $PKG_NAME $PKG_VR $O_VER $PKG_SLOT 1
+					addToList $PKG $O_VER 1
 				)
 			fi
 
@@ -890,7 +909,7 @@ buildList() {
 			echo
 
 			## Add to our INSTALL_CHART
-			Install-addPkg $PKG
+			Install-addPkg $p
 		fi
 	done
 	if [[ -e /usr/bin/bc ]]; then
