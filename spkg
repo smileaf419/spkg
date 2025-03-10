@@ -168,7 +168,6 @@ export CFLAGS=${CFLAGS:-"-march=native -O2 -pipe"}
 export CXXFLAGS=${CXXFLAGS:-"${CFLAGS}"}
 export ARCH=${ARCH:-$(uname -m)}
 export BUILD_ABI=${BUILD_ABI:-"64 x32 32"}
-export USE="$USE $cmd_USE"; unset cmd_USE
 export PAGE=${PAGE:-letter}
 export ENABLE_TESTS=${ENABLE_TESTS:-0}
 export INSTALL_DOCS=${INSTALL_DOCS:-0}
@@ -176,6 +175,9 @@ export BUILD_PACKAGE=${BUILD_PACKAGE:-no}
 export SILENT_BUILD=${SILENT_BUILD:-no}
 export BUILD_USER=${BUILD_USER:-$(whoami)}
 export LOCALES=${LOCALES:-$LANGUAGE}; LOCALES=${LOCALES:-$LANG}
+
+## FIXME: Filter out any USE flags found in cmd_USE from USE.
+export USE="$cmd_USE $USE"; unset cmd_USE
 
 ####
 ## Setup default Locales, we default to en_US because.. 'merica

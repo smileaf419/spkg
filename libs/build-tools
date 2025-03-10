@@ -349,7 +349,7 @@ installPackage() {
 		local CACHE_DIR="${PKG_CACHE}/${PKG_CAT}/${PKG_NAME}/${PKG_VR}"
 		mkdir -p "$CACHE_DIR"
 		## Copy over our build file so we can reference it in uninstalls
-		cp -u "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
+		cp -f "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
 		if [ -e ${D}/KERNEL_MODULE ]; then
 			mv ${D}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
 		elif [ -e ${D}/PERL_MODULE ]; then
@@ -360,7 +360,7 @@ installPackage() {
 		mv ${D}/USE_FLAGS $CACHE_DIR/USE_FLAGS
 
 		if [[ -e $RESTRICTIONS ]]; then
-			sort $RESTRICTIONS | uniq > $CACHE_DIR/RESTRICTIONS
+			sort -u $RESTRICTIONS > $CACHE_DIR/RESTRICTIONS
 		fi
 
 		## Gather Contents
@@ -704,7 +704,7 @@ installList() {
 			export RESTRICT=
 
 			echo
-			echo " ${GREEN}*${NORMAL} ${PKG_CAT}/${PKG_NVR} ($GREEN$C$NORMAL of $GREEN$length$NORMAL)"
+			echo " $INFO_MSG ${PKG_CAT}/${PKG_NVR} ($GREEN$C$NORMAL of $GREEN$length$NORMAL)"
 			echo
 			title "${PKG_CAT}/${PKG_NVR} ($C of $length)"
 
@@ -785,7 +785,7 @@ addToList() {
 			use-enable $u || ue=$?
 			case $ue in
 				0) echo -n "${GREEN}+$u " ;;
-				1) echo -n "$LTGRAY$u " ;;
+				1) echo -n "${LTGRAY}$u " ;;
 				2) echo -n "${RED}-$u " ;;
 			esac
 		done
