@@ -25,7 +25,7 @@ populate_list() {
 	elif [[ $list == "ERR" ]]; then
 		die
 	fi
-	>&2 echo -n " * Populating list"
+	>&2 echo -n " $INFO_MSG Populating list"
 	local p
 	for p in $list; do
 		>&2 echo -n '.'
@@ -99,7 +99,7 @@ isDependedOn() {
 	pkg-restricts nobin && return
 	local FC=$(wc -l "$PKG_CACHE/$PKG/$PKG_VER/CONTENTS")
 	if [[ ${FC% *} -gt 1000 ]]; then
-		>&2 echo -n " * Checking for packages which depend on any installed files (${FC% *}) ..."
+		>&2 echo -n " $INFO_MSG Checking for packages which depend on any installed files (${FC% *}) ..."
 		local LARGE_PKG=1
 	fi
 	local C=0
@@ -117,7 +117,7 @@ expandSets() {
 	local REQUEST_LIST=$@
 	local PKG_LIST=
 	if [[ $REQUEST_LIST =~ (^|[[:space:]])"@" ]]; then
-		>&2 echo " * Found Set .. Expanding"
+		>&2 echo -e "\n $INFO_MSG Found Set .. Expanding"
 		local p
 		for p in $REQUEST_LIST; do
 			if [ ${p:0:1} == "@" ]; then
@@ -163,7 +163,7 @@ expandSets() {
 ## Populates a $CHART files
 getFullPkgList() {
 	local timestart=$(date "+%s.%N")
-	>&2 echo -n " * Calculating Package Order..."
+	>&2 echo -n " $INFO_MSG Calculating Package Order..."
 	## remove files if they exist to ensure an empty chart/stack
 	[[ -e $CHART ]] && rm $CHART
 	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART

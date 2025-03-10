@@ -914,7 +914,7 @@ buildList() {
 		fi
 	done
 	if [[ -e /usr/bin/bc ]]; then
-		>&2 printf " * version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
+		>&2 printf " $INFO_MSG version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
 	fi
 
 	[[ ! -e $INSTALL_CHART ]] && die "Nothing to upgrade."
