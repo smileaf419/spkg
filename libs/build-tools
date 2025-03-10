@@ -831,7 +831,8 @@ buildList() {
 		for r in $RESTRICT; do
 			PKG_CAT=$(getCategory $r)
 			PKG_NAME=$(getName $r)
-			rPKG=$(grep ^$PKG_CAT/$PKG_NAME $CHART)
+			rPKG=$(grep ^$PKG_CAT/$PKG_NAME $CHART || echo)
+			[[ -z $rPKG ]] && continue
 
 			O_VER=$(Installed-getPkg $r | getVerRev)
 			if [[ $(getVerRev $rPKG) != $O_VER ]]; then

@@ -169,7 +169,10 @@ getFullPkgList() {
 	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
 	[[ -e $STACK ]] && rm $STACK
 	[[ -e $RESTRICTIONS ]] && rm $RESTRICTIONS
-	touch $CHART $STACK $INSTALL_CHART $RESTRICTIONS
+	touch $CHART $STACK $INSTALL_CHART
+
+	## Populate the restrictions file with registered restrictions
+	cat $PKG_CACHE/*/*/*/RESTRICTIONS | sort -u > $RESTRICTIONS
 
 	SP=
 	local d
@@ -219,10 +222,13 @@ getdep() {
 		## If an older version is installed that we need to remove,
 		## we may instead grab the incorrect version and end up with a Pkg not found.
 		if [[ $(getVersion $1) == 0 ]]; then
+			setPkgENV $1 > /dev/null
+			PKG_VER=0
+			PKG=$(getPKG)
 			if [[ $MODE == 'uninstall' || $MODE == 'rebuild' ]]; then
-				PKG=$(Installed-getPkg $1)
+				PKG=$(Installed-getPkg $PKG)
 			else
-				PKG=$(DB-getPkg $1)
+				PKG=$(DB-getPkg $PKG | sort -rV)
 			fi
 		else
 			PKG=$1
@@ -230,6 +236,7 @@ getdep() {
 		local P
 		for P in $PKG; do
 			setPkgENV $P > /dev/null
+			#>&2 echo $P
 
 			## Check if its on the stack, if not, add it. if so we'll get to it later.
 			if [[ $PKG_SLOT == 0 ]] && grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}/" $CHART $STACK > /dev/null 2>&1 ||
@@ -262,6 +269,7 @@ getdep() {
 
 			## Add our required now Dependencies
 			if ! doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"; then
+#				>&2 echo " $DIALOG_ERROR doDeps failed for $PKG_CAT/$PKG_NAME"
 				continue
 			fi
 
@@ -348,7 +356,7 @@ doDeps() {
 		## FIXME: We need to check for any PKG_USE restrictions, if so check the respected package for those within the USE_FLAGS file
 		##        If they don't match, that package must be added to the list and set ASK=1
 		##        This will require package specfic USE to be implemented.
-		if [ ! -z $PKG_VER_RESTRICT ]; then
+		if [[ ! -z $PKG_VER_RESTRICT ]]; then
 			local dpkg=$(DB-getPkg $PKG)
 			if [[ $VERBOSE -ge 2 ]]; then
 				>&2 echo -e "\n * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
@@ -361,39 +369,45 @@ doDeps() {
 			local dpkg_name=$(getName $dpkg)
 			local dpkg_cat=$(getCategory $dpkg)
 			local dpkg_slot=$(getSlot $dpkg)
-			local opkg=$(for p in $dpkg; do
-				local IFS="|"
-				pver=$(getVersion $p)
-				for r in $PKG_VER_RESTRICT; do
-					if [[ ${r:0:1} == ">" ]]; then
-						if [[ ${r:1:2} == "=" ]]; then
-							version_ge $pver ${r#>=} && echo $p
-						else
-							version_gt $pver ${r#>} && echo $p
+
+			[[ $VERBOSE -ge 1 ]] && >&2 echo " $IMPORTANT $dpkg_cat/$dpkg_name:$dpkg_slot has restrictions: $PKG_VER_RESTRICT"
+
+			## Itterate over our PKG_VER_RESTRICT and filter the dpkg list to only valid matches.
+			IFS="|"
+			for r in $PKG_VER_RESTRICT; do
+				dpkg=$(
+					unset IFS
+					for p in $dpkg; do
+						pver=$(getVersion $p)
+						if [[ ${r:0:1} == ">" ]]; then
+							if [[ ${r:1:2} == "=" ]]; then
+								version_ge $pver ${r#>=} && echo $p
+							else
+								version_gt $pver ${r#>} && echo $p
+							fi
+						elif [[ ${r:0:1} == "<" ]]; then
+							if [[ ${r:1:2} == "=" ]]; then
+								version_le $pver ${r#<=} && echo $p
+							else
+								version_lt $pver ${r#<} && echo $p
+							fi
 						fi
-					elif [[ ${r:0:1} == "<" ]]; then
-						if [[ ${r:1:2} == "=" ]]; then
-							version_le $pver ${r#<=} && echo $p
-						else
-							version_lt $pver ${r#<} && echo $p
-						fi
-					fi
-					## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
-					>&2 echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot"
-				done
-			## Redirect stderr to our RESTRICTIONS file
-			## save our stdout in the opkg variable
-			done 2> >(sort | uniq >> $RESTRICTIONS))
+					done
+				)
+				## Save the restriction to our RESTICTIONS file so we can reference it on other packages.
+				>&2 echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot"
+				## Redirect stderr to our RESTRICTIONS file
+				## save our stdout in the opkg variable
+			done 2> >(sort | uniq >> $RESTRICTIONS)
 			unset IFS
 
-			dpkg=$(echo -e $opkg | getLatest)
 			if [[ $dpkg == "" ]]; then
-				>&2 echo "$DIALOG_ERROR No version to match restrictions of $dpkg_cat/$dpkg_name: $PKG_VER_RESTRICT"
-#				die "$DIALOG_ERROR Error Resolving Dependencies"
+				[[ $VERBOSE -ge 1 ]] && >&2 echo " $DIALOG_ERROR No version to match restrictions of $dpkg_cat/$dpkg_name: $PKG_VER_RESTRICT"
 				return 1
 			fi
+			dpkg=$(echo -e $dpkg | getLatest)
+			[[ $VERBOSE -ge 1 ]] && >&2 echo " $IMPORTANT found $dpkg"
 		else
-			## FIXME: check RESTRICTIONS file for any matches
 			local dpkg=$(DB-getPkg $PKG | getLatest)
 			if [ -z $dpkg ]; then
 				die "$DIALOG_ERROR Error Resolving Dependencies: $PKG ($dpkg)"

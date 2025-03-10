@@ -510,8 +510,11 @@ getVerRev() {
 export -f getVerRev
 
 getVerRestrict() {
+	local RESTRICTIONS=${RESTRICTIONS:-/dev/null}
 	local data=${@:-$(cat -)}
-	getData 4 $data
+	local restrict=$(getData 4 $data)
+	local frestrict=$(grep $(getCategory $data)/$(getName $data) $RESTRICTIONS || echo)
+	echo $restrict $([[ ! -z $frestrict ]] && getData 4 $frestrict) | tr ' ' '|'
 }
 export -f getVerRestrict
 
