@@ -299,7 +299,7 @@ buildBDeps() {
 		done
 
 		## Filter out duplicates we didn't catch earlier.
-		local D=$(echo $OUT|tr ' ' '\n'|sort|uniq|tr '\n' ' ')
+		local D=$(echo $OUT|tr ' ' '\n'|sort -u|tr '\n' ' ')
 		## Trim the space at the end for cosmetic reasoning.
 		D=${D%% }
 		## Dependencies
@@ -316,7 +316,7 @@ buildBDeps() {
 		## Theoretically speaking sorting is wasted if this is exclusively used
 		## to add DEPS, but this isn't always the case.
 		## sort things to avoid false-positives
-		local LD=$(grep '^DEPS=' $PKG_BLD | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort|uniq|tr '\n' ' ' || true)
+		local LD=$(grep '^DEPS=' $PKG_BLD | sed -e 's,^DEPS=["'\''],,' -e 's,["'\''].*,,'|tr ' ' '\n'|sort -u|tr '\n' ' ' || true)
 
 		## If any need updating
 		if [[ ${LD%% } != $D ]]; then

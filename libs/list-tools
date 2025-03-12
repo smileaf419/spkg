@@ -86,7 +86,7 @@ populate_list() {
 ## Returns: list of packages depending on a file.
 checkFileDep() {
 #	if [[ ! $(grep -r --include CONTENTS "$1\$" "$PKG_CACHE") ]]; then
-	grep -rl --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," |sort|uniq || return 0
+	grep -rl --include BDEPS "$1\$" "${PKG_CACHE}"|sed -e "s,${PKG_CACHE}/,," -e "s,/BDEPS.*$,," |sort -u || return 0
 #	fi
 }
 
@@ -107,7 +107,7 @@ isDependedOn() {
 		C=$(( $C + 1 ))
 		[[ $LARGE_PKG == 1 && $(( $C % 1000 )) == 0 ]] && >&2 echo -n " $C .."
 		## Ignore failures
-		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort|uniq|grep -v $PKG || true
+		checkFileDep $f | sed -e 's,/[^/]*$,,' -e "s,$PKG,,"|sort -u|grep -v $PKG || true
 	done
 	[[ $LARGE_PKG == 1 ]] && >&2 echo " done"
 }
@@ -398,7 +398,7 @@ doDeps() {
 				>&2 echo "$dpkg_cat/$dpkg_name///$r/$dpkg_slot"
 				## Redirect stderr to our RESTRICTIONS file
 				## save our stdout in the opkg variable
-			done 2> >(sort | uniq >> $RESTRICTIONS)
+			done 2> >(sort -u >> $RESTRICTIONS)
 			unset IFS
 
 			if [[ $dpkg == "" ]]; then

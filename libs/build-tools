@@ -629,7 +629,7 @@ getBDeps() {
 				[ -e $p/$d ] && echo $p/$d
 			done
 		done
-	done | sort | uniq > "${PKG_CACHE}/$PKG_CAT/$PKG_NAME/$PKG_VR/BDEPS"
+	done | sort -u > "${PKG_CACHE}/$PKG_CAT/$PKG_NAME/$PKG_VR/BDEPS"
 	echo " Done"
 }
 
@@ -878,7 +878,7 @@ buildList() {
 									fi
 								fi
 							done
-						done | sort | uniq | getLatest | getVerRev || true
+						done | sort -u | getLatest | getVerRev || true
 					)
 					[[ $VERBOSE -ge 1 ]] && echo "$PKG_CAT/$PKG_NAME - PKG_VER is now: $PKG_VER"
 					PKG_VER_RESTRICT=$PVR
