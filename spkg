@@ -537,7 +537,8 @@ if [[ $MODE != 'search' && $MODE != 'list' && $PRETEND != 1 ]]; then
 		>&2 echo -n " $IMPORTANT Fixing permissions of tmp dirs .. "
 		chmod 1777 /{,var/}tmp && >&2 echo "done" || die "failed!"
 	fi
-
+fi
+if [[ $MODE != 'search' && $MODE != 'list' ]]; then
 	## Populate our list with fully qualified entries so long as we're not searching.
 	## We wouldn't want to destroy our search terms.
 	populate_list $REQUESTED_LIST
