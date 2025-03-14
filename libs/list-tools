@@ -172,7 +172,7 @@ getFullPkgList() {
 	touch $CHART $STACK $INSTALL_CHART
 
 	## Populate the restrictions file with registered restrictions
-	cat $PKG_CACHE/*/*/*/RESTRICTIONS | sort -u > $RESTRICTIONS
+	find $PKG_CACHE -not -empty -name RESTRICTIONS | xargs cat | sort -u > $RESTRICTIONS
 
 	SP=
 	local d
