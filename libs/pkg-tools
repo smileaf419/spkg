@@ -52,7 +52,8 @@ setupENV() {
 	## Default archive build directory
 	export B="${PKG_NV}"
 	## Temp install root
-	export D="${BUILD_PATH}/troot"
+	export INSTALL_ROOT_BASE="$BUILD_PATH/troot"
+	export D="$INSTALL_ROOT_BASE/$ROOT"
 	## Installed version filtered by PKG_SLOT
 	export O_VER=$(Installed-getPkg $PKG | getVerRev)
 
