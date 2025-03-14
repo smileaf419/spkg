@@ -78,7 +78,7 @@ export -f userBuildPackage
 ##  src_test
 buildPackage() {
 	if [[ ! -z $SRC_URI ]]; then
-		if [[ $BUILD_USER != 'root' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
+		if [[ $(whoami) != $BUILD_USER ]]; then
 			su -p -c 'src_unpack' $BUILD_USER || die " $DIALOG_ERROR Error while unpacking!"
 		else
 			src_unpack || die " $DIALOG_ERROR Error while unpacking!"
@@ -95,7 +95,7 @@ buildPackage() {
 
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
-		if [[ $BUILD_USER != 'root' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
+		if [[ $(whoami) != $BUILD_USER ]]; then
 			su -p -c 'src_patch' $BUILD_USER || die " $DIALOG_ERROR Error while patching!"
 		else
 			src_patch || die " $DIALOG_ERROR Error while patching!"
@@ -139,9 +139,9 @@ buildPackage() {
 			[[ ! -z $ABILIBS ]] && echo " * ${ABILIB:-64} bit pass"
 
 			## If we're installing using pip we need root
-			if [[ $BUILD_USER != 'root' && $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
+			if [[ $BUILD_USER != 'root' && $(whoami) != $BUILD_USER && $buildTool != 'pip' ]]; then
 				[[ -e $BUILD_PATH/$B ]] && chown -R $BUILD_USER $BUILD_PATH/$B
-				su --preserve-environment -c 'PATH="'$PATH'" userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
+				su -p -c 'PATH="'$PATH'" userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
 			else
 				userBuildPackage
 			fi
@@ -201,9 +201,9 @@ installPackage() {
 		loadUSE
 
 		unset CONF_FLAGS
-		source "${PKG_BLD}"
+		source "${PKG_BLD}" || die " $DIALOG_ERROR Build file not found!"
 
-		[[ $FETCH_ONLY != 1 ]] && install -o $BUILD_USER -d "${D}"
+		[[ $FETCH_ONLY != 1 ]] && install -o $BUILD_USER -d "$D"
 
 		## If the archive doesn't exist we can't do an ARCHIVE_INSTALL, build the package instead.
 		if [[ $ARCHIVE_INSTALL == 1 ]]; then
@@ -214,7 +214,7 @@ installPackage() {
 			fi
 
 			if [[ $BUILD_FORCE != 1 ]]; then
-				cd "${D}"
+				cd "$D"
 				tar -xf "${PKG_ARCHIVE_DIR}/${PKG_CAT}/${PKG_NAME}-${PKG_VR}.tar.xz"
 			fi
 
@@ -305,11 +305,11 @@ installPackage() {
 			fi
 			case $MODULE in
 				kernel)
-					echo > ${D}/KERNEL_MODULE ;;
+					echo > $D/KERNEL_MODULE ;;
 				perl)
-					echo > ${D}/PERL_MODULE ;;
+					echo > $D/PERL_MODULE ;;
 				python)
-					echo > ${D}/PYTHON_MODULE ;;
+					echo > $D/PYTHON_MODULE ;;
 			esac
 		fi
 
@@ -328,15 +328,15 @@ installPackage() {
 			done
 		fi
 
-		if [[ -e "${D}/usr/share/locale" ]]; then
+		if [[ -e "$D/usr/share/locale" ]]; then
 			echo " * Cleaning locales"
 			## Create an Exclude list
-			export LIST=$(ls -1 "${D}/usr/share/locale")
+			export LIST=$(ls -1 "$D/usr/share/locale")
 			for l in $LANG ${LANG%.*} ${LANG%_*}; do
 				LIST=$(grep -v $l <<< $LIST)
 			done
 			for l in $LIST; do
-				rm -r "${D}/usr/share/locale/$l"
+				rm -r "$D/usr/share/locale/$l"
 			done
 		fi
 
@@ -350,14 +350,14 @@ installPackage() {
 		mkdir -p "$CACHE_DIR"
 		## Copy over our build file so we can reference it in uninstalls
 		cp -f "$PKG_BLD" "$CACHE_DIR/$PKG_VR.build"
-		if [ -e ${D}/KERNEL_MODULE ]; then
-			mv ${D}/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
-		elif [ -e ${D}/PERL_MODULE ]; then
-			mv ${D}/PERL_MODULE $CACHE_DIR/PERL_MODULE
-		elif [ -e ${D}/PYTHON_MODULE ]; then
-			mv ${D}/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
+		if [ -e $D/KERNEL_MODULE ]; then
+			mv $D/KERNEL_MODULE $CACHE_DIR/KERNEL_MODULE
+		elif [ -e $D/PERL_MODULE ]; then
+			mv $D/PERL_MODULE $CACHE_DIR/PERL_MODULE
+		elif [ -e $D/PYTHON_MODULE ]; then
+			mv $D/PYTHON_MODULE $CACHE_DIR/PYTHON_MODULE
 		fi
-		mv ${D}/USE_FLAGS $CACHE_DIR/USE_FLAGS
+		mv $D/USE_FLAGS $CACHE_DIR/USE_FLAGS
 
 		if [[ -e $RESTRICTIONS ]]; then
 			sort -u $RESTRICTIONS > $CACHE_DIR/RESTRICTIONS
@@ -368,6 +368,7 @@ installPackage() {
 		## If we're bootstrapping we install binutils twice and gcc 3 times!
 		## This causes recording issues. it should be safe to remove them if we're on pass2
 		## Otherwise we're going to add to our CONTENTS
+		D=$INSTALL_ROOT_BASE
 		cd $D
 		if [[ $MODE == "bootstrap" && ! -z $PKG_FLAGS && $PKG_FLAGS != "pass2" ]]; then
 			find . -type d -or -type f -or -type l | sed "s,^\.,," | sort >> "${BUILD_PATH}/CONTENTS"
@@ -391,7 +392,7 @@ installPackage() {
 				## Check for links before anything else
 				## to avoid installing a directory when a link
 				## was expected.
-				if [ -L "${D}/${file}" ]; then
+				if [ -L "$D/${file}" ]; then
 					## If the link is a directory, we need to remove it, otherwise the link will be
 					## created within the directory rather than overriding it.
 					[[ -d "/$file" ]] && rm "/$file"
@@ -405,9 +406,9 @@ installPackage() {
 				##   2) Under most circumstances, most dirs are not modified by users.
 				## Packages *can* modify dirs they manage and need
 				## a certain way in post_install
-				elif [[ -d "${D}/${file}" ]]; then
+				elif [[ -d "$D/${file}" ]]; then
 					if [[ ! -e "${file}" ]]; then
-						sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
+						sinstall "$D/${file}" "${file}" && echo " >> $file" || echo "!>d $file"
 					fi
 				else
 					## Check if a file is to be installed in /etc
@@ -421,22 +422,22 @@ installPackage() {
 							pfile="${file}.cfg$(date +%s)"
 							## Do some housekeeping
 							find $file.cfg[0-9]* -delete > /dev/null 2>&1
-							cp -p "${D}/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
+							cp -p "$D/${file}" "${pfile}" && echo "cp> $file" || echo "!cp $file"
 							CONFIG_PROTECTED=true
 						else
 							echo "a>> $file"
 						fi
 					## If the file is a library we must use install and not cp as the library maybe in use.
 					elif [[ $file == */lib* ]]; then
-						sinstall "${D}/${file}" "${file}" && echo " >> $file" || echo "!l> $file"
+						sinstall "$D/${file}" "${file}" && echo " >> $file" || echo "!l> $file"
 					else
 						## if cp fails the file might be busy, but to cp is faster than sinstall due to
 						## having to read permissions and then install
 						## fallback on sinstall if it fails.
-						if cp -p "${D}/${file}" "${file}" 2> /dev/null; then
+						if cp -p "$D/${file}" "${file}" 2> /dev/null; then
 							echo " >> $file"
 						else
-							if sinstall "${D}/${file}" "${file}"; then
+							if sinstall "$D/${file}" "${file}"; then
 								echo "i>> $file"
 							else
 								echo "!>c $file"
@@ -604,7 +605,7 @@ archivePackage() {
 stripPackage() {
 	[[ $MODE == 'bootstrap' ]] && return
 	pkg-restricts strip && return
-	cd "${D}"
+	cd "$D"
 	echo "Stripping..."
 	for s in $( find . -iwholename "*bin/*" -or -iwholename "*/lib*" ); do
 		strip --strip-unneeded "$s" 2> /dev/null && echo " -- $s"
