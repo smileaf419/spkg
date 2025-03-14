@@ -99,7 +99,8 @@ if [[ $BOOTSTRAP_STAGES == *1* ]]; then
 
 	####
 	## Install all packages
-	installList $REQUESTED_LIST || die " $DIALOG_ERROR Failed to boostrap!"
+	#installList $REQUESTED_LIST || die " $DIALOG_ERROR Failed to boostrap!"
+	buildList || die " $DIALOG_ERROR Failed to boostrap!"
 fi
 
 if [[ $BOOTSTRAP_STAGES == *2* ]]; then
