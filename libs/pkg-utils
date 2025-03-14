@@ -332,7 +332,7 @@ install-init.d() {
 		set -e
 		PKG=$(DB-getPkg system/blfs-bootscripts | getLatest)
 		PKG_VER=$(getVersion $PKG)
-		PKG_BLD=$(getBldFile $PKG)
+		PKG_BLD=$(MODE=install getBldFile $PKG)
 		unset PATCHES SRC_URI
 		checkSha1 ${PKG_BLD%/*} $PKG_BLD || die
 		source "${PKG_BLD}"
