@@ -78,7 +78,7 @@ export -f userBuildPackage
 ##  src_test
 buildPackage() {
 	if [[ ! -z $SRC_URI ]]; then
-		if [[ $(whoami) != $BUILD_USER ]]; then
+		if [[ $(whoami) != $BUILD_USER ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 			su -p -c 'src_unpack' $BUILD_USER || die " $DIALOG_ERROR Error while unpacking!"
 		else
 			src_unpack || die " $DIALOG_ERROR Error while unpacking!"
@@ -95,7 +95,7 @@ buildPackage() {
 
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
-		if [[ $(whoami) != $BUILD_USER ]]; then
+		if [[ $(whoami) != $BUILD_USER ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 			su -p -c 'src_patch' $BUILD_USER || die " $DIALOG_ERROR Error while patching!"
 		else
 			src_patch || die " $DIALOG_ERROR Error while patching!"
@@ -139,7 +139,7 @@ buildPackage() {
 			[[ ! -z $ABILIBS ]] && echo " * ${ABILIB:-64} bit pass"
 
 			## If we're installing using pip we need root
-			if [[ $BUILD_USER != 'root' && $(whoami) != $BUILD_USER && $buildTool != 'pip' ]]; then
+			if [[ $BUILD_USER != 'root' && $(whoami) != $BUILD_USER && $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 				[[ -e $BUILD_PATH/$B ]] && chown -R $BUILD_USER $BUILD_PATH/$B
 				su -p -c 'PATH="'$PATH'" userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
 			else
@@ -505,7 +505,7 @@ uninstall() {
 	local PKG_VER=$2
 	local O_VER=$3
 	local FLIST=""
-	[[ "$O_VER" == "0" ]] && return
+	[[ "$O_VER" == "0" || $MODE == "bootstrap" ]] && return
 
 	## Compare Slots
 	## If slots differ we got the wrong version or the only other installed version is a different slot
