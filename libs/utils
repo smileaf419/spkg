@@ -28,7 +28,8 @@ function title {
 		##   set it in a way that we could in the PS1.
 		## So instead fall back on using /etc/profile. if they do not set a default title
 		## There isn't much we can do about it, but at least they have control of this.
-		source /etc/profile
+		#source /etc/profile
+		:;
 	fi
 }
 export -f title
@@ -189,7 +190,7 @@ isPkgInWorld() {
 ####
 ## Adds an Entry to our INSTALL_CHART
 Install-addPkg() {
-	eval echo $1 >> $INSTALL_CHART
+	echo "$1" >> $INSTALL_CHART
 }
 
 ####
