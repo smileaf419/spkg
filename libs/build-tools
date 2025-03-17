@@ -117,6 +117,8 @@ buildPackage() {
 
 	## Filter the ABILIBS with only those archs we want to build from our BUILD_ABI
 	ABILIBS=$(echo $ABILIBS $BUILD_ABI | tr ' ' '\n' | sort | uniq -d | tr '\n' ' ')
+	## Trim the space off the end cause by the last tr
+	ABILIBS=${ABILIBS/% }
 
 	## Don't set an ABILIB if we are not building for multiple ARCHS
 	if [[ -z $ABILIBS ]]; then
@@ -582,8 +584,7 @@ uninstall() {
 			echo "${RED}WARNING:$NORMAL You've removed a package within the system set!"
 			echo "         This may cause undesired consequences!"
 		else
-			grep -Ev "^$PKG_CAT/${PKG_NAME/+/\\+}/[^/]*/[^/]*/[^/]*/$PKG_SLOT" $PKG_WORLD > $PKG_WORLD.old
-			mv $PKG_WORLD.old $PKG_WORLD
+			sed -i "/^$PKG_CAT\/${PKG_NAME/+/\\+}\/[^/]*\/[^/]*\/[^/]*\/$PKG_SLOT/d" $PKG_WORLD
 		fi
 	fi
 }

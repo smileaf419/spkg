@@ -613,6 +613,7 @@ export -f myABI
 ## Helper function for builds to specify where to install their libs
 ## By setting _LIB_ROOT_INSTALL=1 or passing a 1 to this function
 ## It will output /lib[ABILIB] else /usr/lib[ABILIB]
+## By sending a second 1 if the ABILIB matches the current system, it will always install into lib rather than lib64 or lib32.
 libdir() {
 	_LIB_ROOT_INSTALL=${_LIB_ROOT_INSTALL:-${@:-0}}
 	[[ $_LIB_ROOT_INSTALL == 0 ]] && echo -n "/usr"
