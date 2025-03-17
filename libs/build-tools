@@ -815,6 +815,8 @@ buildList() {
 			done
 			echo -e "\nPackage Order:"
 		fi
+	else
+		REQUESTED_LIST=$(cat $CHART)
 	fi
 
 	timestart=$(date "+%s.%N")
