@@ -52,8 +52,9 @@ populate_list() {
 		fi
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
-				>&2 echo " $DIALOG_ERROR $p not installed!"
-				exit
+				#>&2 echo " $DIALOG_ERROR $p not installed!"
+				## If its not installed, not sure why it was tagged for uninstalling.. but 1 less thing to worry about.
+				continue
 			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
 			elif [[ $HASH_UPDATE ]]; then
 				>&2 echo " $DIALOG_ERROR $p not found!"
