@@ -681,7 +681,7 @@ elif [[ $MODE == "clean" ]]; then
 	REQUESTED_LIST="@system @world"
 	populate_list "@system @world"
 	getFullPkgList $(cat $CHART) > /dev/null || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
-	mv $CHART $WORKDIR_BASE/sysworldset
+	mv $CHART $SPKG_TMP_DIR/sysworldset
 
 	echo " $INFO_MSG Getting a list of installed packages."
 	REQUESTED_LIST="@installed"
@@ -694,12 +694,13 @@ elif [[ $MODE == "clean" ]]; then
 	## This assumption can fail if somehow @installed doesn't require a package, yet somehow @world or @system does.
 	## If this happens then it most definitely is the cause of a dependency resolution failure.
 	echo " $INFO_MSG Gathering a list of targets to remove"
-	REQUESTED_LIST=$(sort $CHART $WORKDIR_BASE/sysworldset | uniq -u)
+	REQUESTED_LIST=$(sort -t/ -k1,2 $CHART $SPKG_TMP_DIR/sysworldset | sed 's,\([^/]*\)/\([^/]*\).*,\1/\2,'| uniq -u)
 	## Clean-up
-	rm $WORKDIR_BASE/sysworldset
+	rm $SPKG_TMP_DIR/sysworldset
 	MODE="uninstall"
 	ASK=1
 	echo " $IMPORTANT ${RED}IMPORTANT:${NORMAL} This is still considered *Experimental!* please review the packages to ensure none will be removed in error!"
+	populate_list "$REQUESTED_LIST"
 #	exit 0
 	# { output=$(command 2>&1 1>&3-) ;} 3>&1
 
