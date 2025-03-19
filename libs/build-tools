@@ -921,7 +921,7 @@ buildList() {
 		>&2 printf " $INFO_MSG version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
 	fi
 
-	[[ ! -e $INSTALL_CHART ]] && die "Nothing to upgrade."
+	[[ ! -e $INSTALL_CHART ]] && echo "Nothing to upgrade."
 	[ $PRETEND == 1 ] && exit 0
 	if [[ $ASK == 1 ]]; then
 		echo -n "Ok to continue? [${GREEN}Yes${NORMAL}/${RED}No${NORMAL}] "
@@ -940,5 +940,5 @@ buildList() {
 	}
 
 	## Check for any preserved files
-	preservedRebuild && buildList || exit 0
+	preservedRebuild && buildList || return 0
 }
