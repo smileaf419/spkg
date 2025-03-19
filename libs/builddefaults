@@ -69,7 +69,6 @@ bootstrap_default() {
 #	LD_LIBRARY_PATH=$ROOT/lib:$ROOT/lib64:$ROOT/usr/lib:$ROOT/usr/lib64:$LD_LIBRARY_PATH
 #	LD_LIBRARY_PATH=$ROOT/tools/lib:$LD_LIBRARY_PATH
 
-	declare -p >> /tmp/output
 	# The above code *MUST* be ran
 	bootstrap
 }
