@@ -91,7 +91,6 @@ cleanup() {
 		cat "$INFORMLOG"
 	fi
 
-	# TODO: automerge if files were not changed.
 	if [[ $CONFIG_PROTECTED == 'true' ]]; then
 		echo
 		echo " $YELLOW*$NORMAL System configuration files were protected!"
@@ -110,7 +109,8 @@ whereAmI() {
 	while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
 		local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 		SOURCE=$(readlink "$SOURCE")
-		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+		## if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE
 	done
 	local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 	echo $DIR
