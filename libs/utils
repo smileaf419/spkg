@@ -507,6 +507,7 @@ loadUSE() {
 ## and contains files which are depended upon by packages still installed.
 ## Once the rebuild is complete the now obsolete files are removed.
 preservedRebuild() {
+	title "Preserved rebuild -- Gathering packages"
 	MODE='rebuild'
 	FORCE=1
 	## Files were preserved, process them here to ensure we don't break our system.
@@ -530,7 +531,7 @@ preservedRebuild() {
 			fi
 		fi
 
-		for f in $(cat $PRESERVED_LOG); do
+		for f in $(sort -u $PRESERVED_LOG); do
 			echo -n "$f:"
 			local pkgs=$(checkFileDep $f)
 			if [[ ! -z $pkgs ]]; then
