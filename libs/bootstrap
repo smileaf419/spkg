@@ -24,6 +24,11 @@ DISTFILES="$ROOT/$DISTFILES"
 PKG_WORLD="$ROOT/$PKG_WORLD"
 LOGDIR="$ROOT/$LOGDIR"
 
+## No need to record temp tools
+OMIT_RECORD_IN_WORLD=1
+## Ensure we're not attempting to use anything that maybe recorded
+EMPTY_WORLD=1
+
 ## Something to call our release
 ## We'll change it yearly to something fun.
 #CODENAME="Spider"		## 2023 Release (E)
@@ -322,10 +327,30 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 	fi
 fi
 
-echo " * Bootstrapping complete!"
-echo " A default system has been created, feel free to alter the USE flag, and reinstall affected packages."
-echo "To Enter your new system run $ROOT/chroot.sh"
-echo "For a guide on how to finalize your new system, please visit:"
-echo "https://github.com/smileaf419/spkg/wiki/Installation#finalizing-the-system"
-echo "Thank you for installing and have fun with Leaf Linux: $CODENAME - $VERSION =]"
+## Only display on the final step.
+if [[ $BOOTSTRAP_STAGES == *4* ]]; then
+	echo " * Bootstrapping complete!"
+	echo " A default system has been created, feel free to alter the USE flag, and reinstall affected packages."
+	echo "To Enter your new system run $ROOT/chroot.sh"
+	echo "For a guide on how to finalize your new system, please visit:"
+	echo "https://github.com/smileaf419/spkg/wiki/Installation#finalizing-the-system"
+	echo "Thank you for installing and have fun with Leaf Linux: $CODENAME - $VERSION =]"
+elif [[ $BOOTSTRAP_STAGES == *3* ]]; then
+	echo " !! You're almost done!"
+	echo " A Temporary system has been built! you can access it via:"
+	echo "$ROOT/chroot.sh"
+	echo " Once in you may run:"
+	echo "spkg -e @basicsystem"
+	echo " Or without chroot'ing via:"
+	echo "spkg --b4 --bootstrap $ROOT"
+elif [[ $BOOTSTRAP_STAGES == *2* ]]; then
+	echo "All files have been downloaded. You're ready to start the final phases."
+	echo "spkg --b3 --b4 --bootstrap $ROOT"
+	echo "If you wish to only have a barebones system or wish to do more customization, omit --b4"
+else
+	echo "A Temporary system has been built, but cannot be ran until finished."
+	echo "Before we begin we need to ensure we download the required packages and their patches."
+	echo "This is done in stage 2 and can be completed by running: spkg --b2 --bootstrap $ROOT"
+	echo "in stage 3 temporary tools are built and a system is prepared which can be entered and used."
+fi
 exit 0
