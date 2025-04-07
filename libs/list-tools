@@ -178,7 +178,11 @@ getFullPkgList() {
 	SP=
 	local d
 	for d in $@; do
-		getdep $d || local ERR=$?
+		if [[ $MODE == "bootstrap" && $BOOTSTRAP_STAGE == 1 ]]; then
+			echo $d >> $CHART
+		else
+			getdep $d || local ERR=$?
+		fi
 		if [[ $ERR == 1 ]]; then
 			>&2 echo " $DIALOG_ERROR $d called self while calculating deps"
 		elif [[ $ERR == 2 ]]; then
