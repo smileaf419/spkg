@@ -530,6 +530,7 @@ uninstall() {
 		FLIST=$(tac ${PKG_CACHE}/${PKG}/${PKG_VER}/CONTENTS)
 		echo "Uninstalling $PKG-$PKG_VER"
 	fi
+	IFS=$'\n'
 	for file in $FLIST; do
 		## While MODE=bootstrap refuse to remove files which could break things
 		if [ -d "${file}" ]; then
