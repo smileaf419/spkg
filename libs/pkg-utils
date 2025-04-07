@@ -81,9 +81,9 @@ spatch() {
 		patch $patch_options -i "$patch" > /dev/null
 	fi
 	if [[ $? == 0 || $_SPKG_IGNORE_PATCH_ERR == 1 ]]; then
-		echo " .. Ok!"
+		echo " .. ${GREEN}Ok!$NORMAL"
 	elif [[ $? == 1 ]]; then
-		die " .. Failed!"
+		die " .. ${GREEN}Failed!$NORMAL"
 	fi
 }
 export -f spatch
