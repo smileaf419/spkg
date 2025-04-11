@@ -9,7 +9,7 @@
 
 
 ## We need to exit immediately if we encounter an error.
-set -e
+set -e +h
 
 ## Set a limited use found within spkg.conf
 USE="-gd -X -openrc -java"
@@ -44,6 +44,8 @@ checkinlist $ARCH $SUPPORTED_ARCHS || die "$ARCH is not currently supported! Sup
 export HOST_TGT=$(uname -m)-leaf-linux-gnu
 ## Add our temp /tools to our path
 export PATH="$ROOT/tools/bin:$PATH"
+##
+export PKG_CONFIG_PATH="$ROOT/lib/pkgconfig:$ROOT/usr/lib/pkgconfig:$ROOT/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT/$PKG_DB_DIR ]]; then
 	echo " $IMPORTANT git appears to not be installed and is required to clone the spkg repository."

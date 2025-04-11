@@ -126,6 +126,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_BASE:/lib64:/usr/lib64:/usr/local/lib64
 [[ -e /lib32 || -e /usr/lib32 ]] && LD_LIBRARY_PATH+=:/lib32:/usr/lib32:/usr/local/lib32
 [[ -e /libx32 ||  -e /usr/libx32 ]] && LD_LIBRARY_PATH+=:/libx32:/usr/libx32:/usr/local/libx32
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH
+CONFIG_SITE=/usr/share/config.site
 
 ## Set some colors
 export NORMAL=$(tput sgr0)
