@@ -83,7 +83,7 @@ spatch() {
 	if [[ $? == 0 || $_SPKG_IGNORE_PATCH_ERR == 1 ]]; then
 		echo " .. ${GREEN}Ok!$NORMAL"
 	elif [[ $? == 1 ]]; then
-		die " .. ${GREEN}Failed!$NORMAL"
+		die " .. ${RED}Failed!$NORMAL"
 	fi
 }
 export -f spatch
