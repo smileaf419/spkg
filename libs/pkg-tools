@@ -401,7 +401,7 @@ DB-getPkgList() {
 	PKG_VR=$(getVerRev $1)
 	[[ $PKG_CAT == '' ]] && PKG_CAT='*'
 	[[ $PKG_VR == '' || $PKG_VR == 0 ]] && PKG_VR='*'
-	find "$PKG_DB_DIR" -iwholename "*/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build"
+	find "$PKG_DB_DIR" -iwholename "$PKG_DB_DIR/${PKG_CAT}/${PKG_NAME}/${PKG_VR}.build"
 }
 export -f DB-getPkgList
 
