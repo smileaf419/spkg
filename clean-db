@@ -5,12 +5,17 @@
 ##
 ## Helps to keep our DB clean by removing excess builds
 #set -x
+export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 source /etc/spkg.conf
 
 MAX_BUILDS=2
 [[ $ARCH == ~* ]] && ARCH=${ARCH#\~}
 
 echo " * Cleaning Builds for ARCH $ARCH"
+if [[ ! -z $PKG_SLOT ]]; then
+	echo " * Using PKG_SLOT: $PKG_SLOT"
+	ENV_PKG_SLOT=$PKG_SLOT
+fi
 
 ## Function to figure out where this script is at so we can reference our libs directory.
 ## Taken from:
@@ -41,8 +46,12 @@ DB-getPkgByArch() {
 
 	## Set the environment with known values.
 	local PKG_SLOT=$3
-
-	for l in $(DB-getPkgList $1 | filterStable $2 | filterSlot $3 | sort -V); do
+	PKG=$(
+		setPkgENV $d > /dev/null 2>&1
+		PKG_SLOT=$3
+		getPKG
+	)
+	for l in $(DB-getPkgList $PKG | filterStable $2 | filterSlot $3 | sort -V); do
 		fileToList $l $flags
 	done
 }
@@ -50,16 +59,14 @@ DB-getPkgByArch() {
 ## Filter packages by ARCH and return a list of either stable or unstable
 filterStable() {
 	local arch=${1:-$ARCH}
-	local f=~
 	## If we're using an unstable ARCH, we need to enable the ability for it to match packages marked as stable too.
-#	[[ ${arch:0:1} != '~' ]] && f='~'
 	arch=${arch#\~}
 	echo $(cat -) | xargs grep -l 'ARCHS=.*'[^-~]$arch'[ "]' 2> /dev/null || true
 }
 
 cleanPkg() {
 	local d=$1
-	local slot=${PKG_SLOT:-0}
+	local slot=${ENV_PKG_SLOT:-0}
 	## We need to ensure we do 2 checks, 1 for stable, 1 for unstable
 	## This also needs to ensure we also do 1 check for each ARCH.
 	## This is to ensure each ARCH has a stable version if available.
@@ -93,10 +100,8 @@ cleanPkg() {
 }
 
 cd $PKG_DB_DIR
-#SPKG_PKG_LIST=${SPKG_PKG_LIST:-}
 CHART=/tmp/chart
 if [[ ! -z $@ ]]; then
-#	SPKG_PKG_LIST="-wholename $SPKG_PKG_LIST"
 	populate_list $@
 else
 	list=($(find * -mindepth 1 -maxdepth 1 -type d))
@@ -112,15 +117,10 @@ for (( l=0; l<${length}; l++ )); do
 	C=$(( ${l} + 1 ))
 	## PKG entry
 	d=${list[$l]}
-#	set +x
-	setPkgENV $d > /dev/null 2>&1
-#		set -x
-#	[[ $d == *spkg-sets* || $d == *.git* ]] && continue
 
-#	echo -ne "\r $C / $length: $d                             "
-#	PKG_CAT=${d%/*}
-#	PKG_NAME=${d#*/}
-	printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME
-	cleanPkg $d
+	setPkgENV $d > /dev/null 2>&1
+
+	printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME$([[ ! -z $ENV_PKG_SLOT ]] && echo ":$ENV_PKG_SLOT")
+	cleanPkg $PKG_CAT/$PKG_NAME
 done
 echo
