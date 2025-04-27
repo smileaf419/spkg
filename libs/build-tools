@@ -922,9 +922,12 @@ buildList() {
 		>&2 printf " $INFO_MSG version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
 	fi
 
-	[[ ! -e $INSTALL_CHART ]] && echo "Nothing to upgrade."
-	[ $PRETEND == 1 ] && exit 0
-	if [[ $ASK == 1 ]]; then
+	if [[ ! -e $INSTALL_CHART ]]; then
+		echo "Nothing to upgrade."
+		exit 0
+	elif [ $PRETEND == 1 ]; then
+		exit 0
+	elif [[ $ASK == 1 ]]; then
 		echo -n "Ok to continue? [${GREEN}Yes${NORMAL}/${RED}No${NORMAL}] "
 		read cont
 		if [[ ! -z $cont && ${cont^^} != 'Y' && ${cont^^} != 'YES' ]]; then
