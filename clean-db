@@ -83,7 +83,7 @@ cleanPkg() {
 				rm $(getBldFile $p)
 				updated=1
 			else
-				echo " multiple or incorrect slot not cleaning: $PKG_SLOT"
+				[[ $VERBOSE -gt 1 ]] && echo " multiple or incorrect slot not cleaning: $PKG_SLOT"
 				[[ $PKG_SLOT == 0 || -z $PKG_SLOT ]] && break
 			fi
 		done
@@ -92,10 +92,12 @@ cleanPkg() {
 			echo
 			updatesha1 $d
 		fi
-#	elif [[ $NUM == 0 ]]; then
-#		echo "$d Has No builds marked as $ARCH"
-#	else
-#		echo "$d has $NUM builds (< $MAX_BUILDS)"
+	elif [[ $VERBOSE -gt 1 ]]; then
+		if [[ $NUM == 0 ]]; then
+			echo "$d Has No builds marked as $ARCH"
+		else
+			echo "$d has $NUM builds (< $MAX_BUILDS)"
+		fi
 	fi
 }
 
