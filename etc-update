@@ -6,14 +6,14 @@ export NORMAL=$(tput sgr0)
 export RED=$(tput setaf 1)
 export GREEN=$(tput setaf 2)
 
-list=$(find /etc/ -name *.cfg[0-9]*)
+list=$(find /etc/ -type f -name '*.cfg[0-9]*')
 
 [[ -z $list ]] && echo " * Nothing to update" && exit 0
 
 for file in $list; do
 	ofile=${file/.cfg[0-9]*/}
 	echo "File: $ofile"
-	diff -u $ofile $file |
+	diff -u "$ofile" "$file" |
 		sed -e "s/^+/$GREEN+/g" \
 			-e "s/^-/$RED-/g" |
 		less -R
@@ -21,8 +21,8 @@ for file in $list; do
 	echo -n "Apply update? (Y/n) "; read a
 
 	if [[ $a == 'y' || $a == 'Y' || -z $a ]]; then
-		mv -v $file $ofile
+		mv -v "$file" "$ofile"
 	else
-		rm -v $file
+		rm -vi "$file"
 	fi
 done

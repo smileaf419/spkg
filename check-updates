@@ -22,7 +22,7 @@ UPDATE_LIST=/tmp/updatelist
 
 VERBOSE=${VERBOSE:-0}
 
-if [[ $(find "$DFILES_INDEX" -mtime +1 -print) || ! -e $DFILES_INDEX ]]; then
+if [[ ! -e $DFILES_INDEX || $(find "$DFILES_INDEX" -mtime +1 -print) ]]; then
 	cd ${DFILES_INDEX%/*}
 	wget -nv --show-progress -np -r -l 1 "$SRC_URI" || (rm $DFILES_INDEX; die "Error getting list")
 	cat gentoo.osuosl.org/distfiles/*/index.html > $DFILES_INDEX

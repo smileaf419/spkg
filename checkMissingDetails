@@ -1,25 +1,56 @@
 #!/bin/sh
+
+export NORMAL=$(tput sgr0)
+export RED=$(tput setaf 1)
+export GREEN=$(tput setaf 2)
+export YELLOW=$(tput setaf 3)
+
+# Load configuration
+if [ ! -f /etc/spkg.conf ]; then
+    echo "${RED}Error:${NORMAL} Configuration file /etc/spkg.conf not found."
+    exit 1
+fi
 source /etc/spkg.conf
-cd $PKG_DB_DIR
+
+# Ensure $PKG_DB_DIR is set
+if [ -z "$PKG_DB_DIR" ]; then
+    echo "${RED}Error:${NORMAL} PKG_DB_DIR is not set in the configuration."
+    exit 1
+fi
+
+# Change to package database directory
+cd "$PKG_DB_DIR" || { echo "${RED}Error:${NORMAL} Failed to change directory to $PKG_DB_DIR"; exit 1; }
+
+# Function to check missing details
+check_missing_details() {
+    local field="$1"
+    local pattern="$2"
+    local count
+    local total_missing
+    local percentage
+    local color
+
+    echo
+    echo -n " $GREEN*$NORMAL $field: "
+    count=$(grep --include "*.build" -rl "$pattern" . | sed 's,/[^/]*$,,' | uniq | wc -l)
+    total_missing=$((N - count))
+    percentage=$(( (total_missing * 100) / N ))
+    color=$RED
+    [[ $percentage -gt 75 ]] && color=$YELLOW
+    [[ $percentage -gt 90 ]] && color=$GREEN
+    echo "$color$count / $percentage %$NORMAL"
+    grep --include "*.build" -rl "$pattern" * | sed 's,/[^/]*$,,' | uniq | sort -R | head -n 3
+}
+
+# Count total packages
 echo "Checking for missing Documentation:"
-echo -n " * Number of Packages: "
+echo
+echo -n " $GREEN*$NORMAL Number of Packages: "
 N=$(find . -maxdepth 2 -mindepth 2 -type d | grep -Ev "git|spkg" | wc -l)
-echo $N
+echo "$N"
 
-echo -n " * HOMEPAGE: "
-C=$(grep --include \*.build -r 'HOMEPAGE=""' | sed 's,/[^/]*$,,' | uniq)
-HN=$(echo $C | tr ' ' '\n' | wc -l)
-echo "$HN / $(( ( ( $N - $HN ) * 100 ) / $N )) %"
-echo $C | tr ' ' '\n' | sort -R | head -n3
+# Check for missing HOMEPAGE, DESCRIPTION, and LICENSE
+check_missing_details "HOMEPAGE" 'HOMEPAGE=""'
+check_missing_details "DESCRIPTION" 'DESCRIPTION=""'
+check_missing_details "LICENSE" 'LICENSE=""'
 
-echo -n " * DESCRIPTION: "
-C=$(grep --include \*.build -r 'DESCRIPTION=""' | sed 's,/[^/]*$,,' | uniq)
-DN=$(echo $C | tr ' ' '\n' | wc -l)
-echo "$DN / $(( ( ( $N - $DN ) * 100 ) / $N )) %"
-echo $C | tr ' ' '\n' | sort -R | head -n3
-
-echo -n " * LICENSE: "
-C=$(grep --include \*.build -r 'LICENSE=""' | sed 's,/[^/]*$,,' | uniq)
-LN=$(echo $C | tr ' ' '\n' | wc -l)
-echo "$LN / $(( ( ( $N - $LN ) * 100 ) / $N )) %"
-echo $C | tr ' ' '\n' | sort -R | head -n3

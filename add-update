@@ -20,8 +20,15 @@ export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
 export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
 
 VERBOSE=${VERBOSE:-0}
+
+# Validate arguments
+if [[ $# -lt 2 ]]; then
+    echo "Usage: $0 <category>/?<package_name>:<slot>? <version>" >&2
+    exit 1
+fi
+
 PKG=$(DB-getPkg $(EntryParser $1) | getLatest)
-if [[ $PKG == '' || -z $PKG ]]; then
+if [[ -z $PKG ]]; then
 	die " $DIALOG_ERROR Cannot add update: $1 not found!"
 fi
 ver=$2
@@ -32,6 +39,6 @@ fi
 echo " $GREEN*$NORMAL Update $PKG_CAT/$PKG_NVR to $ver"
 
 ## Take the most recent version and make the supplied version.
-	sed -e '/ARCHS/ s,\( \|="\)\([^~]\),\1~\2,g' \
-		"$(getBldFile $PKG)" > "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$ver.build"
-	updatesha1 $PKG_CAT/$PKG_NAME
+sed -e '/ARCHS/ s,\( \|="\)\([^~]\),\1~\2,g' \
+	"$(getBldFile $PKG)" > "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$ver.build"
+updatesha1 $PKG_CAT/$PKG_NAME
