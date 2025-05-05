@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## Read Latest Log
 ## Copyright 2023 spkg developers, licensed under GPLv2
 ## Used to read the latest log or list logs of a given package
@@ -9,43 +9,52 @@ LOG=
 
 source /etc/spkg.conf
 
-die() { echo "$*" 1>&2 ; exit 77; }
+die() { echo "$*" 1>&2 ; exit 1; }
 
 parse_cmdline() {
 	# Referenced mozilla-launcher script.
-	while [[ $# -ne 0 ]] ; do
-		if [[ $1 == -* ]] ; then
-			case "${1#-}" in
-				l|-list)
-					LIST=1
-					shift 1 ;;
-				h|-help)
-					echo "readlatestlog $VERSION by smileaf"
-					echo "Usage: $0 [Arguments] [Log Search]"
-					echo " Options:"
-					echo "  --list, -l      List only"
-					exit $? ;;
-			esac
-		else
-			LOG=$@
-			break
-		fi
+	while [ $# -ne 0 ] ; do
+		case "${1#-}" in
+			l|-list)
+				LIST=1
+				shift ;;
+			h|-help)
+				echo "readlatestlog $VERSION by smileaf"
+				echo "Usage: $0 [Arguments] [Log Search]"
+				echo " Options:"
+				echo "  --list, -l      List only"
+				exit $? ;;
+			*)
+				LOG="$@"
+				break ;;
+		esac
 	done
 }
 
-if [ ! -d $LOGDIR ];
-	then mkdir -p "$LOGDIR" || die "Failed to create: LOGDIR: $LOGDIR"; fi
+find_logs() {
+	find * -iwholename "*$LOG[/-]*"
+}
+
+if [ ! -d "$LOGDIR" ]; then
+	mkdir -p "$LOGDIR" || die "Failed to create: LOGDIR: $LOGDIR"
+fi
 #test -w $LOGDIR || die "Cannot write to LOGDIR: $LOGDIR"
 
-parse_cmdline $@
+parse_cmdline "$@"
 
 cd $LOGDIR
-if [[ $LIST == 1 ]]; then
-	find * -iwholename \*$LOG\* -type f |sort -k2 -t- -V -r | uniq -s9
+if [ "$LIST" -eq 1 ]; then
+	find_logs | sort -k2 -t- -V -r | uniq -s9
 else
-	LOGFILE=$(find -iwholename *$LOG[/-]\* -type f | sort -V | tail -n1)
+	LOGFILE=$(find_logs | sort -V | tail -n1)
 	echo "LOGFILE: $LOGFILE ($LOG)"
-	[[ -z $LOGFILE ]] && { echo " ! Log not found!"; exit 1; }
-	xzcat $LOGFILE 2> /dev/null ||
-	  cat $LOGFILE 2> /dev/null
+	if [ -z $LOGFILE ]; then
+		echo " ! Log not found!"
+		exit 1
+	fi
+	if [[ $LOGFILE == *.xz ]]; then
+		xzcat $LOGFILE 2> /dev/null
+	else
+		cat $LOGFILE 2> /dev/null
+	fi
 fi
