@@ -1,11 +1,13 @@
+#!/bin/bash
 source /etc/spkg.conf
 
-for p in /usr/sbin /usr/lib64 /usr/lib; do
+for p in $(echo $LD_LIBRARY_PATH $PATH | sed 's,:, ,g'); do
 	>&2 echo "Searching $p"
 	for f in $(find $p -type f); do
 		ldd $f 2> /dev/null | grep 'not found' > /dev/null
 		if [ $? == 0 ]; then
+			>&2 echo $f
 			grep -l "$f" ${PKG_CACHE}/*/*/*/CONTENTS
 		fi
-	done
-done | sed -e "s,${PKG_CACHE%/}/,," -e 's,/[^/]*/CONTENTS,,' | sort | uniq
+	done 2> >(sort | uniq)
+done > >(sed -e "s,${PKG_CACHE%/}/,," -e 's,/[^/]*/CONTENTS,,' | sort | uniq)
