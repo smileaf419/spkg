@@ -1,6 +1,12 @@
 #!/bin/bash
-TMPFILE=/tmp/depcheck
-[ -e $TMPFILE ] && rm $TMPFILE
+
+# Use mktemp to create a unique temp file
+TMPFILE=$(mktemp /tmp/depcheck.XXXXXX)
+PKG_CACHE=${PKG_CACHE:-/var/lib/spkg/data}
+
+# Ensure cleanup of the temporary file on exit
+trap 'rm -f "$TMPFILE"' EXIT
+
 source /etc/spkg.conf
 
 search_dependencies() {
@@ -8,24 +14,23 @@ search_dependencies() {
 	for p in "${search_dirs[@]}"; do
 		echo "Searching $p"
 		find "$p" -type f 2>/dev/null | while IFS= read -r f; do
-			FILE=$(ldd "$f" 2> /dev/null | grep 'not found' | sed -e 's,^\s*,,' -e 's, =>.*,,')
+			FILE=$(ldd "$f" 2>/dev/null | grep 'not found' | awk '{print $1}' | sort | uniq)
 			if [ ! -z "$FILE" ]; then
-				IFS=' ';
-				for a in "$FILE"; do
-					echo $a
-				done
-				>&2 grep -l "$f" ${PKG_CACHE}/*/*/*/CONTENTS
+				echo $FILE
+				>&2 grep -l "$f" "${PKG_CACHE}"/*/*/*/CONTENTS
 			fi
 		done | sort | uniq
-	done 2> >(sed -e "s,${PKG_CACHE%/}/,," -e 's,/[^/]*/CONTENTS,,' | sort | uniq > $TMPFILE)
+	done 2> >(sed -e "s,${PKG_CACHE%/}/,," -e 's,/[^/]*/CONTENTS,,' | sort | uniq > "$TMPFILE")
 }
 
 >&2 search_dependencies
 >&2 echo
+# touch the file before we check (bug reported)
+touch "$TMPFILE"
 if [ -s "$TMPFILE" ]; then
 	>&2 echo "Packages to rebuild"
-	cat $TMPFILE
-	rm $TMPFILE
+	cat "$TMPFILE"
 else
 	>&2 echo "No issues found"
 fi
+
