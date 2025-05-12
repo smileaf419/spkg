@@ -1,10 +1,11 @@
 #!/bin/bash
 ## Read Latest Log
-## Copyright 2023 spkg developers, licensed under GPLv2
+## Copyright 2023-2025 spkg developers, licensed under GPLv2
 ## Used to read the latest log or list logs of a given package
 
 LIST=0
-VERSION=0.1
+PIPE=0
+VERSION=0.2
 LOG=
 
 source /etc/spkg.conf
@@ -18,11 +19,15 @@ parse_cmdline() {
 			l|-list)
 				LIST=1
 				shift ;;
+			p|-pipe)
+				PIPE=1
+				shift ;;
 			h|-help)
 				echo "readlatestlog $VERSION by smileaf"
 				echo "Usage: $0 [Arguments] [Log Search]"
 				echo " Options:"
 				echo "  --list, -l      List only"
+				echo "  --pipe, -p		Outputs the log which can be piped to something else"
 				exit $? ;;
 			*)
 				LOG="$@"
@@ -52,9 +57,13 @@ else
 		echo " ! Log not found!"
 		exit 1
 	fi
-	if [[ $LOGFILE == *.xz ]]; then
-		xzcat $LOGFILE 2> /dev/null
+	if [ $PIPE == 1 ]; then
+		if [[ $LOGFILE == *.xz ]]; then
+			xzcat $LOGFILE 2> /dev/null
+		else
+			cat $LOGFILE 2> /dev/null
+		fi
 	else
-		cat $LOGFILE 2> /dev/null
+		xzless $LOGFILE 2> /dev/null
 	fi
 fi
