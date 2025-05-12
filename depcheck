@@ -1,6 +1,6 @@
 #!/bin/bash
 TMPFILE=/tmp/depcheck
-
+[ -e $TMPFILE ] && rm $TMPFILE
 source /etc/spkg.conf
 
 search_dependencies() {
@@ -20,12 +20,12 @@ search_dependencies() {
 	done 2> >(sed -e "s,${PKG_CACHE%/}/,," -e 's,/[^/]*/CONTENTS,,' | sort | uniq > $TMPFILE)
 }
 
-search_dependencies
-echo
-if [ -e "$TMPFILE" ]; then
-	echo "Packages to rebuild"
-	>&2 cat $TMPFILE
+>&2 search_dependencies
+>&2 echo
+if [ -s "$TMPFILE" ]; then
+	>&2 echo "Packages to rebuild"
+	cat $TMPFILE
 	rm $TMPFILE
 else
-	echo "No issues found"
+	>&2 echo "No issues found"
 fi
