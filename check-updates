@@ -149,6 +149,7 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		libtool) [[ ${FILE##*-} == '2.5.0' ]] && continue ;;
 		gd) version_gt ${FILE##*-} 2.80 && continue ;;
 		zip) [[ ${FILE##*-} == zip* ]] && continue ;;
+		git) [[ ${FILE##*-} == '3.0.0' ]] && continue ;;
 	esac
 
 	if version_gt ${FILE##*-} $PKG_VER; then
