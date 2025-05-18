@@ -52,7 +52,7 @@ populate_list() {
 		fi
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
-				#>&2 echo " $DIALOG_ERROR $p not installed!"
+				>&2 echo " $DIALOG_ERROR $p not installed!"
 				## If its not installed, not sure why it was tagged for uninstalling.. but 1 less thing to worry about.
 				continue
 			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
@@ -256,7 +256,7 @@ getdep() {
 
 			## Print an interesting looking tree.
 			if [[ $VERBOSE -ge 1 ]]; then
-				>&2 echo "$SP$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
+				>&2 echo "$SP$(getLEntry <<< $PKG)"
 				SP+=" "
 			else
 				>&2 echo -n .
@@ -288,18 +288,14 @@ getdep() {
 					## If its already in the list, ignore it and continue.
 					grep -E "^$(getCategory $cpkg)/$(getName $cpkg)(/[^/]*){3}/$(getSlot $cpkg)" $CHART > /dev/null && continue
 
+					####
 					## If both packages are already installed, we don't need to worry about
 					## calculating the dependencies or installing it after the current package.
 					## But if it is installed, but the pkg calling for the CDEP isn't
 					## We will need to install it.
 					## Record it and when we determine what we will install, reference it
 					## and add it as a forced install even if it would be skipped.
-					if [[ $(Installed-getPkg $cpkg | getVerRev) != "0" ]]; then
-						if [[ $(Installed-getPkg $PKG | getVerRev) != "0" ]]; then
-							continue
-						fi
-						echo "$PKG : $cpkg" >> ${CHART}-cdep
-					fi
+					[[ $(Installed-getPkg $cpkg | getVerRev) != "0" && $(Installed-getPkg $PKG | getVerRev) != "0" ]] && continue
 
 					if [[ ! -z $PKG_VER_RESTRICT ]]; then
 						cpkg=$(DB-getPkg $cpkg)
@@ -308,7 +304,19 @@ getdep() {
 					else
 						cpkg=$(DB-getPkg $cpkg | getLatest)
 					fi
+
+					## We need to install our CDEP before AND after in any case, unless both packages are already installed.
+					echo "$PKG : $cpkg" >> ${CHART}-cdep
+
 					getdep $cpkg $PKG_CAT/$PKG_NAME || return $?
+
+					## Add our cdep now to the chart
+					#echo $cpkg >> $CHART
+
+					## Print an interesting looking tree.
+					if [[ $VERBOSE -ge 1 ]]; then
+						>&2 echo "$SP$(getLEntry <<< $cpkg) (cdep)"
+					fi
 				done
 			fi
 
@@ -341,6 +349,13 @@ getdep() {
 
 			doDeps "$dep" || sed "/^$PKG_CAT.$PKG_NAME/d" -i $CHART
 			SP=${SP# }
+
+			## Check our CDEPS reference file. If it exists add our package now.
+			if [ -e ${CHART}-cdep ]; then
+				cdep=$(grep "^$PKG : " ${CHART}-cdep)
+				#[[ ! -z $cdep ]] && sed 's,^.* : ,,' <<< $cdep >> $CHART
+				sed "/^$PKG_CAT.$PKG_NAME : /d" -i ${CHART}-cdep
+			fi
 
 			## If we made it this far, we're Ok to exit, else we'd have continued to the next version.
 			break
