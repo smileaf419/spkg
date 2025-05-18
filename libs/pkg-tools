@@ -428,7 +428,7 @@ export -f Installed-getPkg
 ## Requires a PKG_CAT/PKG_NAME
 ## Returns a list of matching entries.
 Installed-getPkgList() {
-	[ $EMPTY_WORLD == 1 ] && echo 0 && return
+	[[ $EMPTY_WORLD == 1 ]] && echo 0 && return
 	local p=${1#/}
 	local v=$(find "$PKG_CACHE" -iwholename "*/$p/*.build")
 	[[ $v == "" ]] && echo 0 || echo $v | tr ' ' '\n'
