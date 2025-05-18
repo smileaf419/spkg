@@ -805,14 +805,10 @@ buildList() {
 	if [[ $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
 		## Get Dependencies and check if any require updates.
 		getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"
-		if [[ $VERBOSE -ge 1 ]]; then
+		if [[ $VERBOSE -ge 2 ]]; then
 			echo "Package Order (Full List):"
 			for p in $(cat $CHART); do
-				PKG_CAT=$(getCategory $p)
-				PKG_NAME=$(getName $p)
-				PKG_VR=$(getVerRev $p)
-				PKG_SLOT=$(getSlot $p)
-				echo "$PKG_CAT/$PKG_NAME-$PKG_VR:$PKG_SLOT"
+				getLEntry <<< $p
 			done
 			echo -e "\nPackage Order:"
 		fi

@@ -347,13 +347,7 @@ setPkgENV() {
 	export PKG_NVR=${PKG_NAME}-${PKG_VR}
 	export PKG_NV=${PKG_NAME}-${PKG_VER}
 
-	export LENTRY="="$PKG_CAT/$PKG_NAME-$PKG_VR
-	if [[ $PKG_SLOT != 0 ]]; then
-		LENTRY+=:$PKG_SLOT
-	fi
-	if [[ ! -z $PKG_FLAGS ]]; then
-		LENTRY+=[$PKG_FLAGS]
-	fi
+	export LENTRY=$(getLEntry <<< $data)
 
 	getPKG
 	export PKG_BLD=$(getBldFile $PKG)
@@ -434,6 +428,7 @@ export -f Installed-getPkg
 ## Requires a PKG_CAT/PKG_NAME
 ## Returns a list of matching entries.
 Installed-getPkgList() {
+	[ $EMPTY_WORLD == 1 ] && echo 0 && return
 	local p=${1#/}
 	local v=$(find "$PKG_CACHE" -iwholename "*/$p/*.build")
 	[[ $v == "" ]] && echo 0 || echo $v | tr ' ' '\n'
@@ -577,6 +572,7 @@ getLEntry() {
 	if [[ ! -z $PKG_FLAGS ]]; then
 		LENTRY+=[$PKG_FLAGS]
 	fi
+	echo $LENTRY
 }
 export -f getLEntry
 
