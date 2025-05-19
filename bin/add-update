@@ -5,12 +5,12 @@
 export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
 source /etc/spkg.conf
-source "${INSTALL_PATH}/libs/pkg-utils"
-source "${INSTALL_PATH}/libs/pkg-tools"
-source "${INSTALL_PATH}/libs/updatesha1"
-source "${INSTALL_PATH}/libs/utils"
-source "${INSTALL_PATH}/libs/build-tools"
-source "${INSTALL_PATH}/libs/builddefaults"
+source "${INSTALL_PATH}/lib/pkg-utils"
+source "${INSTALL_PATH}/lib/pkg-tools"
+source "${INSTALL_PATH}/lib/updatesha1"
+source "${INSTALL_PATH}/lib/utils"
+source "${INSTALL_PATH}/lib/build-tools"
+source "${INSTALL_PATH}/lib/builddefaults"
 
 export NORMAL=$(tput sgr0)
 export GREEN=$(tput setaf 82)

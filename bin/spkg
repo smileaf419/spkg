@@ -101,7 +101,7 @@ cleanup() {
 	title
 }
 
-## Function to figure out where this script is at so we can reference our libs directory.
+## Function to figure out where this script is at so we can reference our lib directory.
 ## Taken from:
 ## https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
 whereAmI() {
@@ -113,7 +113,10 @@ whereAmI() {
 		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE
 	done
 	local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
-	echo $DIR
+	
+	## Output our parent directory as the script should be getting called from a:
+	## spkg/bin dir and we want the spkg directory.
+	dirname $DIR
 }
 
 ####
@@ -253,12 +256,12 @@ VERSION=${VERSION:-"20240721"}
 
 ####
 ## Include our libraries
-source "${INSTALL_PATH}/libs/pkg-tools"
-source "${INSTALL_PATH}/libs/pkg-utils"
-source "${INSTALL_PATH}/libs/builddefaults"
-source "${INSTALL_PATH}/libs/utils"
-source "${INSTALL_PATH}/libs/build-tools"
-source "${INSTALL_PATH}/libs/list-tools"
+source "${INSTALL_PATH}/lib/pkg-tools"
+source "${INSTALL_PATH}/lib/pkg-utils"
+source "${INSTALL_PATH}/lib/builddefaults"
+source "${INSTALL_PATH}/lib/utils"
+source "${INSTALL_PATH}/lib/build-tools"
+source "${INSTALL_PATH}/lib/list-tools"
 
 ####
 ## Parse our command line
@@ -558,7 +561,7 @@ fi
 ## Update the sha1sum of all files for the given package.
 ## Using the set @all while useful is not recommended given the size of the repository.
 if [[ $MODE != 'search' && $HASH_UPDATE ]]; then
-	source "${INSTALL_PATH}/libs/updatesha1"
+	source "${INSTALL_PATH}/lib/updatesha1"
 
 	checkAllSha $PKG_LIST
 
@@ -707,7 +710,7 @@ elif [[ $MODE == "clean" ]]; then
 
 ## Bootstrap a new system to the given directory.
 elif [[ $MODE == "bootstrap" ]]; then
-	source "${INSTALL_PATH}/libs/bootstrap"
+	source "${INSTALL_PATH}/lib/bootstrap"
 fi
 
 ## Search
@@ -871,7 +874,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 
 	## Check if we have an update list and update the sha1sums
 	if [[ ! -z $updateList ]]; then
-		source "${INSTALL_PATH}/libs/updatesha1"
+		source "${INSTALL_PATH}/lib/updatesha1"
 
 		checkAllSha $updateList
 	fi

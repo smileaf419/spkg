@@ -28,17 +28,17 @@ whereAmI() {
 		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 	done
 	local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
-	echo $DIR
+	dirname $DIR
 }
 
 ## Include our libraries
 INSTALL_PATH=$(whereAmI)
-source "${INSTALL_PATH}/libs/pkg-tools"
-source "${INSTALL_PATH}/libs/list-tools"
-source "${INSTALL_PATH}/libs/pkg-utils"
-source "${INSTALL_PATH}/libs/utils"
-source "${INSTALL_PATH}/libs/updatesha1"
-source "${INSTALL_PATH}/libs/build-tools"
+source "${INSTALL_PATH}/lib/pkg-tools"
+source "${INSTALL_PATH}/lib/list-tools"
+source "${INSTALL_PATH}/lib/pkg-utils"
+source "${INSTALL_PATH}/lib/utils"
+source "${INSTALL_PATH}/lib/updatesha1"
+source "${INSTALL_PATH}/lib/build-tools"
 
 DB-getPkgByArch() {
 	## Save our flags

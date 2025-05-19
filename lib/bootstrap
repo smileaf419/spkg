@@ -297,18 +297,18 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 	fi
 
 	## Install our profile
-	cp $INSTALL_PATH/profile $ROOT/etc/profile
+	cp $INSTALL_PATH/etc/profile $ROOT/etc/profile
 
 	## Install our configuration file and symlinks.
-	cp $INSTALL_PATH/spkg.conf $ROOT/etc/spkg.conf
+	cp $INSTALL_PATH/etc/spkg.conf $ROOT/etc/spkg.conf
 	## If we're using an unstable ARCH, set it in our config
 	[[ $ARCH == ~* ]] && sed '/ARCH=/ s,=",="~,' -i $ROOT/etc/spkg.conf
 	## Set our BUILD_ABI to the same as the one it got built for.
 	sed "s,^BUILD_ABI.*$,BUILD_ABI=\"$BUILD_ABI\"," -i $ROOT/etc/spkg.conf
 
 	## Install a link to our script
-	ln -sf "$INSTALL_PATH"/spkg $ROOT/sbin
-	ln -sf "$INSTALL_PATH"/readlatestlog $ROOT/usr/bin
+	ln -sf "$INSTALL_PATH"/bin/spkg $ROOT/sbin
+	ln -sf "$INSTALL_PATH"/bin/readlatestlog $ROOT/usr/bin
 	## TODO: Add links to other helper scripts?
 
 	## Pass certain options to our chroot environment
@@ -320,7 +320,7 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 	## Create a lock file
 	touch $ROOT/tmp/.spkg-bootstrap.lock
 
-	$ROOT/chroot.sh $ROOT $INSTALL_PATH/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGES "$SPKG_BUILD_OPTS"
+	$ROOT/chroot.sh $ROOT $INSTALL_PATH/bin/chroot-finalize.sh $PKG_DB_DIR $BOOTSTRAP_STAGES "$SPKG_BUILD_OPTS"
 	if [[ ! -e $ROOT/tmp/.spkg-bootstrap.lock ]]; then
 		echo " * Cleaning $ROOT/tools"
 		rm -rf $ROOT/tools
