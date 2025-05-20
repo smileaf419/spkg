@@ -194,19 +194,33 @@ devpts      /dev/pts        devpts      gid=5,mode=620          0 0
 tmpfs       /dev/shm        tmpfs       nosuid,nodev            0 0
 #cgroup2    /sys/fs/cgroup  cgroup2     nosuid,noexec,nodev     0 0
 
-# Hard Drives (SSD)
-#UUID=""     /boot/efi       vfat        codepage=437,iocharset=iso8859-1    1 2
-#UUID=""     none            swap        default                             0 0
-#UUID=""     /               ext4        rw,relatime                         0 1
-
-# Hard Drives (SATA)
-#UUID=""     /               ext4        rw,relatime                         0 1
-
 # Optical drives
 /dev/cdrom  /media/cdrom    auto        defaults,ro,noauto                  0 0
 
+# Hard Drives (SSD)
+#UUID=""     /boot/efi       vfat        codepage=437,iocharset=iso8859-1   1 2
+#UUID=""     none            swap        default                            0 0
+#UUID=""     /               ext4        rw,relatime                        0 1
+
+# Hard Drives (SATA)
+#UUID=""     /               ext4        rw,relatime                        0 1
+
 # External USB drives
 EOF
+
+	echo " * Auto Generating some HDD entries for /etc/fstab. This WILL require editing!"
+	blkid |
+		grep TYPE | grep -v PARTLABEL |
+		awk '{
+			uuid=$0
+			sub(/^.* UUID/,"UUID",uuid)
+			sub(/ .*$/,"",uuid)
+			type=$0
+			sub(/^.*TYPE="/,"",type)
+			sub(/" .*$/,"",type)
+			print "## "$1"\n" uuid " pathhere  " type " defaults 0 1"}' |
+		sed -e '/swap/s/.$/0/' -e '/swap/s/pathhere/none/' \
+			-e '/vfat/s/defaults 0 1/codepage=437,iocharset=iso8859-1 1 2/' >> $ROOT/etc/fstab
 
 	cp "$INSTALL_PATH/bin/chroot.sh" $ROOT/chroot.sh
 	chmod +x "$ROOT/chroot.sh"
@@ -264,7 +278,7 @@ if [[ $BOOTSTRAP_STAGES == *3* || $BOOTSTRAP_STAGES == *4* ]] && [[ -e $ROOT/chr
 			echo " git clone https://github.com/smileaf419/spkg $ROOT/$INSTALL_PATH"
 			echo
 			echo "Once this is done you will need to copy over the spkg.conf and run:"
-			echo "$ROOT/chroot.sh $ROOT $INSTALL_PATH/chroot-finalize.sh $PKG_DB_DIR"
+			echo "$ROOT/chroot.sh $ROOT $INSTALL_PATH/bin/chroot-finalize.sh $PKG_DB_DIR"
 		fi
 	else
 		echo " * Updating Repository ..."
