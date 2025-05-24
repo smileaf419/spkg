@@ -33,6 +33,11 @@ whereAmI() {
 
 ## Include our libraries
 INSTALL_PATH=$(whereAmI)
+## Directory where script files are installed into.
+INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
+## Directory all build files are installed into.
+export PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
+
 source "${INSTALL_PATH}/lib/pkg-tools"
 source "${INSTALL_PATH}/lib/list-tools"
 source "${INSTALL_PATH}/lib/pkg-utils"
