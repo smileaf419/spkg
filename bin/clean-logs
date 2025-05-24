@@ -5,6 +5,8 @@
 ## Helps to keep the logs under control
 
 source /etc/spkg.conf
+## Logfile Directory
+export LOGDIR=${LOGDIR:-/var/log/spkg}
 
 ## Default to 30 days
 CLEAN_LOG_DATE=${CLEAN_LOG_DATE:-30}

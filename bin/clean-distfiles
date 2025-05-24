@@ -6,6 +6,11 @@
 
 source /etc/spkg.conf
 
+## Database Directory for local data storage.
+export CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
+## Storage directory for all downloaded files
+export DISTFILES=${DISTFILES:-$CACHE_DIR/files}
+
 ## Default to 30 days
 CLEAN_DISTFILE_DATE=${CLEAN_DISTFILE_DATE:-90}
 

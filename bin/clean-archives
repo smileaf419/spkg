@@ -5,6 +5,11 @@
 
 source /etc/spkg.conf
 
+## Database Directory for local data storage.
+export CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
+## Storage directory for all archive packages.
+export PKG_ARCHIVE_DIR=${PKG_ARCHIVE_DIR:-$CACHE_DIR/archive}
+
 echo " * Cleaning Old archives in $PKG_ARCHIVE_DIR"
 
 for d in $(find $PKG_ARCHIVE_DIR -mindepth 1 -type d); do
