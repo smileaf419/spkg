@@ -25,8 +25,8 @@ search_dependencies() {
 
 >&2 search_dependencies
 >&2 echo
-# touch the file before we check (bug reported)
-touch "$TMPFILE"
+
+wait $!
 if [ -s "$TMPFILE" ]; then
 	>&2 echo "Packages to rebuild"
 	cat "$TMPFILE"
