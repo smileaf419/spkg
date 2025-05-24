@@ -188,6 +188,20 @@ use-enable() { checkinlist $1 "$USE"; }
 export -f use-enable
 
 ####
+## Check the USE flag for an option,
+## If its disabled, return 0
+## else return 1.
+use-disabled() {
+	checkinlist $1 "$USE";
+	if [ $? == 2 ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+export -f use-disabled
+
+####
 ## Check the PKG_FLAGS for an option,
 ## return 0 if found; 1 if not.
 ## returns 2 if found and is disabled
