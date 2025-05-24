@@ -508,9 +508,15 @@ export -f getVerRev
 getVerRestrict() {
 	local RESTRICTIONS=${RESTRICTIONS:-/dev/null}
 	local data=${@:-$(cat -)}
-	local restrict=$(getData 4 $data)
-	local frestrict=$(grep $(getCategory $data)/$(getName $data) $RESTRICTIONS || echo)
-	echo $restrict $([[ ! -z $frestrict ]] && getData 4 $frestrict) | tr ' ' '|'
+
+	## Get Version restrictions on both our data, and if it exists any restriction recorded within our RESTRICTIONS file.
+	echo -n $(getData 4 $data) $(if [ -e $RESTRICTIONS ]; then
+		## We may have gotten more than 1 entry.
+		for data in $(grep $(getCategory $data)/$(getName $data) $RESTRICTIONS 2> /dev/null); do
+			getData 4 $data
+		done
+	## Give each their own line for sort, then merge them all back in, removing the trailing | at the end if it exists.
+	fi) | tr ' ' '\n' | sort -u | tr '\n' '|' | sed 's,|$,,'
 }
 export -f getVerRestrict
 
