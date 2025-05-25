@@ -10,6 +10,9 @@ LOG=
 
 source /etc/spkg.conf
 
+## Logfile Directory
+export LOGDIR=${LOGDIR:-/var/log/spkg}
+
 die() { echo "$*" 1>&2 ; exit 1; }
 
 parse_cmdline() {
@@ -37,7 +40,7 @@ parse_cmdline() {
 }
 
 find_logs() {
-	find * -iwholename "*$LOG[/-]*"
+	find * -iwholename "*$LOG[^a-zA-Z]*"
 }
 
 if [ ! -d "$LOGDIR" ]; then
