@@ -30,7 +30,7 @@ parse_cmdline() {
 				echo "Usage: $0 [Arguments] [Log Search]"
 				echo " Options:"
 				echo "  --list, -l      List only"
-				echo "  --pipe, -p		Outputs the log which can be piped to something else"
+				echo "  --pipe, -p      Outputs the log which can be piped to something else"
 				exit $? ;;
 			*)
 				LOG="$@"
