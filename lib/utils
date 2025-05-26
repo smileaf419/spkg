@@ -225,16 +225,17 @@ rebuildModules() {
 buildBDeps() {
 	local OUT=
 
-	## Use our BDEPS file installed within PKG_CACHE
-	Installed-getPkg $1 > /dev/null
-
-	[ $VERBOSE -ge 1 ] && >&2 echo -n "$PKG_CAT/$PKG_NVR"
-
-	## Filter out the Toolchain. These are always depended on,
-	## So we don't need it complicating the logic
-	PKG_FILTER=("system/util-linux" "system/glibc" "system/gcc")
-
 	(
+		## Use our BDEPS file installed within PKG_CACHE
+		PKG=$(Installed-getPkg $1)
+		setPkgENV $PKG > /dev/null
+
+		[ $VERBOSE -ge 1 ] && >&2 echo -n "$PKG_CAT/$PKG_NVR"
+
+		## Filter out the Toolchain. These are always depended on,
+		## So we don't need it complicating the logic
+		PKG_FILTER=("system/util-linux" "system/glibc" "system/gcc")
+
 		set -e
 
 		## Load our saved USE flags.
@@ -276,9 +277,14 @@ buildBDeps() {
 				sed -e 's,:.*,,' \
 				    -e "s,$PKG_CACHE/,," \
 				    -e 's,/CONTENTS,,' || true)
+			if [[ ${#O[@]} -gt 1 ]]; then
+				>&2 echo " !! $dep returned more than 1 package ownership!"
+				>&2 echo "$O"
+				continue
+			fi
 			PKG_VR=${O##*/}
 			O=${O%/*}
-			[ -e $PKG_CACHE/$O/$PKG_VR/$PKG_VR.build ] &&
+			[[ -e $PKG_CACHE/$O/$PKG_VR/$PKG_VR.build ]] &&
 				PKG_SLOT=$(grep 'SLOT=' "$PKG_CACHE/$O/${PKG_VR}/${PKG_VR}.build" | sed 's,.*SLOT=,,')
 
 			## No package found for the file.
@@ -341,7 +347,6 @@ buildBDeps() {
 				sed -i "s,^DEPS=[\"'].*[\"'],DEPS=\"${D}\"," $PKG_BLD
 			fi
 		fi
-
 	)
 	HASH_UPDATE=true
 }
