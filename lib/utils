@@ -228,6 +228,10 @@ buildBDeps() {
 	(
 		## Use our BDEPS file installed within PKG_CACHE
 		PKG=$(Installed-getPkg $1)
+		if [[ -z $PKG ]]; then
+			echo " !! $1 is not installed!"
+			exit 1
+		fi
 		setPkgENV $PKG > /dev/null
 
 		[ $VERBOSE -ge 1 ] && >&2 echo -n "$PKG_CAT/$PKG_NVR"
