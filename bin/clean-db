@@ -37,6 +37,10 @@ INSTALL_PATH=$(whereAmI)
 INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
 ## Directory all build files are installed into.
 export PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
+## Database Directory for local data storage.
+export CACHE_DIR=${CACHE_DIR:-/var/cache/spkg}
+## Storage directory for all downloaded files
+export DISTFILES=${DISTFILES:-$CACHE_DIR/files}
 
 source "${INSTALL_PATH}/lib/pkg-tools"
 source "${INSTALL_PATH}/lib/list-tools"
@@ -71,7 +75,7 @@ filterStable() {
 
 cleanPkg() {
 	local d=$1
-	local slot=${ENV_PKG_SLOT:-0}
+	local slot=${ENV_PKG_SLOT:-$2}
 	## We need to ensure we do 2 checks, 1 for stable, 1 for unstable
 	## This also needs to ensure we also do 1 check for each ARCH.
 	## This is to ensure each ARCH has a stable version if available.
@@ -127,7 +131,17 @@ for (( l=0; l<${length}; l++ )); do
 
 	setPkgENV $d > /dev/null 2>&1
 
-	printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME$([[ ! -z $ENV_PKG_SLOT ]] && echo ":$ENV_PKG_SLOT")
-	cleanPkg $PKG_CAT/$PKG_NAME
+	## Detect SLOTs if non-zero itterate over them.
+	SLOTS=$(find $PKG_CAT/$PKG_NAME -name \*.build | xargs grep "SLOT=" | grep -v '=0$' | sed 's,^.*SLOT=,,'| sort -u)
+
+	if [[ ! -z $SLOTS ]]; then
+		for ENV_PKG_SLOT in $SLOTS; do
+			printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME$([[ ! -z $ENV_PKG_SLOT ]] && echo ":$ENV_PKG_SLOT")
+			cleanPkg $PKG_CAT/$PKG_NAME $ENV_PKG_SLOT
+		done
+	else
+		printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME$([[ ! -z $ENV_PKG_SLOT ]] && echo ":$ENV_PKG_SLOT")
+		cleanPkg $PKG_CAT/$PKG_NAME $ENV_PKG_SLOT
+	fi
 done
 echo
