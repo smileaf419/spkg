@@ -207,7 +207,7 @@ export LOGDIR=${LOGDIR:-/var/log/spkg}
 ## Directory where everything is built and temporary files are stored.
 export WORKDIR_BASE=${WORKDIR_BASE:-/var/tmp/spkg}
 ## Database Directory for local data storage.
-export CACHE_DIR=${CACHE_DIR:-/var/lib/spkg}
+export CACHE_DIR=${CACHE_DIR:-/var/cache/spkg}
 ## Database directory where installed packages are recorded.
 export PKG_CACHE=${PKG_CACHE:-$CACHE_DIR/data}
 ## Storage directory for all downloaded files
