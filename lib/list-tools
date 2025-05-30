@@ -16,6 +16,7 @@ export RESTRICTIONS=$WORKDIR_BASE/restrictions
 populate_list() {
 	local REQUESTED_LIST=${@:-$REQUESTED_LIST}
 	local timestart=$(date "+%s.%N")
+	local SPKG_TMP_DIR=${SPKG_TMP_DIR:-/tmp}
 	[ -e $CHART ] && rm $CHART
 	local list=$(expandSets $REQUESTED_LIST)
 	PKG_LIST=
