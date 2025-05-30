@@ -1,10 +1,38 @@
 #!/bin/bash
 
+## Function to figure out where this script is at so we can reference our lib directory.
+## Taken from:
+## https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
+whereAmI() {
+	local SOURCE=${BASH_SOURCE[0]}
+	while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+		local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+		SOURCE=$(readlink "$SOURCE")
+		## if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+		[[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE
+	done
+	local DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+
+	## Output our parent directory as the script should be getting called from a:
+	## spkg/bin dir and we want the spkg directory.
+	dirname $DIR
+}
+
 ## Enable Debug
 #set -x
-#export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
 source /etc/spkg.conf
+
+## Directory where script files are installed into.
+INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
+## Directory all build files are installed into.
+export PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
+## Database Directory for local data storage.
+export CACHE_DIR=${CACHE_DIR:-/var/cache/spkg}
+## Storage directory for all downloaded files
+export DISTFILES=${DISTFILES:-$CACHE_DIR/files}
+
 source "${INSTALL_PATH}/lib/pkg-utils"
 source "${INSTALL_PATH}/lib/pkg-tools"
 source "${INSTALL_PATH}/lib/updatesha1"
