@@ -28,6 +28,8 @@ source /etc/spkg.conf
 INSTALL_PATH=${INSTALL_PATH:-$(whereAmI)}
 ## Directory all build files are installed into.
 export PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
+## Storage directory for all downloaded files
+export DISTFILES=${DISTFILES:-$CACHE_DIR/files}
 
 source "${INSTALL_PATH}/lib/pkg-utils"
 source "${INSTALL_PATH}/lib/pkg-tools"
