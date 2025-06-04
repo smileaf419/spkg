@@ -139,8 +139,9 @@ for (( l=0; l<${length}; l++ )); do
 			printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME$([[ ! -z $ENV_PKG_SLOT ]] && echo ":$ENV_PKG_SLOT")
 			cleanPkg $PKG_CAT/$PKG_NAME $ENV_PKG_SLOT
 		done
+		ENV_PKG_SLOT=0
 	else
-		printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME$([[ ! -z $ENV_PKG_SLOT ]] && echo ":$ENV_PKG_SLOT")
+		printf "\r %3d / %3d : %17s/%-23s" $C $length $PKG_CAT $PKG_NAME$([[ ! -z $ENV_PKG_SLOT && $ENV_PKG_SLOT != 0 ]] && echo ":$ENV_PKG_SLOT")
 		cleanPkg $PKG_CAT/$PKG_NAME $ENV_PKG_SLOT
 	fi
 done
