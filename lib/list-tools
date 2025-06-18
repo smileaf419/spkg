@@ -126,7 +126,7 @@ expandSets() {
 				if [[ ${p#@} == "world" ]]; then
 					PKG_LIST+=" $(grep -v -E "^#" $PKG_WORLD)"
 				elif [[ ${p#@} == "all" ]]; then
-					PKG_LIST=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -Ev "spkg|git")
+					PKG_LIST=$(find $PKG_DB_DIR/* -mindepth 1 -type d | sed "s,$PKG_DB_DIR/,," | grep -Ev "spkg|\.git")
 					break
 				elif [[ ${p#@} == "installed" ]]; then
 					PKG_LIST=$(find $PKG_CACHE/* -mindepth 1 -maxdepth 1 -type d | sed "s,$PKG_CACHE/,,")
