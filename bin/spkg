@@ -624,6 +624,7 @@ if [[ $MODE == "update" ]]; then
 				if [[ -z $LPKG ]]; then
 					PKG_SLOT=0
 					LPKG=$(DB-getPkg $(getPKG) | getLatest)
+					[[ -z $LPKG ]] && die " $DIALOG_ERROR No builds available for $PKG_CAT/$PKG_NAME"
 				fi
 				version_gt $(getVerRev $LPKG) $IPK_VER && echo $LPKG >> $CHART
 			done
