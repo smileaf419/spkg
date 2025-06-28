@@ -12,11 +12,7 @@ if [ ! -f /etc/spkg.conf ]; then
 fi
 source /etc/spkg.conf
 
-# Ensure $PKG_DB_DIR is set
-if [ -z "$PKG_DB_DIR" ]; then
-    echo "${RED}Error:${NORMAL} PKG_DB_DIR is not set in the configuration."
-    exit 1
-fi
+PKG_DB_DIR=${PKG_DB_DIR:-/var/db/spkg}
 
 # Change to package database directory
 cd "$PKG_DB_DIR" || { echo "${RED}Error:${NORMAL} Failed to change directory to $PKG_DB_DIR"; exit 1; }
