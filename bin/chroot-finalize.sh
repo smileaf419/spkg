@@ -1,6 +1,8 @@
 #!/bin/bash -e
 source /etc/spkg.conf
 
+INSTALL_PATH=${INSTALL_PATH:-$(dirname $0)}
+
 PKG_DB_DIR=$1; shift
 BOOTSTRAP_STAGES=$1; shift
 if [[ $BOOTSTRAP_STAGES == *3* ]]; then
