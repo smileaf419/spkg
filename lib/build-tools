@@ -54,12 +54,12 @@ export -f setBuildENV
 ## userBuildPackage
 ## This function is meant to do all the building as our BUILD_USER
 userBuildPackage() {
-	echo " * src_configure (${ABILIB:-64})"
+	echo " * src_configure ($(whoami) / ${ABILIB:-64})"
 	src_configure $p || die " $DIALOG_ERROR Error in src_configure (${ABILIB:-64})"
-	echo " * src_compile (${ABILIB:-64})"
+	echo " * src_compile ($(whoami) / ${ABILIB:-64})"
 	src_compile $p || die " $DIALOG_ERROR Error in src_compile (${ABILIB:-64})"
 	if [ $ENABLE_TESTS == 1 ]; then
-		echo " * src_test (${ABILIB:-64})"
+		echo " * src_test ($(whoami) / ${ABILIB:-64})"
 		src_test $p || die " $DIALOG_ERROR Error in src_test (${ABILIB:-64})"
 	fi
 }
