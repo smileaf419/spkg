@@ -155,7 +155,15 @@ python_compile() {
 		echo " $IMPORTANT Assuming pip is broken, trying ensurepip"
 		python -m ensurepip --default-pip
 
-		eval pip3 wheel -v $_PIP_COMPILE_OPTS $PWD || die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
+		if ! eval pip3 wheel -v $_PIP_COMPILE_OPTS $PWD; then
+			echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
+			fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
+			python $DISTFILES/get-pip.py --no-warn-script-location
+
+			if ! eval pip3 wheel -v $_PIP_COMPILE_OPTS $PWD; then
+				die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
+			fi
+		fi
 	fi
 }
 export -f python_compile
