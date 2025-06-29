@@ -181,6 +181,13 @@ getMicroVer() {
 export -f getMicroVer
 
 ####
+## Return a Major.Minor
+getMajorMinor() {
+	local VER=${1:-$PKG_VER}
+	echo $(getMajorVer $VER)"."$(getMinorVer $Ver)
+}
+
+####
 ## Check the USE flag for an option,
 ## return 0 if found; 1 if not.
 ## returns 2 if found and is disabled
