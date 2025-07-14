@@ -4,7 +4,7 @@ This is intended to be a playground for learning about package management and no
 
 # To Use
 <code>mkdir -p /var/{lib/spkg,db}
-git clone https://github.com/smileaf419/spkg /var/lib/spkg/bin
+git clone https://github.com/smileaf419/spkg /var/lib/spkg
 git clone https://github.com/smileaf419/spkg-repository /var/db/spkg
 cp /var/lib/spkg/bin/spkg.conf /etc
 </code>
