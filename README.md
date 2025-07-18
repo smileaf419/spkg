@@ -6,7 +6,7 @@ This is intended to be a playground for learning about package management and no
 <code>mkdir -p /var/{lib/spkg,db}
 git clone https://github.com/smileaf419/spkg /var/lib/spkg
 git clone https://github.com/smileaf419/spkg-repository /var/db/spkg
-cp /var/lib/spkg/bin/spkg.conf /etc
+cp /var/lib/spkg/etc/spkg.conf /etc
 </code>
 
 For more information on how to setup and use spkg please check out our [Wiki](https://github.com/smileaf419/spkg/wiki)
