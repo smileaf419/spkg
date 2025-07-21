@@ -69,6 +69,7 @@ spatch() {
 	[[ $patch == http* ]] && patch=$DISTFILES/${patch##*/}
 	shift 1
 	[[ ! -e $patch ]] && return
+	[[ $patch != *.diff && $patch != *.patch ]] && return
 	local patch_options=${@:--Np1}
 	echo -n " * Applying Patch: $patch ($patch_options)"
 	if [[ $patch == *gz ]]; then
@@ -87,30 +88,6 @@ spatch() {
 	fi
 }
 export -f spatch
-
-####
-## Applies a set of patches, within the array, a directory or an archive (tar only).
-## src_patch automatically calls this method using the PATCHES var.
-spatches() {
-	local PATCHES=(${@:-${PATCHES[@]}})
-
-	local p
-	for p in ${PATCHES[@]}; do
-		[[ $p == http* ]] && p=$DISTFILES/${p##*/}
-		if [[ $p == *.tar.* ]]; then
-			unpack "$p"
-			p=${p%.tar.*}
-			p=${p##*/}
-		fi
-		if [ -d "$p" ]; then
-			echo " * Applying All patches within: $p"
-			spatches "$(find "$p" -type f -iname '*.patch' | sort)"
-		else
-			spatch "$p" ${PATCH_OPTS:--Np1}
-		fi
-	done
-}
-export -f spatches
 
 ####
 ## Removes flags from CFLAGS, CXXFLAGS and CPPFLAGS

@@ -306,9 +306,50 @@ export -f unpack_default
 
 ## Function called by src_patch
 patch_default() {
-	spatches "$@" || die " $DIALOG_ERROR Patching failed"
+	patch_unpack "patches" "${PATCHES[@]}" || die " $DIALOG_ERROR Patching failed"
+	patch_apply "patches ${PATCHES[@]}" || die " $DIALOG_ERROR Patching failed"
 }
 export -f patch_default
+
+####
+## Unpacks all patch archives
+patch_unpack() {
+	local DIR=${1:-.}
+	shift 1
+	local P=(${@:-${PATCHES[@]}})
+
+	local p
+	for p in ${P[@]}; do
+		[[ $p == http* ]] && p=$DISTFILES/${p##*/}
+		if [[ $p == *.tar.* ]]; then
+			unpack "$p" "$DIR"
+			p="$DIR"
+		fi
+	done
+}
+export -f patch_unpack
+
+####
+## Applies a set of patches, within the array, a directory or an archive (tar only).
+## src_patch automatically calls this method using the PATCHES var.
+patch_apply() {
+	local P=(${@:-${PATCHES[@]}})
+
+	local p
+	for p in ${P[@]}; do
+		[[ $p == http* ]] && p=$DISTFILES/${p##*/}
+		if [ -d "$p" ]; then
+			echo " * Applying All patches within: $p"
+			IFS=$'\n';
+			for patch in $(find "$p" -type f -iname '*.patch' | sort); do
+				spatch "$patch" ${PATCH_OPTS:--Np1}
+			done
+		else
+			spatch "$p" ${PATCH_OPTS:--Np1}
+		fi
+	done
+}
+export -f patch_apply
 
 ####
 ## Default empty functions (src_*)
