@@ -97,13 +97,13 @@ done
 
 echo Filtered: $(cat $DFILES | wc -l) entries
 
-for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
-	p=$(echo $p | sed "s,$PKG_DB_DIR/,,")
+for p in $(cd $PKG_DB_DIR; find * -mindepth 1 -type d); do
+	## Save the entire category/package name
 	PK=$p
-	[[ $PK == accounts/* || $PK == spkg* || $PK == virtual/* || $PK == *git/* ]] && continue
-#	echo -n "Checking $PK : "
+	[[ $PK == accounts/* || $PK == virtual/* || $PK == *git/* ]] && continue
+
+	## Save just the name of the package.
 	p=${p#*/}
-	# Check Gentoo DFILES for latest versions.
 
 	# Alter the names for filename detection
 	case "$p" in
@@ -177,14 +177,14 @@ for p in $(find $PKG_DB_DIR -mindepth 2 -type d | sed "s,$PKG_DB_DIR/,,"); do
 		libtool) [[ ${FILE##*-} == '2.5.0' ]] && continue ;;
 		gd) version_gt ${FILE##*-} 2.80 && continue ;;
 		zip) [[ ${FILE##*-} == zip* ]] && continue ;;
-		git) [[ ${FILE##*-} == '3.0.0' ]] && continue ;;
+		git) version_ge ${FILE##*-} '3.0.0' && continue ;;
+		mono) version_ge ${FILE##*-} '6.13' && continue ;;
 	esac
 
 	if version_gt ${FILE##*-} $PKG_VER; then
 		echo " * Updating $PKG_CAT/$PKG_NAME : $PKG_VER -> ${FILE##*-}" | tee -a $UPDATE_LIST
-		cp -v "$PKG_BLD" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
 		sed -e '/ARCHS/ s,\( \|="\)\([^~]\),\1~\2,g' \
-			-i "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
+			"$PKG_BLD" > "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/${FILE##*-}.build"
 		updatesha1 $PKG_CAT/$PKG_NAME
 	fi
 done
