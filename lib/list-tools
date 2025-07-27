@@ -379,6 +379,11 @@ doDeps() {
 		##        This will require package specfic USE to be implemented.
 		if [[ ! -z $PKG_VER_RESTRICT ]]; then
 			local dpkg=$(DB-getPkg $PKG)
+			if [[ -z $dpkg ]]; then
+				>&2 echo " $DIALOG_ERROR Error getting Pkg name in doDeps."
+				>&2 echo " $DIALOG_ERROR Working on dependency: $d"
+				die  " $DIALOG_ERROR Possible malformed package node found in build file's *DEPS: $PKG"
+			fi
 			if [[ $VERBOSE -ge 2 ]]; then
 				>&2 echo -e "\n * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
 				>&2 echo "PKG: $PKG"
