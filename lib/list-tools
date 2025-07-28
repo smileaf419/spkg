@@ -26,7 +26,7 @@ populate_list() {
 	elif [[ $list == "ERR" ]]; then
 		die
 	fi
-	>&2 echo -n " $INFO_MSG Populating list"
+	>&2 echo -n "$MSG_INFO Populating list"
 	local p
 	for p in $list; do
 		>&2 echo -n '.'
@@ -39,7 +39,7 @@ populate_list() {
 			c=($PKG)
 			if [[ ${#c[*]} -gt 1 ]]; then
 				echo
-				echo " $DIALOG_ERROR $p has multiple matches!"
+				echo "$MSG_ERR $p has multiple matches!"
 				for pk in $PKG; do
 					setPkgENV $pk > /dev/null
 					echo -n " $PKG_CAT/$PKG_NAME - $PKG_VR"
@@ -53,15 +53,15 @@ populate_list() {
 		fi
 		if [[ $PKG == "" ]]; then
 			if [[ $MODE == 'uninstall' ]]; then
-				>&2 echo " $DIALOG_ERROR $p not installed!"
+				>&2 echo "$MSG_ERR $p not installed!"
 				## If its not installed, not sure why it was tagged for uninstalling.. but 1 less thing to worry about.
 				continue
 			## If we're updating hashes there is a chance we are using @all or have a list, just report it and continue.
 			elif [[ $HASH_UPDATE ]]; then
-				>&2 echo " $DIALOG_ERROR $p not found!"
+				>&2 echo "$MSG_ERR $p not found!"
 				continue
 			else
-				>&2 echo " $DIALOG_ERROR $p not found!"
+				>&2 echo "$MSG_ERR $p not found!"
 				PKG_LIST=$p
 				MODE=search
 				return
@@ -101,7 +101,7 @@ isDependedOn() {
 	pkg-restricts nobin && return
 	local FC=$(wc -l "$PKG_CACHE/$PKG/$PKG_VER/CONTENTS")
 	if [[ ${FC% *} -gt 1000 ]]; then
-		>&2 echo -n " $INFO_MSG Checking for packages which depend on any installed files (${FC% *}) ..."
+		>&2 echo -n "$MSG_INFO Checking for packages which depend on any installed files (${FC% *}) ..."
 		local LARGE_PKG=1
 	fi
 	local C=0
@@ -119,7 +119,7 @@ expandSets() {
 	local REQUEST_LIST=$@
 	local PKG_LIST=
 	if [[ $REQUEST_LIST =~ (^|[[:space:]])"@" ]]; then
-		>&2 echo -e "\n $INFO_MSG Found Set .. Expanding"
+		>&2 echo -e "\n$MSG_INFO Found Set .. Expanding"
 		local p
 		for p in $REQUEST_LIST; do
 			if [ ${p:0:1} == "@" ]; then
@@ -142,7 +142,7 @@ expandSets() {
 				elif [[ ${p#@} != '' && -e $PKG_DB_DIR/spkg-sets/${p#@} ]]; then
 					PKG_LIST+=" $(grep -v -E "^#" $PKG_DB_DIR/spkg-sets/${p#@} || true)"
 				else
-					>&2 echo " $DIALOG_ERROR Unknown set: ${p#@}"
+					>&2 echo "$MSG_ERR Unknown set: ${p#@}"
 					>&2 echo " * Did you mean one of: "
 					>&2 echo -n $(ls $PKG_DB_DIR/spkg-sets/)
 					>&2 echo " world installed all"
@@ -165,7 +165,7 @@ expandSets() {
 ## Populates a $CHART files
 getFullPkgList() {
 	local timestart=$(date "+%s.%N")
-	>&2 echo -n " $INFO_MSG Calculating Package Order..."
+	>&2 echo -n "$MSG_INFO Calculating Package Order..."
 	## remove files if they exist to ensure an empty chart/stack
 	[[ -e $CHART ]] && rm $CHART
 	[[ -e $INSTALL_CHART ]] && rm $INSTALL_CHART
@@ -185,9 +185,9 @@ getFullPkgList() {
 			getdep $d || local ERR=$?
 		fi
 		if [[ $ERR == 1 ]]; then
-			>&2 echo " $DIALOG_ERROR $d called self while calculating deps"
+			>&2 echo "$MSG_ERR $d called self while calculating deps"
 		elif [[ $ERR == 2 ]]; then
-			die " $DIALOG_ERROR Package $d Not found!"
+			die "$MSG_ERR Package $d Not found!"
 		elif [[ $ERR == 77 ]]; then
 			die
 		fi
@@ -275,7 +275,7 @@ getdep() {
 
 			## Add our required now Dependencies
 			if ! doDeps "${DEPS[*]} ${BDEPS[*]} ${UDEPS[*]}"; then
-#				>&2 echo " $DIALOG_ERROR doDeps failed for $PKG_CAT/$PKG_NAME"
+#				>&2 echo "$MSG_ERR doDeps failed for $PKG_CAT/$PKG_NAME"
 				continue
 			fi
 
@@ -380,9 +380,9 @@ doDeps() {
 		if [[ ! -z $PKG_VER_RESTRICT ]]; then
 			local dpkg=$(DB-getPkg $PKG)
 			if [[ -z $dpkg ]]; then
-				>&2 echo " $DIALOG_ERROR Error getting Pkg name in doDeps."
-				>&2 echo " $DIALOG_ERROR Working on dependency: $d"
-				die  " $DIALOG_ERROR Possible malformed package node found in build file's *DEPS: $PKG"
+				>&2 echo "$MSG_ERR Error getting Pkg name in doDeps."
+				>&2 echo "$MSG_ERR Working on dependency: $d"
+				die  "$MSG_ERR Possible malformed package node found in build file's *DEPS: $PKG"
 			fi
 			if [[ $VERBOSE -ge 2 ]]; then
 				>&2 echo -e "\n * Pkg has PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
@@ -396,7 +396,7 @@ doDeps() {
 			local dpkg_cat=$(getCategory $dpkg)
 			local dpkg_slot=$(getSlot $dpkg)
 
-			[[ $VERBOSE -ge 1 ]] && >&2 echo " $IMPORTANT $dpkg_cat/$dpkg_name:$dpkg_slot has restrictions: $PKG_VER_RESTRICT"
+			[[ $VERBOSE -ge 1 ]] && >&2 echo "$MSG_IMP $dpkg_cat/$dpkg_name:$dpkg_slot has restrictions: $PKG_VER_RESTRICT"
 
 			## Itterate over our PKG_VER_RESTRICT and filter the dpkg list to only valid matches.
 			IFS="|"
@@ -428,15 +428,15 @@ doDeps() {
 			unset IFS
 
 			if [[ $dpkg == "" ]]; then
-				[[ $VERBOSE -ge 1 ]] && >&2 echo " $DIALOG_ERROR No version to match restrictions of $dpkg_cat/$dpkg_name: $PKG_VER_RESTRICT"
+				[[ $VERBOSE -ge 1 ]] && >&2 echo "$MSG_ERR No version to match restrictions of $dpkg_cat/$dpkg_name: $PKG_VER_RESTRICT"
 				return 1
 			fi
 			dpkg=$(echo -e $dpkg | getLatest)
-			[[ $VERBOSE -ge 1 ]] && >&2 echo " $IMPORTANT found $dpkg"
+			[[ $VERBOSE -ge 1 ]] && >&2 echo "$MSG_IMP found $dpkg"
 		else
 			local dpkg=$(DB-getPkg $PKG | getLatest)
 			if [ -z $dpkg ]; then
-				die "$DIALOG_ERROR Error Resolving Dependencies: $PKG ($dpkg)"
+				die "$MSG_ERRs Error Resolving Dependencies: $PKG ($dpkg)"
 			fi
 		fi
 		pkg-has-flag "nodep" && break

@@ -55,12 +55,12 @@ export -f setBuildENV
 ## This function is meant to do all the building as our BUILD_USER
 userBuildPackage() {
 	echo " * src_configure ($(whoami) / ${ABILIB:-64})"
-	src_configure $p || die " $DIALOG_ERROR Error in src_configure (${ABILIB:-64})"
+	src_configure $p || die "$MSG_ERR Error in src_configure (${ABILIB:-64})"
 	echo " * src_compile ($(whoami) / ${ABILIB:-64})"
-	src_compile $p || die " $DIALOG_ERROR Error in src_compile (${ABILIB:-64})"
+	src_compile $p || die "$MSG_ERR Error in src_compile (${ABILIB:-64})"
 	if [ $ENABLE_TESTS == 1 ]; then
 		echo " * src_test ($(whoami) / ${ABILIB:-64})"
-		src_test $p || die " $DIALOG_ERROR Error in src_test (${ABILIB:-64})"
+		src_test $p || die "$MSG_ERR Error in src_test (${ABILIB:-64})"
 	fi
 }
 export -f userBuildPackage
@@ -79,9 +79,9 @@ export -f userBuildPackage
 buildPackage() {
 	if [[ ! -z $SRC_URI ]]; then
 		if [[ $(whoami) != $BUILD_USER ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_unpack' $BUILD_USER || die " $DIALOG_ERROR Error while unpacking!"
+			su -p -c 'src_unpack' $BUILD_USER || die "$MSG_ERR Error while unpacking!"
 		else
-			src_unpack || die " $DIALOG_ERROR Error while unpacking!"
+			src_unpack || die "$MSG_ERR Error while unpacking!"
 		fi
 
 		## Enter our Build Dir
@@ -96,9 +96,9 @@ buildPackage() {
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
 		if [[ $(whoami) != $BUILD_USER ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_patch' $BUILD_USER || die " $DIALOG_ERROR Error while patching!"
+			su -p -c 'src_patch' $BUILD_USER || die "$MSG_ERR Error while patching!"
 		else
-			src_patch || die " $DIALOG_ERROR Error while patching!"
+			src_patch || die "$MSG_ERR Error while patching!"
 		fi
 	fi
 
@@ -143,13 +143,13 @@ buildPackage() {
 			## If we're installing using pip we need root
 			if [[ $BUILD_USER != 'root' && $(whoami) != $BUILD_USER && $buildTool != 'pip' ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
 				[[ -e $BUILD_PATH/$B ]] && chown -R $BUILD_USER $BUILD_PATH/$B
-				su -p -c 'PATH="'$PATH'" userBuildPackage' $BUILD_USER || die " $DIALOG_ERROR Building package failed!"
+				su -p -c 'PATH="'$PATH'" userBuildPackage' $BUILD_USER || die "$MSG_ERR Building package failed!"
 			else
 				userBuildPackage
 			fi
 
 			echo " * src_install (${ABILIB:-64})"
-			src_install	$p || die " $DIALOG_ERROR Error in src_install (${ABILIB:-64})"
+			src_install	$p || die "$MSG_ERR Error in src_install (${ABILIB:-64})"
 
 			## Reset our working dir if we changed it during src_install
 			[[ -e $BUILD_PATH/$B/$d ]] && cd $BUILD_PATH/$B/$d
@@ -161,7 +161,7 @@ buildPackage() {
 					make ${_SPKG_CLEAN:-clean}
 				else
 					echo " * Removing files within $PWD"
-					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die " $DIALOG_ERROR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
+					[[ $PWD == $BUILD_PATH* ]] && rm -rf ./* || die "$MSG_ERR Warning! attempted removal of $PWD which is not within $BUILD_PATH"
 				fi
 			fi
 			unset CONF_FLAGS
@@ -203,7 +203,7 @@ installPackage() {
 		loadUSE
 
 		unset CONF_FLAGS
-		source "${PKG_BLD}" || die " $DIALOG_ERROR Build file not found!"
+		source "${PKG_BLD}" || die "$MSG_ERR Build file not found!"
 
 		[[ $FETCH_ONLY != 1 ]] && install -o $BUILD_USER -d "$D"
 
@@ -495,7 +495,7 @@ installPackage() {
 		fi
 
 		echo " * $PKG_CAT/$PKG_NVR installed successfully!"
-	) || die " $DIALOG_ERROR Error installing $PKG_CAT/$PKG_NVR"
+	) || die "$MSG_ERR Error installing $PKG_CAT/$PKG_NVR"
 }
 
 ####
@@ -664,9 +664,9 @@ installList() {
 				## Option 3: Create a Minimal System Requirements package set and disallow any in that list from being
 				##           removed under any circumstances.
 				if [[ $d != *$p && $d != "" && $FORCE == 0 ]]; then
-					echo " $DIALOG_ERROR Uninstalling will break packages!"
+					echo "$MSG_ERR Uninstalling will break packages!"
 					echo $d
-					echo " $DIALOG_ERROR Uninstall aborted"
+					echo "$MSG_ERR Uninstall aborted"
 				else
 					## pre-uninstall code if needed/set
 					uninstall_default
@@ -707,7 +707,7 @@ installList() {
 			export RESTRICT=
 
 			echo
-			echo " $INFO_MSG ${PKG_CAT}/${PKG_NVR} ($GREEN$C$NORMAL of $GREEN$length$NORMAL)"
+			echo "$MSG_INFO ${PKG_CAT}/${PKG_NVR} ($GREEN$C$NORMAL of $GREEN$length$NORMAL)"
 			echo
 			title "${PKG_CAT}/${PKG_NVR} ($C of $length)"
 
@@ -731,7 +731,7 @@ installList() {
 			fi
 
 			## Compress our log.
-			[[ ! -e "${log}.xz" ]] && xz "$log" || echo " $IMPORTANT Log ${log}.xz exists"
+			[[ ! -e "${log}.xz" ]] && xz "$log" || echo "$MSG_IMP Log ${log}.xz exists"
 		fi
 		if [[ $FETCH_ONLY != 1 ]]; then
 			echo -n " * Running ldconfig .."
@@ -804,7 +804,7 @@ addToList() {
 buildList() {
 	if [[ $MODE != "resume" && $MODE != 'clean' && $MODE != 'uninstall' ]]; then
 		## Get Dependencies and check if any require updates.
-		getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"
+		getFullPkgList $PKG_LIST > /dev/null || die "$MSG_ERR Error Calculating Dependencies"
 		if [[ $VERBOSE -ge 2 ]]; then
 			echo "Package Order (Full List):"
 			for p in $(cat $CHART); do
@@ -822,7 +822,7 @@ buildList() {
 	## Check for any restrictions, take the most restrictive stance and save it for future use.
 	## If we have an impossible sitatuation  we'll know if no packages are valid and should report it.
 	if [[ $MODE != "uninstall" && -e $RESTRICTIONS ]]; then
-		[[ $VERBOSE -ge 1 ]] && echo " $IMPORTANT Looks like we have restrictions"
+		[[ $VERBOSE -ge 1 ]] && echo "$MSG_IMP Looks like we have restrictions"
 		RESTRICT=$(sort -u $RESTRICTIONS)
 
 		## As we have restrictions we need to verify that we don't need to force an install to comply
@@ -915,7 +915,7 @@ buildList() {
 		fi
 	done
 	if [[ -e /usr/bin/bc ]]; then
-		>&2 printf " $INFO_MSG version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
+		>&2 printf "$MSG_INFO version check completed in %.3f s\n" $( echo $(date "+%s.%N") - $timestart | bc )
 	fi
 
 	if [[ ! -e $INSTALL_CHART ]]; then

@@ -41,7 +41,7 @@ ErrorHandler() {
 		77)
 			exit 77 ;;
 		*)
-			>&2 echo " $DIALOG_ERROR Unhandled Error $ERR ( got called at $(caller) )"
+			>&2 echo "$MSG_ERR Unhandled Error $ERR ( got called at $(caller) )"
 			;;
 	esac
 }
@@ -152,9 +152,9 @@ export BLACK=$(tput setaf 16)
 export DIM=$(tput dim)
 
 ## Convience vars for colorizing output.
-export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
-export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
-export INFO_MSG="${GREEN}*${NORMAL}"
+export MSG_INFO=" $GREEN*$NORMAL"
+export MSG_ERR=" $BRIGHT_RED!!$NORMAL"
+export MSG_IMP=" $BRIGHT_YELLOW!!$NORMAL"
 
 ####
 ## Ensure our config file exists
@@ -162,7 +162,7 @@ cmd_USE=$USE
 if [ -e /etc/spkg.conf ]; then
 	source /etc/spkg.conf
 else
-	>&2 echo " $IMPORTANT no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
+	>&2 echo "$MSG_IMP no system config file located! We'll use defaults, but a /etc/spkg.conf file should be created!"
 fi
 
 ####
@@ -186,9 +186,9 @@ export USE="$cmd_USE $USE"; unset cmd_USE
 ####
 ## Setup default Locales, we default to en_US because.. 'merica
 if [[ -z $LOCALES ]]; then
-	>&2 echo " $DIALOG_ERROR You don't appear to have either LANGUAGE or LANG set!"
-	>&2 echo " $DIALOG_ERROR You should set one to a locale of your choice!"
-	>&2 echo " $IMPORTANT Defaulting to 'en_US.utf8'"
+	>&2 echo "$MSG_ERR You don't appear to have either LANGUAGE or LANG set!"
+	>&2 echo "$MSG_ERR You should set one to a locale of your choice!"
+	>&2 echo "$MSG_IMP Defaulting to 'en_US.utf8'"
 	export LANG='en_US.utf8'
 	export LANGUAGE='en_US'
 	export LOCALE='en_US'
@@ -504,7 +504,7 @@ if [[ $MODE != 'search' && $MODE != 'list' && $PRETEND != 1 ]]; then
 		then mkdir -p "$PKG_CACHE" || die "Failed to create: PKG_CACHE: $PKG_CACHE"; fi
 	test -w $PKG_CACHE || die "Cannot write to PKG_CACHE: $PKG_CACHE"
 	if [[ $(stat -c '%U' "$PKG_CACHE") != $BUILD_USER ]]; then
-		>&2 echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE "
+		>&2 echo -n "$MSG_IMP Fixing Permissions in $PKG_CACHE "
 		chown -R $BUILD_USER $PKG_CACHE && echo -n '.'
 		find $PKG_CACHE -type d -exec chmod 770 {} \; && echo -n '.'
 		find $PKG_CACHE -type f -exec chmod 660 {} \; && echo -n '.'
@@ -512,7 +512,7 @@ if [[ $MODE != 'search' && $MODE != 'list' && $PRETEND != 1 ]]; then
 	fi
 	if [[ ! -e "$PKG_CACHE/.cache/pip" || $(stat -c '%U' "$PKG_CACHE/.cache/pip") != $BUILD_USER ]]; then
 		mkdir -p $PKG_CACHE/.cache/pip
-		>&2 echo -n " $IMPORTANT Fixing Permissions in $PKG_CACHE/.cache/pip "
+		>&2 echo -n "$MSG_IMP Fixing Permissions in $PKG_CACHE/.cache/pip "
 		chown -R $BUILD_USER $PKG_CACHE/.cache/pip && echo -n '.'
 		>&2 echo " done"
 	fi
@@ -538,7 +538,7 @@ if [[ $MODE != 'search' && $MODE != 'list' && $PRETEND != 1 ]]; then
 	chmod 1777 $INFORMLOG
 
 	if ! test -w /var/tmp || ! test -w /tmp; then
-		>&2 echo -n " $IMPORTANT Fixing permissions of tmp dirs .. "
+		>&2 echo -n "$MSG_IMP Fixing permissions of tmp dirs .. "
 		chmod 1777 /{,var/}tmp && >&2 echo "done" || die "failed!"
 	fi
 fi
@@ -576,13 +576,13 @@ if [[ $MODE == "sync" ]]; then
 	title "Syncing ..."
 	# If git is not installed, inform the user to install it.
 	if [[ ! -e /usr/bin/git ]]; then
-		echo " $IMPORTANT Git is not installed!"
+		echo "$MSG_IMP Git is not installed!"
 		echo "    Please install it via: spkg git; Or download a copy from: https://github.com/smileaf419/spkg-repository"
 		exit 1
 	fi
-	echo " $INFO_MSG Syncing database... "
+	echo "$MSG_INFO Syncing database... "
 	cd $PKG_DB_DIR
-	git pull && echo " $INFO_MSG Sync Complete!" || die " $DIALOG_ERROR Sync Failed!"
+	git pull && echo "$MSG_INFO Sync Complete!" || die "$MSG_ERR Sync Failed!"
 fi
 
 ####
@@ -590,7 +590,7 @@ fi
 ## Take everything installed and find upgrades for it, respecting explicitly installed slots within world.
 if [[ $MODE == "update" ]]; then
 	timestart=$(date "+%s.%N")
-	echo -n " $INFO_MSG Checking for updates"
+	echo -n "$MSG_INFO Checking for updates"
 
 	## a REQUESTED_LIST is not set as none of this has been explicitely requested.
 	## instead set a PKG_LIST
@@ -624,7 +624,7 @@ if [[ $MODE == "update" ]]; then
 				if [[ -z $LPKG ]]; then
 					PKG_SLOT=0
 					LPKG=$(DB-getPkg $(getPKG) | getLatest)
-					[[ -z $LPKG ]] && die " $DIALOG_ERROR No builds available for $PKG_CAT/$PKG_NAME"
+					[[ -z $LPKG ]] && die "$MSG_ERR No builds available for $PKG_CAT/$PKG_NAME"
 				fi
 				version_gt $(getVerRev $LPKG) $IPK_VER && echo $LPKG >> $CHART
 			done
@@ -643,7 +643,7 @@ if [[ $MODE == "update" ]]; then
 
 ## Continues off the previous list
 elif [[ $MODE == "resume" ]]; then
-#	[[ $SPKG_TMP_DIR == /tmp/spkg-$$ ]] && die " $DIALOG_ERROR Nothing to resume"
+#	[[ $SPKG_TMP_DIR == /tmp/spkg-$$ ]] && die "$MSG_ERR Nothing to resume"
 	## Reset paths.
 	export INFORMLOG=$SPKG_TMP_DIR/inform.log
 	export CHART=$SPKG_TMP_DIR/chart
@@ -653,9 +653,9 @@ elif [[ $MODE == "resume" ]]; then
 	REQUESTED_LIST=$(cat $SPKG_TMP_DIR/requested.list)
 
 	if [ ! -e $INSTALL_CHART ]; then
-		die " $DIALOG_ERROR Error Cannot resume no list was found."
+		die "$MSG_ERR Error Cannot resume no list was found."
 	fi
-	echo " $INFO_MSG Resuming..."
+	echo "$MSG_INFO Resuming..."
 	if [[ $SKIP_FIRST == 1 ]]; then
 		tail -n+2 "$INSTALL_CHART" > "$CHART"
 	else
@@ -681,14 +681,14 @@ elif [[ $MODE == "buildKernel" ]]; then
 ##        if not, error out and tell the user to run: spkg @system @world
 elif [[ $MODE == "clean" ]]; then
 #	ENABLE_TESTS=1
-	echo " $INFO_MSG Deep Cleaning (Experimental!)"
-	echo " $INFO_MSG Gathering a list of @system and @world"
+	echo "$MSG_INFO Deep Cleaning (Experimental!)"
+	echo "$MSG_INFO Gathering a list of @system and @world"
 	REQUESTED_LIST="@system @world"
 	populate_list "@system @world"
 	getFullPkgList $(cat $CHART) > /dev/null || die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
 	mv $CHART $SPKG_TMP_DIR/sysworldset
 
-	echo " $INFO_MSG Getting a list of installed packages."
+	echo "$MSG_INFO Getting a list of installed packages."
 	REQUESTED_LIST="@installed"
 	populate_list "@installed"
 	getFullPkgList $(cat $CHART) > /dev/null|| die " ! Error Calculating dependencies, ensure you've updated your system first: spkg -U"
@@ -698,13 +698,13 @@ elif [[ $MODE == "clean" ]]; then
 	## With this assumption finding the unique packages should in theory contain what is installed, but isn't required.
 	## This assumption can fail if somehow @installed doesn't require a package, yet somehow @world or @system does.
 	## If this happens then it most definitely is the cause of a dependency resolution failure.
-	echo " $INFO_MSG Gathering a list of targets to remove"
+	echo "$MSG_INFO Gathering a list of targets to remove"
 	REQUESTED_LIST=$(sort -t/ -k1,2 $CHART $SPKG_TMP_DIR/sysworldset | sed 's,\([^/]*\)/\([^/]*\).*,\1/\2,'| uniq -u)
 	## Clean-up
 	rm $SPKG_TMP_DIR/sysworldset
 	MODE="uninstall"
 	ASK=1
-	echo " $IMPORTANT ${RED}IMPORTANT:${NORMAL} This is still considered *Experimental!* please review the packages to ensure none will be removed in error!"
+	echo "$MSG_IMP ${RED}IMPORTANT:${NORMAL} This is still considered *Experimental!* please review the packages to ensure none will be removed in error!"
 	populate_list "$REQUESTED_LIST"
 #	exit 0
 	# { output=$(command 2>&1 1>&3-) ;} 3>&1
@@ -738,7 +738,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			printf "| %17s/%-23s | %-15s | %12s | %31s | %8s | %s\n" "Category" "Name" "Version" "Archs" "Date Added" "Age" "Installed"
 		fi
 		if [[ $list == '' ]]; then
-			echo " $DIALOG_ERROR $p not found!"
+			echo "$MSG_ERR $p not found!"
 			continue
 		fi
 
@@ -750,16 +750,16 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 			## Parse the entry again to get more information that was not supplied in the search.
 			PKG=$(DB-getPkg $r | getLatest)
 			if [[ -z $PKG ]]; then
-				>&2 echo " $DIALOG_ERROR No available builds available for $r"
+				>&2 echo "$MSG_ERR No available builds available for $r"
 				continue
 			fi
 
 			PKG_BLD=$(getBldFile $PKG)
 			PKG_CAT=$(getCategory $PKG)
 			PKG_NAME=$(getName $PKG)
-			checkSha1 ${PKG_BLD%/*} $PKG_BLD ||  echo " $DIALOG_ERROR sha1sum failed for $PKG_BLD"
+			checkSha1 ${PKG_BLD%/*} $PKG_BLD ||  echo "$MSG_ERR sha1sum failed for $PKG_BLD"
 			if [[ $MODE == 'search' ]]; then
-				echo " $INFO_MSG ${PKG_CAT}/${PKG_NAME}"
+				echo "$MSG_INFO ${PKG_CAT}/${PKG_NAME}"
 				printf " %12s:" "Available"
 				ipkg=$(Installed-getPkg $PKG_CAT/$PKG_NAME | getLatest)
 				[[ -z $ipkg ]] && ipkg=0
@@ -848,7 +848,7 @@ if [[ $MODE == "search" || $MODE == "list" ]]; then
 						updateList+=" $PKG_CAT/$PKG_NAME"
 						MARK_STABLE=${MARK_STABLE//:/ }
 						for arch in $MARK_STABLE; do
-							echo " $INFO_MSG Marking $PKG_CAT/$PKG_NAME as stable for $arch"
+							echo "$MSG_INFO Marking $PKG_CAT/$PKG_NAME as stable for $arch"
 							sed -i "/ARCHS=/s/~$arch\([ \"]\)/$arch\1/g" "$PKG_DB_DIR/$PKG_CAT/$PKG_NAME/$PKG_VR.build"
 						done
 					fi

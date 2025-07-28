@@ -126,13 +126,13 @@ configure_default() {
 		CPPFLAGS=\"$CPPFLAGS\" \
 		CXXFLAGS=\"$CXXFLAGS\" \
 		$SET_ABI               \
-			$d/configure ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" || die " $DIALOG_ERROR Configure Failed!"
+			$d/configure ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" || die "$MSG_ERR Configure Failed!"
 	elif [[ $configTool == "meson" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=--prefix=/usr --buildtype=release --libdir=$(libdir)}
-		meson setup ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" $d || die " $DIALOG_ERROR Configure Failed!"
+		meson setup ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" $d || die "$MSG_ERR Configure Failed!"
 	elif [[ $configTool == "cmake" ]]; then
 		CONF_FLAGS=${CONF_FLAGS:=-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${PKG_NVR} -DCMAKE_INSTALL_LIBDIR=$(libdir)}
-		cmake -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" -B $d/build -S $d || die " $DIALOG_ERROR Configure Failed!"
+		cmake -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" ${CONF_FLAGS[@]} ${CONF_ADD_FLAGS[@]} "$@" -B $d/build -S $d || die "$MSG_ERR Configure Failed!"
 	fi
 }
 export -f configure_default
@@ -145,23 +145,23 @@ python_compile() {
 
 	>&2 echo " * Running pip with $_PIP_COMPILE_OPTS"
 	if ! eval pip3 wheel -v $_PIP_COMPILE_OPTS $PWD; then
-#		echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
+#		echo "$MSG_IMP Assuming pip is broken. Reinstalling and trying again."
 #		fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
 #		python $DISTFILES/get-pip.py --no-warn-script-location
 #		PATH+=":$HOME/.local/bin"
 
 		## If pip is already installed and up to date, this will most probably 'fail' in that it won't do anything.
 		## If pip actually works and a module is missing, then it'd be better to run: pip install [module]
-		echo " $IMPORTANT Assuming pip is broken, trying ensurepip"
+		echo "$MSG_IMP Assuming pip is broken, trying ensurepip"
 		python -m ensurepip --default-pip
 
 		if ! eval pip3 wheel -v $_PIP_COMPILE_OPTS $PWD; then
-			echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
+			echo "$MSG_IMP Assuming pip is broken. Reinstalling and trying again."
 			fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
 			python $DISTFILES/get-pip.py --no-warn-script-location
 
 			if ! eval pip3 wheel -v $_PIP_COMPILE_OPTS $PWD; then
-				die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
+				die "$MSG_ERR Failed to install $PKG_CAT/$PKG_NAME"
 			fi
 		fi
 	fi
@@ -173,9 +173,9 @@ export -f python_compile
 compile_default() {
 	if [[ $buildTool == "make" ]]; then
 		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == "no" ]] && cd build
-		make $MAKEOPTS $@ || die " $DIALOG_ERROR make compile failed! ($(pwd))"
+		make $MAKEOPTS $@ || die "$MSG_ERR make compile failed! ($(pwd))"
 	elif [[ $buildTool == "ninja" ]]; then
-		ninja $@ || die " $DIALOG_ERROR ninja compile failed! ($(pwd))"
+		ninja $@ || die "$MSG_ERR ninja compile failed! ($(pwd))"
 
 	## Compile the python module
 	## Build options maybe overridden via _PIP_COMPILE_OPTS
@@ -186,7 +186,7 @@ compile_default() {
 		if [[ $BUILD_SEPERATE_DIR != no ]]; then
 			[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
 		fi
-		cmake $@ --build $d/build || die " $DIALOG_ERROR cmake compile failed! ($(pwd))"
+		cmake $@ --build $d/build || die "$MSG_ERR cmake compile failed! ($(pwd))"
 	fi
 	return 0
 }
@@ -201,9 +201,9 @@ test_default() {
 	TEST=${TEST:-check}
 
 	if [[ $buildTool == "make" ]]; then
-		make $MAKEOPTS $@ $TEST || die " $DIALOG_ERROR Test Failed!"
+		make $MAKEOPTS $@ $TEST || die "$MSG_ERR Test Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
-		ninja test || die " $DIALOG_ERROR Test Failed!"
+		ninja test || die "$MSG_ERR Test Failed!"
 	fi
 }
 export -f test_default
@@ -220,11 +220,11 @@ python_install() {
 
 	>&2 echo " * Running pip with $_PIP_INSTALL_OPTS --upgrade --no-deps --no-user --force-reinstall --ignore-installed (prefix: $D/usr)"
 	if ! eval python -m pip install -v --upgrade --prefix=$D/usr $_PIP_INSTALL_OPTS --no-deps --no-user --force-reinstall --ignore-installed $PKG_NAME; then
-		echo " $IMPORTANT Assuming pip is broken. Reinstalling and trying again."
+		echo "$MSG_IMP Assuming pip is broken. Reinstalling and trying again."
 		fetch_file "https://bootstrap.pypa.io/get-pip.py" "get-pip.py"
 		python $DISTFILES/get-pip.py
 
-		eval python -m pip install -v --upgrade --prefix=$D/usr $_PIP_INSTALL_OPTS --no-deps --no-user --force-reinstall $PKG_NAME || die " $DIALOG_ERROR Failed to install $PKG_CAT/$PKG_NAME"
+		eval python -m pip install -v --upgrade --prefix=$D/usr $_PIP_INSTALL_OPTS --no-deps --no-user --force-reinstall $PKG_NAME || die "$MSG_ERR Failed to install $PKG_CAT/$PKG_NAME"
 	fi
 }
 export -f python_install
@@ -254,17 +254,17 @@ install_tool() {
 	DESTDIR=${DESTDIR:-$D}
 	if [[ $buildTool == "make" ]]; then
 		[[ $configTool == "cmake" && $BUILD_SEPERATE_DIR == no ]] && cd build
-		make DESTDIR="$DESTDIR" $@ install || die " $DIALOG_ERROR Install Failed!"
+		make DESTDIR="$DESTDIR" $@ install || die "$MSG_ERR Install Failed!"
 	elif [[ $buildTool == "ninja" ]]; then
-		DESTDIR="$DESTDIR" ninja install || die " $DIALOG_ERROR Install Failed!"
+		DESTDIR="$DESTDIR" ninja install || die "$MSG_ERR Install Failed!"
 	elif [[ $buildTool == "pip" ]]; then
-		python_install || die " $DIALOG_ERROR Install Failed!"
+		python_install || die "$MSG_ERR Install Failed!"
 	elif [[ $buildTool == "cmake" ]]; then
 		local d=.
 		if [[ $BUILD_SEPERATE_DIR != no ]]; then
 			[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
 		fi
-		DESTDIR="$DESTDIR" cmake --install $d/build || die " $DIALOG_ERROR Install Failed!"
+		DESTDIR="$DESTDIR" cmake --install $d/build || die "$MSG_ERR Install Failed!"
 	fi
 }
 export -f install_tool
@@ -306,8 +306,8 @@ export -f unpack_default
 
 ## Function called by src_patch
 patch_default() {
-	patch_unpack "patches" "${PATCHES[@]}" || die " $DIALOG_ERROR Patching failed"
-	patch_apply "patches ${PATCHES[@]}" || die " $DIALOG_ERROR Patching failed"
+	patch_unpack "patches" "${PATCHES[@]}" || die "$MSG_ERR Patching failed"
+	patch_apply "patches ${PATCHES[@]}" || die "$MSG_ERR Patching failed"
 }
 export -f patch_default
 

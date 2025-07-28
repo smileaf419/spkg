@@ -123,7 +123,7 @@ buildKernel() {
 		mount /boot
 		BOOT_MOUNTED=1
 	elif [[ ! -e /etc/fstab ]]; then
-		echo " $IMPORTANT you don't appear to have a /etc/fstab created!"
+		echo "$MSG_IMP you don't appear to have a /etc/fstab created!"
 	fi
 	echo " * Installing."
 	make install modules_install
@@ -132,8 +132,8 @@ buildKernel() {
 
 	echo " * Generating grub config"
 	if [[ ! -e /boot/grub ]]; then
-		echo " $IMPORTANT It doesn't appear grub has been installed into /boot/grub"
-		echo " $IMPORTANT we'll place a config here, but you will need to finish the install."
+		echo "$MSG_IMP It doesn't appear grub has been installed into /boot/grub"
+		echo "$MSG_IMP we'll place a config here, but you will need to finish the install."
 		mkdir -p /boot/grub
 	fi
 
@@ -141,8 +141,8 @@ buildKernel() {
 	if [[ $( Installed-getPkg "system/grub" | getVersion) != 0 ]]; then
 		grub-mkconfig -o /boot/grub/grub.cfg
 	else
-		echo " $IMPORTANT system/grub is not installed. Unable to generate a config."
-		echo " $IMPORTANT Once installed run: grub-mkconfig -o /boot/grub/grub.cfg"
+		echo "$MSG_IMP system/grub is not installed. Unable to generate a config."
+		echo "$MSG_IMP Once installed run: grub-mkconfig -o /boot/grub/grub.cfg"
 	fi
 
 	## Unmount /boot

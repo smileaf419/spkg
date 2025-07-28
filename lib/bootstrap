@@ -48,15 +48,15 @@ export PATH="$ROOT/tools/bin:$PATH"
 export PKG_CONFIG_PATH="$ROOT/lib/pkgconfig:$ROOT/usr/lib/pkgconfig:$ROOT/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 if [[ $(whereis git | sed 's,.*:\s*,,') == "" && ! -e /usr/bin/git && ! -e $ROOT/$PKG_DB_DIR ]]; then
-	echo " $IMPORTANT git appears to not be installed and is required to clone the spkg repository."
-	echo " $IMPORTANT if you wish you may create the $ROOT/$PKG_DB_DIR and copy the repository, "
+	echo "$MSG_IMP git appears to not be installed and is required to clone the spkg repository."
+	echo "$MSG_IMP if you wish you may create the $ROOT/$PKG_DB_DIR and copy the repository, "
 	echo "            found at: https://github.com/smileaf419/spkg-repository there before continuing."
 	echo "Continue? (Yes/NO): "
 	read cont
 
 	## If they didn't agree, or the dir still doesn't exist, exit
 	if [[ ${cont^^} != 'Y' && ${cont^^} != 'YES' || ! -e $ROOT/$PKG_DB_DIR ]]; then
-		die
+		die "$MSG_ERR Cannot continue without the a repository!"
 	fi
 fi
 
@@ -106,8 +106,8 @@ if [[ $BOOTSTRAP_STAGES == *1* ]]; then
 
 	####
 	## Install all packages
-	#installList $REQUESTED_LIST || die " $DIALOG_ERROR Failed to boostrap!"
-	buildList || die " $DIALOG_ERROR Failed to boostrap!"
+	#installList $REQUESTED_LIST || die "$MSG_ERR Failed to boostrap!"
+	buildList || die "$MSG_ERR Failed to boostrap!"
 fi
 
 if [[ $BOOTSTRAP_STAGES == *2* ]]; then
@@ -235,7 +235,7 @@ EOF
 	populate_list "@basicsystem"
 	FETCH_ONLY=1
 	EMPTY_WORLD=1
-	getFullPkgList $PKG_LIST > /dev/null || die " $DIALOG_ERROR Error Calculating Dependencies"
+	getFullPkgList $PKG_LIST > /dev/null || die "$MSG_ERR Error Calculating Dependencies"
 	## Attempt to catch the error so we can finish.
 	if ! installList $(cat $CHART); then
 		echo " !! Error Fetching all files, this will need to be done manually: spkg --fetchOnly @system"

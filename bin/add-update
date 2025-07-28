@@ -44,8 +44,8 @@ export NORMAL=$(tput sgr0)
 export GREEN=$(tput setaf 82)
 export BRIGHT_RED=$(tput setaf 9)
 export BRIGHT_YELLOW=$(tput setaf 11)
-export IMPORTANT="$BRIGHT_YELLOW!!$NORMAL"
-export DIALOG_ERROR="$BRIGHT_RED!!$NORMAL"
+export MSG_IMP="$BRIGHT_YELLOW!!$NORMAL"
+export MSG_ERR="$BRIGHT_RED!!$NORMAL"
 
 VERBOSE=${VERBOSE:-0}
 
@@ -57,12 +57,12 @@ fi
 
 PKG=$(DB-getPkg $(EntryParser $1) | getLatest)
 if [[ -z $PKG ]]; then
-	die " $DIALOG_ERROR Cannot add update: $1 not found!"
+	die "$MSG_ERR Cannot add update: $1 not found!"
 fi
 ver=$2
 setPkgENV $PKG 2>&1 /dev/null
 if [[ $PKG_VR == $ver ]] || version_gt $PKG_VR $ver; then
-	die " $IMPORTANT Nothing to update, $PKG_NVR is available"
+	die "$MSG_IMP Nothing to update, $PKG_NVR is available"
 fi
 echo " $GREEN*$NORMAL Update $PKG_CAT/$PKG_NVR to $ver"
 

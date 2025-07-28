@@ -254,7 +254,7 @@ checkKernelConfig() {
 		echo
 		return 0
 	elif [[ $DIE_IF_FALSE == 0 ]]; then
-		die $ERR_DIALOG
+		die $DIALOG_ERROR
 	else
 		echo
 		return 1
