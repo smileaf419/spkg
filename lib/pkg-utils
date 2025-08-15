@@ -69,7 +69,7 @@ spatch() {
 	[[ $patch == http* ]] && patch=$DISTFILES/${patch##*/}
 	shift 1
 	[[ ! -e $patch ]] && return
-	[[ $patch != *.diff && $patch != *.patch ]] && return
+	[[ $patch != *.diff* && $patch != *.patch* ]] && return
 	local patch_options=${@:--Np1}
 	echo -n " * Applying Patch: $patch ($patch_options)"
 	if [[ $patch == *gz ]]; then
