@@ -118,10 +118,9 @@ buildKernel() {
 	make $MAKEOPTS
 
 	## Mount /boot if it exists
-	if [[ -e /etc/fstab && ! -z $(grep /boot /etc/fstab) && -z $(mount | grep /boot) ]]; then
-		echo " * Mounting /boot"
-		mount /boot
-		BOOT_MOUNTED=1
+	if [[ -e /etc/fstab ]] && grep /boot[^/] /etc/fstab > /dev/null && [[ -z $(mount | grep /boot[^/]) ]]; then
+		echo -n " * Mounting /boot .. "
+		mount /boot 2> /dev/null && BOOT_MOUNTED=1 && echo "${GREEN}Ok$NORMAL" || echo "${RED}Failed!$NORMAL"
 	elif [[ ! -e /etc/fstab ]]; then
 		echo "$MSG_IMP you don't appear to have a /etc/fstab created!"
 	fi
