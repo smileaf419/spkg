@@ -344,6 +344,9 @@ patch_apply() {
 			for patch in $(find "$p" -type f -iname '*.patch' | sort); do
 				spatch "$patch" ${PATCH_OPTS:--Np1}
 			done
+		## This entry should have already been unpacked to a directory that was also prepended to our PATCHES
+		elif [[ $p == *.tar.* ]]; then
+			continue
 		else
 			spatch "$p" ${PATCH_OPTS:--Np1}
 		fi
