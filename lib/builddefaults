@@ -87,6 +87,9 @@ configure_default() {
 	HOST_TGT=${HOST_TGT:-x86_64-pc-linux-gnu}
 	HOST_TGT32=${HOST_TGT32:-i686-pc-linux-gnu}
 	HOST_TGTx32=${HOST_TGTx32:-x86_64-pc-linux-gnux32}
+
+	export SGML_CATALOG_FILES=${SGML_CATALOG_FILES:-file:///etc/xml/catalog}
+
 	local d=.
 	if [[ $BUILD_SEPERATE_DIR != no ]]; then
 		[[ $BUILD_SEPERATE_DIR == yes ]] && d=.. || d=$BUILD_SEPERATE_DIR
