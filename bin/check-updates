@@ -179,6 +179,11 @@ for p in $(cd $PKG_DB_DIR; find * -mindepth 1 -type d); do
 		zip) [[ ${FILE##*-} == zip* ]] && continue ;;
 		git) version_ge ${FILE##*-} '3.0.0' && continue ;;
 		mono) version_ge ${FILE##*-} '6.13' && continue ;;
+		lz4) version_ge ${FILE##*-} '4.0.0' && continue ;;
+		zlib) version_ge ${FILE##*-} '3.0.0' && continue ;;
+		sysvinit) version_ge ${FILE##*-} '3.15' && continue ;;
+		patch) version_ge ${FILE##*-} '3.0.0' && continue ;;
+		libtool) version_ge ${FILE##*-} '2.6.0' && continue ;;
 	esac
 
 	if version_gt ${FILE##*-} $PKG_VER; then
