@@ -400,6 +400,11 @@ doDeps() {
 
 			## Itterate over our PKG_VER_RESTRICT and filter the dpkg list to only valid matches.
 			IFS="|"
+			## Disable debug as this can output the debug into our RESTRICTIONS file.
+			if [[ $DEBUG ]]; then
+				local d=1
+				set +x
+			fi
 			for r in $PKG_VER_RESTRICT; do
 				dpkg=$(
 					unset IFS
@@ -426,6 +431,10 @@ doDeps() {
 				## save our stdout in the opkg variable
 			done 2> >(sort -u >> $RESTRICTIONS)
 			unset IFS
+			if [[ $d == 1 ]]; then
+				unset d
+				set -x
+			fi
 
 			if [[ $dpkg == "" ]]; then
 				[[ $VERBOSE -ge 1 ]] && >&2 echo "$MSG_ERR No version to match restrictions of $dpkg_cat/$dpkg_name: $PKG_VER_RESTRICT"
