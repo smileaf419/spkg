@@ -44,7 +44,6 @@ unpack() {
 	[ ! -e $DIR ] && mkdir -p $DIR
 
 	echo " * Unpacking $FILE to $DIR"
-	PATH=$PATH:/bin
 	if [[ $FILE == *.tar.* || $FILE == *.tgz ]]; then
 		tar -xf "$FILE" -C "$DIR" || die "Failed to extract!"
 	elif [[ ${FILE##*.} == "zip" ]]; then

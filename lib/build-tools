@@ -79,7 +79,7 @@ export -f userBuildPackage
 buildPackage() {
 	if [[ ! -z $SRC_URI ]]; then
 		if [[ $(whoami) != $BUILD_USER ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_unpack' $BUILD_USER || die "$MSG_ERR Error while unpacking!"
+			su -p -c 'PATH='$PATH' src_unpack' $BUILD_USER || die "$MSG_ERR Error while unpacking!"
 		else
 			src_unpack || die "$MSG_ERR Error while unpacking!"
 		fi
@@ -96,7 +96,7 @@ buildPackage() {
 	if [[ ! -z $PATCHES ]]; then
 		echo " * src_patch"
 		if [[ $(whoami) != $BUILD_USER ]] && [[ -e /bin/su || -e /usr/bin/su ]]; then
-			su -p -c 'src_patch' $BUILD_USER || die "$MSG_ERR Error while patching!"
+			su -p -c 'PATH='$PATH' src_patch' $BUILD_USER || die "$MSG_ERR Error while patching!"
 		else
 			src_patch || die "$MSG_ERR Error while patching!"
 		fi
