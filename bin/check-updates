@@ -173,8 +173,9 @@ for p in $(cd $PKG_DB_DIR; find * -mindepth 1 -type d); do
 		gdb) version_gt ${FILE##*-} 1000 && continue ;;
 		Mako) version_ge ${FILE##*-} 1.8.0 && continue ;;
 		highway) [[ ${FILE##*-} == '1.1.0' ]] && continue ;;
+		markdown) version_gt ${FILE##*-} 3.0.0 && continue ;;
 		## Unstable release
-		libtool) [[ ${FILE##*-} == '2.5.0' ]] && continue ;;
+		libtool) version_gt ${FILE##*-} '2.5.0' && continue ;;
 		gd) version_gt ${FILE##*-} 2.80 && continue ;;
 		zip) [[ ${FILE##*-} == zip* ]] && continue ;;
 		git) version_ge ${FILE##*-} '3.0.0' && continue ;;
