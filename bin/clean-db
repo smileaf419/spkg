@@ -94,7 +94,7 @@ cleanPkg() {
 		done
 		if [[ $updated == 1 ]]; then
 			rm $d/sha1
-			echo
+			printf "\r%$(tput cols)s\r"
 			updatesha1 $d
 		fi
 	elif [[ $VERBOSE -gt 1 ]]; then
