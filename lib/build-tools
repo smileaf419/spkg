@@ -813,6 +813,7 @@ buildList() {
 			echo -e "\nPackage Order:"
 		fi
 	else
+		[[ ! -e $CHART ]] && die "$MSG_ERR No list provided"
 		REQUESTED_LIST=$(cat $CHART)
 	fi
 
