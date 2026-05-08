@@ -52,8 +52,9 @@ VERBOSE=${VERBOSE:-0}
 
 if [[ ! -e $DFILES_INDEX || $(find "$DFILES_INDEX" -mtime +1 -print) ]]; then
 	cd ${DFILES_INDEX%/*}
-	wget -nv --show-progress -np -r -l 1 "$SRC_URI" || (rm $DFILES_INDEX; die "Error getting list")
-	cat gentoo.osuosl.org/distfiles/*/index.html > $DFILES_INDEX
+	wget -A "html" -nH -nv --show-progress -np -r -l 1 "$SRC_URI" || (rm $DFILES_INDEX; die "Error getting list")
+	mv distfiles{,.old}
+	cat distfiles.old/*/index.html > $DFILES_INDEX
 fi
 echo Original: $(cat $DFILES_INDEX | wc -l) entries
 ## URL directory based filtering
@@ -61,6 +62,9 @@ grep "href=" $DFILES_INDEX | sed -e 's,.*href="\([^"]*\).*,\1,'> $DFILES
 ## Slackware filtering
 #grep ' ./' $DFILES_INDEX | sed -e 's,^.*/,,' | grep '\.' > $DFILES
 echo Files: $(cat $DFILES | wc -l) entries
+
+sort -Vu $DFILES > ${DFILES}.new
+mv $DFILES{.new,}
 
 FILTER=("\.patch"
 		"\.crate"
@@ -162,7 +166,7 @@ for p in $(cd $PKG_DB_DIR; find * -mindepth 1 -type d); do
 	PKG=$(DB-getPkgList $PK | fileToList | getLatest)
 	setPkgENV $PKG > /dev/null
 	if [[ ${FILE##*-} == "" ]]; then
-		echo "Checking $PK : $(getVerRev $(getPKG)) : " $(source $PKG_BLD; echo "$HOMEPAGE")
+		echo "Checking $PK : $FILE : $(getVerRev $(getPKG)) : " $(source $PKG_BLD; echo "$HOMEPAGE")
 	fi
 	if [[ ${FILE##*-} == $PKG_VER ]]; then
 		continue
