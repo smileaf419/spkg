@@ -112,7 +112,7 @@ export -f getPkgSlot
 ## Turns a file path into a / seperated list of data.
 ## If a 2nd argument is given, assumes its PKG_FLAGS.
 ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
-fileToList() {
+fileToList() {(set +x
 	local list
 	[[ $1 != '' ]] && list=$1 || list=$(cat -)
 	for l in $list; do
@@ -149,23 +149,23 @@ fileToList() {
 		arch=$(grep '[^#]*ARCHS=' "$l" | sed -e 's,.*ARCHS=",,' -e 's,".*$,,' -e 's/ /,/g' || true)
 		echo "${arch[*]}/"
 	done
-}
+)}
 export -f fileToList
 
 ## Turns a / seperated list of data into a list of LENTRY
-listToLEntry() {
+listToLEntry() {(set +x
 	local list
 	[[ $1 != '' ]] && list=$@ || list=$(cat -)
 	for l in $list; do
 		echo "=$(getCategory $l)/$(getName $l)-$(getVerRev $l):$(getSlot $l)"
 	done
-}
+)}
 export -f listToLEntry
 
 ####
 ## Takes a *-PKG_VER-rPKG_REV
 ## Returns a PKG_VER/PKG_REV
-splitVersion() {
+splitVersion() {(set +x
 	local p=$1
 	## Check for Revision
 	local rev=
@@ -184,7 +184,7 @@ splitVersion() {
 
 	echo -n "$ver"
 	[[ ! -z $rev ]] && echo "/$rev" || echo
-}
+)}
 export -f splitVersion
 
 ####
@@ -464,32 +464,32 @@ export -f getLatest
 ## Return data functions
 ## PKG_CAT/PKG_NAME/PKG_VER/PKG_REV/PKG_VER_RESTRICT/PKG_SLOT/PKG_FLAGS/PKG_ARCHS/PKG_USE
 
-getCategory() {
+getCategory() {( set +x
 	local data=${@:-$(cat -)}
 	getData 0 $data
-}
+)}
 export -f getCategory
 
-getName() {
+getName() {( set +x
 	local data=${@:-$(cat -)}
 	getData 1 $data
-}
+)}
 export -f getName
 
-getVersion() {
+getVersion() {( set +x
 	local data=${@:-$(cat -)}
 	getData 2 $data | sed 's,-r[0-9]*$,,'
-}
+)}
 export -f getVersion
 
-getRevision() {
+getRevision() {( set +x
 	local data=${@:-$(cat -)}
 	local rev=$(getData 3 $data)
 	[[ $rev == $ver ]] && echo "0" || echo $rev
-}
+)}
 export -f getRevision
 
-getVerRev() {
+getVerRev() {( set +x
 	local data=${@:-$(cat -)}
 	local ver=$(getVersion $data)
 	local rev=$(getRevision $data)
@@ -502,10 +502,10 @@ getVerRev() {
 	else
 		echo 0
 	fi
-}
+)}
 export -f getVerRev
 
-getVerRestrict() {
+getVerRestrict() {( set +x
 	local RESTRICTIONS=${RESTRICTIONS:-/dev/null}
 	local data=${@:-$(cat -)}
 
@@ -517,25 +517,25 @@ getVerRestrict() {
 		done
 	## Give each their own line for sort, then merge them all back in, removing the trailing | at the end if it exists.
 	fi) | tr ' ' '\n' | sort -u | tr '\n' '|' | sed 's,|$,,'
-}
+)}
 export -f getVerRestrict
 
-getSlot() {
+getSlot() {( set +x
 	local data=${@:-$(cat -)}
 	getData 5 $data
-}
+)}
 export -f getSlot
 
-getFlags() {
+getFlags() {( set +x
 	local data=${@:-$(cat -)}
 	getData 6 $data
-}
+)}
 export -f getFlags
 
-getArchs() {
+getArchs() {( set +x
 	local data=${@:-$(cat -)}
 	getData 7 $data
-}
+)}
 export -f getArchs
 
 ####
