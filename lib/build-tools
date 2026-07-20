@@ -361,6 +361,7 @@ installPackage() {
 		fi
 		mv $D/USE_FLAGS $CACHE_DIR/USE_FLAGS
 
+		[[ $VERBOSE -ge 1 ]] && echo " * PKG_VER_RESTRICT: $PKG_VER_RESTRICT"
 		if [[ -e $RESTRICTIONS ]]; then
 			sort -u $RESTRICTIONS > $CACHE_DIR/RESTRICTIONS
 		fi
@@ -474,10 +475,9 @@ installPackage() {
 		## So the most recent slot should always be used.
 		if ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}\$" $PKG_DB_DIR/spkg-sets/system > /dev/null 2>&1; then
 			## If it didn't find it as a system package, check if its already in the world set.
-
 			## Only add to world requested packages.
 			if ! grep -E "^$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT" $PKG_WORLD > /dev/null 2>&1 &&
-				[[ $PKG_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME(/[^/]*){3}/$PKG_SLOT/ &&
+				[[ $REQUESTED_LIST =~ (^|[[:space:]])$PKG_CAT/$PKG_NAME(/[^/]*){3}/$PKG_SLOT/ &&
 				 -z $OMIT_RECORD_IN_WORLD ]]; then
 				## Record whats requested, not just what we installed
 				PKG=$(echo $REQUESTED_LIST | tr ' ' '\n' | grep -E "$PKG_CAT/${PKG_NAME/+/\\+}(/[^/]*){3}/$PKG_SLOT/")
@@ -485,7 +485,6 @@ installPackage() {
 				echo ${PKG# } >> $PKG_WORLD
 			fi
 		fi
-
 		cleanup 1
 
 		if [ -e $INSTALL_CHART ]; then
